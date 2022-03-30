@@ -1,11 +1,11 @@
-import type { GetStaticProps, NextPage } from "next";
+import type { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import styles from "../styles/Home.module.css";
 import prisma from "../lib/prisma";
 import { Post } from "@prisma/client";
 
-export const getStaticProps: GetStaticProps = async () => {
+export const getServerSideProps: GetServerSideProps = async () => {
   const postList = await prisma.post.findMany({
     where: { published: true },
     include: {
@@ -14,7 +14,15 @@ export const getStaticProps: GetStaticProps = async () => {
       },
     },
   });
-  return { props: { postList } };
+  return {
+    props: {
+      postList: postList.map((post) => ({
+        ...post,
+        createdAt: post.createdAt.toString(),
+        updatedAt: post.updatedAt.toString(),
+      })),
+    },
+  };
 };
 
 const Home: NextPage = ({ postList }) => {
@@ -28,7 +36,9 @@ const Home: NextPage = ({ postList }) => {
 
       <main className={styles.main}>
         {postList.map((post: Post) => (
-          <div key={post.id}>{post.title}</div>
+          <div key={post.id}>
+            <h2>{post.title}</h2>
+          </div>
         ))}
       </main>
 
