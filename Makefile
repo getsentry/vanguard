@@ -18,10 +18,10 @@ reset-db:
 	$(MAKE) migrate-db
 
 drop-db:
-	dropdb --if-exists -h 127.0.0.1 -U postgres vanguard
+	dropdb --if-exists -h 127.0.0.1 -p 5432 -U postgres vanguard
 
 create-db:
-	createdb -E utf-8 -h 127.0.0.1 -U postgres vanguard
+	createdb -E utf-8 -h 127.0.0.1 -p 5432 -U postgres vanguard
 
 migrate-db:
 	npx prisma migrate dev

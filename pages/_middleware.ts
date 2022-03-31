@@ -3,7 +3,9 @@ import jwt from "jsonwebtoken";
 
 export function middleware(req: NextRequest, ev: NextFetchEvent) {
   const token = req.headers.get("x-goog-iap-jwt-assertion");
-  if (!token) {
+  if (process.env.NODE_ENV !== "production") {
+    return;
+  } else if (!token) {
     return new Response("Unauthenticated");
   }
   // TODO: fetch public key
