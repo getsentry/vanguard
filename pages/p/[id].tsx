@@ -1,6 +1,9 @@
-import type { GetServerSideProps, GetStaticProps, NextPage } from "next";
+import type {
+  GetServerSideProps,
+  InferGetServerSidePropsType,
+  NextPage,
+} from "next";
 import Head from "next/head";
-import Image from "next/image";
 import prisma from "../../lib/prisma";
 import { Post } from "@prisma/client";
 
@@ -15,12 +18,15 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
       },
     },
   });
+
   return {
     props: { post },
   };
 };
 
-const Post: NextPage = ({ post }) => {
+const Post: NextPage = ({
+  post,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   return (
     <div>
       <Head>

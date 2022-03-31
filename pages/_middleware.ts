@@ -11,7 +11,9 @@ export function middleware(req: NextRequest, ev: NextFetchEvent) {
   if (process.env.NODE_ENV !== "production") {
     return;
   } else if (!token) {
-    return new Response("Unauthenticated");
+    return new Response("Unauthenticated", {
+      status: 401,
+    });
   }
 
   // TODO: fetch public key

@@ -1,12 +1,16 @@
-import type { GetServerSideProps, NextPage } from "next";
+import type {
+  GetServerSideProps,
+  InferGetServerSidePropsType,
+  NextPage,
+} from "next";
 import Head from "next/head";
 import Image from "next/image";
 import styles from "../styles/Home.module.css";
 import prisma from "../lib/prisma";
 import { Post } from "@prisma/client";
 
-export const getServerSideProps: GetServerSideProps = async () => {
-  const postList = await prisma.post.findMany({
+export async function getServerSideProps() {
+  const postList: Post[] = await prisma.post.findMany({
     where: { published: true },
     include: {
       author: {
@@ -23,9 +27,15 @@ export const getServerSideProps: GetServerSideProps = async () => {
       })),
     },
   };
-};
+}
 
-const Home: NextPage = ({ postList }) => {
+// interface Props extends NextPage {
+//   postList: Post[];
+// }
+
+export default function Home({
+  postList,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <div className={styles.container}>
       <Head>
@@ -35,7 +45,7 @@ const Home: NextPage = ({ postList }) => {
       </Head>
 
       <main className={styles.main}>
-        {postList.map((post: Post) => (
+        {postList.map((post) => (
           <div key={post.id}>
             <h2>{post.title}</h2>
           </div>
@@ -56,6 +66,4 @@ const Home: NextPage = ({ postList }) => {
       </footer>
     </div>
   );
-};
-
-export default Home;
+}
