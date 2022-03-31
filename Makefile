@@ -27,3 +27,10 @@ create-db:
 
 migrate-db:
 	npx prisma migrate dev
+
+build-docker-image:
+	docker build -t vanguard .
+
+run-docker-image:
+	docker rm vanguard || exit 0
+	docker run --rm --init -p 3000:3000/tcp --name vanguard vanguard
