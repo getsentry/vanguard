@@ -1,4 +1,4 @@
-import { AppProps } from "next/app";
+import { AppContext, AppProps } from "next/app";
 import ErrorPage from "next/error";
 import jwt from "jsonwebtoken";
 import { IncomingMessage } from "http";
@@ -47,7 +47,8 @@ const App = ({ Component, pageProps, user }: CustomAppProps) => {
   );
 };
 
-App.getInitialProps = async ({ ctx: { req } }) => {
+App.getInitialProps = async ({ ctx: { req } }: AppContext) => {
+  if (!req) return {};
   const user = getAuth(req);
   return {
     user: user,
