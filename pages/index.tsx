@@ -24,7 +24,7 @@ export async function getServerSideProps() {
   };
 }
 
-export default function Home({
+export default function HomePage({
   postList,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (

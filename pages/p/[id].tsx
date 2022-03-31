@@ -24,7 +24,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   };
 };
 
-const Post: NextPage = ({
+const PostPage: NextPage = ({
   post,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   return (
@@ -40,4 +40,4 @@ const Post: NextPage = ({
   );
 };
 
-export default Post;
+export default PostPage;
