@@ -25,7 +25,7 @@ const App = ({ Component, pageProps, user }: CustomAppProps) => {
 
 App.getInitialProps = async ({ ctx: { req } }: AppContext) => {
   if (!req) return {};
-  const user = getAuthFromReq(req);
+  const user = await getAuthFromReq(req);
   return {
     user: user,
   };
