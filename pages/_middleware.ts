@@ -1,6 +1,11 @@
 import type { NextFetchEvent, NextRequest } from "next/server";
 import jwt from "jsonwebtoken";
 
+type User = {
+  name: string;
+  email: string;
+};
+
 export function middleware(req: NextRequest, ev: NextFetchEvent) {
   const token = req.headers.get("x-goog-iap-jwt-assertion");
   if (process.env.NODE_ENV !== "production") {
@@ -8,6 +13,7 @@ export function middleware(req: NextRequest, ev: NextFetchEvent) {
   } else if (!token) {
     return new Response("Unauthenticated");
   }
+
   // TODO: fetch public key
   const decoded = jwt.verify(
     token,
