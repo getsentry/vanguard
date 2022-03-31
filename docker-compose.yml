@@ -7,6 +7,12 @@ services:
       - postgres_data:/var/lib/postgresql/data/
     ports:
       - 5432:5432
-
+  # app:
+  #   build:
+  #     context: ./
+  #   volumes:
+  #     - .:/app
+  #   ports:
+  #     - "3000:3000"
 volumes:
   postgres_data:
