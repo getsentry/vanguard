@@ -9,7 +9,7 @@ ENV NODE_ENV production
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY package.json ./
-RUN npm install
+RUN npm install --only=production
 
 # If using npm with a `package-lock.json` comment out above and use below instead
 # COPY package.json package-lock.json ./
