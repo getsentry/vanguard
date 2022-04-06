@@ -24,7 +24,7 @@ export const action: ActionFunction = async ({ request }) => {
 
   if (typeof categoryId !== "string" || categoryId.length === 0) {
     return json<ActionData>(
-      { errors: { title: "Category is required" } },
+      { errors: { categoryId: "Category is required" } },
       { status: 400 }
     );
   }
@@ -52,7 +52,7 @@ export default function NewPostPage() {
   const actionData = useActionData() as ActionData;
   const titleRef = React.useRef<HTMLInputElement>(null);
   const contentRef = React.useRef<HTMLTextAreaElement>(null);
-  const categoryIdRef = React.useRef<HTMLTextAreaElement>(null);
+  const categoryIdRef = React.useRef<HTMLSelectElement>(null);
 
   React.useEffect(() => {
     if (actionData?.errors?.title) {
@@ -111,6 +111,28 @@ export default function NewPostPage() {
         {actionData?.errors?.content && (
           <div className="pt-1 text-red-700" id="content-error">
             {actionData.errors.content}
+          </div>
+        )}
+      </div>
+
+      <div>
+        <label className="flex w-full flex-col gap-1">
+          <span>Category: </span>
+          <select
+            ref={categoryIdRef}
+            name="categoryId"
+            className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
+            aria-invalid={actionData?.errors?.categoryId ? true : undefined}
+            aria-errormessage={
+              actionData?.errors?.categoryId ? "categoryId-error" : undefined
+            }
+          >
+            <option />
+          </select>
+        </label>
+        {actionData?.errors?.categoryId && (
+          <div className="pt-1 text-red-700" id="categoryId-error">
+            {actionData.errors.categoryId}
           </div>
         )}
       </div>
