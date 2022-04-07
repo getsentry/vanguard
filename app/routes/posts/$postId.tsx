@@ -29,7 +29,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   await deletePost({ userId, id: params.postId });
 
-  return redirect("/posts");
+  return redirect("/");
 };
 
 export default function PostDetailsPage() {

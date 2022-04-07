@@ -22,25 +22,33 @@ export function getPost({
 
 export function getPostList({
   userId,
-  onlyPublished = true,
+  published = true,
   authorId,
 }: {
   userId: User["id"];
-  onlyPublished?: boolean;
+  published?: boolean | null;
   authorId?: User["id"];
 }) {
-  const where: { [key: string]: any } = onlyPublished
+  const where: { [key: string]: any } = published
     ? {
-        published: true,
+        published,
       }
-    : { OR: [{ authorId: userId }, { published: true }] };
+    : published === false
+    ? { OR: [{ authorId: userId }, { published }] }
+    : { authorId: userId };
   if (authorId) {
     where.AND = [...(where.AND || []), { authorId }];
   }
 
   return prisma.post.findMany({
     where,
-    select: { id: true, title: true, content: true, author: true },
+    select: {
+      id: true,
+      title: true,
+      content: true,
+      author: true,
+      published: true,
+    },
     orderBy: { updatedAt: "desc" },
   });
 }

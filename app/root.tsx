@@ -51,10 +51,13 @@ export default function App() {
         <div className="flex h-full min-h-screen flex-col">
           <header className="flex items-center justify-between bg-slate-800 p-4 text-white">
             <h1 className="text-3xl font-bold">
-              <Link to=".">Vanguard</Link>
+              <Link to="/">Vanguard</Link>
             </h1>
-            <Link to="posts/new" className="block p-4 text-xl text-blue-500">
+            <Link to="/new-post" className="block p-4 text-xl text-blue-500">
               + New Post
+            </Link>
+            <Link to="/drafts" className="block p-4 text-xl text-blue-500">
+              / Drafts
             </Link>
             <p>{user.email}</p>
           </header>
