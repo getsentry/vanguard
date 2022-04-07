@@ -11,13 +11,35 @@ export function getPost({
   userId: User["id"];
 }) {
   return prisma.post.findFirst({
-    where: { id, authorId: userId },
+    where: {
+      OR: [
+        { id, authorId: userId },
+        { id, published: true },
+      ],
+    },
   });
 }
 
-export function getPostList({ userId }: { userId: User["id"] }) {
+export function getPostList({
+  userId,
+  onlyPublished = true,
+  authorId,
+}: {
+  userId: User["id"];
+  onlyPublished?: boolean;
+  authorId?: User["id"];
+}) {
+  const where: { [key: string]: any } = onlyPublished
+    ? {
+        published: true,
+      }
+    : { OR: [{ authorId: userId }, { published: true }] };
+  if (authorId) {
+    where.AND = [...(where.AND || []), { authorId }];
+  }
+
   return prisma.post.findMany({
-    where: { authorId: userId },
+    where,
     select: { id: true, title: true, content: true, author: true },
     orderBy: { updatedAt: "desc" },
   });
@@ -28,7 +50,9 @@ export function createPost({
   title,
   categoryId,
   userId,
+  published = false,
 }: Pick<Post, "content" | "title"> & {
+  published?: Post["published"];
   userId: User["id"];
   categoryId: Category["id"];
 }) {
@@ -36,6 +60,7 @@ export function createPost({
     data: {
       title,
       content,
+      published,
       author: {
         connect: {
           id: userId,

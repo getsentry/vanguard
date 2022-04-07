@@ -36,6 +36,7 @@ export const action: ActionFunction = async ({ request }) => {
   const title = formData.get("title");
   const content = formData.get("content");
   const categoryId = formData.get("categoryId");
+  const published = formData.get("published");
 
   if (typeof categoryId !== "string" || categoryId.length === 0) {
     return json<ActionData>(
@@ -58,7 +59,13 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  const post = await createPost({ title, content, categoryId, userId });
+  const post = await createPost({
+    title,
+    content,
+    categoryId,
+    userId,
+    published: !!published,
+  });
 
   return redirect(`/posts/${post.id}`);
 };
@@ -89,7 +96,9 @@ export default function NewPostPage() {
         gap: 8,
         width: "100%",
       }}
+      className="p-4"
     >
+      <h1>Create New Post</h1>
       <div>
         <label className="flex w-full flex-col gap-1">
           <span>Title: </span>
@@ -97,6 +106,7 @@ export default function NewPostPage() {
             ref={titleRef}
             name="title"
             className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
+            required
             aria-invalid={actionData?.errors?.title ? true : undefined}
             aria-errormessage={
               actionData?.errors?.title ? "title-error" : undefined
@@ -117,6 +127,7 @@ export default function NewPostPage() {
             ref={contentRef}
             name="content"
             rows={8}
+            required
             className="w-full flex-1 rounded-md border-2 border-blue-500 py-2 px-3 text-lg leading-6"
             aria-invalid={actionData?.errors?.content ? true : undefined}
             aria-errormessage={
@@ -137,6 +148,7 @@ export default function NewPostPage() {
           <select
             ref={categoryIdRef}
             name="categoryId"
+            required
             className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
             aria-invalid={actionData?.errors?.categoryId ? true : undefined}
             aria-errormessage={
@@ -161,9 +173,17 @@ export default function NewPostPage() {
       <div className="text-right">
         <button
           type="submit"
-          className="rounded bg-blue-500  py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400"
+          className="rounded bg-blue-500 m-2 py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400"
         >
-          Save
+          Save Draft
+        </button>
+        <button
+          type="submit"
+          name="published"
+          value="true"
+          className="rounded bg-gray-500 py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400"
+        >
+          Publish
         </button>
       </div>
     </Form>

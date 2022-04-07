@@ -36,8 +36,13 @@ export default function PostDetailsPage() {
   const data = useLoaderData() as LoaderData;
 
   return (
-    <div>
+    <div className="p-4">
       <h3 className="text-2xl font-bold">{data.post.title}</h3>
+      {!data.post.published && (
+        <div className="py-6">
+          <small>This post has not yet been published.</small>
+        </div>
+      )}
       <p className="py-6">{data.post.content}</p>
       <hr className="my-4" />
       <Form method="post">
