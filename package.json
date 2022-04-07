@@ -49,6 +49,7 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "ts-node": "^10.7.0",
+    "tsconfig-paths": "^3.14.1",
     "typescript": "^4.6.3",
     "tiny-invariant": "^1.2.0"
   },
@@ -87,7 +88,6 @@
     "prisma": "^3.11.1",
     "start-server-and-test": "^1.14.0",
     "tailwindcss": "^3.0.23",
-    "tsconfig-paths": "^3.14.1",
     "vite": "^2.9.1",
     "vite-tsconfig-paths": "^3.4.1",
     "vitest": "^0.8.2"
