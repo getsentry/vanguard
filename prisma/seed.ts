@@ -12,13 +12,13 @@ async function main() {
 
   ADMINS.forEach(async ([email, name]) => {
     adminsByEmail[email] = await prisma.user.upsert({
-      where: { email: "david@sentry.io" },
+      where: { email },
       update: {
         canPostRestricted: true,
       },
       create: {
-        email: "david@sentry.io",
-        name: "David Cramer",
+        email,
+        name,
         canPostRestricted: true,
       },
     });

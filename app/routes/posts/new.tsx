@@ -1,10 +1,25 @@
-import type { ActionFunction } from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
+import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import * as React from "react";
 
 import { createPost } from "~/models/post.server";
 import { requireUserId } from "~/session.server";
+import { getCategoryList } from "~/models/category.server";
+import type { Category } from "~/models/category.server";
+
+type LoaderData = {
+  categoryList: Category[];
+};
+
+export const loader: LoaderFunction = async ({ request, params }) => {
+  const userId = await requireUserId(request);
+  const categoryList = await getCategoryList({
+    userId,
+    includeRestricted: false,
+  });
+  return json<LoaderData>({ categoryList });
+};
 
 type ActionData = {
   errors?: {
@@ -36,9 +51,9 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  if (typeof content !== "string" || body.length === 0) {
+  if (typeof content !== "string" || content.length === 0) {
     return json<ActionData>(
-      { errors: { body: "Content is required" } },
+      { errors: { content: "Content is required" } },
       { status: 400 }
     );
   }
@@ -49,6 +64,7 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export default function NewPostPage() {
+  const loaderData = useLoaderData() as LoaderData;
   const actionData = useActionData() as ActionData;
   const titleRef = React.useRef<HTMLInputElement>(null);
   const contentRef = React.useRef<HTMLTextAreaElement>(null);
@@ -128,6 +144,11 @@ export default function NewPostPage() {
             }
           >
             <option />
+            {loaderData.categoryList.map((category) => {
+              <option value={category.id} key={category.id}>
+                {category.name}
+              </option>;
+            })}
           </select>
         </label>
         {actionData?.errors?.categoryId && (
