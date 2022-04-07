@@ -10,16 +10,16 @@ FROM base as deps
 WORKDIR /app
 
 ADD package.json package-lock.json ./
-RUN npm ci
+RUN npm install --production=false
 
 # Setup production node_modules
-# FROM base as production-deps
+FROM base as production-deps
 
-# WORKDIR /app
+WORKDIR /app
 
-# COPY --from=deps /app/node_modules ./node_modules
-# ADD package.json package-lock.json ./
-# RUN npm prune --production
+COPY --from=deps /app/node_modules ./node_modules
+ADD package.json package-lock.json ./
+RUN npm prune --production
 
 # Build the app
 FROM base as build
@@ -38,14 +38,14 @@ ADD . .
 RUN npm run build
 
 # Finally, build the production image with minimal footprint
-# FROM base
+FROM base
 FROM build as runner
 
 WORKDIR /app
 
-# COPY --from=production-deps /app/node_modules ./node_modules
-COPY --from=build /app/node_modules ./node_modules
-# COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=production-deps /app/node_modules ./node_modules
+# COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
 
 COPY --from=build /app/build ./build
 COPY --from=build /app/public ./public
