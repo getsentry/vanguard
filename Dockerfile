@@ -38,11 +38,13 @@ ADD . .
 RUN npm run build
 
 # Finally, build the production image with minimal footprint
-FROM base
+# FROM base
+FROM build
 
 WORKDIR /app
 
-COPY --from=production-deps /app/node_modules /app/node_modules
+# COPY --from=production-deps /app/node_modules /app/node_modules
+COPY --from=build /app/node_modules /app/node_modules
 COPY --from=build /app/node_modules/.prisma /app/node_modules/.prisma
 
 COPY --from=build /app/build /app/build
