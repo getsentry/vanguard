@@ -16,7 +16,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const userId = await requireUserId(request);
   invariant(params.postId, "postId not found");
 
-  const post = await getPost({ authorId: userId, id: params.postId });
+  const post = await getPost({ userId, id: params.postId });
   if (!post) {
     throw new Response("Not Found", { status: 404 });
   }
@@ -27,7 +27,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   const userId = await requireUserId(request);
   invariant(params.postId, "postId not found");
 
-  await deletePost({ authorId: userId, id: params.postId });
+  await deletePost({ userId, id: params.postId });
 
   return redirect("/posts");
 };

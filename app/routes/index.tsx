@@ -47,7 +47,7 @@ export default function Index() {
                     className={({ isActive }) =>
                       `block border-b p-4 text-xl ${isActive ? "bg-white" : ""}`
                     }
-                    to={post.id}
+                    to={`/posts/${post.id}`}
                   >
                     {post.title}
                   </NavLink>
