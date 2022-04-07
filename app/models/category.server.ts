@@ -20,7 +20,7 @@ export async function getCategoryList({
   // userId is used to find categories
   const user = await prisma.user.findFirst({ where: { id: userId } });
   const canPostRestricted = user ? user.canPostRestricted : false;
-  return prisma.category.findMany({
+  return await prisma.category.findMany({
     where: !includeRestricted ? { restricted: canPostRestricted } : undefined,
     select: { id: true, name: true },
     orderBy: { name: "asc" },

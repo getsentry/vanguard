@@ -144,11 +144,11 @@ export default function NewPostPage() {
             }
           >
             <option />
-            {loaderData.categoryList.map((category) => {
+            {loaderData.categoryList.map((category) => (
               <option value={category.id} key={category.id}>
                 {category.name}
-              </option>;
-            })}
+              </option>
+            ))}
           </select>
         </label>
         {actionData?.errors?.categoryId && (
