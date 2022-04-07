@@ -1,11 +1,8 @@
 # base node image
-FROM node:16-bullseye-slim as base
+FROM node:16-alpine as base
 
 # set for base and all layer that inherit from it
 ENV NODE_ENV production
-
-# Install openssl for Prisma
-RUN apt-get update && apt-get install -y openssl
 
 # Install all node_modules, including dev dependencies
 FROM base as deps
@@ -53,5 +50,7 @@ COPY --from=build /app/public /app/public
 ADD . .
 
 ENV PORT 3000
+
+EXPOSE 3000
 
 CMD ["npm", "start"]
