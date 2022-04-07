@@ -17,7 +17,7 @@ RUN npm install --production=false
 
 # WORKDIR /app
 
-# COPY --from=deps /app/node_modules /app/node_modules
+# COPY --from=deps /app/node_modules ./node_modules
 # ADD package.json package-lock.json ./
 # RUN npm prune --production
 
@@ -26,7 +26,7 @@ FROM base as build
 
 WORKDIR /app
 
-COPY --from=deps /app/node_modules /app/node_modules
+COPY --from=deps /app/node_modules ./node_modules
 
 ARG SENTRY_AUTH_TOKEN
 ENV SENTRY_AUTH_TOKEN $SENTRY_AUTH_TOKEN
@@ -39,16 +39,16 @@ RUN npm run build
 
 # Finally, build the production image with minimal footprint
 # FROM base
-FROM build
+FROM build as runner
 
 WORKDIR /app
 
-# COPY --from=production-deps /app/node_modules /app/node_modules
-COPY --from=build /app/node_modules /app/node_modules
-# COPY --from=build /app/node_modules/.prisma /app/node_modules/.prisma
+# COPY --from=production-deps /app/node_modules ./node_modules
+COPY --from=build /app/node_modules ./node_modules
+# COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
 
-COPY --from=build /app/build /app/build
-COPY --from=build /app/public /app/public
+COPY --from=build /app/build ./build
+COPY --from=build /app/public ./public
 ADD . .
 
 ENV PORT 3000

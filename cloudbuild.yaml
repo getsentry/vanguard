@@ -7,7 +7,7 @@ steps:
       - build
       - "--no-cache"
       - "--build-arg"
-      - VERSION=$COMMIT_SHA
+      - VERSION=${COMMIT_SHA}
       - "--build-arg"
       - SENTRY_AUTH_TOKEN=$_SENTRY_AUTH_TOKEN
       - "-t"
@@ -57,14 +57,14 @@ steps:
       - update
       - $_SERVICE_NAME
       - "--platform=managed"
-      - "--image=$_IMAGE_NAME:$COMMIT_SHA"
+      - "--image=${_IMAGE_NAME}:${COMMIT_SHA}"
       - >-
-        --labels=managed-by=gcp-cloud-build-deploy-cloud-run,commit-sha=$COMMIT_SHA,gcb-build-id=$BUILD_ID,gcb-trigger-id=$_TRIGGER_ID,$_LABELS
-      - "--region=$_DEPLOY_REGION"
+        --labels=managed-by=gcp-cloud-build-deploy-cloud-run,commit-sha=${COMMIT_SHA},gcb-build-id=$BUILD_ID,gcb-trigger-id=${_TRIGGER_ID},${_LABELS}
+      - "--region=${_DEPLOY_REGION}"
       - "--quiet"
     entrypoint: gcloud
 images:
-  - "$_IMAGE_NAME:$COMMIT_SHA"
+  - "${_IMAGE_NAME}:${COMMIT_SHA}"
 options:
   substitutionOption: ALLOW_LOOSE
   logging: CLOUD_LOGGING_ONLY
