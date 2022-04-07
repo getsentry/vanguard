@@ -34,4 +34,4 @@ build-docker-image:
 
 run-docker-image:
 	docker rm vanguard || exit 0
-	docker run --rm --init -p 3000:3000/tcp --name vanguard vanguard
+	docker run --rm --init --network host -p 3000:3000/tcp --env-file ./.env --name vanguard vanguard
