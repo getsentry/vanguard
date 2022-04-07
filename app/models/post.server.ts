@@ -18,7 +18,7 @@ export function getPost({
 export function getPostList({ userId }: { userId: User["id"] }) {
   return prisma.post.findMany({
     where: { authorId: userId },
-    select: { id: true, title: true },
+    select: { id: true, title: true, content: true, author: true },
     orderBy: { updatedAt: "desc" },
   });
 }
