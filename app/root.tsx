@@ -15,11 +15,14 @@ import {
 } from "@remix-run/react";
 
 import tailwindStylesheetUrl from "./styles/tailwind.css";
+import baseCss from "./styles/base.css";
 import { getUser } from "./session.server";
 import { useUser } from "./utils";
 
+import Logo from "app/icons/Logo";
+
 export const links: LinksFunction = () => {
-  return [{ rel: "stylesheet", href: tailwindStylesheetUrl }];
+  return [{ rel: "stylesheet", href: tailwindStylesheetUrl }, { rel: "stylesheet", href: baseCss }];
 };
 
 export const meta: MetaFunction = () => ({
@@ -49,9 +52,11 @@ export default function App() {
       </head>
       <body className="h-full">
         <div className="flex h-full min-h-screen flex-col">
-          <header className="flex items-center justify-between bg-slate-800 p-4 text-white">
-            <h1 className="text-3xl font-bold">
-              <Link to="/">Vanguard</Link>
+          <header className="flex items-center justify-between">
+            <h1>
+              <Link to="/">
+                <Logo height={32} />
+              </Link>
             </h1>
             <Link to="/new-post" className="block p-4 text-xl text-blue-500">
               + New Post
@@ -59,11 +64,13 @@ export default function App() {
             <Link to="/drafts" className="block p-4 text-xl text-blue-500">
               / Drafts
             </Link>
-            <p>{user.email}</p>
+            <div>{user.email}</div>
           </header>
 
-          <main className="flex h-full p-4 bg-white">
-            <Outlet />
+          <main>
+            <div className="container">
+              <Outlet />
+            </div>
           </main>
         </div>
         <ScrollRestoration />

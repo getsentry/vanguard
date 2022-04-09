@@ -1,0 +1,73 @@
+*,
+::before,
+::after {
+  box-sizing: border-box;
+}
+
+:root {
+  /* Define theme variables */
+
+  --white: #fff;
+  --gray100: #F7F6FA;
+  --gray200: #D0CBDF;
+  --gray300: #AAA1C3;
+  --gray400: #857AAA;
+  --gray500: #60557F;
+  --gray600: #3D3353;
+  --black: #1D142A;
+
+
+  --green: #65CB35;
+  --yellow: #FFCA00;
+  --orange: #FF7A00;
+  --red: #F0345F;
+  --purple: #7854F6;
+  --blue: #00A3FF;
+}
+
+html {
+  font-size: 62.5%;
+}
+
+body {
+  font-size: 1.6rem;
+}
+
+header {
+  background: var(--gray100);
+  padding: 4rem;
+}
+
+main {
+  padding: 4rem 0;
+}
+
+.container {
+  max-width: 120rem;
+  padding: 0 4rem;
+}
+
+/* Typography */
+
+h2,
+h3,
+h4,
+h5,
+h6 {
+  line-height: 1.2;
+  font-weight: bold;
+  margin-bottom: 3rem;
+}
+
+h2 {
+  font-size: 5rem;
+}
+
+p,
+ul,
+ol,
+blockquote {
+  font-size: 1.8rem;
+  margin-bottom: 3rem;
+  line-height: 1.5;
+}

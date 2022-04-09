@@ -38,14 +38,14 @@ export default function PostDetailsPage() {
   const user = useUser();
 
   return (
-    <div className="p-4">
-      <h3 className="text-2xl font-bold">{data.post.title}</h3>
+    <div>
+      <h2>{data.post.title}</h2>
       {!data.post.published && (
         <div className="py-6">
           <small>This post has not yet been published.</small>
         </div>
       )}
-      <p className="py-6">{data.post.content}</p>
+      <p>{data.post.content}</p>
       <hr className="my-4" />
       {data.post.authorId === user.id && (
         <Form method="post">
