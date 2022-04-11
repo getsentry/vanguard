@@ -16,13 +16,14 @@ import {
 
 import tailwindStylesheetUrl from "./styles/tailwind.css";
 import baseCss from "./styles/base.css";
+import fontsCss from "./styles/fonts.css";
 import { getUser } from "./session.server";
 import { useUser } from "./utils";
 
 import Logo from "app/icons/Logo";
 
 export const links: LinksFunction = () => {
-  return [{ rel: "stylesheet", href: tailwindStylesheetUrl }, { rel: "stylesheet", href: baseCss }];
+  return [{ rel: "stylesheet", href: tailwindStylesheetUrl }, { rel: "stylesheet", href: fontsCss }, { rel: "stylesheet", href: baseCss }];
 };
 
 export const meta: MetaFunction = () => ({
@@ -50,28 +51,31 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className="h-full">
-        <div className="flex h-full min-h-screen flex-col">
-          <header className="flex items-center justify-between">
-            <h1>
-              <Link to="/">
-                <Logo height={32} />
-              </Link>
-            </h1>
-            <Link to="/new-post" className="block p-4 text-xl text-blue-500">
-              + New Post
-            </Link>
-            <Link to="/drafts" className="block p-4 text-xl text-blue-500">
-              / Drafts
-            </Link>
-            <div>{user.email}</div>
-          </header>
-
-          <main>
-            <div className="container">
-              <Outlet />
+      <body className="wrapper">
+        <div id="primary">
+          <div className="container">
+            <div className="header">
+              <h1>
+                <Link to="/">
+                  <Logo height={32} />
+                </Link>
+              </h1>
             </div>
-          </main>
+            <Outlet />
+          </div>
+        </div>
+        <div id="secondary">
+          <div className="content">
+            <div className="header">
+              <Link to="/new-post" className="btn primary">
+                + New Post
+              </Link>
+              <Link to="/drafts" className="block p-4 text-xl text-blue-500">
+                / Drafts
+              </Link>
+            </div>
+            <div>{user.email}</div>
+          </div>
         </div>
         <ScrollRestoration />
         <Scripts />

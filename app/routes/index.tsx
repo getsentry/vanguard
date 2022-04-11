@@ -23,7 +23,7 @@ export default function Index() {
   ) : (
     <ol>
       {data.postList.map((post) => (
-        <li key={post.id}>
+        <li key={post.id} className="post">
           <h2>
             <Link to={`posts/${post.id}`}>{post.title}</Link>
           </h2>

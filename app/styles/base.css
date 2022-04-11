@@ -1,5 +1,3 @@
-@import url('fonts.css');
-
 *,
 ::before,
 ::after {
@@ -28,25 +26,57 @@
 
 html {
   font-size: 62.5%;
+  min-height: 100vh;
 }
 
 body {
   font-size: 1.6rem;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
-header {
+.header {
+  padding: 6rem 0;
+}
+
+.wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+#primary {
+  flex: 1;
+  width: 66.6%;
+}
+
+#secondary {
+  position: relative;
+  width: 33.3%;
   background: var(--gray100);
-  padding: 4rem;
+  padding: 0 8rem;
+  transform: skewx(4deg);
 }
 
-main {
-  padding: 4rem 0;
+#secondary:after {
+  content: "";
+  display: block;
+  position: absolute;
+  width: 10rem;
+  top: 0;
+  left: 100%;
+  bottom: 0;
+  background: var(--gray100);
+}
+
+#secondary .content {
+  transform: skewx(-4deg);
 }
 
 .container {
-  max-width: 120rem;
-  padding: 0 4rem;
+  max-width: 80rem;
+  padding: 0 5rem;
+  margin: 0 auto;
 }
 
 /* Typography */
@@ -73,4 +103,27 @@ blockquote {
   font-size: 1.8rem;
   margin-bottom: 3rem;
   line-height: 1.6;
+}
+
+/* Button */
+
+.btn {
+  padding: 1.2rem 1.6rem;
+  border-radius: .4rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn.primary {
+  background: var(--black);
+  color: var(--white);
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+
+/* Post */
+
+.post {
+  padding: 2rem 0;
 }

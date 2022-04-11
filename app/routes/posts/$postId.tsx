@@ -38,7 +38,7 @@ export default function PostDetailsPage() {
   const user = useUser();
 
   return (
-    <div>
+    <div className="post">
       <h2>{data.post.title}</h2>
       {!data.post.published && (
         <div className="py-6">
