@@ -19,7 +19,7 @@ export default function Index() {
   const data = useLoaderData() as LoaderData;
 
   return data.postList.length === 0 ? (
-    <p className="p-4">No posts yet</p>
+    <p>No posts yet</p>
   ) : (
     <ol>
       {data.postList.map((post) => (
