@@ -20,7 +20,7 @@ import fontsCss from "./styles/fonts.css";
 import { getUser } from "./session.server";
 import { useUser } from "./utils";
 
-import Logo from "app/icons/Logo";
+import Logo from "./icons/Logo";
 import { Toaster } from "react-hot-toast";
 
 export const links: LinksFunction = () => {
