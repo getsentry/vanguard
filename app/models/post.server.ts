@@ -1,4 +1,5 @@
 import type { User, Post, Category } from "@prisma/client";
+import invariant from "tiny-invariant";
 
 import { prisma } from "~/db.server";
 
@@ -50,6 +51,37 @@ export function getPostList({
       published: true,
     },
     orderBy: { updatedAt: "desc" },
+  });
+}
+
+export async function updatePost({
+  id,
+  userId,
+  published,
+}: {
+  id: Post["id"];
+  userId: User["id"];
+  published?: Post["published"];
+}) {
+  const user = await prisma.user.findFirst({ where: { id: userId } });
+  invariant(user, "user not found");
+
+  const where: { [key: string]: any } = { id };
+  if (!user.canPostRestricted) where.authorId = userId;
+
+  const post = await prisma.post.findFirst({
+    where,
+  });
+  invariant(post, "post not found");
+
+  const data: { [key: string]: any } = {};
+  if (published !== undefined) data.published = !!published;
+
+  return prisma.post.update({
+    where: {
+      id,
+    },
+    data,
   });
 }
 
