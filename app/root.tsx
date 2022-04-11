@@ -21,9 +21,14 @@ import { getUser } from "./session.server";
 import { useUser } from "./utils";
 
 import Logo from "app/icons/Logo";
+import { Toaster } from "react-hot-toast";
 
 export const links: LinksFunction = () => {
-  return [{ rel: "stylesheet", href: tailwindStylesheetUrl }, { rel: "stylesheet", href: fontsCss }, { rel: "stylesheet", href: baseCss }];
+  return [
+    { rel: "stylesheet", href: tailwindStylesheetUrl },
+    { rel: "stylesheet", href: fontsCss },
+    { rel: "stylesheet", href: baseCss },
+  ];
 };
 
 export const meta: MetaFunction = () => ({
@@ -52,6 +57,9 @@ export default function App() {
         <Links />
       </head>
       <body className="wrapper">
+        <div>
+          <Toaster />
+        </div>
         <div id="primary">
           <div className="container">
             <div className="header">

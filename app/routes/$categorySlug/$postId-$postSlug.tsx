@@ -7,6 +7,7 @@ import { deletePost, getPost, updatePost } from "~/models/post.server";
 import type { Post } from "~/models/post.server";
 import { requireUserId } from "~/session.server";
 import { useUser } from "~/utils";
+import Markdown from "~/components/markdown";
 
 type LoaderData = {
   post: Post;
@@ -94,7 +95,7 @@ export default function PostDetailsPage() {
           <small>This post has not yet been published.</small>
         </div>
       )}
-      <p>{post.content}</p>
+      <Markdown content={post.content || ""} />
       <hr className="my-4" />
       {(post.authorId === user.id || user.admin) && <PostActions post={post} />}
     </div>
