@@ -13,7 +13,7 @@ datasource db {
 model Category {
   id          String @id @default(cuid())
   name        String @db.VarChar(255) @unique
-  slug        String? @db.VarChar(255) @unique
+  slug        String @db.VarChar(255) @unique
   posts       Post[]
   restricted  Boolean @default(false)
 }

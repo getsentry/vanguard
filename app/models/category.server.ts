@@ -4,9 +4,15 @@ import { prisma } from "~/db.server";
 
 export type { Category } from "@prisma/client";
 
-export function getCategory({ id }: Pick<Category, "id">) {
+export function getCategory({
+  id,
+  slug,
+}: {
+  id?: Category["id"];
+  slug?: Category["slug"];
+}) {
   return prisma.category.findFirst({
-    where: { id },
+    where: { id, slug },
   });
 }
 

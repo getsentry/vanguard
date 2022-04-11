@@ -4,6 +4,7 @@ import { Link, useLoaderData } from "@remix-run/react";
 
 import { requireUserId } from "~/session.server";
 import { getPostList } from "~/models/post.server";
+import slugify from "slugify";
 
 type LoaderData = {
   postList: Awaited<ReturnType<typeof getPostList>>;
@@ -25,7 +26,13 @@ export default function Index() {
       {data.postList.map((post) => (
         <li key={post.id} className="post">
           <h2>
-            <Link to={`posts/${post.id}`}>{post.title}</Link>
+            <Link
+              to={`/${post.category.slug}/${post.id}-${slugify(post.title, {
+                lower: true,
+              })}`}
+            >
+              {post.title}
+            </Link>
           </h2>
           <h3>
             <Link to={`/categories/${post.category.slug}`}>
