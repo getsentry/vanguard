@@ -74,11 +74,11 @@ export default function App() {
         </div>
         <div id="secondary">
           <div className="content">
-            <div className="header">
-              <Link to="/new-post" className="btn primary">
+            <div className="header flex justify-between">
+              <Link to="/new-post" className="btn btn-primary">
                 + New Post
               </Link>
-              <Link to="/drafts" className="block p-4 text-xl text-blue-500">
+              <Link to="/drafts" className="btn">
                 / Drafts
               </Link>
             </div>

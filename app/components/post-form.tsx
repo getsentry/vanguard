@@ -116,14 +116,15 @@ export default function PostForm({
       }}
       className="p-4"
     >
-      <h1>Create New Post</h1>
+      <h3>Create New Post</h3>
 
       <div>
-        <label className="flex w-full flex-col gap-1">
+        <label className="">
+          <span>Title: </span>
           <input
             ref={titleRef}
             name="title"
-            className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
+            className=""
             required
             placeholder="Title"
             autoFocus
@@ -141,38 +142,43 @@ export default function PostForm({
       </div>
 
       <div>
-        <TextareaMarkdown.Wrapper
-          ref={textareaMarkdownRef}
-          commands={[
-            {
-              name: "indent",
-              enable: false,
-            },
-          ]}
-        >
-          <TextareaAutosize
-            ref={contentRef}
-            name="content"
-            minRows={15}
-            required
-            className="w-full flex-1 rounded-md border-2 border-blue-500 py-2 px-3 text-lg leading-6"
-            aria-invalid={actionData?.errors?.content ? true : undefined}
-            aria-errormessage={
-              actionData?.errors?.content ? "content-error" : undefined
-            }
-            onPaste={(event) => {
-              onUploadFiles(event, event.clipboardData.files);
-            }}
-            onDrop={(event) => {
-              onUploadFiles(event, event.dataTransfer.files);
-            }}
-          />
-        </TextareaMarkdown.Wrapper>
-        {actionData?.errors?.content && (
-          <div className="pt-1 text-red-700" id="content-error">
-            {actionData.errors.content}
-          </div>
-        )}
+        <label>
+
+          <span>Content: </span>
+
+          <TextareaMarkdown.Wrapper
+            ref={textareaMarkdownRef}
+            commands={[
+              {
+                name: "indent",
+                enable: false,
+              },
+            ]}
+          >
+            <TextareaAutosize
+              ref={contentRef}
+              name="content"
+              minRows={15}
+              required
+              className="textarea"
+              aria-invalid={actionData?.errors?.content ? true : undefined}
+              aria-errormessage={
+                actionData?.errors?.content ? "content-error" : undefined
+              }
+              onPaste={(event) => {
+                onUploadFiles(event, event.clipboardData.files);
+              }}
+              onDrop={(event) => {
+                onUploadFiles(event, event.dataTransfer.files);
+              }}
+            />
+          </TextareaMarkdown.Wrapper>
+          {actionData?.errors?.content && (
+            <div className="pt-1 text-red-700" id="content-error">
+              {actionData.errors.content}
+            </div>
+          )}
+        </label>
       </div>
 
       <div>
@@ -182,7 +188,7 @@ export default function PostForm({
             ref={categoryIdRef}
             name="categoryId"
             required
-            className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
+            className=""
             aria-invalid={actionData?.errors?.categoryId ? true : undefined}
             aria-errormessage={
               actionData?.errors?.categoryId ? "categoryId-error" : undefined
@@ -203,20 +209,20 @@ export default function PostForm({
         )}
       </div>
 
-      <div className="text-right">
-        <button
-          type="submit"
-          className="m-2 rounded bg-blue-500 py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400"
-        >
-          Save Draft
-        </button>
+      <div>
         <button
           type="submit"
           name="published"
           value="true"
-          className="rounded bg-gray-500 py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400"
+          className="btn btn-primary"
         >
           Publish
+        </button>
+        <button
+          type="submit"
+          className="btn"
+        >
+          Save Draft
         </button>
       </div>
     </Form>
