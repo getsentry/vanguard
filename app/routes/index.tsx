@@ -36,7 +36,8 @@ export default function Index() {
           </h2>
           <h3>
             <Link to={`/${post.category.slug}`}>{post.category.name}</Link>{" "}
-            &mdash; By {post.author.name} ({post.author.email})
+            &mdash; By{" "}
+            <Link to={`/u/${post.author.email}`}>{post.author.name}</Link>
           </h3>
           <p>{post.content}</p>
         </li>

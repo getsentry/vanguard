@@ -1,12 +1,10 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, Link, useCatch, useLoaderData } from "@remix-run/react";
-import slugify from "slugify";
 import invariant from "tiny-invariant";
 
-import { Post, updatePost } from "~/models/post.server";
-import { deletePost } from "~/models/post.server";
-import { getPost } from "~/models/post.server";
+import { deletePost, getPost, updatePost } from "~/models/post.server";
+import type { Post } from "~/models/post.server";
 import { requireUserId } from "~/session.server";
 import { useUser } from "~/utils";
 
@@ -33,10 +31,10 @@ export const action: ActionFunction = async ({ request, params }) => {
   const action = formData.get("action");
   if (action === "publish") {
     await updatePost({ userId, id: params.postId, published: true });
-    return redirect(`/posts/${params.postId}`);
+    //return redirect(`/posts/${params.postId}`);
   } else if (action === "unpublish") {
     await updatePost({ userId, id: params.postId, published: false });
-    return redirect(`/posts/${params.postId}`);
+    //return redirect(`/posts/${params.postId}`);
   } else if (action === "delete") {
     await deletePost({ userId, id: params.postId });
     return redirect("/");
@@ -88,7 +86,8 @@ export default function PostDetailsPage() {
         <Link to={`/categories/${post.category.slug}`}>
           {post.category.name}
         </Link>{" "}
-        &mdash; By {post.author.name} ({post.author.email})
+        &mdash; By{" "}
+        <Link to={`/u/${post.author.email}`}>{post.author.name}</Link>
       </h3>
       {!post.published && (
         <div className="py-6">
