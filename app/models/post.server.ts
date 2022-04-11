@@ -20,6 +20,7 @@ export function getPost({
     },
     include: {
       author: true,
+      category: true,
     },
   });
 }
@@ -28,10 +29,12 @@ export function getPostList({
   userId,
   published = true,
   authorId,
+  categoryId,
 }: {
   userId: User["id"];
   published?: boolean | null;
   authorId?: User["id"];
+  categoryId?: Category["id"];
 }) {
   const where: { [key: string]: any } = published
     ? {
@@ -43,6 +46,9 @@ export function getPostList({
   if (authorId) {
     where.AND = [...(where.AND || []), { authorId }];
   }
+  if (categoryId) {
+    where.AND = [...(where.AND || []), { categoryId }];
+  }
 
   return prisma.post.findMany({
     where,
@@ -51,6 +57,7 @@ export function getPostList({
       title: true,
       content: true,
       author: true,
+      category: true,
       published: true,
     },
     orderBy: { updatedAt: "desc" },

@@ -1,6 +1,7 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Form, useCatch, useLoaderData } from "@remix-run/react";
+import { Form, Link, useCatch, useLoaderData } from "@remix-run/react";
+import slugify from "slugify";
 import invariant from "tiny-invariant";
 
 import { Post, updatePost } from "~/models/post.server";
@@ -84,7 +85,10 @@ export default function PostDetailsPage() {
     <div className="post">
       <h2>{post.title}</h2>
       <h3>
-        By {post.author.name} ({post.author.email})
+        <Link to={`/categories/${post.category.slug}`}>
+          {post.category.name}
+        </Link>{" "}
+        &mdash; By {post.author.name} ({post.author.email})
       </h3>
       {!post.published && (
         <div className="py-6">

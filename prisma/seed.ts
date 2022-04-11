@@ -30,9 +30,11 @@ async function main() {
     where: { name: "Shipped" },
     update: {
       restricted: false,
+      slug: "shipped",
     },
     create: {
       name: "Shipped",
+      slug: "shipped",
       restricted: false,
     },
   });
@@ -41,9 +43,11 @@ async function main() {
     where: { name: "Strategy" },
     update: {
       restricted: true,
+      slug: "strategy",
     },
     create: {
       name: "Strategy",
+      slug: "strategy",
       restricted: true,
     },
   });
