@@ -47,7 +47,7 @@ function createCloudStorageUploadHandler({
         .on("error", reject);
     });
 
-    return `/images/${newFilename}`;
+    return `/image-uploads/${newFilename}`;
   };
 }
 
@@ -71,7 +71,7 @@ export const action: ActionFunction = async ({ request }) => {
   const file = formData.get("file");
   invariant(file, "file is required");
 
-  const imageUrl = useGcs ? file : `/images/${file.name}`;
+  const imageUrl = useGcs ? file : `/image-uploads/${file.name}`;
 
   const width = 0;
   const height = 0;
