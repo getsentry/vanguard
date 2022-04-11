@@ -83,6 +83,9 @@ export default function PostDetailsPage() {
   return (
     <div className="post">
       <h2>{post.title}</h2>
+      <h3>
+        By {post.author.name} ({post.author.email})
+      </h3>
       {!post.published && (
         <div className="py-6">
           <small>This post has not yet been published.</small>

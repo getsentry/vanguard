@@ -18,6 +18,9 @@ export function getPost({
         { id, published: true },
       ],
     },
+    include: {
+      author: true,
+    },
   });
 }
 
