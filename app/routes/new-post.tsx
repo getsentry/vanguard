@@ -5,8 +5,9 @@ import * as React from "react";
 
 import { createPost } from "~/models/post.server";
 import { requireUserId } from "~/session.server";
-import { getCategoryList } from "~/models/category.server";
+import { getCategory, getCategoryList } from "~/models/category.server";
 import type { Category } from "~/models/category.server";
+import slugify from "slugify";
 
 type LoaderData = {
   categoryList: Category[];
@@ -67,7 +68,11 @@ export const action: ActionFunction = async ({ request }) => {
     published: !!published,
   });
 
-  return redirect(`/posts/${post.id}`);
+  const category = await getCategory({ id: categoryId });
+
+  return redirect(
+    `/${category.slug}/${post.id}-${slugify(post.title, { lower: true })}`
+  );
 };
 
 export default function NewPostPage() {
@@ -173,7 +178,7 @@ export default function NewPostPage() {
       <div className="text-right">
         <button
           type="submit"
-          className="rounded bg-blue-500 m-2 py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400"
+          className="m-2 rounded bg-blue-500 py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400"
         >
           Save Draft
         </button>
