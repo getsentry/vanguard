@@ -70,7 +70,7 @@ export async function updatePost({
   invariant(user, "user not found");
 
   const where: { [key: string]: any } = { id };
-  if (!user.canPostRestricted) where.authorId = userId;
+  if (!user.admin) where.authorId = userId;
 
   const post = await prisma.post.findFirst({
     where,
@@ -118,11 +118,17 @@ export function createPost({
   });
 }
 
-export function deletePost({
+export async function deletePost({
   id,
   userId,
 }: Pick<Post, "id"> & { userId: User["id"] }) {
+  const user = await prisma.user.findFirst({ where: { id: userId } });
+  invariant(user, "user not found");
+
+  const where: { [key: string]: any } = { id };
+  if (!user.admin) where.authorId = userId;
+
   return prisma.post.deleteMany({
-    where: { id, authorId: userId },
+    where,
   });
 }

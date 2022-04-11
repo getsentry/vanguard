@@ -28,7 +28,6 @@ create-db:
 
 migrate-db:
 	npx prisma migrate dev
-	npx prisma db seed
 
 build-docker-image:
 	docker build -t vanguard .

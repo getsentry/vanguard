@@ -15,11 +15,13 @@ async function main() {
       where: { email },
       update: {
         canPostRestricted: true,
+        admin: true,
       },
       create: {
         email,
         name,
         canPostRestricted: true,
+        admin: true,
       },
     });
   });

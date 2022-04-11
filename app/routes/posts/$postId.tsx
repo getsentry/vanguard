@@ -93,7 +93,7 @@ export default function PostDetailsPage() {
       )}
       <p>{post.content}</p>
       <hr className="my-4" />
-      {post.authorId === user.id && <PostActions post={post} />}
+      {(post.authorId === user.id || user.admin) && <PostActions post={post} />}
     </div>
   );
 }
