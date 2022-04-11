@@ -33,7 +33,7 @@ function createCloudStorageUploadHandler({
       ? `${process.env.GCS_BUCKET_PATH}/`
       : "";
 
-    const newFilename = `${userId}-${cuid()}.${path.extname(filename)}`;
+    const newFilename = `${userId}-${cuid()}${path.extname(filename)}`;
 
     const cloudStorage = new Storage();
     const file = cloudStorage

@@ -12,11 +12,13 @@ const MAX_AGE = 60 * 60 ** 24;
 export const loader: LoaderFunction = async ({ request, params }) => {
   await requireUserId(request);
 
-  invariant(params.filename, "filename is required");
+  const fileParam = params["*"];
+
+  invariant(fileParam, "filename is required");
 
   const useGcs = !!process.env.USE_GCS_STORAGE;
 
-  const filename = path.basename(params.filename);
+  // const filename = path.basename(fileParam);
 
   let stream: any;
   if (useGcs) {
@@ -32,7 +34,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   } else {
     const filepath = path.format({
       dir: os.tmpdir(),
-      base: filename,
+      base: fileParam,
     });
     const fd = await fs.open(filepath, "r");
     stream = fd.createReadStream();
