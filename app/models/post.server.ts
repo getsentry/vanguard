@@ -5,17 +5,21 @@ import { prisma } from "~/db.server";
 
 export type { Post } from "@prisma/client";
 
-export function getPost({
+export async function getPost({
   id,
   userId,
 }: Pick<Post, "id"> & {
   userId: User["id"];
 }) {
-  return prisma.post.findFirst({
+  const user = await prisma.user.findFirst({ where: { id: userId } });
+  invariant(user, "user not found");
+
+  return await prisma.post.findFirst({
     where: {
       OR: [
         { id, authorId: userId },
         { id, published: true },
+        ...(user.admin ? [{ id }] : []),
       ],
     },
     include: {
@@ -87,7 +91,7 @@ export async function updatePost({
   const data: { [key: string]: any } = {};
   if (published !== undefined) data.published = !!published;
 
-  return prisma.post.update({
+  return await prisma.post.update({
     where: {
       id,
     },
@@ -135,7 +139,7 @@ export async function deletePost({
   const where: { [key: string]: any } = { id };
   if (!user.admin) where.authorId = userId;
 
-  return prisma.post.deleteMany({
+  return await prisma.post.deleteMany({
     where,
   });
 }
