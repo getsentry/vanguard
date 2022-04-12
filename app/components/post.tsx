@@ -1,17 +1,16 @@
 import { Link } from "@remix-run/react";
-import PostLink from './post-link';
+import PostLink from "./post-link";
 import Markdown from "./markdown";
 
 export default function Post({ post }: { post: object }) {
   return (
     <div className="post">
-      <h2><PostLink post={post}>{post.title} lbeh</PostLink></h2>
+      <h2>
+        <PostLink post={post}>{post.title}</PostLink>
+      </h2>
       <h3>
-        <Link to={`/${post.category.slug}`}>
-          {post.category.name}
-        </Link>{" "}
-        &mdash; By{" "}
-        <Link to={`/u/${post.author.email}`}>{post.author.name}</Link>
+        <Link to={`/${post.category.slug}`}>{post.category.name}</Link> &mdash;
+        By <Link to={`/u/${post.author.email}`}>{post.author.name}</Link>
       </h3>
       {!post.published && (
         <div className="py-6">
@@ -19,5 +18,6 @@ export default function Post({ post }: { post: object }) {
         </div>
       )}
       <Markdown content={post.content || ""} />
-    </div>)
+    </div>
+  );
 }
