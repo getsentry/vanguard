@@ -13,6 +13,7 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
+import * as Sentry from "@sentry/react";
 
 import tailwindStylesheetUrl from "./styles/tailwind.css";
 import baseCss from "./styles/base.css";
@@ -22,6 +23,7 @@ import { useUser } from "./utils";
 
 import Logo from "./icons/Logo";
 import { Toaster } from "react-hot-toast";
+import { useMatch } from "react-router";
 
 export const links: LinksFunction = () => {
   return [
@@ -47,6 +49,35 @@ export const loader: LoaderFunction = async ({ request }) => {
   });
 };
 
+export function ErrorBoundary({ error }) {
+  console.error(error);
+  Sentry.captureException(error);
+  return (
+    <html>
+      <head>
+        <title>Oh no!</title>
+        <Meta />
+        <Links />
+        {typeof document === "undefined" ? "__STYLES__" : null}
+      </head>
+      <body className="wrapper">
+        <div id="primary">
+          <div className="container">
+            <div className="header">
+              <Link to="/">
+                <Logo height={32} />
+              </Link>
+            </div>
+            <h1>Internal Server Error</h1>
+            <pre>{error.stack}</pre>
+          </div>
+        </div>
+        <Scripts />
+      </body>
+    </html>
+  );
+}
+
 export default function App() {
   const user = useUser();
 
@@ -64,11 +95,9 @@ export default function App() {
         <div id="primary">
           <div className="container">
             <div className="header">
-              <h1>
-                <Link to="/">
-                  <Logo height={32} />
-                </Link>
-              </h1>
+              <Link to="/">
+                <Logo height={32} />
+              </Link>
             </div>
             <Outlet />
           </div>
