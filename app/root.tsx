@@ -82,7 +82,9 @@ export default function App() {
                 / Drafts
               </Link>
             </div>
-            <div>{user.email}</div>
+            <div>
+              <Link to={`/u/${user.email}`}>{user.email}</Link>
+            </div>
           </div>
         </div>
         <ScrollRestoration />
