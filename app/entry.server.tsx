@@ -68,4 +68,4 @@ function handleRequest(
   });
 }
 
-export default withSentry(handleRequest);
+export default handleRequest;

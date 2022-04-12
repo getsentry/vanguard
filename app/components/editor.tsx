@@ -72,7 +72,6 @@ const onUploadFiles = (
     | DragEvent<HTMLTextAreaElement>
     | ClipboardEvent<HTMLTextAreaElement>
     | ChangeEvent<HTMLInputElement>,
-  // TODO: this aint quite the right type
   fileList: FileList | null
 ) => {
   if (!fileList) return;
@@ -83,7 +82,6 @@ const onUploadFiles = (
     return;
   }
 
-  // remove any non-image
   const imageFiles = filesArray.filter((file) => /image/i.test(file.type));
   if (imageFiles.length === 0) {
     return;
