@@ -7,9 +7,10 @@ const StyledToolbar = styled(ToolbarPrimitive.Root)`
   padding: 10px;
   width: 100%;
   min-width: max-content;
-  border-radius: 6px;
+  border-radius: 6px 6px 0 0;
   background-color: white;
-  box-shadow: 0 2px 10px ${blackA.blackA7};
+  border: 1px solid var(--gray200);
+  border-bottom: 0;
 `;
 
 const itemStyles = css`

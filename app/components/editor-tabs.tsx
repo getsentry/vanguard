@@ -6,7 +6,6 @@ import * as TabsPrimitive from "@radix-ui/react-tabs";
 const StyledTabs = styled(TabsPrimitive.Root)`
   display: flex;
   flex-direction: column;
-  box-shadow: 0 2px 10px ${blackA.blackA4};
 `;
 
 const StyledList = styled(TabsPrimitive.List)`
@@ -55,7 +54,7 @@ const StyledTrigger = styled(TabsPrimitive.Trigger)`
 
 const StyledContent = styled(TabsPrimitive.Content)`
   flex-grow: 1;
-  padding: 20px;
+  padding-top: 20px;
   background-color: white;
   border-bottom-left-radius: 6px;
   border-bottom-right-radius: 6px;

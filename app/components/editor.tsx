@@ -169,6 +169,8 @@ const codeCommandHandler: CommandHandler = ({ element }) => {
 const EditorWrapper = styled.div`
   textarea {
     width: 100%;
+    border-radius: 0 0 6px 6px;
+    border: 1px solid var(--gray200);
   }
 `;
 
