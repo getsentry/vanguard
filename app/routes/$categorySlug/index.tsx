@@ -6,7 +6,7 @@ import invariant from "tiny-invariant";
 import { requireUserId } from "~/session.server";
 import { getPostList } from "~/models/post.server";
 import { getCategory } from "~/models/category.server";
-import PostLink from "~/components/post-link";
+import Post from "~/components/post";
 
 type LoaderData = {
   category: Awaited<ReturnType<typeof getCategory>>;
@@ -35,17 +35,9 @@ export default function Index() {
       {postList.length === 0 ? (
         <p>No posts yet</p>
       ) : (
-        <ol>
-          {postList.map((post) => (
-            <li key={post.id} className="post">
-              <h2>
-                <PostLink post={post}>{post.title}</PostLink>
-              </h2>
-              <h3>{post.author.name}</h3>
-              <p>{post.content}</p>
-            </li>
-          ))}
-        </ol>
+        postList.map((post) => (
+          <Post post={post} key={post.id} />
+        ))
       )}
     </div>
   );

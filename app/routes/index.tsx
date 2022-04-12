@@ -1,10 +1,10 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 
 import { requireUserId } from "~/session.server";
 import { getPostList } from "~/models/post.server";
-import PostLink from "~/components/post-link";
+import Post from "~/components/post";
 
 type LoaderData = {
   postList: Awaited<ReturnType<typeof getPostList>>;
@@ -22,20 +22,8 @@ export default function Index() {
   return data.postList.length === 0 ? (
     <p>No posts yet</p>
   ) : (
-    <ol>
-      {data.postList.map((post) => (
-        <li key={post.id} className="post">
-          <h2>
-            <PostLink post={post}>{post.title}</PostLink>
-          </h2>
-          <h3>
-            <Link to={`/${post.category.slug}`}>{post.category.name}</Link>{" "}
-            &mdash; By{" "}
-            <Link to={`/u/${post.author.email}`}>{post.author.name}</Link>
-          </h3>
-          <p>{post.content}</p>
-        </li>
-      ))}
-    </ol>
+    data.postList.map((post) => (
+      <Post post={post} key={post.id} />
+    ))
   );
 }

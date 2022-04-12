@@ -7,7 +7,7 @@ import { deletePost, getPost, updatePost } from "~/models/post.server";
 import type { Post } from "~/models/post.server";
 import { requireUserId } from "~/session.server";
 import { useUser } from "~/utils";
-import Markdown from "~/components/markdown";
+import {default as PostTemplate} from "~/components/post";
 
 type LoaderData = {
   post: Post;
@@ -81,21 +81,8 @@ export default function PostDetailsPage() {
   const user = useUser();
 
   return (
-    <div className="post">
-      <h2>{post.title}</h2>
-      <h3>
-        <Link to={`/categories/${post.category.slug}`}>
-          {post.category.name}
-        </Link>{" "}
-        &mdash; By{" "}
-        <Link to={`/u/${post.author.email}`}>{post.author.name}</Link>
-      </h3>
-      {!post.published && (
-        <div className="py-6">
-          <small>This post has not yet been published.</small>
-        </div>
-      )}
-      <Markdown content={post.content || ""} />
+    <div>
+      <PostTemplate post={post} />
       <hr className="my-4" />
       {(post.authorId === user.id || user.admin) && <PostActions post={post} />}
     </div>
