@@ -14,11 +14,10 @@ type LoaderData = {
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
+  await requireAdmin(request);
   const url = new URL(request.url);
   const cursor = url.searchParams.get("cursor");
-
-  await requireAdmin(request);
-  const userListPaginated = await paginate(getUserList, {}, cursor, 1);
+  const userListPaginated = await paginate(getUserList, {}, cursor);
   return json<LoaderData>({ userListPaginated });
 };
 

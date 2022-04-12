@@ -14,11 +14,11 @@ export async function getUserByEmail(email: User["email"]) {
 
 export async function getUserList(
   {
-    offset,
-    limit,
+    offset = 0,
+    limit = 50,
   }: {
-    offset?: number;
-    limit?: number;
+    offset: number;
+    limit: number;
   } = {
     offset: 0,
     limit: 50,

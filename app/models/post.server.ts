@@ -34,11 +34,15 @@ export function getPostList({
   published = true,
   authorId,
   categoryId,
+  offset = 0,
+  limit = 50,
 }: {
   userId: User["id"];
   published?: boolean | null;
   authorId?: User["id"];
   categoryId?: Category["id"];
+  offset: number;
+  limit: number;
 }) {
   const where: { [key: string]: any } = published
     ? {
@@ -64,6 +68,8 @@ export function getPostList({
       category: true,
       published: true,
     },
+    skip: offset,
+    take: limit,
     orderBy: { updatedAt: "desc" },
   });
 }
