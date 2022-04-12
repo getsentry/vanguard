@@ -22,7 +22,9 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   let stream: any;
   if (useGcs) {
     const bucketName = process.env.GCS_BUCKET_NAME as string;
-    const bucketPath = (process.env.GCS_BUCKET_PATH as string) ?? "";
+    const bucketPath = process.env.GCS_BUCKET_PATH
+      ? `${process.env.GCS_BUCKET_PATH}/`
+      : "";
 
     // const cloudStorage = new Storage();
 
