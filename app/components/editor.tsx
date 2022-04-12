@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { ChangeEvent, useRef, useState } from "react";
 import type { ClipboardEvent, DragEvent } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import TextareaMarkdown, { Cursor } from "textarea-markdown-editor";
@@ -67,10 +67,16 @@ function handleUploadImages(textareaEl: HTMLTextAreaElement, files: File[]) {
 }
 
 const onUploadFiles = (
-  event: DragEvent<HTMLTextAreaElement> | ClipboardEvent<HTMLTextAreaElement>,
+  textareaEl: HTMLTextAreaElement,
+  event:
+    | DragEvent<HTMLTextAreaElement>
+    | ClipboardEvent<HTMLTextAreaElement>
+    | ChangeEvent<HTMLInputElement>,
   // TODO: this aint quite the right type
-  fileList: FileList
+  fileList: FileList | null
 ) => {
+  if (!fileList) return;
+
   const filesArray = Array.from(fileList);
 
   if (filesArray.length === 0) {
@@ -85,10 +91,10 @@ const onUploadFiles = (
 
   event.preventDefault();
 
-  handleUploadImages(event.currentTarget, imageFiles);
+  handleUploadImages(textareaEl, imageFiles);
 };
 
-const prefixEachLine = (element, prefix: string): string => {
+const prefixEachLine = (element, prefix: string) => {
   const cursor = new Cursor(element);
   const selected =
     cursor.getSelected() || cursor.getLine() || "quote something interesting";
@@ -166,9 +172,19 @@ const EditorWrapper = styled.div`
 function Editor() {
   const [value, setValue] = useState("");
   const ref = useRef<TextareaMarkdownRef>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   return (
     <EditorWrapper>
+      <input
+        ref={fileRef}
+        type="file"
+        name="file"
+        style={{ display: "none" }}
+        onChange={(event) =>
+          onUploadFiles(ref.current!, event, event.target.files)
+        }
+      />
       <Tabs.Tabs defaultValue="edit">
         <Tabs.List>
           <Tabs.Trigger value="edit">Edit</Tabs.Trigger>
@@ -230,14 +246,14 @@ function Editor() {
             <Toolbar.Button
               value="image"
               aria-label="image"
-              onClick={() => alert("TODO")}
+              onClick={() => fileRef.current!.click()}
             >
               <ImageIcon />
             </Toolbar.Button>
-            <Toolbar.Separator />
+            {/* <Toolbar.Separator />
             <Toolbar.Link href="#" target="_blank" style={{ marginRight: 10 }}>
               Edited 2 hours ago
-            </Toolbar.Link>
+            </Toolbar.Link> */}
           </Toolbar.Toolbar>
 
           <TextareaMarkdown.Wrapper
@@ -276,10 +292,10 @@ function Editor() {
               //     actionData?.errors?.content ? "content-error" : undefined
               //   }
               onPaste={(event) => {
-                onUploadFiles(event, event.clipboardData.files);
+                onUploadFiles(ref.current!, event, event.clipboardData.files);
               }}
               onDrop={(event) => {
-                onUploadFiles(event, event.dataTransfer.files);
+                onUploadFiles(ref.current!, event, event.dataTransfer.files);
               }}
             />
           </TextareaMarkdown.Wrapper>
