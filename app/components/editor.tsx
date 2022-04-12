@@ -303,9 +303,9 @@ function Editor() {
       <input
         ref={fileRef}
         type="file"
-        name="file"
         onClick={(event) => {
           onUploadFiles(ref.current!, event, event.target.files);
+          fileRef.current!.value = "";
         }}
         style={{ display: "none", position: "absolute", left: -100000 }}
       />
