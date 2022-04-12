@@ -23,7 +23,6 @@ import { useUser } from "./utils";
 
 import Logo from "./icons/Logo";
 import { Toaster } from "react-hot-toast";
-import { useMatch } from "react-router";
 
 export const links: LinksFunction = () => {
   return [
