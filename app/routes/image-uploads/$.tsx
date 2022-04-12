@@ -31,7 +31,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     //   .bucket(bucketName)
     //   .file(`${bucketPath}${params.filename}`);
     // stream = file.createReadStream();
-    const url = `https://storage.googleapis.com/sentry-vanguard-uploads/${bucketName}/${bucketPath}${params.filename}`;
+    const url = `https://storage.googleapis.com/sentry-vanguard-uploads/${bucketName}/${bucketPath}${fileParam}`;
     return redirect(url);
   } else {
     const filepath = path.format({
