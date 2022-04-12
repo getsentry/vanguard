@@ -95,7 +95,7 @@ const onUploadFiles = (
 };
 
 // TODO(dcramer): could we use cursor.wrapMultiLineSelected() for some of this
-const prefixEachLine = (element, prefix: string) => {
+const prefixEachLine = (element: HTMLTextAreaElement, prefix: string) => {
   const cursor = new Cursor(element);
   const position = cursor.getCurrentPosition();
 
