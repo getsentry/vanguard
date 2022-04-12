@@ -5,7 +5,7 @@ import { useLoaderData } from "@remix-run/react";
 import { requireAdmin } from "~/session.server";
 import { getUserList } from "~/models/user.server";
 import { paginate, PaginatedResult } from "~/lib/paginator";
-import ButtonLink from "~/components/button-link";
+import Paginated from "~/components/paginated";
 
 type LoaderData = {
   userListPaginated: Awaited<
@@ -21,30 +21,6 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const userListPaginated = await paginate(getUserList, {}, cursor, 1);
   return json<LoaderData>({ userListPaginated });
 };
-
-function Paginated({ data: { result, nextCursor, prevCursor }, render }) {
-  return (
-    <div>
-      <div className="inline-flex">
-        <ButtonLink
-          to={prevCursor ? `?cursor=${prevCursor}` : undefined}
-          disabled={!prevCursor}
-          className="rounded-l bg-gray-300 py-2 px-4 font-bold text-gray-800 hover:bg-gray-400"
-        >
-          Prev Page
-        </ButtonLink>
-        <ButtonLink
-          to={nextCursor ? `?cursor=${nextCursor}` : undefined}
-          disabled={!nextCursor}
-          className="rounded-r bg-gray-300 py-2 px-4 font-bold text-gray-800 hover:bg-gray-400"
-        >
-          Next Page
-        </ButtonLink>
-      </div>
-      {render(result)}
-    </div>
-  );
-}
 
 export default function Index() {
   const { userListPaginated } = useLoaderData() as LoaderData;
