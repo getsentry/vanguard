@@ -1,12 +1,12 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 
 import { requireUserId } from "~/session.server";
 import { getPostList } from "~/models/post.server";
 import { getCategory } from "~/models/category.server";
-import slugify from "slugify";
+import PostLink from "~/components/post-link";
 
 type LoaderData = {
   category: Awaited<ReturnType<typeof getCategory>>;
@@ -39,13 +39,7 @@ export default function Index() {
           {postList.map((post) => (
             <li key={post.id} className="post">
               <h2>
-                <Link
-                  to={`/${post.category.slug}/${post.id}-${slugify(post.title, {
-                    lower: true,
-                  })}`}
-                >
-                  {post.title}
-                </Link>
+                <PostLink post={post}>{post.title}</PostLink>
               </h2>
               <h3>{post.author.name}</h3>
               <p>{post.content}</p>
