@@ -2,18 +2,23 @@ import React, { useRef, useState } from "react";
 import type { ClipboardEvent, DragEvent } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import TextareaMarkdown, { Cursor } from "textarea-markdown-editor";
-import type { TextareaMarkdownRef } from "textarea-markdown-editor";
+import type {
+  CommandHandler,
+  TextareaMarkdownRef,
+} from "textarea-markdown-editor";
 import styled from "styled-components";
 import * as Toolbar from "./editor-toolbar";
 import * as Tabs from "./editor-tabs";
 import toast from "react-hot-toast";
 import {
   StrikethroughIcon,
-  TextAlignLeftIcon,
-  TextAlignCenterIcon,
-  TextAlignRightIcon,
   FontBoldIcon,
   FontItalicIcon,
+  Link1Icon,
+  ImageIcon,
+  CodeIcon,
+  QuoteIcon,
+  ListBulletIcon,
 } from "@radix-ui/react-icons";
 import Markdown from "./markdown";
 
@@ -30,6 +35,10 @@ async function uploadImage(file: File) {
 }
 
 function replaceText(cursor: Cursor, text: string, replaceWith: string) {
+  cursor.setText(cursor.getText().replace(text, replaceWith));
+}
+
+function wrapSelection(cursor: Cursor, text: string, replaceWith: string) {
   cursor.setText(cursor.getText().replace(text, replaceWith));
 }
 
@@ -50,7 +59,7 @@ function handleUploadImages(textareaEl: HTMLTextAreaElement, files: File[]) {
       replaceText(
         cursor,
         loadingText,
-        `<img alt="${uploadedImage.originalFilename}" src="${uploadedImage.url}">`
+        `![${uploadedImage.originalFilename}](${uploadedImage.url})`
       );
     } catch (err: any) {
       console.error(err);
@@ -83,13 +92,73 @@ const onUploadFiles = (
   handleUploadImages(event.currentTarget, imageFiles);
 };
 
+// XXX(dcramer): the built-in 'block-quotes' command is not implemented well
+const quoteCommandHandler: CommandHandler = ({ element }) => {
+  const cursor = new Cursor(element);
+  const selected =
+    cursor.getSelected() || cursor.getLine() || "quote something interesting";
+  const addPrefix = selected.indexOf(">") !== 0;
+
+  const removePrefix = (line: string) => {
+    if (line.indexOf("> ") === 0) return line.slice(2);
+    if (line.indexOf(">") === 0) return line.slice(1);
+    return line;
+  };
+
+  const lines = selected.split("\n");
+  const modified = lines
+    .map((l) => (addPrefix ? `> ${l}` : removePrefix(l)))
+    .join("\n");
+  console.log(modified);
+
+  const position = cursor.getCurrentPosition();
+  cursor.spliceContent(Cursor.raw`${modified}`, {
+    startLineNumber: position.lineNumber,
+    replaceCount: lines.length,
+  });
+};
+
+// XXX(dcramer): the built-in 'code-block' command is not implemented well
+const codeCommandHandler: CommandHandler = ({ element }) => {
+  const cursor = new Cursor(element);
+  const selected =
+    cursor.getSelected() || cursor.getLine() || "function helloWorld() { }";
+  const prefix = "```";
+  console.log(selected.indexOf(prefix, prefix.length), selected.length);
+  const removeBlock =
+    selected.indexOf(prefix) === 0 &&
+    selected.indexOf(prefix, prefix.length) === selected.length - prefix.length;
+
+  const removePrefix = (text: string) => {
+    if (text.indexOf(prefix) === 0) text = text.slice(prefix.length);
+    console.log(
+      text.indexOf(prefix),
+      text.indexOf(prefix) === text.length - prefix.length
+    );
+    if (text.indexOf(prefix) === text.length - prefix.length)
+      text = text.slice(0, -prefix.length);
+    return text;
+  };
+
+  const lines = selected.split("\n");
+  const modified = !removeBlock
+    ? `${prefix}\n${selected}\n${prefix}`
+    : removePrefix(selected);
+
+  const position = cursor.getCurrentPosition();
+  cursor.spliceContent(Cursor.raw`${modified}`, {
+    startLineNumber: position.lineNumber,
+    replaceCount: lines.length,
+  });
+};
+
 const EditorWrapper = styled.div`
   textarea {
     width: 100%;
   }
 `;
 
-function Editor({}: {}) {
+function Editor() {
   const [value, setValue] = useState("");
   const ref = useRef<TextareaMarkdownRef>(null);
 
@@ -102,43 +171,68 @@ function Editor({}: {}) {
         </Tabs.List>
         <Tabs.Content value="edit">
           <Toolbar.Toolbar aria-label="Formatting options">
-            <Toolbar.ToggleGroup type="multiple" aria-label="Text formatting">
-              <Toolbar.ToggleItem value="bold" aria-label="Bold">
-                <FontBoldIcon />
-              </Toolbar.ToggleItem>
-              <Toolbar.ToggleItem value="italic" aria-label="Italic">
-                <FontItalicIcon />
-              </Toolbar.ToggleItem>
-              <Toolbar.ToggleItem
-                value="strikethrough"
-                aria-label="Strike through"
-              >
-                <StrikethroughIcon />
-              </Toolbar.ToggleItem>
-            </Toolbar.ToggleGroup>
-            <Toolbar.Separator />
-            <Toolbar.ToggleGroup
-              type="single"
-              defaultValue="center"
-              aria-label="Text alignment"
+            <Toolbar.Button
+              value="bold"
+              aria-label="Bold"
+              onClick={() => ref.current?.trigger("bold")}
             >
-              <Toolbar.ToggleItem value="left" aria-label="Left aligned">
-                <TextAlignLeftIcon />
-              </Toolbar.ToggleItem>
-              <Toolbar.ToggleItem value="center" aria-label="Center aligned">
-                <TextAlignCenterIcon />
-              </Toolbar.ToggleItem>
-              <Toolbar.ToggleItem value="right" aria-label="Right aligned">
-                <TextAlignRightIcon />
-              </Toolbar.ToggleItem>
-            </Toolbar.ToggleGroup>
+              <FontBoldIcon />
+            </Toolbar.Button>
+            <Toolbar.Button
+              value="italic"
+              aria-label="Italic"
+              onClick={() => ref.current?.trigger("italic")}
+            >
+              <FontItalicIcon />
+            </Toolbar.Button>
+            <Toolbar.Button
+              value="strikethrough"
+              aria-label="Strike through"
+              onClick={() => ref.current?.trigger("strike-through")}
+            >
+              <StrikethroughIcon />
+            </Toolbar.Button>
+            <Toolbar.Separator />
+            <Toolbar.Button
+              value="unordered-list"
+              aria-label="Unordered List"
+              onClick={() => ref.current?.trigger("unordered-list")}
+            >
+              <ListBulletIcon />
+            </Toolbar.Button>
+            <Toolbar.Button
+              value="vg-code-block"
+              aria-label="vg-code-block"
+              onClick={() => ref.current?.trigger("vg-code-block")}
+            >
+              <CodeIcon />
+            </Toolbar.Button>
+            <Toolbar.Button
+              value="vg-quote-block"
+              aria-label="vg-quote-block"
+              onClick={() => ref.current?.trigger("vg-quote-block")}
+            >
+              <QuoteIcon />
+            </Toolbar.Button>
+            <Toolbar.Separator />
+            <Toolbar.Button
+              value="link"
+              aria-label="Link"
+              onClick={() => ref.current?.trigger("link")}
+            >
+              <Link1Icon />
+            </Toolbar.Button>
+            <Toolbar.Button
+              value="image"
+              aria-label="image"
+              onClick={() => alert("TODO")}
+            >
+              <ImageIcon />
+            </Toolbar.Button>
             <Toolbar.Separator />
             <Toolbar.Link href="#" target="_blank" style={{ marginRight: 10 }}>
               Edited 2 hours ago
             </Toolbar.Link>
-            <Toolbar.Button style={{ marginLeft: "auto" }}>
-              Share
-            </Toolbar.Button>
           </Toolbar.Toolbar>
 
           <TextareaMarkdown.Wrapper
@@ -148,7 +242,19 @@ function Editor({}: {}) {
                 name: "indent",
                 enable: false,
               },
+              {
+                name: "vg-quote-block",
+                handler: quoteCommandHandler,
+              },
+              {
+                name: "vg-code-block",
+                handler: codeCommandHandler,
+              },
             ]}
+            options={{
+              codeBlockPlaceholder: "```\nfunction helloWorld() { }\n```",
+              blockQuotesPlaceholder: "> quote",
+            }}
           >
             <TextareaAutosize
               name="content"

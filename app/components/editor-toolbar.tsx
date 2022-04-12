@@ -38,15 +38,7 @@ const itemStyles = css`
 
 const StyledButton = styled(ToolbarPrimitive.Button)`
   ${itemStyles}
-  padding-left: 10px;
-  padding-right: 10px;
-  color: white;
-  backgroundcolor: ${violet.violet9};
-
-  &:hover {
-    color: white;
-    background-color: ${violet.violet10};
-  }
+  background-color: white;
 `;
 
 const StyledLink = styled(ToolbarPrimitive.Link)`
@@ -56,11 +48,6 @@ const StyledLink = styled(ToolbarPrimitive.Link)`
   display: inline-flex;
   justify-content: center;
   align-items: center;
-
-  &:hover {
-    background-color: transparent;
-    cursor: pointer;
-  }
 `;
 
 const StyledSeparator = styled(ToolbarPrimitive.Separator)`
@@ -76,7 +63,6 @@ const StyledToggleGroup = styled(ToolbarPrimitive.ToggleGroup)`
 
 const StyledToggleItem = styled(ToolbarPrimitive.ToggleItem)`
   ${itemStyles}
-
   box-shadow: 0;
   background-color: white;
   margin-left: 2px;
