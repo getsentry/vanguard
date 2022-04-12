@@ -1,7 +1,9 @@
 {
   "files.exclude": {
     ".vscode/tags": true,
-    "public": true
+    "public": true,
+    "build": true,
+    "node_modules": true
   },
   "files.trimTrailingWhitespace": false,
   "files.trimFinalNewlines": false,

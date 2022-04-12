@@ -81,6 +81,11 @@ export default function App() {
               <Link to="/drafts" className="btn">
                 / Drafts
               </Link>
+              {user.admin && (
+                <Link to="/admin" className="btn">
+                  / Admin
+                </Link>
+              )}
             </div>
             <div>
               <Link to={`/u/${user.email}`}>{user.email}</Link>

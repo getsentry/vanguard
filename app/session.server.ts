@@ -54,6 +54,7 @@ export async function getUser(request: Request) {
 
   throw await logout(request);
 }
+
 export async function requireUserId(
   request: Request,
   redirectTo: string = new URL(request.url).pathname
@@ -74,6 +75,21 @@ export async function requireUser(request: Request) {
   if (user) return user;
 
   throw await logout(request);
+}
+
+export async function requireAdmin(request: Request) {
+  const userId = await requireUserId(request);
+
+  const user = await getUserById(userId);
+  if (!user) {
+    throw await logout(request);
+  }
+
+  if (!user.admin) {
+    throw redirect(`/403`);
+  }
+
+  return user;
 }
 
 export async function createUserSession({

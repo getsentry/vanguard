@@ -12,6 +12,27 @@ export async function getUserByEmail(email: User["email"]) {
   return prisma.user.findUnique({ where: { email } });
 }
 
+export async function getUserList(
+  {
+    offset,
+    limit,
+  }: {
+    offset?: number;
+    limit?: number;
+  } = {
+    offset: 0,
+    limit: 50,
+  }
+) {
+  return prisma.user.findMany({
+    skip: offset,
+    take: limit,
+    orderBy: {
+      email: "asc",
+    },
+  });
+}
+
 export async function createUser(email: User["email"], password: string) {
   return prisma.user.create({
     data: {
