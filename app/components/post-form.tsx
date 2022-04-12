@@ -75,7 +75,7 @@ export default function PostForm({
       <div>
         <label>
           <span>Content: </span>
-          <Editor ref={contentRef} />
+          <Editor contentRef={contentRef} />
           {actionData?.errors?.content && (
             <div className="pt-1 text-red-700" id="content-error">
               {actionData.errors.content}

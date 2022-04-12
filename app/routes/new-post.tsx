@@ -7,7 +7,6 @@ import { createPost } from "~/models/post.server";
 import { requireUserId } from "~/session.server";
 import { getCategory, getCategoryList } from "~/models/category.server";
 import type { Category } from "~/models/category.server";
-import slugify from "slugify";
 import PostForm from "~/components/post-form";
 
 type LoaderData = {
@@ -71,9 +70,7 @@ export const action: ActionFunction = async ({ request }) => {
 
   const category = await getCategory({ id: categoryId });
 
-  return redirect(
-    `/${category.slug}/${post.id}-${slugify(post.title, { lower: true })}`
-  );
+  return redirect(`/${category.slug}/${post.id}`);
 };
 
 export default function NewPostPage() {

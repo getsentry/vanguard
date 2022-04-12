@@ -80,7 +80,11 @@ const onUploadFiles = (
   handleUploadImages(event.currentTarget, imageFiles);
 };
 
-function Editor({ ref }: { ref: React.Ref<TextareaMarkdownRef> }) {
+function Editor({
+  contentRef,
+}: {
+  contentRef: React.ForwardedRef<TextareaMarkdownRef>;
+}) {
   return (
     <div>
       <Toolbar.Toolbar aria-label="Formatting options">
@@ -119,7 +123,7 @@ function Editor({ ref }: { ref: React.Ref<TextareaMarkdownRef> }) {
       </Toolbar.Toolbar>
 
       <TextareaMarkdown.Wrapper
-        ref={ref}
+        ref={contentRef}
         commands={[
           {
             name: "indent",
