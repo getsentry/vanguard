@@ -1,7 +1,7 @@
 import os from "os";
 import fs from "fs/promises";
 import { Storage } from "@google-cloud/storage";
-import { LoaderFunction, Response } from "@remix-run/node";
+import { LoaderFunction, Response, redirect } from "@remix-run/node";
 import invariant from "tiny-invariant";
 
 import { requireUserId } from "~/session.server";
@@ -25,12 +25,14 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     const bucketName = process.env.GCS_BUCKET_NAME as string;
     const bucketPath = (process.env.BCS_BUCKET_PATH as string) ?? "";
 
-    const cloudStorage = new Storage();
+    // const cloudStorage = new Storage();
 
-    const file = cloudStorage
-      .bucket(bucketName)
-      .file(`${bucketPath}${params.filename}`);
-    stream = file.createReadStream();
+    // const file = cloudStorage
+    //   .bucket(bucketName)
+    //   .file(`${bucketPath}${params.filename}`);
+    // stream = file.createReadStream();
+    const url = `https://storage.cloud.google.com/${bucketName}/${bucketPath}${params.filename}`;
+    return redirect(url);
   } else {
     const filepath = path.format({
       dir: os.tmpdir(),
@@ -38,12 +40,11 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     });
     const fd = await fs.open(filepath, "r");
     stream = fd.createReadStream();
+    return new Response(stream, {
+      status: 200,
+      headers: {
+        "Cache-Control": `max-age=${MAX_AGE}, s-maxage=${MAX_AGE}`,
+      },
+    });
   }
-
-  return new Response(stream, {
-    status: 200,
-    headers: {
-      "Cache-Control": `max-age=${MAX_AGE}, s-maxage=${MAX_AGE}`,
-    },
-  });
 };
