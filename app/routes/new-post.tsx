@@ -1,7 +1,7 @@
+import React from "react";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useActionData, useLoaderData } from "@remix-run/react";
-import * as React from "react";
 
 import { createPost } from "~/models/post.server";
 import { requireUserId } from "~/session.server";

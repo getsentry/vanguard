@@ -1,12 +1,9 @@
 import React, { useEffect, useRef } from "react";
-import type { ClipboardEvent, DragEvent } from "react";
 import { Form } from "@remix-run/react";
-import TextareaAutosize from "react-textarea-autosize";
-import TextareaMarkdown, { Cursor } from "textarea-markdown-editor";
 import type { TextareaMarkdownRef } from "textarea-markdown-editor";
 
 import type { Category } from "../models/category.server";
-import toast from "react-hot-toast";
+import Editor from "./editor";
 
 export type ActionData = {
   errors?: {
@@ -16,72 +13,6 @@ export type ActionData = {
   };
 };
 
-async function uploadImage(file: File) {
-  const formData = new FormData();
-  formData.append("file", file);
-
-  const res = await fetch("/upload-image", {
-    method: "POST",
-    body: formData,
-  });
-
-  return await res.json();
-}
-
-function replaceText(cursor: Cursor, text: string, replaceWith: string) {
-  cursor.setText(cursor.getText().replace(text, replaceWith));
-}
-
-function handleUploadImages(textareaEl: HTMLTextAreaElement, files: File[]) {
-  const cursor = new Cursor(textareaEl);
-  const currentLineNumber = cursor.getCurrentPosition().lineNumber;
-
-  files.forEach(async (file, idx) => {
-    const loadingText = `![Uploading ${file.name}...]()`;
-
-    cursor.spliceContent(Cursor.raw`${loadingText}${Cursor.$}`, {
-      startLineNumber: currentLineNumber + idx,
-    });
-
-    try {
-      const uploadedImage = await uploadImage(file);
-
-      replaceText(
-        cursor,
-        loadingText,
-        `<img alt="${uploadedImage.originalFilename}" src="${uploadedImage.url}">`
-      );
-    } catch (err: any) {
-      console.error(err);
-      replaceText(cursor, loadingText, "");
-      toast.error(`Error while saving image: ${err}`);
-      throw err;
-    }
-  });
-}
-
-const onUploadFiles = (
-  event: DragEvent<HTMLTextAreaElement> | ClipboardEvent<HTMLTextAreaElement>,
-  // TODO: this aint quite the right type
-  fileList: FileList
-) => {
-  const filesArray = Array.from(fileList);
-
-  if (filesArray.length === 0) {
-    return;
-  }
-
-  // remove any non-image
-  const imageFiles = filesArray.filter((file) => /image/i.test(file.type));
-  if (imageFiles.length === 0) {
-    return;
-  }
-
-  event.preventDefault();
-
-  handleUploadImages(event.currentTarget, imageFiles);
-};
-
 export default function PostForm({
   categoryList,
   actionData,
@@ -89,10 +20,10 @@ export default function PostForm({
   categoryList: Category[];
   actionData: ActionData;
 }) {
-  const textareaMarkdownRef = useRef<TextareaMarkdownRef>(null);
+  const contentRef = useRef<TextareaMarkdownRef>(null);
 
   const titleRef = useRef<HTMLInputElement>(null);
-  const contentRef = useRef<HTMLTextAreaElement>(null);
+  // const contentRef = useRef<HTMLTextAreaElement>(null);
   const categoryIdRef = useRef<HTMLSelectElement>(null);
 
   useEffect(() => {
@@ -143,36 +74,8 @@ export default function PostForm({
 
       <div>
         <label>
-
           <span>Content: </span>
-
-          <TextareaMarkdown.Wrapper
-            ref={textareaMarkdownRef}
-            commands={[
-              {
-                name: "indent",
-                enable: false,
-              },
-            ]}
-          >
-            <TextareaAutosize
-              ref={contentRef}
-              name="content"
-              minRows={15}
-              required
-              className="textarea"
-              aria-invalid={actionData?.errors?.content ? true : undefined}
-              aria-errormessage={
-                actionData?.errors?.content ? "content-error" : undefined
-              }
-              onPaste={(event) => {
-                onUploadFiles(event, event.clipboardData.files);
-              }}
-              onDrop={(event) => {
-                onUploadFiles(event, event.dataTransfer.files);
-              }}
-            />
-          </TextareaMarkdown.Wrapper>
+          <Editor ref={contentRef} />
           {actionData?.errors?.content && (
             <div className="pt-1 text-red-700" id="content-error">
               {actionData.errors.content}
@@ -218,10 +121,7 @@ export default function PostForm({
         >
           Publish
         </button>
-        <button
-          type="submit"
-          className="btn"
-        >
+        <button type="submit" className="btn">
           Save Draft
         </button>
       </div>
