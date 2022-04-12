@@ -94,11 +94,12 @@ const onUploadFiles = (
   handleUploadImages(textareaEl, imageFiles);
 };
 
+// TODO(dcramer): could we use cursor.wrapMultiLineSelected() for some of this
 const prefixEachLine = (element, prefix: string) => {
   const cursor = new Cursor(element);
-  const selected =
-    cursor.getSelected() || cursor.getLine() || "quote something interesting";
-  const addPrefix = selected.indexOf(prefix) !== 0;
+  const position = cursor.getCurrentPosition();
+
+  const addPrefix = cursor.getLine().indexOf(prefix) !== 0;
 
   const removePrefix = (line: string) => {
     if (line.indexOf(`${prefix} `) === 0) return line.slice(prefix.length + 1);
@@ -106,16 +107,18 @@ const prefixEachLine = (element, prefix: string) => {
     return line;
   };
 
-  const lines = selected.split("\n");
-  const modified = lines
-    .map((l) => (addPrefix ? `${prefix} ${l}` : removePrefix(l)))
-    .join("\n");
-  console.log(modified);
+  const output = [];
+  let line: string;
+  for (var i = position.lineNumber; i <= position.lineNumberEnd; i++) {
+    line = cursor.getLine(i);
+    output.push(addPrefix ? `${prefix} ${line}` : removePrefix(line));
+  }
 
-  const position = cursor.getCurrentPosition();
+  const modified = output.join("\n");
+
   cursor.spliceContent(Cursor.raw`${modified}`, {
     startLineNumber: position.lineNumber,
-    replaceCount: lines.length,
+    replaceCount: output.length,
   });
 };
 
