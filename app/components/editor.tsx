@@ -176,15 +176,6 @@ function Editor() {
 
   return (
     <EditorWrapper>
-      <input
-        ref={fileRef}
-        type="file"
-        name="file"
-        style={{ display: "none" }}
-        onChange={(event) =>
-          onUploadFiles(ref.current!, event, event.target.files)
-        }
-      />
       <Tabs.Tabs defaultValue="edit">
         <Tabs.List>
           <Tabs.Trigger value="edit">Edit</Tabs.Trigger>
@@ -246,7 +237,9 @@ function Editor() {
             <Toolbar.Button
               value="image"
               aria-label="image"
-              onClick={() => fileRef.current!.click()}
+              onClick={(e) => {
+                fileRef.current?.click();
+              }}
             >
               <ImageIcon />
             </Toolbar.Button>
@@ -304,6 +297,15 @@ function Editor() {
           <Markdown content={value} />
         </Tabs.Content>
       </Tabs.Tabs>
+      <input
+        ref={fileRef}
+        type="file"
+        name="file"
+        onClick={(event) => {
+          onUploadFiles(ref.current!, event, event.target.files);
+        }}
+        style={{ display: "none", position: "absolute", left: -100000 }}
+      />
     </EditorWrapper>
   );
 }
