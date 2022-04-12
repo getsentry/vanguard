@@ -48,6 +48,7 @@
     "isomorphic-dompurify": "^0.18.0",
     "jsonwebtoken": "^8.5.1",
     "marked": "^4.0.14",
+    "moment": "^2.29.2",
     "morgan": "^1.10.0",
     "prisma": "^3.11.1",
     "react": "^17.0.2",

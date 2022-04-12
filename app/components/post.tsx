@@ -1,6 +1,7 @@
 import { Link } from "@remix-run/react";
 import PostLink from "./post-link";
 import Markdown from "./markdown";
+import moment from "moment";
 
 export default function Post({ post }: { post: object }) {
   return (
@@ -10,7 +11,8 @@ export default function Post({ post }: { post: object }) {
       </h2>
       <h3>
         <Link to={`/${post.category.slug}`}>{post.category.name}</Link> &mdash;
-        By <Link to={`/u/${post.author.email}`}>{post.author.name}</Link>
+        By <Link to={`/u/${post.author.email}`}>{post.author.name}</Link>{" "}
+        &mdash; {moment(post.createdAt).format("dddd")}
       </h3>
       {!post.published && (
         <div className="py-6">

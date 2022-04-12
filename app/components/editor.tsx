@@ -132,7 +132,6 @@ function Editor({
         ]}
       >
         <TextareaAutosize
-          //   ref={contentRef}
           name="content"
           minRows={15}
           required

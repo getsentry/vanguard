@@ -67,6 +67,7 @@ export function getPostList({
       author: true,
       category: true,
       published: true,
+      createdAt: true,
     },
     skip: offset,
     take: limit,
