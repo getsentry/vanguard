@@ -38,10 +38,6 @@ function replaceText(cursor: Cursor, text: string, replaceWith: string) {
   cursor.setText(cursor.getText().replace(text, replaceWith));
 }
 
-function wrapSelection(cursor: Cursor, text: string, replaceWith: string) {
-  cursor.setText(cursor.getText().replace(text, replaceWith));
-}
-
 function handleUploadImages(textareaEl: HTMLTextAreaElement, files: File[]) {
   const cursor = new Cursor(textareaEl);
   const currentLineNumber = cursor.getCurrentPosition().lineNumber;
@@ -92,22 +88,21 @@ const onUploadFiles = (
   handleUploadImages(event.currentTarget, imageFiles);
 };
 
-// XXX(dcramer): the built-in 'block-quotes' command is not implemented well
-const quoteCommandHandler: CommandHandler = ({ element }) => {
+const prefixEachLine = (element, prefix: string): string => {
   const cursor = new Cursor(element);
   const selected =
     cursor.getSelected() || cursor.getLine() || "quote something interesting";
-  const addPrefix = selected.indexOf(">") !== 0;
+  const addPrefix = selected.indexOf(prefix) !== 0;
 
   const removePrefix = (line: string) => {
-    if (line.indexOf("> ") === 0) return line.slice(2);
-    if (line.indexOf(">") === 0) return line.slice(1);
+    if (line.indexOf(`${prefix} `) === 0) return line.slice(prefix.length + 1);
+    if (line.indexOf(prefix) === 0) return line.slice(prefix.length);
     return line;
   };
 
   const lines = selected.split("\n");
   const modified = lines
-    .map((l) => (addPrefix ? `> ${l}` : removePrefix(l)))
+    .map((l) => (addPrefix ? `${prefix} ${l}` : removePrefix(l)))
     .join("\n");
   console.log(modified);
 
@@ -116,6 +111,16 @@ const quoteCommandHandler: CommandHandler = ({ element }) => {
     startLineNumber: position.lineNumber,
     replaceCount: lines.length,
   });
+};
+
+// XXX(dcramer): the built-in 'unordered-list' command is not implemented well
+const unorderedListCommandHandler: CommandHandler = ({ element }) => {
+  return prefixEachLine(element, "-");
+};
+
+// XXX(dcramer): the built-in 'block-quotes' command is not implemented well
+const quoteCommandHandler: CommandHandler = ({ element }) => {
+  return prefixEachLine(element, ">");
 };
 
 // XXX(dcramer): the built-in 'code-block' command is not implemented well
@@ -196,20 +201,20 @@ function Editor() {
             <Toolbar.Button
               value="unordered-list"
               aria-label="Unordered List"
-              onClick={() => ref.current?.trigger("unordered-list")}
+              onClick={() => ref.current?.trigger("vg-unordered-list")}
             >
               <ListBulletIcon />
             </Toolbar.Button>
             <Toolbar.Button
-              value="vg-code-block"
-              aria-label="vg-code-block"
+              value="code-block"
+              aria-label="code-block"
               onClick={() => ref.current?.trigger("vg-code-block")}
             >
               <CodeIcon />
             </Toolbar.Button>
             <Toolbar.Button
-              value="vg-quote-block"
-              aria-label="vg-quote-block"
+              value="quote-block"
+              aria-label="quote-block"
               onClick={() => ref.current?.trigger("vg-quote-block")}
             >
               <QuoteIcon />
@@ -245,6 +250,10 @@ function Editor() {
               {
                 name: "vg-quote-block",
                 handler: quoteCommandHandler,
+              },
+              {
+                name: "vg-unordered-list",
+                handler: unorderedListCommandHandler,
               },
               {
                 name: "vg-code-block",
