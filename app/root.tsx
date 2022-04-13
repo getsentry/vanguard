@@ -13,6 +13,7 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useMatches,
 } from "@remix-run/react";
 import * as Sentry from "@sentry/react";
 
@@ -23,6 +24,7 @@ import { getUser } from "./session.server";
 
 import Logo from "./icons/Logo";
 import { Toaster } from "react-hot-toast";
+import { useEffect } from "react";
 
 export const links: LinksFunction = () => {
   return [
@@ -81,8 +83,22 @@ export function ErrorBoundary({ error }) {
   );
 }
 
+function useSentry() {
+  const matches = useMatches();
+  useEffect(
+    () => {
+      Sentry.configureScope((scope) => {
+        scope.setTransactionName(matches[matches.length - 1].id);
+      });
+    },
+    matches.map((m) => m.id)
+  );
+}
+
 export default function App() {
   const { user, ENV } = useLoaderData();
+
+  useSentry();
 
   return (
     <html lang="en" className="h-full">
