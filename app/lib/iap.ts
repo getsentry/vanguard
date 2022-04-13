@@ -62,6 +62,9 @@ async function verifyGoogleToken(token: string) {
 
 export async function getIdentity(request: Request): Promise<Identity | null> {
   if (process.env.NODE_ENV !== "production") {
+    console.log(
+      "Dev environment bypassing authentication as dummy@example.com"
+    );
     return {
       name: "Dummy User",
       email: "dummy@example.com",
@@ -78,6 +81,7 @@ export async function getIdentity(request: Request): Promise<Identity | null> {
       // Sentry.captureException(err);
     }
     if (payload) {
+      console.log(`IAP header verified as ${payload!.email}`);
       return {
         name: payload!.name,
         email: payload!.email,
