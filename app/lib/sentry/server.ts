@@ -52,7 +52,7 @@ export function withSentry(handler) {
     try {
       return handler(request, ...rest);
     } catch (e) {
-      Sentry.captureException(e);
+      // Sentry.captureException(e);
       throw e;
     } finally {
       transaction.finish();
