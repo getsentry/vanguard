@@ -3,7 +3,42 @@ import { RemixServer } from "@remix-run/react";
 import { renderToString } from "react-dom/server";
 import { ServerStyleSheet } from "styled-components";
 
-export default function handleRequest(
+import * as Sentry from "@sentry/node";
+
+import "@sentry/tracing";
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+
+  // We recommend adjusting this value in production, or using tracesSampler
+  // for finer control
+  tracesSampleRate: 1.0,
+});
+
+function withSentry(handler) {
+  const wrapped = (request: Request, ...params) => {
+    Sentry.configureScope((scope) => {
+      scope.setTransactionName(request.url);
+    });
+    const transaction = Sentry.startTransaction({
+      op: "remix.handle-request",
+      name: request.url,
+    });
+
+    try {
+      return handler(request, ...params);
+    } catch (e) {
+      Sentry.captureException(e);
+      throw e;
+    } finally {
+      transaction.finish();
+    }
+  };
+
+  return wrapped;
+}
+
+function handleRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
@@ -27,3 +62,5 @@ export default function handleRequest(
     headers: responseHeaders,
   });
 }
+
+export default withSentry(handleRequest);
