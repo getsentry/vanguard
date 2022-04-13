@@ -1,24 +1,30 @@
-import React, { useEffect, useRef } from "react";
+import React, { Fragment, useEffect, useRef } from "react";
 import { Form } from "@remix-run/react";
 import type { TextareaMarkdownRef } from "textarea-markdown-editor";
 
 import type { Category } from "../models/category.server";
 import Editor from "./editor";
 
-export type ActionData = {
-  errors?: {
-    title?: string;
-    content?: string;
-    categoryId?: string;
-  };
+export type PostFormErrors = {
+  title?: string;
+  content?: string;
+  categoryId?: string;
+};
+
+export type PostFormInitialData = {
+  title?: string;
+  content?: string;
+  categoryId?: string;
 };
 
 export default function PostForm({
   categoryList,
-  actionData,
+  errors,
+  initialData = {},
 }: {
   categoryList: Category[];
-  actionData: ActionData;
+  errors?: PostFormErrors;
+  initialData?: PostFormInitialData;
 }) {
   const contentRef = useRef<TextareaMarkdownRef>(null);
 
@@ -27,14 +33,14 @@ export default function PostForm({
   const categoryIdRef = useRef<HTMLSelectElement>(null);
 
   useEffect(() => {
-    if (actionData?.errors?.title) {
+    if (errors?.title) {
       titleRef.current?.focus();
-    } else if (actionData?.errors?.content) {
+    } else if (errors?.content) {
       contentRef.current?.focus();
-    } else if (actionData?.errors?.categoryId) {
+    } else if (errors?.categoryId) {
       categoryIdRef.current?.focus();
     }
-  }, [actionData]);
+  }, [errors]);
 
   return (
     <Form
@@ -48,7 +54,6 @@ export default function PostForm({
       className="p-4"
     >
       <h3>Create New Post</h3>
-
       <div>
         <label className="">
           <span>Title: </span>
@@ -59,31 +64,28 @@ export default function PostForm({
             required
             placeholder="Title"
             autoFocus
-            aria-invalid={actionData?.errors?.title ? true : undefined}
-            aria-errormessage={
-              actionData?.errors?.title ? "title-error" : undefined
-            }
+            defaultValue={initialData.title}
+            aria-invalid={errors?.title ? true : undefined}
+            aria-errormessage={errors?.title ? "title-error" : undefined}
           />
         </label>
-        {actionData?.errors?.title && (
+        {errors?.title && (
           <div className="pt-1 text-red-700" id="title-error">
-            {actionData.errors.title}
+            {errors.title}
           </div>
         )}
       </div>
-
       <div>
         <label>
           <span>Content: </span>
-          <Editor contentRef={contentRef} />
-          {actionData?.errors?.content && (
+          <Editor defaultValue={initialData.content} />
+          {errors?.content && (
             <div className="pt-1 text-red-700" id="content-error">
-              {actionData.errors.content}
+              {errors.content}
             </div>
           )}
         </label>
       </div>
-
       <div>
         <label className="flex w-full flex-col gap-1">
           <span>Category: </span>
@@ -92,38 +94,49 @@ export default function PostForm({
             name="categoryId"
             required
             className=""
-            aria-invalid={actionData?.errors?.categoryId ? true : undefined}
+            aria-invalid={errors?.categoryId ? true : undefined}
             aria-errormessage={
-              actionData?.errors?.categoryId ? "categoryId-error" : undefined
+              errors?.categoryId ? "categoryId-error" : undefined
             }
           >
             <option />
             {categoryList.map((category) => (
-              <option value={category.id} key={category.id}>
+              <option
+                value={category.id}
+                key={category.id}
+                selected={initialData.categoryId === category.id}
+              >
                 {category.name}
               </option>
             ))}
           </select>
         </label>
-        {actionData?.errors?.categoryId && (
+        {errors?.categoryId && (
           <div className="pt-1 text-red-700" id="categoryId-error">
-            {actionData.errors.categoryId}
+            {errors.categoryId}
           </div>
         )}
       </div>
-
       <div>
-        <button
-          type="submit"
-          name="published"
-          value="true"
-          className="btn btn-primary"
-        >
-          Publish
-        </button>
-        <button type="submit" className="btn">
-          Save Draft
-        </button>
+        {initialData ? (
+          <button type="submit" className="btn btn-primary">
+            Save Changes
+          </button>
+        ) : (
+          <Fragment>
+            <button
+              type="submit"
+              name="published"
+              value="true"
+              className="btn btn-primary"
+            >
+              Publish
+            </button>
+            <button type="submit" className="btn">
+              Save Draft
+            </button>
+          </Fragment>
+        )}
       </div>
     </Form>
   );

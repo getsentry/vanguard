@@ -7,7 +7,7 @@ import { deletePost, getPost, updatePost } from "~/models/post.server";
 import type { Post } from "~/models/post.server";
 import { requireUserId } from "~/session.server";
 import { useUser } from "~/utils";
-import {default as PostTemplate} from "~/components/post";
+import { default as PostTemplate } from "~/components/post";
 
 type LoaderData = {
   post: Post;
@@ -28,6 +28,11 @@ export const action: ActionFunction = async ({ request, params }) => {
   const userId = await requireUserId(request);
   invariant(params.postId, "postId not found");
 
+  const post = await getPost({ userId, id: params.postId });
+  if (!post) {
+    throw new Response("Not Found", { status: 404 });
+  }
+
   const formData = await request.formData();
   const action = formData.get("action");
   if (action === "publish") {
@@ -36,15 +41,18 @@ export const action: ActionFunction = async ({ request, params }) => {
   } else if (action === "unpublish") {
     await updatePost({ userId, id: params.postId, published: false });
     //return redirect(`/posts/${params.postId}`);
+  } else if (action === "edit") {
+    return redirect(`/${post!.category.slug}/${post!.id}/edit`);
   } else if (action === "delete") {
     await deletePost({ userId, id: params.postId });
     return redirect("/");
   }
+  return null;
 };
 
 const PostActions = ({ post }: { post: Post }) => {
   return (
-    <Form method="post">
+    <Form method="post" style={{ padding: "20px 0" }}>
       {!post.published ? (
         <button
           type="submit"
@@ -67,8 +75,16 @@ const PostActions = ({ post }: { post: Post }) => {
       <button
         type="submit"
         name="action"
+        value="edit"
+        className="mx-4 rounded bg-blue-500 py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400"
+      >
+        Edit
+      </button>
+      <button
+        type="submit"
+        name="action"
         value="delete"
-        className="rounded bg-red-500  py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400"
+        className="mx-4 rounded bg-red-500 py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400"
       >
         Delete
       </button>

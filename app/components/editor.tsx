@@ -174,10 +174,12 @@ const EditorWrapper = styled.div`
   }
 `;
 
-function Editor() {
-  const [value, setValue] = useState("");
+function Editor({ defaultValue }: { defaultValue?: string }) {
+  const [value, setValue] = useState(defaultValue || "");
   const ref = useRef<TextareaMarkdownRef>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  console.log(value);
 
   return (
     <EditorWrapper>

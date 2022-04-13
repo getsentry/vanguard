@@ -1,39 +1,47 @@
 import React from "react";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useActionData, useLoaderData } from "@remix-run/react";
+import { useActionData, useLoaderData, useParams } from "@remix-run/react";
 
-import { createPost } from "~/models/post.server";
+import { getPost, updatePost } from "~/models/post.server";
+import type { Post } from "~/models/post.server";
 import { requireUserId } from "~/session.server";
 import { getCategory, getCategoryList } from "~/models/category.server";
 import type { Category } from "~/models/category.server";
 import PostForm, { PostFormErrors } from "~/components/post-form";
+import invariant from "tiny-invariant";
 
 type LoaderData = {
   categoryList: Category[];
+  post: Post;
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const userId = await requireUserId(request);
+  invariant(params.postId, "postId not found");
+  const post = await getPost({ userId, id: params.postId });
+  if (!post) {
+    throw new Response("Not Found", { status: 404 });
+  }
   const categoryList = await getCategoryList({
     userId,
     includeRestricted: false,
   });
-  return json<LoaderData>({ categoryList });
+  return json<LoaderData>({ categoryList, post });
 };
 
 type ActionData = {
   errors?: PostFormErrors;
 };
 
-export const action: ActionFunction = async ({ request }) => {
+export const action: ActionFunction = async ({ request, params }) => {
   const userId = await requireUserId(request);
+  invariant(params.postId, "postId not found");
 
   const formData = await request.formData();
   const title = formData.get("title");
   const content = formData.get("content");
   const categoryId = formData.get("categoryId");
-  const published = formData.get("published");
 
   if (typeof categoryId !== "string" || categoryId.length === 0) {
     return json<ActionData>(
@@ -56,27 +64,31 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  const post = await createPost({
+  const post = await updatePost({
+    id: params.postId,
     title,
     content,
     categoryId,
     userId,
-    published: !!published,
   });
 
   const category = await getCategory({ id: categoryId });
-
   return redirect(`/${category.slug}/${post.id}`);
 };
 
-export default function NewPostPage() {
-  const loaderData = useLoaderData() as LoaderData;
+export default function EditPostPage() {
+  const { categoryList, post } = useLoaderData() as LoaderData;
   const actionData = useActionData() as ActionData;
 
   return (
     <PostForm
-      categoryList={loaderData.categoryList}
-      errors={actionData.errors}
+      categoryList={categoryList}
+      errors={actionData?.errors}
+      initialData={{
+        title: post.title,
+        content: post.content!,
+        categoryId: post.categoryId,
+      }}
     />
   );
 }

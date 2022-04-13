@@ -78,10 +78,16 @@ export function getPostList({
 export async function updatePost({
   id,
   userId,
+  title,
+  content,
+  categoryId,
   published,
 }: {
   id: Post["id"];
   userId: User["id"];
+  title?: Post["title"];
+  content?: Post["content"];
+  categoryId?: Post["categoryId"];
   published?: Post["published"];
 }) {
   const user = await prisma.user.findFirst({ where: { id: userId } });
@@ -97,6 +103,9 @@ export async function updatePost({
 
   const data: { [key: string]: any } = {};
   if (published !== undefined) data.published = !!published;
+  if (title !== undefined) data.title = title;
+  if (content !== undefined) data.content = content;
+  if (categoryId !== undefined) data.categoryId = categoryId;
 
   return await prisma.post.update({
     where: {
