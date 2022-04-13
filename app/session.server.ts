@@ -21,6 +21,9 @@ export const sessionStorage = createCookieSessionStorage({
 const USER_SESSION_KEY = "userId";
 
 export async function getSession(request: Request) {
+  // we are caching this as a quick workaround to ensure we prevent multiple upserts in hydration
+  // could probably look at something like https://remix.run/docs/en/v1/other-api/adapter#createrequesthandler
+  // to achieve this, though its certainly a lot more boilerplate and complexity
   if (request.hasOwnProperty("session")) {
     return request.session;
   }

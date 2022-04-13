@@ -4,13 +4,11 @@ import styled from "styled-components";
 import IconShip from "~/icons/IconShip";
 
 const Tag = (props: object) => {
-  console.log(props.category);
   return (
     <TagWrapper to={`/${props.category}`}>
       <IconShip height={20} />
     </TagWrapper>
-
-  )
+  );
 };
 
 const TagWrapper = styled(Link)`
