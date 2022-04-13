@@ -13,9 +13,7 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
-  useMatches,
 } from "@remix-run/react";
-import * as Sentry from "@sentry/react";
 
 import tailwindStylesheetUrl from "./styles/tailwind.css";
 import baseCss from "./styles/base.css";
@@ -24,7 +22,7 @@ import { getUser } from "./session.server";
 
 import Logo from "./icons/Logo";
 import { Toaster } from "react-hot-toast";
-import { useEffect } from "react";
+import * as Sentry from "./lib/sentry/client";
 
 export const links: LinksFunction = () => {
   return [
@@ -84,26 +82,13 @@ export function ErrorBoundary({ error }) {
   );
 }
 
-function useSentry() {
-  const matches = useMatches();
-  useEffect(
-    () => {
-      Sentry.configureScope((scope) => {
-        scope.setTransactionName(matches[matches.length - 1].id);
-      });
-    },
-    matches.map((m) => m.id)
-  );
-}
-
 export default function App() {
   const { user, ENV } = useLoaderData();
-
-  useSentry();
 
   return (
     <html lang="en" className="h-full">
       <head>
+        <Sentry.Component />
         <Meta />
         <Links />
         {typeof document === "undefined" ? "__STYLES__" : null}

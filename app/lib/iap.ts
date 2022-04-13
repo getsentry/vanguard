@@ -1,6 +1,7 @@
 // This is intended to be a somewhat agnostic abstraction to use IAP with Next.js
 
 import jwt, { JwtPayload } from "jsonwebtoken";
+import * as Sentry from "./sentry/client";
 
 export type Identity = {
   name: string;
@@ -78,7 +79,7 @@ export async function getIdentity(request: Request): Promise<Identity | null> {
     try {
       payload = await verifyGoogleToken(token as string);
     } catch (err) {
-      // Sentry.captureException(err);
+      Sentry.captureException(err);
     }
     if (payload) {
       console.log(`IAP header verified as ${payload!.email}`);
