@@ -18,7 +18,7 @@ import {
 import tailwindStylesheetUrl from "./styles/tailwind.css";
 import baseCss from "./styles/base.css";
 import fontsCss from "./styles/fonts.css";
-import { getUser } from "./session.server";
+import { getSession, getUser, sessionStorage } from "./session.server";
 
 import Logo from "./icons/Logo";
 import { Toaster } from "react-hot-toast";
@@ -44,13 +44,22 @@ type LoaderData = {
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
-  return json<LoaderData>({
-    user: await getUser(request),
-    ENV: {
-      SENTRY_DSN: process.env.SENTRY_DSN,
-      NODE_ENV: process.env.NODE_ENV || "development",
+  return json<LoaderData>(
+    {
+      user: await getUser(request),
+      ENV: {
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        NODE_ENV: process.env.NODE_ENV || "development",
+      },
     },
-  });
+    {
+      headers: {
+        "Set-Cookie": await sessionStorage.commitSession(
+          await getSession(request)
+        ),
+      },
+    }
+  );
 };
 
 export function ErrorBoundary({ error }) {
