@@ -24,6 +24,10 @@ import * as Toolbar from "./editor-toolbar";
 import * as Tabs from "./editor-tabs";
 import Markdown from "./markdown";
 
+function replaceText(cursor: Cursor, text: string, replaceWith: string) {
+  cursor.setText(cursor.getText().replace(text, replaceWith));
+}
+
 async function uploadImage(file: File) {
   const formData = new FormData();
   formData.append("file", file);
@@ -36,15 +40,11 @@ async function uploadImage(file: File) {
   return await res.json();
 }
 
-function replaceText(cursor: Cursor, text: string, replaceWith: string) {
-  cursor.setText(cursor.getText().replace(text, replaceWith));
-}
-
-function handleUploadImages(textareaEl: HTMLTextAreaElement, files: File[]) {
+function handleUploadImages(textareaEl: HTMLTextAreaElement, fileList: File[]) {
   const cursor = new Cursor(textareaEl);
   const currentLineNumber = cursor.getCurrentPosition().lineNumber;
 
-  files.forEach(async (file, idx) => {
+  fileList.forEach(async (file, idx) => {
     const loadingText = `![Uploading ${file.name}...]()`;
 
     cursor.spliceContent(Cursor.raw`${loadingText}${Cursor.$}`, {
@@ -307,7 +307,8 @@ function Editor() {
       <input
         ref={fileRef}
         type="file"
-        onClick={(event) => {
+        onClick={(event) => {}}
+        onChange={(event) => {
           onUploadFiles(ref.current!, event, event.target.files);
           fileRef.current!.value = "";
         }}
