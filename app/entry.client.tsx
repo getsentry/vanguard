@@ -5,7 +5,7 @@ import * as Sentry from "@sentry/react";
 import { BrowserTracing } from "@sentry/tracing";
 
 Sentry.init({
-  dsn: ENV.SENTRY_DSN,
+  dsn: window?.ENV?.SENTRY_DSN,
 
   // Alternatively, use `process.env.npm_package_version` for a dynamic release version
   // if your build tool supports it.
