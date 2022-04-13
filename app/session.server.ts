@@ -21,6 +21,9 @@ export const sessionStorage = createCookieSessionStorage({
 const USER_SESSION_KEY = "userId";
 
 export async function getSession(request: Request) {
+  if (request.hasOwnProperty("session")) {
+    return request.session;
+  }
   const identity = await getIdentity(request);
   const cookie = request.headers.get("Cookie");
   const session = await sessionStorage.getSession(cookie);
@@ -35,6 +38,10 @@ export async function getSession(request: Request) {
     });
     session.set(USER_SESSION_KEY, user.id);
   }
+  Object.defineProperty(request, "session", {
+    value: session,
+    writable: false,
+  });
 
   return session;
 }
