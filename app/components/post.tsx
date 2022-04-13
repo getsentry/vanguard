@@ -12,7 +12,7 @@ export default function Post({ post }: { post: object }) {
       <h3>
         <Link to={`/${post.category.slug}`}>{post.category.name}</Link> &mdash;
         By <Link to={`/u/${post.author.email}`}>{post.author.name}</Link>{" "}
-        &mdash; {moment(post.createdAt).format("dddd")}
+        &mdash; {moment(post.createdAt).fromNow()}
       </h3>
       {!post.published && (
         <div className="py-6">
