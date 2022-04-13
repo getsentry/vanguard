@@ -2,13 +2,14 @@ import { Link } from "@remix-run/react";
 import moment from "moment";
 import styled from "styled-components";
 
+import Content from "./content";
 import PostLink from "./post-link";
 import Markdown from "./markdown";
 import Tag from "./tag";
 
 export default function Post({ post }: { post: object }) {
   return (
-    <div className="post">
+    <article className="post">
       <Tag category={post.category.slug} />
       <h2>
         <PostLink post={post}>{post.title}</PostLink>
@@ -22,15 +23,15 @@ export default function Post({ post }: { post: object }) {
           <Date>{moment(post.createdAt).fromNow()}</Date>
         </Byline>
       </Credits>
-      {
-        !post.published && (
-          <div className="py-6">
-            <small>This post has not yet been published.</small>
-          </div>
-        )
-      }
-      <Markdown content={post.content || ""} />
-    </div >
+      {!post.published && (
+        <div className="py-6">
+          <small>This post has not yet been published.</small>
+        </div>
+      )}
+      <Content>
+        <Markdown content={post.content || ""} />
+      </Content>
+    </article>
   );
 }
 

@@ -7,8 +7,6 @@ import type {
   TextareaMarkdownRef,
 } from "textarea-markdown-editor";
 import styled from "styled-components";
-import * as Toolbar from "./editor-toolbar";
-import * as Tabs from "./editor-tabs";
 import toast from "react-hot-toast";
 import {
   StrikethroughIcon,
@@ -20,6 +18,10 @@ import {
   QuoteIcon,
   ListBulletIcon,
 } from "@radix-ui/react-icons";
+
+import Content from "./content";
+import * as Toolbar from "./editor-toolbar";
+import * as Tabs from "./editor-tabs";
 import Markdown from "./markdown";
 
 async function uploadImage(file: File) {
@@ -297,7 +299,9 @@ function Editor() {
           </TextareaMarkdown.Wrapper>
         </Tabs.Content>
         <Tabs.Content value="preview">
-          <Markdown content={value} />
+          <Content>
+            <Markdown content={value} />
+          </Content>
         </Tabs.Content>
       </Tabs.Tabs>
       <input
