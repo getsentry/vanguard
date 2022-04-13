@@ -44,6 +44,8 @@ type LoaderData = {
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
+  const session = await getSession(request);
+  const cookie = await sessionStorage.commitSession(session);
   return json<LoaderData>(
     {
       user: await getUser(request),
@@ -52,11 +54,10 @@ export const loader: LoaderFunction = async ({ request }) => {
         NODE_ENV: process.env.NODE_ENV || "development",
       },
     },
+    // XXX(dcramer): is this the best way to ensure the session is persisted here?
     {
       headers: {
-        "Set-Cookie": await sessionStorage.commitSession(
-          await getSession(request)
-        ),
+        "Set-Cookie": cookie,
       },
     }
   );
