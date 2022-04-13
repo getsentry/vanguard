@@ -24,16 +24,16 @@ export async function getSession(request: Request) {
   const identity = await getIdentity(request);
   const cookie = request.headers.get("Cookie");
   const session = await sessionStorage.getSession(cookie);
+
   if (!identity) {
     session.unset(USER_SESSION_KEY);
   } else if (!session.get(USER_SESSION_KEY)) {
-    // TODO: upsert the user
+    console.log(`Persisting user ${identity.email}`);
     const user = await upsertUser({
       email: identity.email,
       name: identity.name,
     });
     session.set(USER_SESSION_KEY, user.id);
-    request.headers.set("Cookie", await sessionStorage.commitSession(session));
   }
 
   return session;
