@@ -50,6 +50,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     user: await getUser(request),
     ENV: {
       SENTRY_DSN: process.env.SENTRY_DSN,
+      NODE_ENV: process.env.NODE_ENV || "development",
     },
   });
 };
