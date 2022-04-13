@@ -6,6 +6,7 @@ import { ServerStyleSheet } from "styled-components";
 import * as Sentry from "@sentry/node";
 
 import "@sentry/tracing";
+import { prisma } from "./db.server";
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
@@ -14,6 +15,42 @@ Sentry.init({
   // for finer control
   tracesSampleRate: 1.0,
 });
+
+// https://github.com/getsentry/sentry-javascript/issues/3143
+function installPrismaTracer() {
+  prisma.$use(async (params, next) => {
+    const { model, action, runInTransaction, args } = params;
+    const description = [model, action].filter(Boolean).join(".");
+    const data = {
+      model,
+      action,
+      runInTransaction,
+      args,
+    };
+
+    const scope = Sentry.getCurrentHub().getScope();
+    const parentSpan = scope?.getSpan();
+    const span = parentSpan?.startChild({
+      op: "db",
+      description,
+      data,
+    });
+
+    // optional but nice
+    scope?.addBreadcrumb({
+      category: "db",
+      message: description,
+      data,
+    });
+
+    const result = await next(params);
+    span?.finish();
+
+    return result;
+  });
+}
+
+installPrismaTracer();
 
 function withSentry(handler) {
   const wrapped = (request: Request, ...params) => {
