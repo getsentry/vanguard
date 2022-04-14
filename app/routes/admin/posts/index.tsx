@@ -60,7 +60,7 @@ export default function Index() {
                       </Link>
                     </td>
                     <td>
-                      <BooleanIcon value={post.admin} />
+                      <BooleanIcon value={post.published} />
                     </td>
                     <td>{moment(post.createdAt).fromNow()}</td>
                   </tr>
