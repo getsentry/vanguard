@@ -11,6 +11,7 @@ import { default as PostTemplate } from "~/components/post";
 import moment from "moment";
 import { DefinitionList } from "~/components/definition-list";
 import * as Panel from "~/components/panel";
+import Block from "~/components/block";
 
 type LoaderData = {
   post: Post;
