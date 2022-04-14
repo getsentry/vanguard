@@ -68,7 +68,9 @@ export async function getPostList({
       author: true,
       category: true,
       published: true,
+      publishedAt: true,
       createdAt: true,
+      updatedAt: true,
     },
     skip: offset,
     take: limit,
@@ -108,6 +110,8 @@ export async function updatePost({
   if (content !== undefined) data.content = content;
   if (categoryId !== undefined) data.categoryId = categoryId;
 
+  if (data.published && !post.publishedAt) data.publishedAt = Date.now();
+
   return await prisma.post.update({
     where: {
       id,
@@ -132,6 +136,7 @@ export function createPost({
       title,
       content,
       published,
+      publishedAt: published ? Date.now() : null,
       author: {
         connect: {
           id: userId,

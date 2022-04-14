@@ -52,7 +52,7 @@ export default function Post({ post }: { post: object }) {
           <Name>
             <Link to={`/u/${post.author.email}`}>{post.author.name}</Link>
           </Name>
-          <Date>{moment(post.createdAt).fromNow()}</Date>
+          <Date>{moment(post.publishedAt || post.createdAt).fromNow()}</Date>
         </Byline>
       </Credits>
       {!post.published && (

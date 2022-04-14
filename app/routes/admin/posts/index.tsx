@@ -45,7 +45,7 @@ export default function Index() {
                   <th>Title</th>
                   <th>Author</th>
                   <th>Published?</th>
-                  <th>Date</th>
+                  <th>Publish Date</th>
                 </tr>
               </thead>
               <tbody>
@@ -62,7 +62,9 @@ export default function Index() {
                     <td>
                       <BooleanIcon value={post.published} />
                     </td>
-                    <td>{moment(post.createdAt).fromNow()}</td>
+                    <td>
+                      {moment(post.publishedAt || post.createdAt).fromNow()}
+                    </td>
                   </tr>
                 ))}
               </tbody>
