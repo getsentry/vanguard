@@ -138,17 +138,12 @@ const codeCommandHandler: CommandHandler = ({ element }) => {
   const selected =
     cursor.getSelected() || cursor.getLine() || "function helloWorld() { }";
   const prefix = "```";
-  console.log(selected.indexOf(prefix, prefix.length), selected.length);
   const removeBlock =
     selected.indexOf(prefix) === 0 &&
     selected.indexOf(prefix, prefix.length) === selected.length - prefix.length;
 
   const removePrefix = (text: string) => {
     if (text.indexOf(prefix) === 0) text = text.slice(prefix.length);
-    console.log(
-      text.indexOf(prefix),
-      text.indexOf(prefix) === text.length - prefix.length
-    );
     if (text.indexOf(prefix) === text.length - prefix.length)
       text = text.slice(0, -prefix.length);
     return text;
@@ -178,8 +173,6 @@ function Editor({ defaultValue }: { defaultValue?: string }) {
   const [value, setValue] = useState(defaultValue || "");
   const ref = useRef<TextareaMarkdownRef>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-
-  console.log(value);
 
   return (
     <EditorWrapper>
