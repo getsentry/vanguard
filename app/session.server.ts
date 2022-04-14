@@ -20,6 +20,8 @@ export const sessionStorage = createCookieSessionStorage({
 
 const USER_SESSION_KEY = "userId";
 
+const USER_SESSION_EID_KEY = "userEId";
+
 export async function getSession(request: Request) {
   // we are caching this as a quick workaround to ensure we prevent multiple upserts in hydration
   // could probably look at something like https://remix.run/docs/en/v1/other-api/adapter#createrequesthandler
@@ -33,13 +35,18 @@ export async function getSession(request: Request) {
 
   if (!identity) {
     session.unset(USER_SESSION_KEY);
-  } else if (!session.get(USER_SESSION_KEY)) {
+  } else if (
+    !session.get(USER_SESSION_KEY) ||
+    session.get(USER_SESSION_EID_KEY) !== identity.id
+  ) {
     console.log(`Persisting user ${identity.email}`);
     const user = await upsertUser({
       email: identity.email,
       name: identity.name,
+      externalId: identity.id,
     });
     session.set(USER_SESSION_KEY, user.id);
+    session.set(USER_SESSION_EID_KEY, user.externalId);
   }
   Object.defineProperty(request, "session", {
     value: session,

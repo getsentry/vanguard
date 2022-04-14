@@ -8,6 +8,10 @@ export async function getUserById(id: User["id"]) {
   return prisma.user.findUnique({ where: { id } });
 }
 
+export async function getUserByExternalId(externalId: User["externalId"]) {
+  return prisma.user.findUnique({ where: { externalId } });
+}
+
 export async function getUserByEmail(email: User["email"]) {
   return prisma.user.findUnique({ where: { email } });
 }
@@ -33,14 +37,6 @@ export async function getUserList(
   });
 }
 
-export async function createUser(email: User["email"], password: string) {
-  return prisma.user.create({
-    data: {
-      email,
-    },
-  });
-}
-
 export async function deleteUserByEmail(email: User["email"]) {
   return prisma.user.delete({ where: { email } });
 }
@@ -48,20 +44,24 @@ export async function deleteUserByEmail(email: User["email"]) {
 export async function upsertUser({
   email,
   name,
+  externalId,
 }: {
   email: User["email"];
   name: User["name"];
+  externalId: User["externalId"];
 }) {
   return await prisma.user.upsert({
     where: {
-      email: email,
+      email,
     },
     update: {
-      name: name,
+      name,
+      externalId,
     },
     create: {
-      name: name,
-      email: email,
+      name,
+      email,
+      externalId,
     },
   });
 }

@@ -4,6 +4,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import * as Sentry from "./sentry/client";
 
 export type Identity = {
+  id: string;
   name: string;
   email: string;
 };
@@ -64,11 +65,12 @@ async function verifyGoogleToken(token: string) {
 export async function getIdentity(request: Request): Promise<Identity | null> {
   if (process.env.NODE_ENV !== "production") {
     console.log(
-      "Dev environment bypassing authentication as dummy@example.com"
+      "Dev environment bypassing authentication as jane.doe@example.com"
     );
     return {
-      name: "Dummy User",
-      email: "dummy@example.com",
+      id: "dummy-iap-user",
+      name: "Jane Doe",
+      email: "jane.doe@example.com",
     };
   }
 
@@ -84,6 +86,7 @@ export async function getIdentity(request: Request): Promise<Identity | null> {
     if (payload) {
       console.log(`IAP header verified as ${payload!.email}`);
       return {
+        id: payload!.sub,
         name: payload!.name,
         email: payload!.email,
       };
