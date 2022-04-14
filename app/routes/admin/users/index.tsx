@@ -45,7 +45,7 @@ export default function Index() {
                 {result.map((user) => (
                   <tr key={user.id}>
                     <td>
-                      <Link to={`/u/${author.email}`}>{user.email}</Link>
+                      <Link to={`/u/${user.email}`}>{user.email}</Link>
                     </td>
                     <td>{user.name}</td>
                     <td>
