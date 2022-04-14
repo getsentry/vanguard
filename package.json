@@ -106,9 +106,12 @@
     "vitest": "^0.8.2"
   },
   "engines": {
-    "node": ">=14"
+    "node": ">=16.11"
   },
   "prisma": {
     "seed": "ts-node --require tsconfig-paths/register prisma/seed.ts"
+  },
+  "volta": {
+    "node": "16.11.0"
   }
 }
