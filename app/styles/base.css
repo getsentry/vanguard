@@ -120,10 +120,26 @@ h6 {
 p,
 ul,
 ol,
-blockquote {
+blockquote,
+form,
+table,
+pre {
   font-size: 1.8rem;
   margin-bottom: 3rem;
   line-height: 1.6;
+}
+
+pre,
+code {
+  font-family: monospace;
+}
+
+pre {
+  white-space: pre-wrap; /* Since CSS 2.1 */
+  white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+  white-space: -pre-wrap; /* Opera 4-6 */
+  white-space: -o-pre-wrap; /* Opera 7 */
+  word-wrap: break-word; /* Internet Explorer 5.5+ */
 }
 
 /* Button */
