@@ -1,16 +1,23 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
+import { CheckIcon } from "@radix-ui/react-icons";
 
 import { requireAdmin } from "~/session.server";
 import { getUserList } from "~/models/user.server";
 import { paginate, PaginatedResult } from "~/lib/paginator";
 import Paginated from "~/components/paginated";
+import Table from "~/components/table";
 
 type LoaderData = {
   userListPaginated: Awaited<
     PaginatedResult<Awaited<ReturnType<typeof getUserList>>>
   >;
+};
+
+const Boolean = ({ value }: { value?: boolean | null }) => {
+  if (value) return <CheckIcon />;
+  return null;
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -31,13 +38,26 @@ export default function Index() {
         data={userListPaginated}
         render={(result) => {
           return (
-            <table>
-              {result.map((user) => (
-                <tr key={user.id}>
-                  <td>{user.email}</td>
+            <Table className="table-auto">
+              <thead>
+                <tr>
+                  <th>Email</th>
+                  <th>Name</th>
+                  <th>Admin?</th>
                 </tr>
-              ))}
-            </table>
+              </thead>
+              <tbody>
+                {result.map((user) => (
+                  <tr key={user.id}>
+                    <td>{user.email}</td>
+                    <td>{user.name}</td>
+                    <td>
+                      <Boolean value={user.admin} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
           );
         }}
       />
