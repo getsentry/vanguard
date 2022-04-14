@@ -7,11 +7,10 @@ import { deletePost, getPost, updatePost } from "~/models/post.server";
 import type { Post } from "~/models/post.server";
 import type { User } from "~/models/user.server";
 import { requireUser, requireUserId } from "~/session.server";
-import { useUser } from "~/utils";
 import { default as PostTemplate } from "~/components/post";
 import moment from "moment";
 import { DefinitionList } from "~/components/definition-list";
-import Block from "~/components/block";
+import * as Panel from "~/components/panel";
 
 type LoaderData = {
   post: Post;
@@ -101,8 +100,8 @@ const PostActions = ({ post }: { post: Post }) => {
 
 const PostAdmin = ({ post }: { post: Post }) => {
   return (
-    <Block>
-      <h3>Metadata (Admin Only)</h3>
+    <Panel.Panel>
+      <Panel.Title>Admin</Panel.Title>
       <DefinitionList>
         <dt>Created At</dt>
         <dd>{moment(post.createdAt).format()}</dd>
@@ -111,7 +110,7 @@ const PostAdmin = ({ post }: { post: Post }) => {
         <dt>Updated At</dt>
         <dd>{moment(post.updatedAt).format()}</dd>
       </DefinitionList>
-    </Block>
+    </Panel.Panel>
   );
 };
 

@@ -1,4 +1,5 @@
 import type { User } from "@prisma/client";
+import invariant from "tiny-invariant";
 
 import { prisma } from "~/db.server";
 
@@ -8,7 +9,7 @@ export async function getUserById(id: User["id"]) {
   return prisma.user.findUnique({ where: { id } });
 }
 
-export async function getUserByExternalId(externalId: User["externalId"]) {
+export async function getUserByExternalId(externalId: string) {
   return prisma.user.findUnique({ where: { externalId } });
 }
 
@@ -63,5 +64,33 @@ export async function upsertUser({
       email,
       externalId,
     },
+  });
+}
+
+export async function updateUser({
+  id,
+  userId,
+  admin,
+  canPostRestricted,
+}: {
+  id: User["id"];
+  userId: User["id"];
+  admin?: User["admin"];
+  canPostRestricted?: User["canPostRestricted"];
+}) {
+  const user = await prisma.user.findFirst({ where: { id: userId } });
+  invariant(user, "user not found");
+  invariant(user.admin, "admin required");
+
+  const data: { [key: string]: any } = {};
+  if (admin !== undefined) data.admin = !!admin;
+  if (canPostRestricted !== undefined)
+    data.canPostRestricted = canPostRestricted;
+
+  return await prisma.user.update({
+    where: {
+      id,
+    },
+    data,
   });
 }
