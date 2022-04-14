@@ -63,6 +63,12 @@ async function verifyGoogleToken(token: string) {
   return payload;
 }
 
+// export async function getCurrentGoogleUser(payload) {
+//   const req = await fetch(
+//     `https://www.googleapis.com/plus/v1/people/${payload.sub}`
+//   );
+// }
+
 export async function getIdentity(request: Request): Promise<Identity | null> {
   if (process.env.NODE_ENV !== "production") {
     console.log(
@@ -81,6 +87,7 @@ export async function getIdentity(request: Request): Promise<Identity | null> {
     let payload = null;
     try {
       payload = await verifyGoogleToken(token as string);
+      console.log({ token, payload });
     } catch (err) {
       Sentry.captureException(err);
     }
