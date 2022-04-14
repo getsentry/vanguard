@@ -8,20 +8,20 @@
   /* Define theme variables */
 
   --white: #fff;
-  --gray100: #F7F6FA;
-  --gray200: #D0CBDF;
-  --gray300: #AAA1C3;
-  --gray400: #857AAA;
-  --gray500: #60557F;
-  --gray600: #3D3353;
-  --black: #1D142A;
+  --gray100: #f7f6fa;
+  --gray200: #d0cbdf;
+  --gray300: #aaa1c3;
+  --gray400: #857aaa;
+  --gray500: #60557f;
+  --gray600: #3d3353;
+  --black: #1d142a;
 
-  --green: #65CB35;
-  --yellow: #FFCA00;
-  --orange: #FF7A00;
-  --red: #F0345F;
-  --purple: #7854F6;
-  --blue: #00A3FF;
+  --green: #65cb35;
+  --yellow: #ffca00;
+  --orange: #ff7a00;
+  --red: #f0345f;
+  --purple: #7854f6;
+  --blue: #00a3ff;
 }
 
 html {
@@ -31,7 +31,7 @@ html {
 
 body {
   font-size: 1.6rem;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
 }
@@ -46,6 +46,7 @@ body {
 
 #primary {
   flex: 1;
+  padding-bottom: 6rem;
   margin-right: 40rem;
 }
 
@@ -53,6 +54,7 @@ body {
   position: fixed;
   width: 40rem;
   padding: 0 5rem;
+  padding-bottom: 6rem;
   right: 0;
   top: 0;
   bottom: 0;
@@ -80,6 +82,7 @@ body {
 
 /* Typography */
 
+h1,
 h2,
 h3,
 h4,
@@ -90,9 +93,28 @@ h6 {
   margin-bottom: 2.4rem;
 }
 
+h1 {
+  font-size: 3.75rem;
+}
+
 h2 {
-  font-size: 5rem;
-  font-family: "Gazpacho-Heavy", serif;
+  font-size: 3rem;
+}
+
+h3 {
+  font-size: 2.6rem;
+}
+
+h4 {
+  font-size: 2.25rem;
+}
+
+h5 {
+  font-size: 1.875rem;
+}
+
+h6 {
+  font-size: 1rem;
 }
 
 p,
@@ -108,11 +130,11 @@ blockquote {
 
 .btn {
   padding: 1.2rem 1.6rem;
-  border-radius: .4rem;
+  border-radius: 0.4rem;
   line-height: 1;
   display: inline-flex;
   align-items: center;
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: "IBM Plex Mono", monospace;
   color: var(--gray400);
 }
 
@@ -120,7 +142,6 @@ blockquote {
   background: var(--black);
   color: var(--white);
 }
-
 
 /* Forms */
 
@@ -136,15 +157,20 @@ label span {
   margin-bottom: 1.2rem;
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
   border: 1px solid var(--gray200);
-  padding: .5rem 1rem;
+  padding: 0.5rem 1rem;
   border-radius: 4px;
   display: block;
   font-family: "Inter", sans-serif;
 }
 
-input:focus-visible, textarea:focus-visible, select:focus-visible, button:focus-visible {
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+button:focus-visible {
   outline-color: var(--gray300);
 }
 

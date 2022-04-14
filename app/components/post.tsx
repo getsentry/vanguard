@@ -7,7 +7,12 @@ import PostLink from "./post-link";
 import Markdown from "./markdown";
 import CategoryTag from "./category-tag";
 
-const PostWrapper = styled.article``;
+const PostWrapper = styled.article`
+  h2 {
+    font-size: 5rem;
+    font-family: "Gazpacho-Heavy", serif;
+  }
+`;
 
 const Credits = styled.div`
   display: flex;

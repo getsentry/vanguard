@@ -38,7 +38,7 @@ export default function UserDetailsPage() {
   const { user, postList } = useLoaderData() as LoaderData;
 
   return (
-    <div className="post">
+    <div>
       <h1>{user.name}</h1>
 
       <h2>Most Recent Posts</h2>
