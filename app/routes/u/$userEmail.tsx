@@ -49,7 +49,7 @@ export default function UserDetailsPage() {
               <PostLink post={post}>{post.title}</PostLink>
             </h4>
             <p>
-              <Link to={`/${post.category.slug}`}>{post.category.name}</Link>{" "}
+              <Link to={`/c/${post.category.slug}`}>{post.category.name}</Link>{" "}
               &mdash; {moment(post.createdAt).fromNow()}
             </p>
           </li>
