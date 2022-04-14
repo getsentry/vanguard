@@ -29,9 +29,9 @@ export async function getPost({
   });
 }
 
-export function getPostList({
+export async function getPostList({
   userId,
-  published = true,
+  published,
   authorId,
   categoryId,
   offset = 0,
@@ -44,13 +44,14 @@ export function getPostList({
   offset: number;
   limit: number;
 }) {
-  const where: { [key: string]: any } = published
-    ? {
-        published,
-      }
-    : published === false
-    ? { OR: [{ authorId: userId }, { published }] }
-    : { authorId: userId };
+  const user = await prisma.user.findFirst({ where: { id: userId } });
+  invariant(user, "user not found");
+
+  const where: { [key: string]: any } = {};
+  if (published !== undefined) {
+    where.published = published;
+  }
+  if (!user.admin) where.authorId = userId;
   if (authorId) {
     where.AND = [...(where.AND || []), { authorId }];
   }
@@ -58,7 +59,7 @@ export function getPostList({
     where.AND = [...(where.AND || []), { categoryId }];
   }
 
-  return prisma.post.findMany({
+  return await prisma.post.findMany({
     where,
     select: {
       id: true,
