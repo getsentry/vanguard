@@ -52,7 +52,7 @@ export default function Post({ post }: { post: object }) {
         <PostLink post={post}>{post.title}</PostLink>
       </h2>
       <Credits>
-        <Avatar src="/img/placeholder-avatar.png" />
+        <Avatar src={post.author.picture || "/img/placeholder-avatar.png"} />
         <Byline>
           <Name>
             <Link to={`/u/${post.author.email}`}>{post.author.name}</Link>

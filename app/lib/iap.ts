@@ -7,6 +7,7 @@ export type Identity = {
   id: string;
   name: string;
   email: string;
+  picture?: string;
 };
 
 const GOOGLE_PUBLIC_KEY = "https://www.gstatic.com/iap/verify/public_key";
@@ -89,6 +90,7 @@ export async function getIdentity(request: Request): Promise<Identity | null> {
         id: payload!.sub,
         name: payload!.name,
         email: payload!.email,
+        picture: payload!.picture,
       };
     }
   }

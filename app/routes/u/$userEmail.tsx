@@ -3,6 +3,7 @@ import { json } from "@remix-run/node";
 import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import moment from "moment";
+import styled from "styled-components";
 
 import { getPostList } from "~/models/post.server";
 import type { Post } from "~/models/post.server";
@@ -80,6 +81,12 @@ export const action: ActionFunction = async ({ request, params }) => {
   return null;
 };
 
+const Avatar = styled.img`
+  display: block;
+  width: 48px;
+  height: 48px;
+`;
+
 type LoaderData = {
   postList: Post[];
   user: User;
@@ -112,6 +119,8 @@ export default function UserDetailsPage() {
     <div>
       <h1>{user.name}</h1>
       <h3>{user.email}</h3>
+
+      <Avatar src={user.picture || "/img/placeholder-avatar.png"} />
 
       <h2>Most Recent Posts</h2>
       {postList.length ? (

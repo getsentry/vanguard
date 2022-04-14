@@ -46,10 +46,12 @@ export async function upsertUser({
   email,
   name,
   externalId,
+  picture,
 }: {
   email: User["email"];
   name: User["name"];
   externalId: User["externalId"];
+  picture: User["picture"];
 }) {
   return await prisma.user.upsert({
     where: {
@@ -58,11 +60,13 @@ export async function upsertUser({
     update: {
       name,
       externalId,
+      picture,
     },
     create: {
       name,
       email,
       externalId,
+      picture,
     },
   });
 }
@@ -71,6 +75,7 @@ export async function updateUser({
   id,
   userId,
   admin,
+  picture,
   canPostRestricted,
 }: {
   id: User["id"];

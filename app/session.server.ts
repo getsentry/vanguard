@@ -44,6 +44,7 @@ export async function getSession(request: Request) {
       email: identity.email,
       name: identity.name,
       externalId: identity.id,
+      picture: identity.picture,
     });
     session.set(USER_SESSION_KEY, user.id);
     session.set(USER_SESSION_EID_KEY, user.externalId);
