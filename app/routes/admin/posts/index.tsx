@@ -55,7 +55,7 @@ export default function Index() {
                       <PostLink post={post}>{post.title}</PostLink>
                     </td>
                     <td>
-                      <Link to={`/admin/users/${post.author.email}`}>
+                      <Link to={`/u/${post.author.email}`}>
                         {post.author.email}
                       </Link>
                     </td>

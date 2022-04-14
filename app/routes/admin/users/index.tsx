@@ -1,6 +1,6 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 
 import { requireAdmin } from "~/session.server";
 import { getUserList } from "~/models/user.server";
@@ -44,7 +44,9 @@ export default function Index() {
               <tbody>
                 {result.map((user) => (
                   <tr key={user.id}>
-                    <td>{user.email}</td>
+                    <td>
+                      <Link to={`/u/${author.email}`}>{user.email}</Link>
+                    </td>
                     <td>{user.name}</td>
                     <td>
                       <BooleanIcon value={user.admin} />
