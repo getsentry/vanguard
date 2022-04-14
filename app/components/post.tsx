@@ -5,7 +5,7 @@ import styled from "styled-components";
 import Content from "./content";
 import PostLink from "./post-link";
 import Markdown from "./markdown";
-import Tag from "./tag";
+import CategoryTag from "./category-tag";
 
 const PostWrapper = styled.article``;
 
@@ -42,7 +42,7 @@ const Date = styled.div`
 export default function Post({ post }: { post: object }) {
   return (
     <PostWrapper>
-      <Tag category={post.category.slug} />
+      <CategoryTag category={post.category} />
       <h2>
         <PostLink post={post}>{post.title}</PostLink>
       </h2>

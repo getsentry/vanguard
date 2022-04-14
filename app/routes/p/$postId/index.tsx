@@ -42,7 +42,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     await updatePost({ userId, id: params.postId, published: false });
     //return redirect(`/posts/${params.postId}`);
   } else if (action === "edit") {
-    return redirect(`/${post!.category.slug}/${post!.id}/edit`);
+    return redirect(`/p/${post!.id}/edit`);
   } else if (action === "delete") {
     await deletePost({ userId, id: params.postId });
     return redirect("/");

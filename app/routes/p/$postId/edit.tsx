@@ -10,6 +10,7 @@ import { getCategory, getCategoryList } from "~/models/category.server";
 import type { Category } from "~/models/category.server";
 import PostForm, { PostFormErrors } from "~/components/post-form";
 import invariant from "tiny-invariant";
+import { getPostLink } from "~/components/post-link";
 
 type LoaderData = {
   categoryList: Category[];
@@ -73,7 +74,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   });
 
   const category = await getCategory({ id: categoryId });
-  return redirect(`/${category.slug}/${post.id}`);
+  return redirect(getPostLink(post));
 };
 
 export default function EditPostPage() {

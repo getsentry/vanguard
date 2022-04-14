@@ -1,11 +1,15 @@
 import { Link } from "@remix-run/react";
 import React from "react";
-import type { getPost } from "~/models/post.server";
+import type { Post } from "~/models/post.server";
+
+export const getPostLink = (post: Post): string => {
+  return `/p/${post.id}`;
+};
 
 const PostLink: React.FC<{
-  post: Awaited<ReturnType<typeof getPost>>;
+  post: Post;
 }> = function PostLink({ post, children }) {
-  return <Link to={`/${post.category.slug}/${post.id}`}>{children}</Link>;
+  return <Link to={getPostLink(post)}>{children}</Link>;
 };
 
 export default PostLink;

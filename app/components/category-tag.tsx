@@ -1,11 +1,12 @@
 import { Link } from "@remix-run/react";
 import styled from "styled-components";
 
+import type { Category } from "~/models/category.server";
 import IconShip from "~/icons/IconShip";
 
-const Tag = (props: object) => {
+const CategoryTag = ({ category }: { category: Category }) => {
   return (
-    <TagWrapper to={`/${props.category}`}>
+    <TagWrapper to={`/c/${category.slug}`}>
       <IconShip height={20} />
     </TagWrapper>
   );
@@ -30,4 +31,4 @@ const TagWrapper = styled(Link)`
   text-transform: uppercase;
 `;
 
-export default Tag;
+export default CategoryTag;
