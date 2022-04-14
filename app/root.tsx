@@ -111,7 +111,7 @@ export default function App() {
           <div className="container">
             <div className="header">
               <Link to="/">
-                <Logo height={32} />
+                <Logo height={32} className="logo" />
               </Link>
             </div>
             <Outlet />

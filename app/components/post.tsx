@@ -11,6 +11,8 @@ const PostWrapper = styled.article`
   h2 {
     font-size: 5rem;
     font-family: "Gazpacho-Heavy", serif;
+
+    a {color: inherit}
   }
 `;
 
