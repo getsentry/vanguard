@@ -110,7 +110,7 @@ export async function updatePost({
   if (content !== undefined) data.content = content;
   if (categoryId !== undefined) data.categoryId = categoryId;
 
-  if (data.published && !post.publishedAt) data.publishedAt = Date.now();
+  if (data.published && !post.publishedAt) data.publishedAt = new Date();
 
   return await prisma.post.update({
     where: {
@@ -136,7 +136,7 @@ export function createPost({
       title,
       content,
       published,
-      publishedAt: published ? Date.now() : null,
+      publishedAt: published ? new Date() : null,
       author: {
         connect: {
           id: userId,
