@@ -76,7 +76,7 @@ export default function NewPostPage() {
   return (
     <PostForm
       categoryList={loaderData.categoryList}
-      errors={actionData.errors}
+      errors={actionData?.errors}
     />
   );
 }
