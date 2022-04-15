@@ -5,9 +5,7 @@ import * as Sentry from "./sentry/client";
 
 export type Identity = {
   id: string;
-  name: string;
   email: string;
-  picture?: string;
 };
 
 const GOOGLE_PUBLIC_KEY = "https://www.gstatic.com/iap/verify/public_key";
@@ -63,20 +61,6 @@ async function verifyGoogleToken(token: string) {
   return payload;
 }
 
-export async function getGoogleProfile(token: string, payload) {
-  const req = await fetch(
-    `https://www.googleapis.com/plus/v1/people/${payload.sub}`,
-    {
-      credentials: "include",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-  const data = await req.json();
-  return data;
-}
-
 export async function getIdentity(request: Request): Promise<Identity | null> {
   if (process.env.NODE_ENV !== "production") {
     console.log(
@@ -84,20 +68,15 @@ export async function getIdentity(request: Request): Promise<Identity | null> {
     );
     return {
       id: "dummy-iap-user",
-      name: "Jane Doe",
       email: "jane.doe@example.com",
     };
   }
 
   const token = request.headers.get("x-goog-iap-jwt-assertion");
   if (token) {
-    // TODO: fetch public key and do the thing
     let payload = null;
-    let profileData = null;
     try {
       payload = await verifyGoogleToken(token as string);
-      profileData = await getGoogleProfile(token as string, payload);
-      console.log(profileData);
     } catch (err) {
       Sentry.captureException(err);
     }
@@ -105,9 +84,8 @@ export async function getIdentity(request: Request): Promise<Identity | null> {
       console.log(`IAP header verified as ${payload!.email}`);
       return {
         id: payload!.sub,
-        name: "",
         email: payload!.email,
-        picture: "",
+        token,
       };
     }
   }

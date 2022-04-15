@@ -42,12 +42,10 @@ export async function getSession(request: Request) {
     console.log(`Persisting user ${identity.email}`);
     const user = await upsertUser({
       email: identity.email,
-      name: identity.name,
       externalId: identity.id,
-      picture: identity.picture,
     });
     session.set(USER_SESSION_KEY, user.id);
-    session.set(USER_SESSION_EID_KEY, user.externalId);
+    session.set(USER_SESSION_EID_KEY, user.id);
   }
   Object.defineProperty(request, "session", {
     value: session,
