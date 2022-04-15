@@ -17,8 +17,8 @@ export async function getPost({
   return await prisma.post.findFirst({
     where: {
       OR: [
-        { id, authorId: userId },
-        { id, published: true },
+        { id, authorId: userId, deleted: false },
+        { id, published: true, deleted: false },
         ...(user.admin ? [{ id }] : []),
       ],
     },
@@ -47,7 +47,7 @@ export async function getPostList({
   const user = await prisma.user.findFirst({ where: { id: userId } });
   invariant(user, "user not found");
 
-  const where: { [key: string]: any } = {};
+  const where: { [key: string]: any } = { deleted: false };
   if (published !== undefined) {
     where.published = published;
   }
@@ -85,6 +85,7 @@ export async function updatePost({
   content,
   categoryId,
   published,
+  deleted,
 }: {
   id: Post["id"];
   userId: User["id"];
@@ -92,12 +93,16 @@ export async function updatePost({
   content?: Post["content"];
   categoryId?: Post["categoryId"];
   published?: Post["published"];
+  deleted?: Post["deleted"];
 }) {
   const user = await prisma.user.findFirst({ where: { id: userId } });
   invariant(user, "user not found");
 
   const where: { [key: string]: any } = { id };
-  if (!user.admin) where.authorId = userId;
+  if (!user.admin) {
+    where.authorId = userId;
+    where.deleted = false;
+  }
 
   const post = await prisma.post.findFirst({
     where,
@@ -105,14 +110,31 @@ export async function updatePost({
   invariant(post, "post not found");
 
   const data: { [key: string]: any } = {};
-  if (published !== undefined) data.published = !!published;
-  if (title !== undefined) data.title = title;
-  if (content !== undefined) data.content = content;
-  if (categoryId !== undefined) data.categoryId = categoryId;
-
+  if (published !== undefined && published !== post.published)
+    data.published = !!published;
+  if (title !== undefined && title != post.title) data.title = title;
+  if (content !== undefined && content != post.content) data.content = content;
+  if (categoryId !== undefined && categoryId != post.categoryId)
+    data.categoryId = categoryId;
   if (data.published && !post.publishedAt) data.publishedAt = new Date();
 
-  return await prisma.post.update({
+  if (user.admin || deleted) {
+    if (deleted !== undefined && post.deleted != deleted)
+      data.deleted = !!deleted;
+  }
+
+  data.revisions = {
+    create: [
+      {
+        authorId: userId,
+        title: data.title ?? post.title,
+        content: data.content ?? post.content,
+        categoryId: data.categoryId ?? post.categoryId,
+      },
+    ],
+  };
+
+  return prisma.post.update({
     where: {
       id,
     },
@@ -121,14 +143,14 @@ export async function updatePost({
 }
 
 export function createPost({
+  userId,
   content,
   title,
   categoryId,
-  userId,
   published = false,
 }: Pick<Post, "content" | "title"> & {
-  published?: Post["published"];
   userId: User["id"];
+  published?: Post["published"];
   categoryId: Category["id"];
 }) {
   return prisma.post.create({
@@ -147,6 +169,16 @@ export function createPost({
           id: categoryId,
         },
       },
+      revisions: {
+        create: [
+          {
+            authorId: userId,
+            title,
+            content,
+            categoryId,
+          },
+        ],
+      },
     },
   });
 }
@@ -161,7 +193,13 @@ export async function deletePost({
   const where: { [key: string]: any } = { id };
   if (!user.admin) where.authorId = userId;
 
-  return await prisma.post.deleteMany({
-    where,
+  updatePost({
+    id,
+    userId,
+    deleted: true,
   });
+
+  // return await prisma.post.deleteMany({
+  //   where,
+  // });
 }

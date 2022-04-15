@@ -11,34 +11,53 @@ datasource db {
 }
 
 model Category {
-  id         String  @id @default(cuid())
-  name       String  @unique @db.VarChar(255)
-  slug       String  @unique @db.VarChar(255)
-  posts      Post[]
-  restricted Boolean @default(false)
+  id            String         @id @default(cuid())
+  name          String         @unique @db.VarChar(255)
+  slug          String         @unique @db.VarChar(255)
+  posts         Post[]
+  postRevisions PostRevision[]
+  restricted    Boolean        @default(false)
 }
 
 model Post {
-  id          String    @id @default(cuid())
-  createdAt   DateTime  @default(now())
-  publishedAt DateTime? @default(now())
-  updatedAt   DateTime  @updatedAt
-  title       String    @db.VarChar(255)
+  id          String         @id @default(cuid())
+  createdAt   DateTime       @default(now())
+  publishedAt DateTime?      @default(now())
+  updatedAt   DateTime       @updatedAt
+  title       String         @db.VarChar(255)
   content     String?
-  published   Boolean   @default(false)
-  author      User      @relation(fields: [authorId], references: [id])
+  published   Boolean        @default(false)
+  deleted     Boolean        @default(false)
+  author      User           @relation(fields: [authorId], references: [id])
   authorId    String
-  category    Category  @relation(fields: [categoryId], references: [id])
+  category    Category       @relation(fields: [categoryId], references: [id])
   categoryId  String
+  revisions   PostRevision[]
 }
 
 model User {
-  id                String  @id @default(cuid())
-  externalId        String? @unique
+  id                String         @id @default(cuid())
+  externalId        String?        @unique
   picture           String?
-  email             String  @unique
+  email             String         @unique
   name              String?
   posts             Post[]
-  canPostRestricted Boolean @default(false)
-  admin             Boolean @default(false)
+  canPostRestricted Boolean        @default(false)
+  admin             Boolean        @default(false)
+  PostRevision      PostRevision[]
+}
+
+model PostRevision {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id])
+  createdAt DateTime @default(now())
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+
+  // revision details
+  title      String?   @db.VarChar(255)
+  content    String?
+  categoryId String?
+  Category   Category? @relation(fields: [categoryId], references: [id])
 }

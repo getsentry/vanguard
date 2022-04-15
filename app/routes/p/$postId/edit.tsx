@@ -67,10 +67,10 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   const post = await updatePost({
     id: params.postId,
+    userId,
     title,
     content,
     categoryId,
-    userId,
   });
 
   const category = await getCategory({ id: categoryId });

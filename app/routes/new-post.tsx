@@ -58,10 +58,10 @@ export const action: ActionFunction = async ({ request }) => {
   }
 
   const post = await createPost({
+    userId,
     title,
     content,
     categoryId,
-    userId,
     published: !!published,
   });
 
