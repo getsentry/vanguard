@@ -145,6 +145,9 @@ export default function App() {
                 / Admin
               </Link>
             )}
+            <Link to="/settings" className="btn">
+              / Settings
+            </Link>
             <Link to={`/u/${user.email}`}>{user.email}</Link>
           </Sidebar>
           <ScrollRestoration />

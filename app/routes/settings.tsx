@@ -94,11 +94,7 @@ export default function NewPostPage() {
       }}
       className="p-4"
     >
-      <h1>Stay awhile and listen...</h1>
-      <p>
-        Welcome to Vanguard! We just need a few details before we can unlock the
-        gates..
-      </p>
+      <h1>Edit Profile</h1>
       <div>
         <label>
           <span>What should we call you?</span>
