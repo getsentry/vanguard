@@ -63,11 +63,18 @@ async function verifyGoogleToken(token: string) {
   return payload;
 }
 
-// export async function getCurrentGoogleUser(payload) {
-//   const req = await fetch(
-//     `https://www.googleapis.com/plus/v1/people/${payload.sub}`
-//   );
-// }
+export async function getGoogleProfile(token: string, payload) {
+  const req = await fetch(
+    `https://www.googleapis.com/plus/v1/people/${payload.sub}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  const data = await req.json();
+  return data;
+}
 
 export async function getIdentity(request: Request): Promise<Identity | null> {
   if (process.env.NODE_ENV !== "production") {
@@ -85,9 +92,11 @@ export async function getIdentity(request: Request): Promise<Identity | null> {
   if (token) {
     // TODO: fetch public key and do the thing
     let payload = null;
+    let profileData = null;
     try {
       payload = await verifyGoogleToken(token as string);
-      console.log({ token, payload });
+      profileData = await getGoogleProfile(token as string, payload);
+      console.log(profileData);
     } catch (err) {
       Sentry.captureException(err);
     }
@@ -95,9 +104,9 @@ export async function getIdentity(request: Request): Promise<Identity | null> {
       console.log(`IAP header verified as ${payload!.email}`);
       return {
         id: payload!.sub,
-        name: payload!.name,
+        name: "",
         email: payload!.email,
-        picture: payload!.picture,
+        picture: "",
       };
     }
   }
