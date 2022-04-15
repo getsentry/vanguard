@@ -68,12 +68,14 @@ export async function updateUser({
   userId,
   admin,
   name,
+  picture,
   canPostRestricted,
 }: {
   id: User["id"];
   userId: User["id"];
   admin?: User["admin"];
   name?: User["name"];
+  picture?: User["picture"];
   canPostRestricted?: User["canPostRestricted"];
 }) {
   const user = await prisma.user.findFirst({ where: { id: userId } });
@@ -89,6 +91,7 @@ export async function updateUser({
   }
 
   if (name !== undefined) data.name = name;
+  if (picture !== undefined) data.picture = picture;
 
   return await prisma.user.update({
     where: {

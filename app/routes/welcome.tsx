@@ -1,10 +1,15 @@
 import React, { useEffect, useRef } from "react";
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import {
+  ActionFunction,
+  LoaderFunction,
+  unstable_parseMultipartFormData,
+} from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 
 import { requireUser, requireUserId } from "~/session.server";
 import { updateUser, User } from "~/models/user.server";
+import uploadHandler from "~/lib/upload-handler";
 
 type LoaderData = {
   user: User;
@@ -18,14 +23,28 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 type ActionData = {
   errors?: {
     name?: string;
+    picture?: string;
   };
 };
 
 export const action: ActionFunction = async ({ request }) => {
   const userId = await requireUserId(request);
 
-  const formData = await request.formData();
+  const filter = ({ mimetype }: { mimetype: string }) => {
+    return /image/i.test(mimetype);
+  };
+
+  const formData = await unstable_parseMultipartFormData(
+    request,
+    uploadHandler({
+      fieldName: "picture",
+      filter,
+      namespace: userId,
+      urlPrefix: "/image-uploads",
+    })
+  );
   const name = formData.get("name");
+  const picture = formData.get("picture");
 
   if (typeof name !== "string" || name.length === 0) {
     return json<ActionData>(
@@ -38,6 +57,7 @@ export const action: ActionFunction = async ({ request }) => {
     userId,
     id: userId,
     name,
+    picture,
   });
 
   const url = new URL(request.url);
@@ -52,16 +72,20 @@ export default function NewPostPage() {
   const errors = actionData?.errors;
 
   const nameRef = useRef<HTMLInputElement>(null);
+  const pictureRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (errors?.name) {
       nameRef.current?.focus();
+    } else if (errors?.picture) {
+      pictureRef.current?.focus();
     }
   }, [errors]);
 
   return (
     <Form
       method="post"
+      encType="multipart/form-data"
       style={{
         display: "flex",
         flexDirection: "column",
@@ -76,12 +100,12 @@ export default function NewPostPage() {
         gates..
       </p>
       <div>
-        <label className="">
+        <label>
           <span>What should we call you?</span>
           <input
             ref={nameRef}
+            type="text"
             name="name"
-            className=""
             required
             placeholder="Jane Doe"
             autoFocus
@@ -93,6 +117,23 @@ export default function NewPostPage() {
         {errors?.name && (
           <div className="pt-1 text-red-700" id="name-error">
             {errors.name}
+          </div>
+        )}
+      </div>
+      <div>
+        <label>
+          <span>How about a slick way to visually identify yourself?</span>
+          <input
+            ref={pictureRef}
+            type="file"
+            name="picture"
+            aria-invalid={errors?.picture ? true : undefined}
+            aria-errormessage={errors?.picture ? "picture-error" : undefined}
+          />
+        </label>
+        {errors?.picture && (
+          <div className="pt-1 text-red-700" id="picture-error">
+            {errors.picture}
           </div>
         )}
       </div>
