@@ -41,12 +41,11 @@ installPrismaTracer(prisma);
 
 export function withSentry(handler) {
   const wrapped = (request: Request, ...rest) => {
-    Sentry.configureScope((scope) => {
-      scope.setTransactionName(request.url);
-    });
-    const transaction = Sentry.startTransaction({
-      op: "remix.handle-request",
-      name: request.url,
+    const scope = Sentry.getCurrentHub().getScope();
+    const parentSpan = scope?.getSpan();
+    const span = parentSpan?.startChild({
+      op: "remix.hydrate",
+      description: request.url,
     });
 
     try {
@@ -55,7 +54,7 @@ export function withSentry(handler) {
       // Sentry.captureException(e);
       throw e;
     } finally {
-      transaction.finish();
+      span?.finish();
     }
   };
 
