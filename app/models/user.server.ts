@@ -67,21 +67,28 @@ export async function updateUser({
   id,
   userId,
   admin,
+  name,
   canPostRestricted,
 }: {
   id: User["id"];
   userId: User["id"];
   admin?: User["admin"];
+  name?: User["name"];
   canPostRestricted?: User["canPostRestricted"];
 }) {
   const user = await prisma.user.findFirst({ where: { id: userId } });
   invariant(user, "user not found");
-  invariant(user.admin, "admin required");
 
   const data: { [key: string]: any } = {};
-  if (admin !== undefined) data.admin = !!admin;
-  if (canPostRestricted !== undefined)
-    data.canPostRestricted = canPostRestricted;
+
+  // admin only fields
+  if (user.admin) {
+    if (admin !== undefined) data.admin = !!admin;
+    if (canPostRestricted !== undefined)
+      data.canPostRestricted = canPostRestricted;
+  }
+
+  if (name !== undefined) data.name = name;
 
   return await prisma.user.update({
     where: {

@@ -65,8 +65,6 @@ export const action: ActionFunction = async ({ request }) => {
     published: !!published,
   });
 
-  const category = await getCategory({ id: categoryId });
-
   return redirect(getPostLink(post));
 };
 

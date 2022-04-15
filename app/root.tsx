@@ -5,7 +5,7 @@ import type {
   LoaderFunction,
   MetaFunction,
 } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import {
   Link,
   Links,
@@ -16,13 +16,13 @@ import {
   ScrollRestoration,
   useLoaderData,
 } from "@remix-run/react";
-import { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from "styled-components";
 
 import tailwindStylesheetUrl from "./styles/tailwind.css";
 import GlobalStyles from "./styles/global";
 
 import fontsCss from "./styles/fonts.css";
-import {lightTheme, darkTheme} from "./styles/theme";
+import { lightTheme, darkTheme } from "./styles/theme";
 import { getSession, getUser, sessionStorage } from "./session.server";
 import Header from "./components/header";
 import Sidebar from "./components/sidebar";
@@ -51,9 +51,20 @@ type LoaderData = {
 export const loader: LoaderFunction = async ({ request }) => {
   const session = await getSession(request);
   const cookie = await sessionStorage.commitSession(session);
+  const user = await getUser(request);
+
+  // probably a cleaner way to build this, but we're here for the duct tape
+  const pathname = new URL(request.url).pathname;
+  if (!user!.name && pathname !== "/welcome") {
+    // send em to onboarding
+    const redirectTo = new URL(request.url).pathname;
+    const searchParams = new URLSearchParams([["redirectTo", redirectTo]]);
+    return redirect(`/welcome?${searchParams}`);
+  }
+
   return json<LoaderData>(
     {
-      user: await getUser(request),
+      user,
       ENV: {
         SENTRY_DSN: process.env.SENTRY_DSN,
         NODE_ENV: process.env.NODE_ENV || "development",
@@ -82,7 +93,7 @@ export function ErrorBoundary({ error }) {
       <body className="wrapper">
         <div id="primary">
           <div className="container">
-            <Header/>
+            <Header />
             <h1>Internal Server Error</h1>
             <pre>{error.stack}</pre>
           </div>
@@ -95,12 +106,12 @@ export function ErrorBoundary({ error }) {
 
 export default function App() {
   const { user, ENV } = useLoaderData();
-  const [theme, setTheme] = useState('light');
+  const [theme, setTheme] = useState("light");
 
   const toggleTheme = () => {
-    theme === 'light' ? setTheme('dark') : setTheme('light');
+    theme === "light" ? setTheme("dark") : setTheme("light");
     console.log("theme toggled");
-  }
+  };
 
   return (
     <html lang="en" className="h-full">
@@ -110,7 +121,7 @@ export default function App() {
         <Links />
         {typeof document === "undefined" ? "__STYLES__" : null}
       </head>
-      <ThemeProvider theme={theme === 'light' ? lightTheme : darkTheme}>
+      <ThemeProvider theme={theme === "light" ? lightTheme : darkTheme}>
         <GlobalStyles />
         <body className="wrapper">
           <div>
@@ -118,7 +129,7 @@ export default function App() {
           </div>
           <div id="primary">
             <div className="container">
-              <Header toggleTheme={toggleTheme}/>
+              <Header toggleTheme={toggleTheme} />
               <Outlet />
             </div>
           </div>
