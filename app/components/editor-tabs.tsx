@@ -11,13 +11,13 @@ const StyledTabs = styled(TabsPrimitive.Root)`
 const StyledList = styled(TabsPrimitive.List)`
   flex-shrink: 0;
   display: flex;
-  border-bottom: 1px solid ${mauve.mauve6};
+  border-bottom: 1px solid ${p => p.theme.borderColor};
 `;
 
 const StyledTrigger = styled(TabsPrimitive.Trigger)`
   all: unset;
   font-family: inherit;
-  background-color: white;
+  background-color: ${p => p.theme.bgColor};
   padding: 0 20px;
   height: 45px;
   flex: 1;
@@ -26,7 +26,7 @@ const StyledTrigger = styled(TabsPrimitive.Trigger)`
   justify-content: center;
   font-size: 15px;
   line-height: 1;
-  color: ${mauve.mauve11};
+  color: ${p => p.theme.textMuted};
   user-select: none;
 
   &:first-child {
@@ -38,24 +38,23 @@ const StyledTrigger = styled(TabsPrimitive.Trigger)`
   }
 
   &:hover {
-    color: ${violet.violet11};
+    color: ${p => p.theme.textColor};
   }
 
   &[data-state="active"] {
-    color: ${violet.violet11};
+    color: ${p => p.theme.tabActiveColor};
     box-shadow: inset 0 -1px 0 0 currentColor, 0 1px 0 0 currentColor;
   }
 
   &:focus {
     position: relative;
-    box-shadow: 0 0 0 2px black;
   }
 `;
 
 const StyledContent = styled(TabsPrimitive.Content)`
   flex-grow: 1;
   padding-top: 20px;
-  background-color: white;
+  background-color: ${p => p.theme.bgColor};
   border-bottom-left-radius: 6px;
   border-bottom-right-radius: 6px;
   outline: none;

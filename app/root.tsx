@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import type {
   LinksFunction,
   LoaderFunction,
@@ -14,21 +16,26 @@ import {
   ScrollRestoration,
   useLoaderData,
 } from "@remix-run/react";
+import { ThemeProvider } from 'styled-components';
 
 import tailwindStylesheetUrl from "./styles/tailwind.css";
-import baseCss from "./styles/base.css";
+import GlobalStyles from "./styles/global";
+
 import fontsCss from "./styles/fonts.css";
+import {lightTheme, darkTheme} from "./styles/theme";
 import { getSession, getUser, sessionStorage } from "./session.server";
+import Header from "./components/header";
+import Sidebar from "./components/sidebar";
 
 import Logo from "./icons/Logo";
 import { Toaster } from "react-hot-toast";
 import * as Sentry from "./lib/sentry/client";
+import SidebarWrapper from "./components/sidebar";
 
 export const links: LinksFunction = () => {
   return [
     { rel: "stylesheet", href: tailwindStylesheetUrl },
     { rel: "stylesheet", href: fontsCss },
-    { rel: "stylesheet", href: baseCss },
   ];
 };
 
@@ -77,11 +84,7 @@ export function ErrorBoundary({ error }) {
       <body className="wrapper">
         <div id="primary">
           <div className="container">
-            <div className="header">
-              <Link to="/">
-                <Logo height={32} />
-              </Link>
-            </div>
+            <Header/>
             <h1>Internal Server Error</h1>
             <pre>{error.stack}</pre>
           </div>
@@ -94,6 +97,12 @@ export function ErrorBoundary({ error }) {
 
 export default function App() {
   const { user, ENV } = useLoaderData();
+  const [theme, setTheme] = useState('light');
+
+  const toggleTheme = () => {
+    theme === 'light' ? setTheme('dark') : setTheme('light');
+    console.log("theme toggled");
+  }
 
   return (
     <html lang="en" className="h-full">
@@ -103,49 +112,42 @@ export default function App() {
         <Links />
         {typeof document === "undefined" ? "__STYLES__" : null}
       </head>
-      <body className="wrapper">
-        <div>
-          <Toaster />
-        </div>
-        <div id="primary">
-          <div className="container">
-            <div className="header">
-              <Link to="/">
-                <Logo height={32} className="logo" />
-              </Link>
-            </div>
-            <Outlet />
+      <ThemeProvider theme={theme === 'light' ? lightTheme : darkTheme}>
+        <GlobalStyles />
+        <body className="wrapper">
+          <div>
+            <Toaster />
           </div>
-        </div>
-        <div id="secondary">
-          <div className="content">
-            <div className="header flex justify-between">
-              <Link to="/new-post" className="btn btn-primary">
-                + New Post
-              </Link>
-              <Link to="/drafts" className="btn">
-                / Drafts
-              </Link>
-              {user.admin && (
-                <Link to="/admin" className="btn">
-                  / Admin
-                </Link>
-              )}
-            </div>
-            <div>
-              <Link to={`/u/${user.email}`}>{user.email}</Link>
+          <div id="primary">
+            <div className="container">
+              <Header toggleTheme={toggleTheme}/>
+              <Outlet />
             </div>
           </div>
-        </div>
-        <ScrollRestoration />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.ENV = ${JSON.stringify(ENV)}`,
-          }}
-        />
-        <Scripts />
-        <LiveReload />
-      </body>
+          <Sidebar>
+            <Link to="/new-post" className="btn btn-primary">
+              + New Post
+            </Link>
+            <Link to="/drafts" className="btn">
+              / Drafts
+            </Link>
+            {user.admin && (
+              <Link to="/admin" className="btn">
+                / Admin
+              </Link>
+            )}
+            <Link to={`/u/${user.email}`}>{user.email}</Link>
+          </Sidebar>
+          <ScrollRestoration />
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `window.ENV = ${JSON.stringify(ENV)}`,
+            }}
+          />
+          <Scripts />
+          <LiveReload />
+        </body>
+      </ThemeProvider>
     </html>
   );
 }

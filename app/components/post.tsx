@@ -43,7 +43,7 @@ const Name = styled.div`
 `;
 
 const Date = styled.div`
-  color: var(--gray500);
+  color: ${p => p.theme.textColorSecondary};
 `;
 
 export default function Post({ post }: { post: object }) {
