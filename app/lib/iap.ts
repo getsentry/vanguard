@@ -67,6 +67,7 @@ export async function getGoogleProfile(token: string, payload) {
   const req = await fetch(
     `https://www.googleapis.com/plus/v1/people/${payload.sub}`,
     {
+      credentials: "include",
       headers: {
         Authorization: `Bearer ${token}`,
       },
