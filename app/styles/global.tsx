@@ -80,7 +80,7 @@ const GlobalStyles = createGlobalStyle`
   }
 
   h6 {
-    font-size: 1rem;
+    font-size: 1.4rem;
   }
 
   p,

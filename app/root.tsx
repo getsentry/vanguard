@@ -27,10 +27,8 @@ import { getSession, getUser, sessionStorage } from "./session.server";
 import Header from "./components/header";
 import Sidebar from "./components/sidebar";
 
-import Logo from "./icons/Logo";
 import { Toaster } from "react-hot-toast";
 import * as Sentry from "./lib/sentry/client";
-import SidebarWrapper from "./components/sidebar";
 
 export const links: LinksFunction = () => {
   return [

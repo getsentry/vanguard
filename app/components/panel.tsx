@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 export const Panel = styled.section`
   margin: 3rem 0;
-  border: 1px solid #ddd;
+  border: 1px solid ${p => p.theme.borderColor};
   padding: 1.5rem 1.5rem 0;
 
   form,
@@ -12,8 +12,7 @@ export const Panel = styled.section`
 `;
 
 export const Title = styled.h6`
-  color: #333;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid ${p => p.theme.borderColor};
   padding: 1.5rem;
   margin: -1.5rem -1.5rem 1.5rem;
 `;

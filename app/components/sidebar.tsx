@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-const Header = (props) => (
+const Sidebar = (props) => (
   <SidebarWrapper>
     {props.children}
   </SidebarWrapper>
@@ -29,4 +29,4 @@ const SidebarWrapper = styled.div`
   }
 `;
 
-export default SidebarWrapper;
+export default Sidebar;
