@@ -17,6 +17,7 @@ import {
   useLoaderData,
 } from "@remix-run/react";
 import { ThemeProvider } from "styled-components";
+import prismCss from "prism-sentry/index.css";
 
 import tailwindStylesheetUrl from "./styles/tailwind.css";
 import GlobalStyles from "./styles/global";
@@ -34,6 +35,7 @@ export const links: LinksFunction = () => {
   return [
     { rel: "stylesheet", href: tailwindStylesheetUrl },
     { rel: "stylesheet", href: fontsCss },
+    { rel: "stylesheet", href: prismCss },
   ];
 };
 

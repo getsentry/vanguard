@@ -1,4 +1,4 @@
-import { createGlobalStyle } from 'styled-components'
+import { createGlobalStyle } from "styled-components";
 
 const GlobalStyles = createGlobalStyle`
   *,
@@ -13,16 +13,16 @@ const GlobalStyles = createGlobalStyle`
   }
 
   body {
-    background: ${ p => p.theme.bgColor};
+    background: ${(p) => p.theme.bgColor};
     font-size: 1.6rem;
     font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
-    color: ${p => p.theme.textColor};
+    color: ${(p) => p.theme.textColor};
     min-height: 100vh;
     overflow-x: hidden;
   }
 
   .logo {
-    color: ${p => p.theme.textColor};
+    color: ${(p) => p.theme.textColor};
   }
 
   .wrapper {
@@ -43,7 +43,7 @@ const GlobalStyles = createGlobalStyle`
   }
 
   a {
-    color: ${p => p.theme.linkColor};
+    color: ${(p) => p.theme.linkColor};
   }
 
   /* Typography */
@@ -102,7 +102,7 @@ const GlobalStyles = createGlobalStyle`
 
   li::marker {
     font-family: "IBM Plex Mono", mono;
-    color: ${p => p.theme.textMuted};
+    color: ${(p) => p.theme.textMuted};
   }
 
   ul li::marker {
@@ -139,12 +139,12 @@ const GlobalStyles = createGlobalStyle`
     display: inline-flex;
     align-items: center;
     font-family: "IBM Plex Mono", monospace;
-    color: ${p => p.theme.textMuted};
+    color: ${(p) => p.theme.textMuted};
   }
 
   .btn-primary {
-    background: ${p => p.theme.button.primaryBackgroundColor};
-    color: ${p => p.theme.button.primaryTextColor};
+    background: ${(p) => p.theme.button.primaryBackgroundColor};
+    color: ${(p) => p.theme.button.primaryTextColor};
   }
 
   /* Forms */
@@ -153,31 +153,31 @@ const GlobalStyles = createGlobalStyle`
     display: flex;
     flex-direction: column;
     margin-bottom: 2.4rem;
-  
+
     span {
       margin-bottom: 1.2rem;
       font-weight: 500;
       font-family: "IBM Plex Mono", monospace;
-      
+
   }
 
   input,
   textarea,
   select {
-    background: ${p => p.theme.bgColor};
-    border: 1px solid ${p => p.theme.borderColor};
+    background: ${(p) => p.theme.bgColor};
+    border: 1px solid ${(p) => p.theme.borderColor};
     padding: 0.5rem 1rem;
     border-radius: 4px;
     display: block;
     font-family: "Inter", sans-serif;
 
     &:focus, &:focus-visible {
-      border: 1px solid ${p => p.theme.borderFocusColor};
-      outline-color: ${p => p.theme.borderFocusColor};
+      border: 1px solid ${(p) => p.theme.borderFocusColor};
+      outline-color: ${(p) => p.theme.borderFocusColor};
     }
   }
 
-  
+
 
   /* Post */
 
@@ -186,6 +186,6 @@ const GlobalStyles = createGlobalStyle`
     position: relative;
   }
 
-`
+`;
 
 export default GlobalStyles;

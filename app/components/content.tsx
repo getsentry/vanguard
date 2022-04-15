@@ -2,15 +2,16 @@ import styled from "styled-components";
 
 const Content = styled.div`
   pre {
-    background: ${p => p.theme.bgLayer100};
+    // this needs paired up w/ sentry-prism theme
+    background: #000;
     padding: 20px;
     border-radius: 4px;
   }
 
   blockquote {
     padding: 0 3rem;
-    border-left: 8px solid ${p => p.theme.borderColor};
-    color: ${p => p.theme.textColorSecondary};
+    border-left: 8px solid ${(p) => p.theme.borderColor};
+    color: ${(p) => p.theme.textColorSecondary};
     p {
       font-size: 3rem;
       font-family: "IBM Plex Mono", monospace;
