@@ -10,6 +10,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id                String         @id @default(cuid())
+  externalId        String?        @unique
+  picture           String?
+  email             String         @unique
+  name              String?
+  posts             Post[]
+  canPostRestricted Boolean        @default(false)
+  admin             Boolean        @default(false)
+  PostRevision      PostRevision[]
+}
+
 model Category {
   id            String         @id @default(cuid())
   name          String         @unique @db.VarChar(255)
@@ -35,18 +47,6 @@ model Post {
   revisions   PostRevision[]
 }
 
-model User {
-  id                String         @id @default(cuid())
-  externalId        String?        @unique
-  picture           String?
-  email             String         @unique
-  name              String?
-  posts             Post[]
-  canPostRestricted Boolean        @default(false)
-  admin             Boolean        @default(false)
-  PostRevision      PostRevision[]
-}
-
 model PostRevision {
   id        String   @id @default(cuid())
   postId    String
@@ -60,4 +60,14 @@ model PostRevision {
   content    String?
   categoryId String?
   Category   Category? @relation(fields: [categoryId], references: [id])
+}
+
+model PostReaction {
+  id        String   @id @default(cuid())
+  postId    String
+  authorId  String
+  createdAt DateTime @default(now())
+  emoji     String   @db.VarChar(8)
+
+  @@unique([postId, authorId, emoji])
 }

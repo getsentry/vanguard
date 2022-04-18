@@ -1,12 +1,12 @@
 import React from "react";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useActionData, useLoaderData, useParams } from "@remix-run/react";
+import { useActionData, useLoaderData } from "@remix-run/react";
 
 import { getPost, updatePost } from "~/models/post.server";
 import type { Post } from "~/models/post.server";
 import { requireUserId } from "~/session.server";
-import { getCategory, getCategoryList } from "~/models/category.server";
+import { getCategoryList } from "~/models/category.server";
 import type { Category } from "~/models/category.server";
 import PostForm, { PostFormErrors } from "~/components/post-form";
 import invariant from "tiny-invariant";
@@ -73,7 +73,6 @@ export const action: ActionFunction = async ({ request, params }) => {
     categoryId,
   });
 
-  const category = await getCategory({ id: categoryId });
   return redirect(getPostLink(post));
 };
 

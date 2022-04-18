@@ -21,7 +21,6 @@ steps:
     name: gcr.io/cloud-builders/docker
     args:
       - push
-      - "-a"
       - "$_IMAGE_NAME"
   - id: Build SQL Proxy
     name: "gcr.io/cloud-builders/docker"

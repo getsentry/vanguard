@@ -1,9 +1,11 @@
-import type { User, Post, Category } from "@prisma/client";
+import type { User, Post, Category, PostReaction } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 import invariant from "tiny-invariant";
 
 import { prisma } from "~/db.server";
+import UserDetailsPage from "~/routes/u/$userEmail";
 
-export type { Category, Post, User } from "@prisma/client";
+export type { Category, Post, PostReaction, User } from "@prisma/client";
 
 export interface PostQueryType extends Post {
   author: User;
@@ -211,4 +213,75 @@ export async function deletePost({
   // return await prisma.post.deleteMany({
   //   where,
   // });
+}
+
+export async function getReactionsForPosts({
+  userId,
+  postList,
+}: {
+  userId: User["id"];
+  postList: Post[];
+}) {
+  const postIds = postList.map((p) => p.id);
+  const reactionCounts = await prisma.postReaction.groupBy({
+    by: ["emoji", "postId"],
+    where: {
+      postId: { in: postIds },
+    },
+    _count: {
+      emoji: true,
+    },
+  });
+  const userReactions = await prisma.postReaction.findMany({
+    select: {
+      emoji: true,
+      postId: true,
+    },
+    where: {
+      postId: { in: postIds },
+      authorId: userId,
+    },
+  });
+  const userReactionsByPost: { [postId: string]: Set<string> } = {};
+  userReactions.forEach(({ emoji, postId }) => {
+    if (!userReactionsByPost[postId]) userReactionsByPost[postId] = new Set();
+    userReactionsByPost[postId].add(emoji);
+  });
+
+  const results: {
+    [postId: string]: { emoji: string; total: number; user: boolean }[];
+  } = {};
+  postIds.forEach((pId) => (results[pId] = []));
+  reactionCounts.forEach((row) => {
+    results[row.postId].push({
+      emoji: row.emoji,
+      total: row._count.emoji,
+      user: !!userReactionsByPost[row.postId]?.has(row.emoji),
+    });
+  });
+  return results;
+}
+
+export async function togglePostReaction({
+  postId,
+  userId,
+  emoji,
+}: Pick<PostReaction, "postId" | "userId" | "emoji">) {
+  try {
+    await prisma.postReaction.create({
+      data: { postId, authorId: userId, emoji },
+    });
+    return 1;
+  } catch (e) {
+    if (e instanceof PrismaClientKnownRequestError) {
+      // The .code property can be accessed in a type-safe manner
+      if (e.code === "P2002") {
+        await prisma.postReaction.deleteMany({
+          where: { postId, authorId: userId, emoji },
+        });
+        return -1;
+      }
+    }
+    throw e;
+  }
 }

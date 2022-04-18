@@ -3,8 +3,13 @@ import { json, redirect } from "@remix-run/node";
 import { Form, useCatch, useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 
-import { deletePost, getPost, updatePost } from "~/models/post.server";
-import type { Post } from "~/models/post.server";
+import {
+  deletePost,
+  getPost,
+  updatePost,
+  getReactionsForPosts,
+} from "~/models/post.server";
+import type { PostQueryType } from "~/models/post.server";
 import type { User } from "~/models/user.server";
 import { requireUser, requireUserId } from "~/session.server";
 import { default as PostTemplate } from "~/components/post";
@@ -12,9 +17,11 @@ import moment from "moment";
 import { DefinitionList } from "~/components/definition-list";
 import * as Panel from "~/components/panel";
 import Block from "~/components/block";
+import EmojiRection from "~/components/emoji-reaction";
 
 type LoaderData = {
-  post: Post;
+  post: PostQueryType;
+  reactions: any[];
   user: User;
 };
 
@@ -26,7 +33,12 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   if (!post) {
     throw new Response("Not Found", { status: 404 });
   }
-  return json<LoaderData>({ post, user });
+
+  const reactions = (
+    await getReactionsForPosts({ userId: user.id, postList: [post] })
+  )[post.id];
+
+  return json<LoaderData>({ post, user, reactions });
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
@@ -55,9 +67,42 @@ export const action: ActionFunction = async ({ request, params }) => {
   return null;
 };
 
-const PostActions = ({ post }: { post: Post }) => {
+const PostActions = ({
+  post,
+  reactions,
+}: {
+  post: PostQueryType;
+  reactions: any[];
+}) => {
+  const bakedIn = ["❤️"];
+  const allEmoji = [
+    ...bakedIn,
+    ...reactions
+      .filter((r) => bakedIn.indexOf(r.emoji) === -1)
+      .map((r) => r.emoji),
+  ];
+
   return (
     <Block>
+      {allEmoji.map((emoji) => {
+        const reactionData = reactions.find((r) => r.emoji === emoji);
+        return (
+          <EmojiRection
+            postId={post.id}
+            count={reactionData?.total || 0}
+            emoji={emoji}
+            selected={reactionData?.user || false}
+          />
+        );
+      })}
+    </Block>
+  );
+};
+
+const PostAdmin = ({ post }: { post: PostQueryType }) => {
+  return (
+    <Block>
+      <hr className="my-4" />
       <Form method="post">
         {!post.published ? (
           <button
@@ -99,31 +144,30 @@ const PostActions = ({ post }: { post: Post }) => {
   );
 };
 
-const PostAdmin = ({ post }: { post: Post }) => {
-  return (
-    <Panel.Panel>
-      <Panel.Title>Admin</Panel.Title>
-      <DefinitionList>
-        <dt>Created At</dt>
-        <dd>{moment(post.createdAt).format()}</dd>
-        <dt>Published At</dt>
-        <dd>{moment(post.publishedAt).format()}</dd>
-        <dt>Updated At</dt>
-        <dd>{moment(post.updatedAt).format()}</dd>
-      </DefinitionList>
-    </Panel.Panel>
-  );
-};
+// const PostAdmin = ({ post }: { post: PostQueryType }) => {
+//   return (
+//     <Panel.Panel>
+//       <Panel.Title>Admin</Panel.Title>
+//       <DefinitionList>
+//         <dt>Created At</dt>
+//         <dd>{moment(post.createdAt).format()}</dd>
+//         <dt>Published At</dt>
+//         <dd>{moment(post.publishedAt).format()}</dd>
+//         <dt>Updated At</dt>
+//         <dd>{moment(post.updatedAt).format()}</dd>
+//       </DefinitionList>
+//     </Panel.Panel>
+//   );
+// };
 
 export default function PostDetailsPage() {
-  const { post, user } = useLoaderData() as LoaderData;
+  const { post, user, reactions } = useLoaderData() as LoaderData;
 
   return (
     <div>
       <PostTemplate post={post} />
-      <hr className="my-4" />
-      {(post.authorId === user.id || user.admin) && <PostActions post={post} />}
-      {user.admin && <PostAdmin post={post} />}
+      <PostActions post={post} reactions={reactions} />
+      {(post.authorId === user.id || user.admin) && <PostAdmin post={post} />}
     </div>
   );
 }
