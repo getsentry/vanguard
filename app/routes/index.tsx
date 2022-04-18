@@ -34,7 +34,7 @@ export default function Index() {
         return result.length === 0 ? (
           <p>No posts yet</p>
         ) : (
-          result.map((post) => <Post post={post} key={post.id} />)
+          result.map((post) => <Post post={post} key={post.id} summary />)
         );
       }}
     />

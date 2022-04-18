@@ -6,13 +6,16 @@ import Content from "./content";
 import PostLink from "./post-link";
 import Markdown from "./markdown";
 import CategoryTag from "./category-tag";
+import type { PostQueryType } from "~/models/post.server";
 
 const PostWrapper = styled.article`
   h2 {
     font-size: 5rem;
     font-family: "Gazpacho-Heavy", serif;
 
-    a {color: inherit}
+    a {
+      color: inherit;
+    }
   }
 `;
 
@@ -43,10 +46,16 @@ const Name = styled.div`
 `;
 
 const Date = styled.div`
-  color: ${p => p.theme.textColorSecondary};
+  color: ${(p) => p.theme.textColorSecondary};
 `;
 
-export default function Post({ post }: { post: object }) {
+export default function Post({
+  post,
+  summary = false,
+}: {
+  post: PostQueryType;
+  summary?: boolean;
+}) {
   return (
     <PostWrapper>
       <CategoryTag category={post.category} />
@@ -67,9 +76,11 @@ export default function Post({ post }: { post: object }) {
           <small>This post has not yet been published.</small>
         </div>
       )}
-      <Content>
-        <Markdown content={post.content || ""} />
-      </Content>
+      {!summary && (
+        <Content>
+          <Markdown content={post.content || ""} />
+        </Content>
+      )}
     </PostWrapper>
   );
 }

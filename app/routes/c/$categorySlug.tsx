@@ -35,7 +35,7 @@ export default function Index() {
       {postList.length === 0 ? (
         <p>No posts yet</p>
       ) : (
-        postList.map((post) => <Post post={post} key={post.id} />)
+        postList.map((post) => <Post post={post} key={post.id} summary />)
       )}
     </div>
   );

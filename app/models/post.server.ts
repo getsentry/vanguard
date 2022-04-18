@@ -3,14 +3,19 @@ import invariant from "tiny-invariant";
 
 import { prisma } from "~/db.server";
 
-export type { Post } from "@prisma/client";
+export type { Category, Post, User } from "@prisma/client";
+
+export interface PostQueryType extends Post {
+  author: User;
+  category: Category;
+}
 
 export async function getPost({
   id,
   userId,
 }: Pick<Post, "id"> & {
   userId: User["id"];
-}) {
+}): Promise<PostQueryType | null> {
   const user = await prisma.user.findFirst({ where: { id: userId } });
   invariant(user, "user not found");
 
@@ -43,7 +48,7 @@ export async function getPostList({
   categoryId?: Category["id"];
   offset: number;
   limit: number;
-}) {
+}): Promise<PostQueryType[]> {
   const user = await prisma.user.findFirst({ where: { id: userId } });
   invariant(user, "user not found");
 
@@ -61,6 +66,7 @@ export async function getPostList({
 
   return await prisma.post.findMany({
     where,
+    // TODO(dcramer): would be nice to not require all of these
     select: {
       id: true,
       title: true,
@@ -69,6 +75,9 @@ export async function getPostList({
       category: true,
       published: true,
       publishedAt: true,
+      authorId: true,
+      categoryId: true,
+      deleted: true,
       createdAt: true,
       updatedAt: true,
     },
@@ -94,7 +103,7 @@ export async function updatePost({
   categoryId?: Post["categoryId"];
   published?: Post["published"];
   deleted?: Post["deleted"];
-}) {
+}): Promise<Post> {
   const user = await prisma.user.findFirst({ where: { id: userId } });
   invariant(user, "user not found");
 
@@ -152,7 +161,7 @@ export function createPost({
   userId: User["id"];
   published?: Post["published"];
   categoryId: Category["id"];
-}) {
+}): Promise<Post> {
   return prisma.post.create({
     data: {
       title,
