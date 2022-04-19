@@ -12,7 +12,11 @@ type LoaderData = {
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await requireUserId(request);
-  const postList = await getPostList({ userId, published: false });
+  const postList = await getPostList({
+    userId,
+    authorId: userId,
+    published: false,
+  });
   return json<LoaderData>({ postList });
 };
 
