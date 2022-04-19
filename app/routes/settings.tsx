@@ -192,10 +192,6 @@ const AvatarInput: React.FC<{
         fileRef.current!.files = dt.files;
         updatePreview();
       }}
-      onClick={(e) => {
-        e.preventDefault();
-        fileRef.current?.click();
-      }}
     >
       <StyledAvatarInputDropBox show={isDrag}>
         <UploadIcon width="64" height="64" />
@@ -206,7 +202,6 @@ const AvatarInput: React.FC<{
         type="file"
         name={name}
         accept="image/*"
-        style={{ display: "none" }}
         aria-invalid={error ? true : undefined}
         aria-errormessage={error ? "picture-error" : undefined}
         onChange={(e) => {
