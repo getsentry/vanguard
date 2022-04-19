@@ -18,7 +18,7 @@ function loadBuild() {
 
 const app = express();
 
-app.use(Sentry.Handlers.requestHandler());
+// app.use(Sentry.Handlers.requestHandler());
 
 app.use((req, res, next) => {
   res.set("Strict-Transport-Security", `max-age=${60 * 60 * 24 * 365 * 100}`);
