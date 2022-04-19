@@ -43,7 +43,7 @@ export default function Markdown({
         }
       : {}
   );
-  if (html.length > 512) {
+  if (summarize && html.length > 512) {
     html = html.substring(0, 512) + "...";
   }
   return <div dangerouslySetInnerHTML={{ __html: html }} />;
