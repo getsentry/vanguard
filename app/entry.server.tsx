@@ -2,11 +2,6 @@ import type { EntryContext } from "@remix-run/node";
 import { RemixServer } from "@remix-run/react";
 import { renderToString } from "react-dom/server";
 import { ServerStyleSheet } from "styled-components";
-import * as Sentry from "./lib/sentry/server";
-
-Sentry.init({
-  tracesSampleRate: 1.0,
-});
 
 function handleRequest(
   request: Request,
@@ -33,4 +28,4 @@ function handleRequest(
   });
 }
 
-export default Sentry.withSentry(handleRequest);
+export default handleRequest;

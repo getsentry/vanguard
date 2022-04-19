@@ -3,7 +3,18 @@ import express from "express";
 import compression from "compression";
 import morgan from "morgan";
 import { createRequestHandler } from "@remix-run/express";
-import * as Sentry from "~/lib/sentry/server";
+
+import * as Sentry from "../app/lib/sentry/server";
+
+Sentry.init({
+  tracesSampleRate: 1.0,
+});
+
+function loadBuild() {
+  let build = require(BUILD_DIR);
+  build = Sentry.registerBuild(build);
+  return build;
+}
 
 const app = express();
 
@@ -49,8 +60,9 @@ app.all(
     : (...args) => {
         purgeRequireCache();
         const requestHandler = createRequestHandler({
-          build: require(BUILD_DIR),
+          build: loadBuild(),
           mode: MODE,
+          getLoadContext: Sentry.getLoadContext,
         });
         return requestHandler(...args);
       }
