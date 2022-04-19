@@ -170,7 +170,14 @@ const AvatarInput: React.FC<{
       // https://stackoverflow.com/questions/8006715/drag-drop-files-into-standard-html-file-input
       onDragOver={(e) => {
         e.preventDefault();
+      }}
+      onDragEnter={(e) => {
+        e.preventDefault();
         setDrag(true);
+      }}
+      onDragExit={(e) => {
+        e.preventDefault();
+        setDrag(false);
       }}
       onMouseOver={(e) => {
         setDrag(true);
@@ -178,19 +185,8 @@ const AvatarInput: React.FC<{
       onMouseOut={(e) => {
         setDrag(false);
       }}
-      onDragEnter={(e) => {
-        e.preventDefault();
-        setDrag(true);
-      }}
-      onDragEnd={(e) => {
-        setDrag(false);
-      }}
-      onDragLeave={(e) => {
-        setDrag(false);
-      }}
       onDrop={(e) => {
         e.preventDefault();
-        // fileRef.current!.files = e.dataTransfer.files;
         const dt = new DataTransfer();
         Array.from(e.dataTransfer.files).forEach((f) => dt.items.add(f));
         fileRef.current!.files = dt.files;
@@ -204,7 +200,7 @@ const AvatarInput: React.FC<{
       <StyledAvatarInputDropBox show={isDrag}>
         <UploadIcon width="64" height="64" />
       </StyledAvatarInputDropBox>
-      <img src={initialValue || null} alt="avatar" ref={imageRef} />
+      <img src={initialValue || ""} alt="avatar" ref={imageRef} />
       <input
         ref={fileRef}
         type="file"
@@ -223,7 +219,7 @@ const AvatarInput: React.FC<{
         <button
           onClick={(e) => {
             e.preventDefault();
-            ref.current?.click();
+            fileRef.current?.click();
           }}
         >
           change your picture
