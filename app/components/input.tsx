@@ -1,10 +1,14 @@
-import styled from 'styled-components';
-import IconSearch from '~/icons/IconSearch';
+import styled from "styled-components";
+import IconSearch from "~/icons/IconSearch";
 
-const Input = (props) => (
-  <InputWrapper variant={props.variant}>
-    {props.variant === "search" && <InputIcon><IconSearch height={18} /></InputIcon>}
-    <StyledInput placeholder={props.placeholder} />
+const Input = ({ variant, ...rest }) => (
+  <InputWrapper variant={variant}>
+    {variant === "search" && (
+      <InputIcon>
+        <IconSearch height={18} />
+      </InputIcon>
+    )}
+    <StyledInput {...rest} />
   </InputWrapper>
 );
 
@@ -22,22 +26,22 @@ const InputWrapper = styled.div`
     border: 1px solid ${(p) => p.theme.borderFocusColor};
     outline - color: ${(p) => p.theme.borderFocusColor};
   }
-  
-  ${p => p.variant === "search" &&
-    `border-radius: 20rem;`
-  }
+
+  ${(p) => p.variant === "search" && `border-radius: 20rem;`}
 `;
 
 const StyledInput = styled.input`
-    width: 100%;
-    background: transparent;
-    &::placeholder {
-      color: ${(p) => p.theme.textMuted};
-    }
-    &:focus, &:focus-visible, &:active {
-      border: 0;
-      outline: 0;
-    }
+  width: 100%;
+  background: transparent;
+  &::placeholder {
+    color: ${(p) => p.theme.textMuted};
+  }
+  &:focus,
+  &:focus-visible,
+  &:active {
+    border: 0;
+    outline: 0;
+  }
 `;
 
 const InputIcon = styled.div`

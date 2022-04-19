@@ -3,7 +3,6 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 import invariant from "tiny-invariant";
 
 import { prisma } from "~/db.server";
-import UserDetailsPage from "~/routes/u/$userEmail";
 
 export type { Category, Post, PostReaction, User } from "@prisma/client";
 
@@ -41,6 +40,7 @@ export async function getPostList({
   published,
   authorId,
   categoryId,
+  query,
   offset = 0,
   limit = 50,
 }: {
@@ -48,6 +48,7 @@ export async function getPostList({
   published?: boolean | null;
   authorId?: User["id"];
   categoryId?: Category["id"];
+  query?: string;
   offset: number;
   limit: number;
 }): Promise<PostQueryType[]> {
@@ -64,6 +65,21 @@ export async function getPostList({
   }
   if (categoryId) {
     where.AND = [...(where.AND || []), { categoryId }];
+  }
+  if (query !== undefined) {
+    where.AND = [
+      ...(where.AND || []),
+      {
+        OR: [
+          {
+            title: { search: query },
+          },
+          {
+            content: { search: query },
+          },
+        ],
+      },
+    ];
   }
 
   return await prisma.post.findMany({

@@ -7,6 +7,7 @@ import type {
 } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
+  Form,
   Link,
   Links,
   LiveReload,
@@ -156,12 +157,19 @@ export default function App() {
               <Link to={`/u/${user.email}`}>{user.email}</Link>
             </SidebarSection>
             <SidebarSection>
-              <Input variant="search" placeholder="Search posts..." />
+              <Form method="get" action="/search">
+                <Input
+                  variant="search"
+                  name="q"
+                  placeholder="Search posts..."
+                />
+              </Form>
             </SidebarSection>
             <SidebarSection>
               <h6>Sections</h6>
               <CategoryTags>
-                <CategoryTag category={{ slug: "shipped" }} /> <CategoryTag category={{ slug: "strategy" }} />
+                <CategoryTag category={{ slug: "shipped" }} />{" "}
+                <CategoryTag category={{ slug: "strategy" }} />
               </CategoryTags>
             </SidebarSection>
           </Sidebar>
