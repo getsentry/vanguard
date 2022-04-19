@@ -10,6 +10,7 @@ import Paginated from "~/components/paginated";
 
 type LoaderData = {
   postListPaginated: any;
+  query: string;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -22,22 +23,27 @@ export const loader: LoaderFunction = async ({ request }) => {
     { userId, published: true, query },
     cursor
   );
-  return json<LoaderData>({ postListPaginated });
+  return json<LoaderData>({ postListPaginated, query });
 };
 
 export default function Index() {
-  const { postListPaginated } = useLoaderData() as LoaderData;
+  const { postListPaginated, query } = useLoaderData() as LoaderData;
 
   return (
-    <Paginated
-      data={postListPaginated}
-      render={(result) => {
-        return result.length === 0 ? (
-          <p>No posts found</p>
-        ) : (
-          result.map((post) => <Post post={post} key={post.id} summary />)
-        );
-      }}
-    />
+    <div>
+      <h1>
+        Showing results for <code>{query}</code>
+      </h1>
+      <Paginated
+        data={postListPaginated}
+        render={(result) => {
+          return result.length === 0 ? (
+            <p>No posts found</p>
+          ) : (
+            result.map((post) => <Post post={post} key={post.id} summary />)
+          );
+        }}
+      />
+    </div>
   );
 }
