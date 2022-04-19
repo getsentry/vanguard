@@ -1,6 +1,6 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 
 import { requireUserId } from "~/session.server";
 import { getPostList } from "~/models/post.server";
@@ -27,7 +27,10 @@ export default function Index() {
     <div>
       <h1>My Drafts</h1>
       {data.postList.length === 0 ? (
-        <p className="p-4">No posts yet</p>
+        <p className="p-4">
+          You've got no posts in draft form.{" "}
+          <Link to="/new-post">Get to writing!</Link>
+        </p>
       ) : (
         data.postList.map((post) => <Post post={post} key={post.id} />)
       )}
