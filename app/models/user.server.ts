@@ -73,10 +73,10 @@ export async function updateUser({
 }: {
   id: User["id"];
   userId: User["id"];
-  admin?: User["admin"];
-  name?: User["name"];
-  picture?: User["picture"];
-  canPostRestricted?: User["canPostRestricted"];
+  admin?: User["admin"] | null;
+  name?: User["name"] | null;
+  picture?: User["picture"] | null;
+  canPostRestricted?: User["canPostRestricted"] | null;
 }) {
   const user = await prisma.user.findFirst({ where: { id: userId } });
   invariant(user, "user not found");

@@ -10,6 +10,7 @@ import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { requireUser, requireUserId } from "~/session.server";
 import { updateUser, User } from "~/models/user.server";
 import uploadHandler from "~/lib/upload-handler";
+import AvatarInput from "~/components/avatar-input";
 
 type LoaderData = {
   user: User;
@@ -66,7 +67,7 @@ export const action: ActionFunction = async ({ request }) => {
   return redirect(redirectTo);
 };
 
-export default function NewPostPage() {
+export default function WelcomePage() {
   const { user } = useLoaderData() as LoaderData;
   const actionData = useActionData() as ActionData;
   const errors = actionData?.errors;
@@ -123,23 +124,16 @@ export default function NewPostPage() {
       <div>
         <label>
           <span>How about a slick way to visually identify yourself?</span>
-          <input
-            ref={pictureRef}
-            type="file"
+          <AvatarInput
+            initialValue={user.picture}
             name="picture"
-            aria-invalid={errors?.picture ? true : undefined}
-            aria-errormessage={errors?.picture ? "picture-error" : undefined}
+            error={errors?.picture}
           />
         </label>
-        {errors?.picture && (
-          <div className="pt-1 text-red-700" id="picture-error">
-            {errors.picture}
-          </div>
-        )}
       </div>
       <div>
         <button type="submit" className="btn btn-primary">
-          Save Changes
+          Let's Go
         </button>
       </div>
     </Form>
