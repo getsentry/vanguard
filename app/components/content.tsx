@@ -4,6 +4,7 @@ const Content = styled.div`
   pre {
     // this needs paired up w/ sentry-prism theme
     background: #000;
+    color: #fff;
     padding: 20px;
     border-radius: 4px;
   }

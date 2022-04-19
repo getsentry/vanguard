@@ -2,7 +2,7 @@ import { marked } from "marked";
 import DOMPurify from "isomorphic-dompurify";
 import prismjs from "prismjs";
 
-import "prismjs/themes/prism-tomorrow.css";
+import "prism-sentry/index.css";
 
 const renderer = new marked.Renderer();
 
