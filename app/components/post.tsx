@@ -2,13 +2,16 @@ import { Link } from "@remix-run/react";
 import moment from "moment";
 import styled from "styled-components";
 
+import Avatar from "./avatar";
 import Content from "./content";
 import PostLink from "./post-link";
 import Markdown from "./markdown";
-import CategoryTag from "./category-tag";
+import { TagWrapper, CategoryTag } from "./category-tag";
 import type { PostQueryType } from "~/models/post.server";
 
 const PostWrapper = styled.article`
+  position: relative;
+  margin-bottom: 3.2rem;
   h2 {
     font-size: 5rem;
     font-family: "Gazpacho-Heavy", serif;
@@ -16,6 +19,20 @@ const PostWrapper = styled.article`
     a {
       color: inherit;
     }
+  }
+  ${TagWrapper} {
+    position: absolute;
+    right: calc(100% + 4rem);
+    top: 0.75rem;
+    width: 100rem;
+
+    span {
+      display: none;
+    }
+  }
+ 
+  & + & {
+    margin-top: 4.8rem;
   }
 `;
 
@@ -26,12 +43,6 @@ const Credits = styled.div`
   line-height: 1.5;
   gap: 1.2rem;
   margin-bottom: 3rem;
-`;
-
-const Avatar = styled.img`
-  display: block;
-  width: 48px;
-  height: 48px;
 `;
 
 const Byline = styled.div`

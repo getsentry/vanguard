@@ -31,7 +31,7 @@ export default function Index() {
 
   return (
     <div>
-      <h1>{category!.name}</h1>
+      <h1 className="page-title">{category!.name}</h1>
       {postList.length === 0 ? (
         <p>No posts yet</p>
       ) : (

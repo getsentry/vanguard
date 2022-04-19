@@ -13,7 +13,7 @@ const colors = {
   yellow: "#ffca00",
   orange: "#ff7a00",
   red: "#f0345f",
-  purple: "#00a3ff",
+  purple: "#7854F6",
   blue: "#00a3ff",
 }
 
@@ -32,6 +32,16 @@ const lightTheme = {
     defaultTextColor: colors.gray400,
     primaryBackgroundColor: colors.black,
     primaryTextColor: colors.white
+  },
+  categories: {
+    shipped: {
+      bgColor: colors.purple,
+      textColor: colors.white
+    },
+    strategy: {
+      bgColor: colors.yellow,
+      textColor: colors.black
+    }
   }
 };
 
@@ -50,7 +60,17 @@ const darkTheme = {
     defaultTextColor: colors.gray400,
     primaryBackgroundColor: colors.gray200,
     primaryTextColor: colors.black
+  },
+  categories: {
+    shipped: {
+      bgColor: colors.purple,
+      textColor: colors.white
+    },
+    strategy: {
+      bgColor: colors.yellow,
+      textColor: colors.black
+    }
   }
 };
 
-export {lightTheme, darkTheme};
+export { lightTheme, darkTheme };

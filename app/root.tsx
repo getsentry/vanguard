@@ -26,10 +26,12 @@ import fontsCss from "./styles/fonts.css";
 import { lightTheme, darkTheme } from "./styles/theme";
 import { getSession, getUser, sessionStorage } from "./session.server";
 import Header from "./components/header";
-import Sidebar from "./components/sidebar";
+import { Sidebar, SidebarSection } from "./components/sidebar";
 
 import { Toaster } from "react-hot-toast";
 import * as Sentry from "./lib/sentry/client";
+import { CategoryTag, CategoryTags } from "./components/category-tag";
+import Input from "./components/input";
 
 export const links: LinksFunction = () => {
   return [
@@ -150,7 +152,18 @@ export default function App() {
             <Link to="/settings" className="btn">
               / Settings
             </Link>
-            <Link to={`/u/${user.email}`}>{user.email}</Link>
+            <SidebarSection>
+              <Link to={`/u/${user.email}`}>{user.email}</Link>
+            </SidebarSection>
+            <SidebarSection>
+              <Input variant="search" placeholder="Search posts..." />
+            </SidebarSection>
+            <SidebarSection>
+              <h6>Sections</h6>
+              <CategoryTags>
+                <CategoryTag category={{ slug: "shipped" }} /> <CategoryTag category={{ slug: "strategy" }} />
+              </CategoryTags>
+            </SidebarSection>
           </Sidebar>
           <ScrollRestoration />
           <script

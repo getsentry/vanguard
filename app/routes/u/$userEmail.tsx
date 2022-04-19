@@ -3,13 +3,13 @@ import { json } from "@remix-run/node";
 import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import moment from "moment";
-import styled from "styled-components";
 
 import { getPostList } from "~/models/post.server";
 import type { Post } from "~/models/post.server";
 import { getUserByEmail, updateUser } from "~/models/user.server";
 import type { User } from "~/models/user.server";
 import { requireAdmin, requireUser } from "~/session.server";
+import Avatar from "~/components/avatar";
 import PostLink from "~/components/post-link";
 import * as Panel from "~/components/panel";
 
@@ -80,12 +80,6 @@ export const action: ActionFunction = async ({ request, params }) => {
   }
   return null;
 };
-
-const Avatar = styled.img`
-  display: block;
-  width: 48px;
-  height: 48px;
-`;
 
 type LoaderData = {
   postList: Post[];

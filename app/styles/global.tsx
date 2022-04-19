@@ -61,6 +61,7 @@ const GlobalStyles = createGlobalStyle`
 
   h1 {
     font-size: 3.75rem;
+    margin-bottom: 3.2rem;
   }
 
   h2 {
@@ -81,6 +82,19 @@ const GlobalStyles = createGlobalStyle`
 
   h6 {
     font-size: 1.4rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 1.6rem;
+    color: ${p => p.theme.textMuted};
+  }
+
+  .page-title {
+    font-size: 2.6rem;
+    font-family: "IBM Plex Mono", monospace;
+    text-transform: uppercase;
+    color: ${p => p.theme.textColorSecondary};
+    padding-bottom: 3.2rem;
+    border-bottom: 3px solid ${p => p.theme.bgLayer100};
   }
 
   p,

@@ -29,4 +29,8 @@ const SidebarWrapper = styled.div`
   }
 `;
 
-export default Sidebar;
+const SidebarSection = styled.div`
+  margin-bottom: 3.2rem;
+`;
+
+export {Sidebar, SidebarSection};
