@@ -2,7 +2,7 @@ import { useState } from "react";
 import styled from "styled-components";
 
 const EmojiButton = styled.button`
-  background: ${(p) => p.theme.bgColor};
+  background: ${(p) => (p.selected ? p.theme.borderColor : p.theme.bgColor)};
   border: 1px solid ${(p) => p.theme.borderColor};
   border-radius: 4px;
   display: block;
