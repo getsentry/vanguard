@@ -4,15 +4,15 @@ import compression from "compression";
 import morgan from "morgan";
 import { createRequestHandler } from "@remix-run/express";
 
-import * as Sentry from "../app/lib/sentry/server";
+// import * as Sentry from "../app/lib/sentry/server";
 
-Sentry.init({
-  tracesSampleRate: 1.0,
-});
+// Sentry.init({
+//   tracesSampleRate: 1.0,
+// });
 
 function loadBuild() {
   let build = require(BUILD_DIR);
-  build = Sentry.registerBuild(build);
+  // build = Sentry.registerBuild(build);
   return build;
 }
 
@@ -62,7 +62,7 @@ app.all(
         const requestHandler = createRequestHandler({
           build: loadBuild(),
           mode: MODE,
-          getLoadContext: Sentry.getLoadContext,
+          // getLoadContext: Sentry.getLoadContext,
         });
         return requestHandler(...args);
       }
