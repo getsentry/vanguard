@@ -39,7 +39,7 @@ export default function uploadHandler({
       filter,
     });
     const file = await handler(...rest);
-    if (file.name) return `${urlPrefix}/${file.name}`;
+    if (file && file.name) return `${urlPrefix}/${file.name}`;
     return file;
   };
 }

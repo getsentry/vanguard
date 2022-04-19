@@ -165,7 +165,7 @@ const EditorWrapper = styled.div`
   textarea {
     width: 100%;
     border-radius: 0 0 6px 6px;
-    border: 1px solid ${p => p.theme.borderColor};
+    border: 1px solid ${(p) => p.theme.borderColor};
   }
 `;
 
@@ -303,6 +303,8 @@ function Editor({ defaultValue }: { defaultValue?: string }) {
         ref={fileRef}
         type="file"
         onClick={(event) => {}}
+        accept="image/*"
+        multiple
         onChange={(event) => {
           onUploadFiles(ref.current!, event, event.target.files);
           fileRef.current!.value = "";
