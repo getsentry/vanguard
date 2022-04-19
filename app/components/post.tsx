@@ -30,7 +30,7 @@ const PostWrapper = styled.article`
       display: none;
     }
   }
- 
+
   & + & {
     margin-top: 4.8rem;
   }
@@ -87,11 +87,9 @@ export default function Post({
           <small>This post has not yet been published.</small>
         </div>
       )}
-      {!summary && (
-        <Content>
-          <Markdown content={post.content || ""} />
-        </Content>
-      )}
+      <Content>
+        <Markdown content={post.content || ""} summarize={summary} />
+      </Content>
     </PostWrapper>
   );
 }

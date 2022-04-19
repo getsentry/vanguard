@@ -27,7 +27,24 @@ marked.setOptions({
   },
 });
 
-export default function Markdown({ content }: { content: string }) {
-  const html = DOMPurify.sanitize(marked.parse(content, { breaks: true }));
+export default function Markdown({
+  content,
+  summarize,
+}: {
+  content: string;
+  summarize: boolean;
+}) {
+  const markdownContent = marked.parse(content, { breaks: true });
+  let html = DOMPurify.sanitize(
+    markdownContent,
+    summarize
+      ? {
+          ALLOWED_TAGS: [],
+        }
+      : {}
+  );
+  if (html.length > 512) {
+    html = html.substring(0, 512) + "...";
+  }
   return <div dangerouslySetInnerHTML={{ __html: html }} />;
 }
