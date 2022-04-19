@@ -30,9 +30,13 @@ const InputWrapper = styled.div`
 
 const StyledInput = styled.input`
     width: 100%;
-    &:focus, &:focus-visible {
+    background: transparent;
+    &::placeholder {
+      color: ${(p) => p.theme.textMuted};
+    }
+    &:focus, &:focus-visible, &:active {
       border: 0;
-      outline-color: transparent;
+      outline: 0;
     }
 `;
 
