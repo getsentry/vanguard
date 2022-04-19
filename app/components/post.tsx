@@ -90,6 +90,15 @@ export default function Post({
       <Content>
         <Markdown content={post.content || ""} summarize={summary} />
       </Content>
+      {!!summary && (
+        <PostLink post={post}>Read more ({readingTime(post.content)})</PostLink>
+      )}
     </PostWrapper>
   );
 }
+
+const readingTime = (content: string): string => {
+  const time = Math.ceil(content.length / 2000);
+  if (time > 60) return time / 60 + " hour" + (time / 60 > 1 ? "s" : "");
+  return time + " minute" + (time > 1 ? "s" : "");
+};

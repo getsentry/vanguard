@@ -36,15 +36,7 @@ export default function Markdown({
 }) {
   const markdownContent = marked.parse(content, { breaks: true });
   let html = DOMPurify.sanitize(
-    markdownContent,
-    summarize
-      ? {
-          ALLOWED_TAGS: [],
-        }
-      : {}
+    summarize ? markdownContent.split("</p>")[0] + "</p>" : markdownContent
   );
-  if (summarize && html.length > 512) {
-    html = html.substring(0, 512) + "...";
-  }
   return <div dangerouslySetInnerHTML={{ __html: html }} />;
 }
