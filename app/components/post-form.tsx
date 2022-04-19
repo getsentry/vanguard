@@ -20,7 +20,7 @@ export type PostFormInitialData = {
 export default function PostForm({
   categoryList,
   errors,
-  initialData = {},
+  initialData,
 }: {
   categoryList: Category[];
   errors?: PostFormErrors;
@@ -64,7 +64,7 @@ export default function PostForm({
             required
             placeholder="Title"
             autoFocus
-            defaultValue={initialData.title}
+            defaultValue={initialData?.title}
             aria-invalid={errors?.title ? true : undefined}
             aria-errormessage={errors?.title ? "title-error" : undefined}
           />
@@ -78,7 +78,7 @@ export default function PostForm({
       <div>
         <label>
           <span>Content: </span>
-          <Editor defaultValue={initialData.content} />
+          <Editor defaultValue={initialData?.content} />
           {errors?.content && (
             <div className="pt-1 text-red-700" id="content-error">
               {errors.content}
@@ -104,7 +104,7 @@ export default function PostForm({
               <option
                 value={category.id}
                 key={category.id}
-                selected={initialData.categoryId === category.id}
+                selected={initialData?.categoryId === category.id}
               >
                 {category.name}
               </option>
