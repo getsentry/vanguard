@@ -56,8 +56,18 @@ const Name = styled.div`
   font-weight: 500;
 `;
 
-const Date = styled.div`
+const Meta = styled.div`
   color: ${(p) => p.theme.textColorSecondary};
+  flex-direction: row;
+  display: flex;
+`;
+
+const Date = styled.div``;
+
+const ReadingTime = styled.div``;
+
+const Middot = styled((props) => <div {...props}>&middot;</div>)`
+  margin: 0 5px;
 `;
 
 export default function Post({
@@ -79,7 +89,15 @@ export default function Post({
           <Name>
             <Link to={`/u/${post.author.email}`}>{post.author.name}</Link>
           </Name>
-          <Date>{moment(post.publishedAt || post.createdAt).fromNow()}</Date>
+          <Meta>
+            <Date>{moment(post.publishedAt || post.createdAt).fromNow()}</Date>
+            {!summary && [
+              <Middot />,
+              <ReadingTime>
+                {readingTime(post.content || "", false)} read
+              </ReadingTime>,
+            ]}
+          </Meta>
         </Byline>
       </Credits>
       {!post.published && (
@@ -91,14 +109,17 @@ export default function Post({
         <Markdown content={post.content || ""} summarize={summary} />
       </Content>
       {!!summary && (
-        <PostLink post={post}>Read more ({readingTime(post.content)})</PostLink>
+        <PostLink post={post}>
+          Read more ({readingTime(post.content || "")})
+        </PostLink>
       )}
     </PostWrapper>
   );
 }
 
-const readingTime = (content: string): string => {
+const readingTime = (content: string, plural: boolean = true): string => {
   const time = Math.ceil(content.length / 2000);
-  if (time > 60) return time / 60 + " hour" + (time / 60 > 1 ? "s" : "");
-  return time + " minute" + (time > 1 ? "s" : "");
+  if (time > 60)
+    return time / 60 + " hour" + (plural && time / 60 > 1 ? "s" : "");
+  return time + " minute" + (plural && time > 1 ? "s" : "");
 };
