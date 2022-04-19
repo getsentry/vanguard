@@ -76,17 +76,6 @@ export default function PostForm({
         )}
       </div>
       <div>
-        <label>
-          <span>Content: </span>
-          <Editor defaultValue={initialData?.content} />
-          {errors?.content && (
-            <div className="pt-1 text-red-700" id="content-error">
-              {errors.content}
-            </div>
-          )}
-        </label>
-      </div>
-      <div>
         <label className="flex w-full flex-col gap-1">
           <span>Category: </span>
           <select
@@ -116,6 +105,17 @@ export default function PostForm({
             {errors.categoryId}
           </div>
         )}
+      </div>
+      <div>
+        <label>
+          <span>Content: </span>
+          <Editor defaultValue={initialData?.content} />
+          {errors?.content && (
+            <div className="pt-1 text-red-700" id="content-error">
+              {errors.content}
+            </div>
+          )}
+        </label>
       </div>
       <div>
         {initialData ? (
