@@ -6,9 +6,7 @@ import { requireAdmin } from "~/session.server";
 import { paginate, PaginatedResult } from "~/lib/paginator";
 import Paginated from "~/components/paginated";
 import Table from "~/components/table";
-import moment from "moment";
 import BooleanIcon from "~/components/boolean-icon";
-import PostLink from "~/components/post-link";
 import { getCategoryList } from "~/models/category.server";
 
 type LoaderData = {

@@ -21,17 +21,37 @@ export async function getUserList(
   {
     offset = 0,
     limit = 50,
+    query,
   }: {
     offset: number;
     limit: number;
+    query?: string | null;
   } = {
     offset: 0,
     limit: 50,
   }
 ) {
+  const where: { [key: string]: any } = {};
+  if (query !== undefined) {
+    where.AND = [
+      ...(where.AND || []),
+      {
+        OR: [
+          {
+            name: { search: query },
+          },
+          {
+            email: { search: query },
+          },
+        ],
+      },
+    ];
+  }
+
   return prisma.user.findMany({
     skip: offset,
     take: limit,
+    where,
     orderBy: {
       email: "asc",
     },
