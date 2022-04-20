@@ -4,7 +4,6 @@ import { FileUploadHandlerOptions } from "@remix-run/node/upload/fileUploadHandl
 import { unstable_createFileUploadHandler } from "@remix-run/node";
 import path from "path";
 import cuid from "cuid";
-import { isInstanceOf } from "@sentry/utils";
 
 type UploadHandlerOptions = {
   namespace: string;

@@ -49,8 +49,8 @@ export async function getPostList({
   authorId?: User["id"];
   categoryId?: Category["id"];
   query?: string;
-  offset: number;
-  limit: number;
+  offset?: number;
+  limit?: number;
 }): Promise<PostQueryType[]> {
   const user = await prisma.user.findFirst({ where: { id: userId } });
   invariant(user, "user not found");
@@ -84,7 +84,6 @@ export async function getPostList({
     ];
   }
 
-  console.log({ where });
   return await prisma.post.findMany({
     where,
     // TODO(dcramer): would be nice to not require all of these
