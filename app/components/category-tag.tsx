@@ -8,14 +8,21 @@ import IconEye from "~/icons/IconEye";
 const CategoryTag = ({ category }: { category: Category }) => {
   return (
     <TagWrapper to={`/c/${category.slug}`} category={category.slug}>
-      {category.slug === "shipped" && <><IconShip height={20} /> <span>{category.slug}</span></>}
-      {category.slug === "strategy" && <><IconEye height={20} /> <span>{category.slug}</span></>}
+      {category.slug === "shipped" && (
+        <>
+          <IconShip height={20} /> <span>{category.slug}</span>
+        </>
+      )}
+      {category.slug === "strategy" && (
+        <>
+          <IconEye height={20} /> <span>{category.slug}</span>
+        </>
+      )}
     </TagWrapper>
   );
 };
 
 const handleTagColor = (props) => {
-  console.log(props);
   switch (props.category) {
     case "shipped":
       return `color: ${props.theme.categories.shipped.textColor}; background: ${props.theme.categories.shipped.bgColor}`;
@@ -38,7 +45,7 @@ const TagWrapper = styled(Link)`
   height: 4rem;
   text-transform: uppercase;
 
-  ${props => handleTagColor(props)};
+  ${(props) => handleTagColor(props)};
 `;
 
 const CategoryTags = styled.div`

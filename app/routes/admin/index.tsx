@@ -17,10 +17,13 @@ export default function Index() {
       <h1>Admin</h1>
       <ul>
         <li>
-          <Link to="./users">Users</Link>
+          <Link to="./categories">Categories</Link>
         </li>
         <li>
           <Link to="./posts">Posts</Link>
+        </li>
+        <li>
+          <Link to="./users">Users</Link>
         </li>
       </ul>
       <Outlet />

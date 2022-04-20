@@ -47,7 +47,6 @@ const EmojiRection = ({
             "Content-Type": "application/json",
           },
         });
-        console.log(res);
         if (res.status === 200) {
           const data = await res.json();
           setCount(currentCount + data.delta);

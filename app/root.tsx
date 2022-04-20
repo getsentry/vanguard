@@ -115,7 +115,6 @@ export default function App() {
 
   const toggleTheme = () => {
     theme === "light" ? setTheme("dark") : setTheme("light");
-    console.log("theme toggled");
   };
 
   return (

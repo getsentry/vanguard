@@ -31,7 +31,7 @@ export async function getCategoryList({
       !includeRestricted && !canPostRestricted
         ? { restricted: false }
         : undefined,
-    select: { id: true, name: true, slug: true },
+    select: { id: true, name: true, slug: true, restricted: true },
     orderBy: { name: "asc" },
   });
 }
