@@ -59,7 +59,9 @@ export async function getPostList({
   if (published !== undefined) {
     where.published = published;
   }
-  if (!user.admin) where.authorId = userId;
+  if (where.published !== true && !user.admin) {
+    where.authorId = userId;
+  }
   if (authorId) {
     where.AND = [...(where.AND || []), { authorId }];
   }
@@ -82,6 +84,7 @@ export async function getPostList({
     ];
   }
 
+  console.log({ where });
   return await prisma.post.findMany({
     where,
     // TODO(dcramer): would be nice to not require all of these
