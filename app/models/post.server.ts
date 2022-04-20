@@ -74,10 +74,10 @@ export async function getPostList({
       {
         OR: [
           {
-            title: { search: query },
+            title: { search: query, mode: "insensitive" },
           },
           {
-            content: { search: query },
+            content: { search: query, mode: "insensitive" },
           },
         ],
       },

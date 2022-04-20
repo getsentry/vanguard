@@ -11,6 +11,7 @@ export function getCategory({
   id?: Category["id"];
   slug?: Category["slug"];
 }) {
+  if (!id && !slug) return null;
   return prisma.category.findFirst({
     where: { id, slug },
   });
@@ -20,10 +21,14 @@ export async function getCategoryList({
   userId,
   includeRestricted = true,
   query,
+  offset = 0,
+  limit = 50,
 }: {
   userId: User["id"];
-  includeRestricted: Category["restricted"];
+  includeRestricted?: Category["restricted"];
   query?: string | null;
+  offset?: number;
+  limit?: number;
 }) {
   // userId is used to find categories
   const user = await prisma.user.findFirst({ where: { id: userId } });
@@ -36,10 +41,10 @@ export async function getCategoryList({
       {
         OR: [
           {
-            name: { search: query },
+            name: { contains: query, mode: "insensitive" },
           },
           {
-            slug: { search: query },
+            slug: { contains: query, mode: "insensitive" },
           },
         ],
       },
@@ -50,6 +55,8 @@ export async function getCategoryList({
   return await prisma.category.findMany({
     where,
     select: { id: true, name: true, slug: true, restricted: true },
+    skip: offset,
+    take: limit,
     orderBy: { name: "asc" },
   });
 }

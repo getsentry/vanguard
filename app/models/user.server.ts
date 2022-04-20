@@ -23,8 +23,8 @@ export async function getUserList(
     limit = 50,
     query,
   }: {
-    offset: number;
-    limit: number;
+    offset?: number;
+    limit?: number;
     query?: string | null;
   } = {
     offset: 0,
@@ -38,10 +38,10 @@ export async function getUserList(
       {
         OR: [
           {
-            name: { search: query },
+            name: { contains: query, mode: "insensitive" },
           },
           {
-            email: { search: query },
+            email: { contains: query, mode: "insensitive" },
           },
         ],
       },
