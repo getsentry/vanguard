@@ -98,6 +98,44 @@ describe("getPostList", () => {
       });
     });
 
+    describe("authorId", () => {
+      test("matches", async () => {
+        const result = await getPostList({
+          userId: author.id,
+          authorId: author.id,
+        });
+        expect(result.length).toBe(1);
+        expect(result[0].id).toBe(post.id);
+      });
+
+      test("doesnt match everything", async () => {
+        const result = await getPostList({
+          userId: author.id,
+          authorId: "invalid id",
+        });
+        expect(result.length).toBe(0);
+      });
+    });
+
+    describe("categoryId", () => {
+      test("matches", async () => {
+        const result = await getPostList({
+          userId: author.id,
+          categoryId: category.id,
+        });
+        expect(result.length).toBe(1);
+        expect(result[0].id).toBe(post.id);
+      });
+
+      test("doesnt match everything", async () => {
+        const result = await getPostList({
+          userId: author.id,
+          categoryId: "invalid id",
+        });
+        expect(result.length).toBe(0);
+      });
+    });
+
     describe("published", () => {
       test("cannot find unpublished posts of others", async () => {
         const result = await getPostList({
