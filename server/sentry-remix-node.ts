@@ -4,7 +4,8 @@ import * as Sentry from "@sentry/node";
 
 import { isResponse } from "@remix-run/server-runtime/responses";
 import { v4 as uuid } from "uuid";
-import { ServerBuild } from "@remix-run/node";
+import type { ServerBuild } from "@remix-run/node";
+import type { Request, Response } from "express";
 
 /**
  *
@@ -12,7 +13,7 @@ import { ServerBuild } from "@remix-run/node";
  * @param {string} routeId
  * @param {string} method
  */
-function wrapDataFunc(func, routeId, method) {
+function wrapDataFunc(func, routeId: string, method: string) {
   const ogFunc = func;
 
   return async (...args) => {
@@ -83,7 +84,7 @@ export function registerBuild(build: ServerBuild) {
  * @param {import("express").Response} res
  * @returns
  */
-export function getLoadContext(req, res) {
+export function getLoadContext(req: Request, res: Response) {
   const transaction = Sentry.getCurrentHub().startTransaction({
     op: "request",
     name: `${req.method}: ${req.url}`,
