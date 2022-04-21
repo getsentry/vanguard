@@ -30,7 +30,7 @@ import Header from "./components/header";
 import { Sidebar, SidebarSection } from "./components/sidebar";
 
 import { Toaster } from "react-hot-toast";
-import * as Sentry from "./lib/sentry/client";
+import * as Sentry from "./lib/sentry-remix-client";
 import { CategoryTag, CategoryTags } from "./components/category-tag";
 import Input from "./components/input";
 
@@ -86,6 +86,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export function ErrorBoundary({ error }) {
   console.error(error);
+  // TODO(dcramer): verify if this is useful
   Sentry.captureException(error);
   return (
     <html>

@@ -1,47 +1,10 @@
-import { ServerBuild } from "@remix-run/server-runtime";
+// this is via the guidance from the Remix team:
+// https://github.com/jacob-ebey/remix-sentry/blob/main/server/sentry-remix-node.js
 import * as Sentry from "@sentry/node";
 
-import "@sentry/tracing";
-import { prisma } from "~/db.server";
-
-// https://github.com/getsentry/sentry-javascript/issues/3143
-export function installPrismaTracer(prisma) {
-  prisma.$use(async (params, next) => {
-    const { model, action, runInTransaction, args } = params;
-    const description = [model, action].filter(Boolean).join(".");
-    const data = {
-      model,
-      action,
-      runInTransaction,
-      args,
-    };
-
-    const scope = Sentry.getCurrentHub().getScope();
-    const parentSpan = scope?.getSpan();
-    const span = parentSpan?.startChild({
-      op: "db",
-      description,
-      data,
-    });
-
-    // optional but nice
-    scope?.addBreadcrumb({
-      category: "db",
-      message: description,
-      data,
-    });
-
-    const result = await next(params);
-    span?.finish();
-
-    return result;
-  });
-}
-
-installPrismaTracer(prisma);
-
-let { isResponse } = require("@remix-run/server-runtime/responses");
-const { v4: uuid } = require("uuid");
+import { isResponse } from "@remix-run/server-runtime/responses";
+import { v4 as uuid } from "uuid";
+import { ServerBuild } from "@remix-run/node";
 
 /**
  *
@@ -147,16 +110,3 @@ export function getLoadContext(req, res) {
     __sentry_transaction: transaction,
   };
 }
-
-export function init(options = {}, ...rest) {
-  return Sentry.init(
-    {
-      dsn: process.env.SENTRY_DSN,
-      environment: process.env.NODE_ENV || "development",
-      ...options,
-    },
-    ...rest
-  );
-}
-
-export * from "@sentry/node";
