@@ -1,7 +1,15 @@
-import type { User, Post, Category, PostReaction } from "@prisma/client";
+import type {
+  User,
+  Post,
+  Category,
+  PostReaction,
+  CategorySlack,
+} from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 import invariant from "tiny-invariant";
 
+import * as email from "../lib/email";
+import * as slack from "../lib/slack";
 import { prisma } from "~/db.server";
 
 export type { Category, Post, PostReaction, User } from "@prisma/client";
@@ -9,6 +17,37 @@ export type { Category, Post, PostReaction, User } from "@prisma/client";
 export interface PostQueryType extends Post {
   author: User;
   category: Category;
+}
+
+export async function publishPost(post: PostQueryType) {
+  const emailConfig = await prisma.categoryEmail.findMany({
+    where: {
+      categoryId: post.categoryId,
+    },
+  });
+
+  emailConfig.forEach(async (config) => {
+    await email.notify(post, config as email.EmailConfig);
+  });
+
+  let slackConfig: slack.SlackConfig[] | CategorySlack[] =
+    await prisma.categorySlack.findMany({
+      where: {
+        categoryId: post.categoryId,
+      },
+    });
+
+  if (!slackConfig.length && process.env.SLACK_WEBHOOK_URL) {
+    slackConfig = [
+      {
+        webhookUrl: process.env.SLACK_WEBHOOK_URL,
+      },
+    ];
+  }
+
+  slackConfig.forEach(async (config) => {
+    await slack.notify(post, config as slack.SlackConfig);
+  });
 }
 
 export async function getPost({
@@ -163,15 +202,20 @@ export async function updatePost({
     ],
   };
 
-  return prisma.post.update({
+  const updatedPost = await prisma.post.update({
     where: {
       id,
     },
     data,
+    include: { author: true, category: true },
   });
+  if (updatedPost.published && !post.published) {
+    await publishPost(updatedPost);
+  }
+  return updatedPost;
 }
 
-export function createPost({
+export async function createPost({
   userId,
   content,
   title,
@@ -182,7 +226,7 @@ export function createPost({
   published?: Post["published"];
   categoryId: Category["id"];
 }): Promise<Post> {
-  return prisma.post.create({
+  const post = await prisma.post.create({
     data: {
       title,
       content,
@@ -209,7 +253,13 @@ export function createPost({
         ],
       },
     },
+    include: { author: true, category: true },
   });
+
+  if (post.published) {
+    await publishPost(post);
+  }
+  return post;
 }
 
 export async function deletePost({

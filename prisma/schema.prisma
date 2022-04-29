@@ -24,12 +24,33 @@ model User {
 }
 
 model Category {
-  id            String         @id @default(cuid())
-  name          String         @unique @db.VarChar(255)
-  slug          String         @unique @db.VarChar(255)
+  id            String          @id @default(cuid())
+  name          String          @unique @db.VarChar(255)
+  slug          String          @unique @db.VarChar(255)
   posts         Post[]
   postRevisions PostRevision[]
-  restricted    Boolean        @default(false)
+  restricted    Boolean         @default(false)
+  slackConfig   CategorySlack[]
+  emailConfig   CategoryEmail[]
+  colorHex      String?         @db.VarChar(7)
+}
+
+model CategorySlack {
+  id         String   @id @default(cuid())
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId String
+  webhookUrl String
+  // overrides
+  username   String?
+  iconUrl    String?
+  channel    String?
+}
+
+model CategoryEmail {
+  id         String   @id @default(cuid())
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId String
+  to         String
 }
 
 model Post {

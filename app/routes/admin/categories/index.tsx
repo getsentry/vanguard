@@ -49,7 +49,7 @@ export default function Index() {
                 {result.map((category) => (
                   <tr key={category.id}>
                     <td>
-                      <Link to={`/c/${category.slug}`}>{category.name}</Link>
+                      <Link to={`${category.id}`}>{category.name}</Link>
                     </td>
                     <td>{category.slug}</td>
                     <td>

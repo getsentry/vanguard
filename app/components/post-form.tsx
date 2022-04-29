@@ -117,6 +117,7 @@ export default function PostForm({
           )}
         </label>
       </div>
+      <p>Publishing a post will immediately trigger notifications!</p>
       <div>
         {initialData ? (
           <button type="submit" className="btn btn-primary">
