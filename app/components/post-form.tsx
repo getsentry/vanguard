@@ -15,6 +15,26 @@ export type PostFormInitialData = {
   title?: string;
   content?: string;
   categoryId?: string;
+  published?: boolean;
+};
+
+const AnnounceOption = ({ category }: { category: Category }) => {
+  if (!category) return null;
+  const locations: string[] = Array.from(
+    new Set([
+      ...category.slackConfig.map((c) => c.channel || "Slack"),
+      ...category.emailConfig.map((c) => c.to),
+    ])
+  );
+  if (!locations.length) return null;
+  return (
+    <div>
+      <label>
+        <input type="checkbox" name="announce" defaultChecked />
+        Announce this post to {locations.join(", ")} (only on publish)
+      </label>
+    </div>
+  );
 };
 
 export default function PostForm({
@@ -60,7 +80,6 @@ export default function PostForm({
           <input
             ref={titleRef}
             name="title"
-            className=""
             required
             placeholder="Title"
             autoFocus
@@ -82,7 +101,6 @@ export default function PostForm({
             ref={categoryIdRef}
             name="categoryId"
             required
-            className=""
             aria-invalid={errors?.categoryId ? true : undefined}
             aria-errormessage={
               errors?.categoryId ? "categoryId-error" : undefined
@@ -117,9 +135,11 @@ export default function PostForm({
           )}
         </label>
       </div>
-      <p>Publishing a post will immediately trigger notifications!</p>
+      <AnnounceOption
+        category={categoryList.find((c) => c.id === initialData?.categoryId)}
+      />
       <div>
-        {initialData ? (
+        {initialData && initialData.published ? (
           <button type="submit" className="btn btn-primary">
             Save Changes
           </button>

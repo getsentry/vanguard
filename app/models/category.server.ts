@@ -54,9 +54,12 @@ export async function getCategoryList({
 
   return await prisma.category.findMany({
     where,
-    select: { id: true, name: true, slug: true, restricted: true },
     skip: offset,
     take: limit,
     orderBy: { name: "asc" },
+    include: {
+      slackConfig: true,
+      emailConfig: true,
+    },
   });
 }

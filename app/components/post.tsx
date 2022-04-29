@@ -102,7 +102,7 @@ export default function Post({
       </Credits>
       {!post.published && (
         <div className="py-6">
-          <small>This post has not yet been published.</small>
+          <strong>This post has not yet been published.</strong>
         </div>
       )}
       <Content>

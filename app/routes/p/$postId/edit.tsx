@@ -88,6 +88,7 @@ export default function EditPostPage() {
         title: post.title,
         content: post.content!,
         categoryId: post.categoryId,
+        published: post.published,
       }}
     />
   );

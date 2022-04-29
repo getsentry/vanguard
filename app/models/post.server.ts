@@ -19,7 +19,7 @@ export interface PostQueryType extends Post {
   category: Category;
 }
 
-export async function publishPost(post: PostQueryType) {
+export async function announcePost(post: PostQueryType) {
   const emailConfig = await prisma.categoryEmail.findMany({
     where: {
       categoryId: post.categoryId,
@@ -209,9 +209,6 @@ export async function updatePost({
     data,
     include: { author: true, category: true },
   });
-  if (updatedPost.published && !post.published) {
-    await publishPost(updatedPost);
-  }
   return updatedPost;
 }
 
@@ -226,7 +223,7 @@ export async function createPost({
   published?: Post["published"];
   categoryId: Category["id"];
 }): Promise<Post> {
-  const post = await prisma.post.create({
+  return await prisma.post.create({
     data: {
       title,
       content,
@@ -255,11 +252,6 @@ export async function createPost({
     },
     include: { author: true, category: true },
   });
-
-  if (post.published) {
-    await publishPost(post);
-  }
-  return post;
 }
 
 export async function deletePost({

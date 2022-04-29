@@ -3,7 +3,7 @@ import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useActionData, useLoaderData } from "@remix-run/react";
 
-import { createPost } from "~/models/post.server";
+import { announcePost, createPost } from "~/models/post.server";
 import { requireUserId } from "~/session.server";
 import { getCategory, getCategoryList } from "~/models/category.server";
 import type { Category } from "~/models/category.server";
@@ -35,6 +35,7 @@ export const action: ActionFunction = async ({ request }) => {
   const content = formData.get("content");
   const categoryId = formData.get("categoryId");
   const published = formData.get("published");
+  const announce = published && formData.get("announce");
 
   if (typeof categoryId !== "string" || categoryId.length === 0) {
     return json<ActionData>(
@@ -64,6 +65,10 @@ export const action: ActionFunction = async ({ request }) => {
     categoryId,
     published: !!published,
   });
+
+  if (announce) {
+    announcePost(post);
+  }
 
   return redirect(getPostLink(post));
 };
