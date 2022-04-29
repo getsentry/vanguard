@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { Form } from "@remix-run/react";
 import type { TextareaMarkdownRef } from "textarea-markdown-editor";
 
@@ -18,7 +18,7 @@ export type PostFormInitialData = {
   published?: boolean;
 };
 
-const AnnounceOption = ({ category }: { category: Category }) => {
+const AnnounceOption = ({ category }: { category?: Category }) => {
   if (!category) return null;
   const locations: string[] = Array.from(
     new Set([
@@ -51,6 +51,10 @@ export default function PostForm({
   const titleRef = useRef<HTMLInputElement>(null);
   // const contentRef = useRef<HTMLTextAreaElement>(null);
   const categoryIdRef = useRef<HTMLSelectElement>(null);
+
+  const [categoryId, setCategoryId] = useState<string | null>(
+    initialData?.categoryId || null
+  );
 
   useEffect(() => {
     if (errors?.title) {
@@ -101,6 +105,10 @@ export default function PostForm({
             ref={categoryIdRef}
             name="categoryId"
             required
+            onChange={(e) => {
+              setCategoryId(e.target.options[e.target.selectedIndex].value);
+            }}
+            defaultValue={categoryId || ""}
             aria-invalid={errors?.categoryId ? true : undefined}
             aria-errormessage={
               errors?.categoryId ? "categoryId-error" : undefined
@@ -108,11 +116,7 @@ export default function PostForm({
           >
             <option />
             {categoryList.map((category) => (
-              <option
-                value={category.id}
-                key={category.id}
-                selected={initialData?.categoryId === category.id}
-              >
+              <option value={category.id} key={category.id}>
                 {category.name}
               </option>
             ))}
@@ -136,7 +140,7 @@ export default function PostForm({
         </label>
       </div>
       <AnnounceOption
-        category={categoryList.find((c) => c.id === initialData?.categoryId)}
+        category={categoryList.find((c) => c.id === categoryId)}
       />
       <div>
         {initialData && initialData.published ? (
