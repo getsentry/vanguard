@@ -4,6 +4,7 @@ import type { TextareaMarkdownRef } from "textarea-markdown-editor";
 
 import type { Category } from "../models/category.server";
 import Editor from "./editor";
+import useLocalStorage from "~/lib/useLocalStorage";
 
 export type PostFormErrors = {
   title?: string;
@@ -46,29 +47,23 @@ export default function PostForm({
   errors?: PostFormErrors;
   initialData?: PostFormInitialData;
 }) {
-  const contentRef = useRef<TextareaMarkdownRef>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const [storedDraft, setStoredDraft] = useLocalStorage("draft", {});
 
-  const titleRef = useRef<HTMLInputElement>(null);
-  // const contentRef = useRef<HTMLTextAreaElement>(null);
-  const categoryIdRef = useRef<HTMLSelectElement>(null);
+  if (!initialData) {
+    initialData = storedDraft;
+  }
 
   const [categoryId, setCategoryId] = useState<string | null>(
     initialData?.categoryId || null
   );
 
-  useEffect(() => {
-    if (errors?.title) {
-      titleRef.current?.focus();
-    } else if (errors?.content) {
-      contentRef.current?.focus();
-    } else if (errors?.categoryId) {
-      categoryIdRef.current?.focus();
-    }
-  }, [errors]);
+  console.log({ initialData });
 
   return (
     <Form
       method="post"
+      ref={formRef}
       style={{
         display: "flex",
         flexDirection: "column",
@@ -76,13 +71,17 @@ export default function PostForm({
         width: "100%",
       }}
       className="p-4"
+      onSubmit={() => {
+        setStoredDraft({});
+      }}
+      onChange={(e) => {
+        setStoredDraft({ ...storedDraft, [e.target.name]: e.target.value });
+      }}
     >
-      <h3>Create New Post</h3>
       <div>
         <label className="">
           <span>Title: </span>
           <input
-            ref={titleRef}
             name="title"
             required
             placeholder="Title"
@@ -102,7 +101,6 @@ export default function PostForm({
         <label className="flex w-full flex-col gap-1">
           <span>Category: </span>
           <select
-            ref={categoryIdRef}
             name="categoryId"
             required
             onChange={(e) => {
