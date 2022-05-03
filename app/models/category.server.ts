@@ -34,7 +34,7 @@ export async function getCategoryList({
   const user = await prisma.user.findFirst({ where: { id: userId } });
   const canPostRestricted = user ? user.canPostRestricted : false;
 
-  const where: { [key: string]: any } = {};
+  const where: { [key: string]: any } = { deleted: false };
   if (query !== undefined) {
     where.AND = [
       ...(where.AND || []),

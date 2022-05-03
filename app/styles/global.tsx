@@ -85,16 +85,16 @@ const GlobalStyles = createGlobalStyle`
     font-weight: 600;
     text-transform: uppercase;
     margin-bottom: 1.6rem;
-    color: ${p => p.theme.textMuted};
+    color: ${(p) => p.theme.textMuted};
   }
 
   .page-title {
     font-size: 2.6rem;
     font-family: "IBM Plex Mono", monospace;
     text-transform: uppercase;
-    color: ${p => p.theme.textColorSecondary};
+    color: ${(p) => p.theme.textColorSecondary};
     padding-bottom: 3.2rem;
-    border-bottom: 3px solid ${p => p.theme.bgLayer100};
+    border-bottom: 3px solid ${(p) => p.theme.bgLayer100};
   }
 
   p,
@@ -160,6 +160,13 @@ const GlobalStyles = createGlobalStyle`
     background: ${(p) => p.theme.button.primaryBackgroundColor};
     color: ${(p) => p.theme.button.primaryTextColor};
   }
+
+  // here you go chris
+  .btn-danger {
+    background: red;
+    color: white;
+  }
+
 
   /* Forms */
 

@@ -27,6 +27,7 @@ model Category {
   id            String          @id @default(cuid())
   name          String          @unique @db.VarChar(255)
   slug          String          @unique @db.VarChar(255)
+  deleted       Boolean         @default(false)
   posts         Post[]
   postRevisions PostRevision[]
   restricted    Boolean         @default(false)

@@ -15,7 +15,7 @@ const ButtonLink: React.FC<ButtonLinkProps> = function ButtonLink({
   const navigate = useNavigate();
   const onClick = to ? () => navigate(to) : undefined;
 
-  if (disabled) className = `${className} opacity-50 cursor-not-allowed`;
+  if (disabled) className = `${className} btn opacity-50 cursor-not-allowed`;
 
   return (
     <button

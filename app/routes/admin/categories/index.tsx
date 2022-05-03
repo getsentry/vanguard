@@ -8,6 +8,7 @@ import Paginated from "~/components/paginated";
 import Table from "~/components/table";
 import BooleanIcon from "~/components/boolean-icon";
 import { getCategoryList } from "~/models/category.server";
+import ButtonLink from "~/components/button-link";
 
 type LoaderData = {
   categoryListPaginated: Awaited<
@@ -33,6 +34,7 @@ export default function Index() {
   return (
     <div>
       <h2>Categories</h2>
+      <ButtonLink to="new">New Category</ButtonLink>
       <Paginated
         data={categoryListPaginated}
         render={(result) => {
