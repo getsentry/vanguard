@@ -74,7 +74,7 @@ export const loader: LoaderFunction = async ({ request }) => {
       ENV: {
         SENTRY_DSN: process.env.SENTRY_DSN,
         NODE_ENV: process.env.NODE_ENV || "development",
-        BUILD_REVISION: process.env.BUILD_REVISION,
+        VERSION: process.env.VERSION,
       },
     },
     // XXX(dcramer): is this the best way to ensure the session is persisted here?
@@ -175,7 +175,7 @@ export default function App() {
               </CategoryTags>
             </SidebarSection>
           </Sidebar>
-          <Footer version={ENV.BUILD_REVISION} />
+          <Footer version={ENV.VERSION} />
           <ScrollRestoration />
           <script
             dangerouslySetInnerHTML={{
