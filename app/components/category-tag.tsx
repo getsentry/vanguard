@@ -22,8 +22,37 @@ const CategoryTag = ({ category }: { category: Category }) => {
   );
 };
 
+function hexToRgb(colorHex: string) {
+  // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+  const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+  colorHex = colorHex.replace(shorthandRegex, function (m, r, g, b) {
+    return r + r + g + g + b + b;
+  });
+
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(colorHex);
+  return result
+    ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16),
+      }
+    : null;
+}
+
+function contrastColor(colorHex: string) {
+  const rgb = hexToRgb(colorHex);
+  if (!rgb) return "black";
+
+  const brightness = Math.round(
+    (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000
+  );
+  return brightness > 125 ? "black" : "#eeeeee";
+}
+
 const handleTagColor = ({ colorHex }) => {
-  return `backgroundColor: ${colorHex || "#eee"}; background: #000000;`;
+  return `background: ${colorHex || "#eee"}; color: ${contrastColor(
+    colorHex || "#eeeeee"
+  )};`;
 };
 
 const TagWrapper = styled(Link)`

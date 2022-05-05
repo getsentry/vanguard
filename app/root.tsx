@@ -34,6 +34,7 @@ import { Toaster } from "react-hot-toast";
 import * as Sentry from "./lib/sentry-remix-client";
 import { CategoryTag, CategoryTags } from "./components/category-tag";
 import Input from "./components/input";
+import { getCategoryList } from "./models/category.server";
 
 export const links: LinksFunction = () => {
   return [
@@ -51,6 +52,7 @@ export const meta: MetaFunction = () => ({
 
 type LoaderData = {
   user: Awaited<ReturnType<typeof getUser>>;
+  categoryList: Awaited<ReturnType<typeof getCategoryList>>;
   ENV: { [key: string]: any };
 };
 
@@ -68,9 +70,15 @@ export const loader: LoaderFunction = async ({ request }) => {
     return redirect(`/welcome?${searchParams}`);
   }
 
+  const categoryList = await getCategoryList({
+    userId: user!.id,
+    includeRestricted: true,
+  });
+
   return json<LoaderData>(
     {
       user,
+      categoryList,
       ENV: {
         SENTRY_DSN: process.env.SENTRY_DSN,
         NODE_ENV: process.env.NODE_ENV || "development",
@@ -113,7 +121,7 @@ export function ErrorBoundary({ error }) {
 }
 
 export default function App() {
-  const { user, ENV } = useLoaderData();
+  const { user, categoryList, ENV } = useLoaderData();
   const [theme, setTheme] = useState("light");
 
   const toggleTheme = () => {
@@ -170,8 +178,9 @@ export default function App() {
             <SidebarSection>
               <h6>Sections</h6>
               <CategoryTags>
-                <CategoryTag category={{ slug: "shipped" }} />{" "}
-                <CategoryTag category={{ slug: "strategy" }} />
+                {categoryList.map((category) => (
+                  <CategoryTag category={category} />
+                ))}
               </CategoryTags>
             </SidebarSection>
           </Sidebar>
