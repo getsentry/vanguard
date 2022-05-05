@@ -7,7 +7,7 @@ import IconEye from "~/icons/IconEye";
 
 const CategoryTag = ({ category }: { category: Category }) => {
   return (
-    <TagWrapper to={`/c/${category.slug}`} category={category.slug}>
+    <TagWrapper to={`/c/${category.slug}`} colorHex={category.colorHex}>
       {category.slug === "shipped" && (
         <>
           <IconShip height={20} /> <span>{category.slug}</span>
@@ -22,15 +22,8 @@ const CategoryTag = ({ category }: { category: Category }) => {
   );
 };
 
-const handleTagColor = (props) => {
-  switch (props.category) {
-    case "shipped":
-      return `color: ${props.theme.categories.shipped.textColor}; background: ${props.theme.categories.shipped.bgColor}`;
-    case "strategy":
-      return `color: ${props.theme.categories.strategy.textColor}; background: ${props.theme.categories.strategy.bgColor}`;
-    default:
-      return "color: #000; background: #eee;";
-  }
+const handleTagColor = ({ colorHex }) => {
+  return `color: ${colorHex || "#000000"}; background: #eee;`;
 };
 
 const TagWrapper = styled(Link)`
