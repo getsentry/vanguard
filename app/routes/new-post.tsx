@@ -34,8 +34,10 @@ export const action: ActionFunction = async ({ request }) => {
   const title = formData.get("title");
   const content = formData.get("content");
   const categoryId = formData.get("categoryId");
-  const published = formData.get("published");
-  const announce = published && formData.get("announce");
+  const published =
+    formData.get("published") === "true" ||
+    formData.get("published") === "announce";
+  const announce = formData.get("published") === "announce";
 
   if (typeof categoryId !== "string" || categoryId.length === 0) {
     return json<ActionData>(
@@ -63,7 +65,7 @@ export const action: ActionFunction = async ({ request }) => {
     title,
     content,
     categoryId,
-    published: !!published,
+    published: published,
   });
 
   if (announce) {

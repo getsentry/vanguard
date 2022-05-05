@@ -4,6 +4,10 @@ import { Form } from "@remix-run/react";
 import type { Category } from "../models/category.server";
 import Editor from "./editor";
 import useLocalStorage from "~/lib/useLocalStorage";
+import styled from "styled-components";
+import Button from "./button";
+import ButtonGroup from "./button-group";
+import ButtonDropdown, { ButtonDropdownItem } from "./button-dropdown";
 
 export type PostFormErrors = {
   title?: string;
@@ -48,14 +52,39 @@ const AnnounceOption = ({
   );
 };
 
+const HelpText = styled.div`
+  font-size: 0.7em;
+  color: #999;
+`;
+
+const PostFormButtons = styled.div`
+  position: fixed;
+  background: #eee;
+  padding: 1.5rem 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+`;
+
+const PostFormButtonsWrapper = styled.div`
+  margin-right: 40rem;
+  text-align: right;
+`;
+
 export default function PostForm({
   categoryList,
   errors,
   initialData,
+  canDelete = false,
+  canUnpublish = false,
+  canAnnounce = true,
 }: {
   categoryList: Category[];
   errors?: PostFormErrors;
   initialData?: PostFormInitialData;
+  canDelete?: boolean;
+  canUnpublish?: boolean;
+  canAnnounce?: boolean;
 }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [storedDraft, setStoredDraft] = useLocalStorage("draft", {});
@@ -147,31 +176,78 @@ export default function PostForm({
           )}
         </label>
       </div>
-      <AnnounceOption
-        defaultChecked={initialData?.announce}
-        category={categoryList.find((c) => c.id === categoryId)}
-      />
-      <div>
-        {initialData && initialData.published ? (
-          <button type="submit" className="btn btn-primary">
-            Save Changes
-          </button>
-        ) : (
-          <Fragment>
-            <button
-              type="submit"
-              name="published"
-              value="true"
-              className="btn btn-primary"
-            >
-              Publish
-            </button>
-            <button type="submit" className="btn">
-              Save Draft
-            </button>
-          </Fragment>
-        )}
-      </div>
+      <PostFormButtons>
+        <PostFormButtonsWrapper>
+          <div className="container">
+            <ButtonGroup>
+              {initialData && initialData.published ? (
+                canUnpublish && initialData.published ? (
+                  <ButtonDropdown type="submit" mode="primary" label="Save">
+                    <ButtonDropdownItem
+                      type="submit"
+                      name="published"
+                      value="false"
+                    >
+                      Save as Draft
+                      <HelpText>Unpublish this post.</HelpText>
+                    </ButtonDropdownItem>
+                    <ButtonDropdownItem
+                      type="submit"
+                      name="published"
+                      value="true"
+                    >
+                      Save as Published
+                      <HelpText>Just save changes.</HelpText>
+                    </ButtonDropdownItem>
+                  </ButtonDropdown>
+                ) : (
+                  <Button type="submit" mode="primary">
+                    Save
+                  </Button>
+                )
+              ) : canAnnounce ? (
+                <Fragment>
+                  <ButtonDropdown
+                    type="submit"
+                    mode="primary"
+                    name="published"
+                    value="announce"
+                    label="Publish"
+                  >
+                    <ButtonDropdownItem
+                      type="submit"
+                      name="published"
+                      value="announce"
+                    >
+                      Publish
+                    </ButtonDropdownItem>
+                    <ButtonDropdownItem
+                      type="submit"
+                      name="published"
+                      value="true"
+                    >
+                      Publish Silently
+                      <HelpText>
+                        Don't send announcements (if configured).
+                      </HelpText>
+                    </ButtonDropdownItem>
+                  </ButtonDropdown>
+                  <Button type="submit">Save Draft</Button>
+                </Fragment>
+              ) : (
+                <Button type="submit" name="published" value="true">
+                  Publish
+                </Button>
+              )}
+              {canDelete && (
+                <Button type="submit" name="deleted" value="true" mode="danger">
+                  Delete
+                </Button>
+              )}
+            </ButtonGroup>
+          </div>
+        </PostFormButtonsWrapper>
+      </PostFormButtons>
     </Form>
   );
 }

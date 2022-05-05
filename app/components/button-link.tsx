@@ -1,5 +1,6 @@
 import { useNavigate } from "@remix-run/react";
 import React, { ButtonHTMLAttributes } from "react";
+import Button from "./button";
 
 interface ButtonLinkProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   to?: string;
@@ -8,24 +9,15 @@ interface ButtonLinkProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const ButtonLink: React.FC<ButtonLinkProps> = function ButtonLink({
   to,
   children,
-  disabled,
-  className,
   ...props
 }) {
   const navigate = useNavigate();
   const onClick = to ? () => navigate(to) : undefined;
 
-  if (disabled) className = `${className} btn opacity-50 cursor-not-allowed`;
-
   return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className={className}
-      {...props}
-    >
+    <Button onClick={onClick} {...props}>
       {children}
-    </button>
+    </Button>
   );
 };
 

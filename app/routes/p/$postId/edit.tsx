@@ -46,8 +46,12 @@ export const action: ActionFunction = async ({ request, params }) => {
   const published =
     formData.get("published") === null
       ? undefined
-      : !!formData.get("published");
+      : formData.get("published") === "true";
   const announce = published && formData.get("announce");
+  const deleted =
+    formData.get("deleted") !== null ? !!formData.get("deleted") : undefined;
+
+  console.log(published);
 
   if (typeof categoryId !== "string" || categoryId.length === 0) {
     return json<ActionData>(
@@ -77,10 +81,15 @@ export const action: ActionFunction = async ({ request, params }) => {
     content,
     categoryId,
     published,
+    deleted,
   });
 
-  if (announce) {
+  if (!post.deleted && announce) {
     announcePost(post);
+  }
+
+  if (post.deleted) {
+    return redirect("/");
   }
 
   return redirect(getPostLink(post));
@@ -100,6 +109,9 @@ export default function EditPostPage() {
         categoryId: post.categoryId,
         published: post.published,
       }}
+      canDelete={true}
+      canUnpublish={true}
+      canAnnounce={!post.published}
     />
   );
 }

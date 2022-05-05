@@ -73,9 +73,11 @@ const Middot = styled((props) => <div {...props}>&middot;</div>)`
 export default function Post({
   post,
   summary = false,
+  canEdit = false,
 }: {
   post: PostQueryType;
   summary?: boolean;
+  canEdit?: boolean;
 }) {
   return (
     <PostWrapper>
@@ -96,6 +98,10 @@ export default function Post({
               <ReadingTime>
                 {readingTime(post.content || "", false)} read
               </ReadingTime>,
+            ]}
+            {canEdit && [
+              <Middot />,
+              <Link to={`/p/${post!.id}/edit`}>Edit</Link>,
             ]}
           </Meta>
         </Byline>
