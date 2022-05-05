@@ -35,6 +35,7 @@ import * as Sentry from "./lib/sentry-remix-client";
 import { CategoryTag, CategoryTags } from "./components/category-tag";
 import Input from "./components/input";
 import { getCategoryList } from "./models/category.server";
+import Avatar from "./components/avatar";
 
 export const links: LinksFunction = () => {
   return [
@@ -155,11 +156,10 @@ export default function App() {
             <Link to="/drafts" className="btn">
               / Drafts
             </Link>
-            <Link to="/settings" className="btn">
-              / Settings
-            </Link>
             <SidebarSection>
-              <Link to={`/u/${user.email}`}>{user.email}</Link>
+              <Link to="/settings">
+                <Avatar user={user} />
+              </Link>
             </SidebarSection>
             <SidebarSection>
               <Form method="get" action="/search">

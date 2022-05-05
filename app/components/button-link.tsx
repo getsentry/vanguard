@@ -12,7 +12,12 @@ const ButtonLink: React.FC<ButtonLinkProps> = function ButtonLink({
   ...props
 }) {
   const navigate = useNavigate();
-  const onClick = to ? () => navigate(to) : undefined;
+  const onClick = to
+    ? (e) => {
+        e.preventDefault();
+        navigate(to);
+      }
+    : undefined;
 
   return (
     <Button onClick={onClick} {...props}>

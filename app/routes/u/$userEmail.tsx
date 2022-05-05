@@ -114,7 +114,7 @@ export default function UserDetailsPage() {
       <h1>{user.name}</h1>
       <h3>{user.email}</h3>
 
-      <Avatar src={user.picture || "/img/placeholder-avatar.png"} />
+      <Avatar user={user} />
 
       <h2>Most Recent Posts</h2>
       {postList.length ? (

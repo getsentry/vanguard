@@ -12,6 +12,8 @@ import { updateUser } from "~/models/user.server";
 import type { User } from "~/models/user.server";
 import uploadHandler from "~/lib/upload-handler";
 import AvatarInput from "~/components/avatar-input";
+import ButtonLink from "~/components/button-link";
+import styled from "styled-components";
 
 type LoaderData = {
   user: User;
@@ -68,6 +70,21 @@ export const action: ActionFunction = async ({ request }) => {
   return redirect(redirectTo);
 };
 
+const PageHeader = styled.div`
+  margin-bottom: 3.2rem;
+  text-align: right;
+
+  &:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+
+  h1 {
+    float: left;
+  }
+`;
+
 export default function NewPostPage() {
   const { user } = useLoaderData() as LoaderData;
   const actionData = useActionData() as ActionData;
@@ -93,7 +110,10 @@ export default function NewPostPage() {
       }}
       className="p-4"
     >
-      <h1>Edit Profile</h1>
+      <PageHeader>
+        <h1>Edit Profile</h1>
+        <ButtonLink to={`/u/${user.email}`}>View Your Profile</ButtonLink>
+      </PageHeader>
       <div>
         <label>
           <span>What should we call you?</span>
