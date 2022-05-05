@@ -9,7 +9,7 @@ const Footer = (props: Props) => {
   return (
     <FooterWrapper>
       <div>
-        Vanguard {props.version || ""} &mdash;{" "}
+        Vanguard {props.version ? props.version.substring(0, 7) : ""} &mdash;{" "}
         <a href="https://github.com/getsentry/vanguard">GitHub</a>
       </div>
     </FooterWrapper>
