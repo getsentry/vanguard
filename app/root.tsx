@@ -155,11 +155,6 @@ export default function App() {
             <Link to="/drafts" className="btn">
               / Drafts
             </Link>
-            {user.admin && (
-              <Link to="/admin" className="btn">
-                / Admin
-              </Link>
-            )}
             <Link to="/settings" className="btn">
               / Settings
             </Link>
@@ -184,7 +179,7 @@ export default function App() {
               </CategoryTags>
             </SidebarSection>
           </Sidebar>
-          <Footer version={ENV.VERSION} />
+          <Footer version={ENV.VERSION} admin={user.admin} />
           <ScrollRestoration />
           <script
             dangerouslySetInnerHTML={{

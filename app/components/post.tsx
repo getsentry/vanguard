@@ -8,6 +8,7 @@ import PostLink from "./post-link";
 import Markdown from "./markdown";
 import { TagWrapper, CategoryTag } from "./category-tag";
 import type { PostQueryType } from "~/models/post.server";
+import Middot from "./middot";
 
 const PostWrapper = styled.article`
   position: relative;
@@ -65,10 +66,6 @@ const Meta = styled.div`
 const Date = styled.div``;
 
 const ReadingTime = styled.div``;
-
-const Middot = styled((props) => <div {...props}>&middot;</div>)`
-  margin: 0 5px;
-`;
 
 export default function Post({
   post,
