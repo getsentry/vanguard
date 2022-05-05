@@ -1,6 +1,5 @@
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useRef, useState } from "react";
 import { Form } from "@remix-run/react";
-import type { TextareaMarkdownRef } from "textarea-markdown-editor";
 
 import type { Category } from "../models/category.server";
 import Editor from "./editor";
@@ -17,9 +16,16 @@ export type PostFormInitialData = {
   content?: string;
   categoryId?: string;
   published?: boolean;
+  announce?: boolean;
 };
 
-const AnnounceOption = ({ category }: { category?: Category }) => {
+const AnnounceOption = ({
+  category,
+  defaultChecked,
+}: {
+  category?: Category;
+  defaultChecked?: boolean;
+}) => {
   if (!category) return null;
   const locations: string[] = Array.from(
     new Set([
@@ -31,7 +37,11 @@ const AnnounceOption = ({ category }: { category?: Category }) => {
   return (
     <div>
       <label>
-        <input type="checkbox" name="announce" defaultChecked />
+        <input
+          type="checkbox"
+          name="announce"
+          defaultChecked={defaultChecked}
+        />
         Announce this post to {locations.join(", ")} (only on publish)
       </label>
     </div>
@@ -58,7 +68,7 @@ export default function PostForm({
     initialData?.categoryId || null
   );
 
-  console.log({ initialData });
+  initialData.announce = !initialData?.published;
 
   return (
     <Form
@@ -138,6 +148,7 @@ export default function PostForm({
         </label>
       </div>
       <AnnounceOption
+        defaultChecked={initialData?.announce}
         category={categoryList.find((c) => c.id === categoryId)}
       />
       <div>
