@@ -26,6 +26,7 @@ import GlobalStyles from "./styles/global";
 import fontsCss from "./styles/fonts.css";
 import { lightTheme, darkTheme } from "./styles/theme";
 import { getSession, getUser, sessionStorage } from "./session.server";
+import Footer from "./components/footer";
 import Header from "./components/header";
 import { Sidebar, SidebarSection } from "./components/sidebar";
 
@@ -73,6 +74,7 @@ export const loader: LoaderFunction = async ({ request }) => {
       ENV: {
         SENTRY_DSN: process.env.SENTRY_DSN,
         NODE_ENV: process.env.NODE_ENV || "development",
+        BUILD_REVISION: process.env.BUILD_REVISION,
       },
     },
     // XXX(dcramer): is this the best way to ensure the session is persisted here?
@@ -173,6 +175,7 @@ export default function App() {
               </CategoryTags>
             </SidebarSection>
           </Sidebar>
+          <Footer version={ENV.BUILD_REVISION} />
           <ScrollRestoration />
           <script
             dangerouslySetInnerHTML={{
