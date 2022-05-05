@@ -23,7 +23,7 @@ const CategoryTag = ({ category }: { category: Category }) => {
 };
 
 const handleTagColor = ({ colorHex }) => {
-  return `color: ${colorHex || "#000000"}; background: #eee;`;
+  return `backgroundColor: ${colorHex || "#eee"}; background: #000000;`;
 };
 
 const TagWrapper = styled(Link)`
