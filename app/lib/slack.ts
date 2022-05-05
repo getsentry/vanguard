@@ -1,5 +1,7 @@
 import { error } from "./logging";
 import type { PostQueryType } from "~/models/post.server";
+import moment from "moment";
+import { marked } from "marked";
 
 export type SlackConfig = {
   webhookUrl: string;
@@ -11,6 +13,13 @@ export type SlackConfig = {
 export const notify = async (post: PostQueryType, config: SlackConfig) => {
   const { author, category } = post;
   console.log(`Sending Slack notification for post ${post.id}`);
+
+  const content =
+    DOMPurify.sanitize(
+      marked.parse(post.content, { breaks: true }).split("</p>")[0] + "</p>",
+      { ALLOWED_TAGS: [] }
+    ).substring(0, 256) + "...";
+
   const res = await fetch(config.webhookUrl, {
     method: "POST",
     body: JSON.stringify({
@@ -18,11 +27,36 @@ export const notify = async (post: PostQueryType, config: SlackConfig) => {
       username: config.username || process.env.SLACK_USERNAME,
       icon_url: config.iconUrl || process.env.SLACK_ICON_URL,
       text: `A new post was published in *${category.name}*`,
-      attachments: [
+      blocks: [
         {
-          text: `<https://${process.env.BASE_URL}/p/${post.id}|${post.title}> by ${author.name}`,
-          fallback: `[${category.name}] ${post.title} - https://${process.env.BASE_URL}/p/${post.id}`,
-          color: category.colorHex,
+          type: "section",
+          block_id: "title",
+          text: {
+            type: "mrkdwn",
+            text: `*${category.name}:* <https://${process.env.BASE_URL}/p/${post.id}|${post.title}>`,
+          },
+        },
+        {
+          type: "section",
+          block_id: "content",
+          text: {
+            type: "mrkdwn",
+            text: content,
+          },
+        },
+        {
+          type: "section",
+          block_id: "meta",
+          fields: [
+            {
+              type: "mrkdwn",
+              text: `*Written by*\n${author.name}`,
+            },
+            {
+              type: "mrkdwn",
+              text: `*Published*\n${moment(post.publishedAt).format("MMM Do")}`,
+            },
+          ],
         },
       ],
     }),
@@ -31,7 +65,13 @@ export const notify = async (post: PostQueryType, config: SlackConfig) => {
     },
   });
   if (res.status !== 200) {
-    const data = await res.json();
+    let data: any;
+    try {
+      data = await res.json();
+    } catch (err) {
+      data = res.body;
+    }
+    console.log(data);
     error("slack webhook failed", {
       context: { webhook: data },
       tags: { statusCode: res.status },
