@@ -1,5 +1,6 @@
 import ButtonLink from "~/components/button-link";
 import { PaginatedResult } from "~/lib/paginator";
+import ButtonGroup from "./button-group";
 
 interface PaginatedProps<T> {
   data: PaginatedResult<T>;
@@ -15,22 +16,20 @@ const Paginated: React.FC<PaginatedProps<any>> = function Paginated({
   renderFooter = true,
 }) {
   const pagination = (
-    <div className="inline-flex">
+    <ButtonGroup align="center">
       <ButtonLink
         to={prevCursor ? `?cursor=${prevCursor}` : undefined}
         disabled={!prevCursor}
-        className="rounded-l bg-gray-300 py-2 px-4 font-bold text-gray-800 hover:bg-gray-400"
       >
         Prev Page
       </ButtonLink>
       <ButtonLink
         to={nextCursor ? `?cursor=${nextCursor}` : undefined}
         disabled={!nextCursor}
-        className="rounded-r bg-gray-300 py-2 px-4 font-bold text-gray-800 hover:bg-gray-400"
       >
         Next Page
       </ButtonLink>
-    </div>
+    </ButtonGroup>
   );
 
   return (

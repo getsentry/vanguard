@@ -24,7 +24,7 @@ export function getButtonClassName({
       className = `${className} bg-white text-gray-800 border-gray-400`;
   }
 
-  if (disabled) className = `${className} opacity-50 cursor-not-allowed`;
+  if (disabled) className = `${className} border opacity-50 cursor-not-allowed`;
 
   return className;
 }
