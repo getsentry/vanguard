@@ -1,8 +1,8 @@
 import type { LoaderFunction, ActionFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
+import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
-import moment from "moment";
+import styled from "styled-components";
 
 import { getPostList } from "~/models/post.server";
 import type { Post } from "~/models/post.server";
@@ -10,8 +10,10 @@ import { getUserByEmail, updateUser } from "~/models/user.server";
 import type { User } from "~/models/user.server";
 import { requireAdmin, requireUser } from "~/session.server";
 import Avatar from "~/components/avatar";
-import PostLink from "~/components/post-link";
 import * as Panel from "~/components/panel";
+import Post from "~/components/post";
+import PostLink from "~/components/post-link";
+import Markdown from "~/components/markdown";
 
 const UserAdmin: React.FC<{ user: User }> = ({ user }) => {
   return (
@@ -105,36 +107,63 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   return json<LoaderData>({ currentUser, user, postList });
 };
 
+const ProfileHeader = styled.div`
+  display: grid;
+  grid-template:
+    "name avatar"
+    "email avatar"
+    / auto 96px;
+
+  margin-bottom: 3.2rem;
+  gap: 5px;
+
+  h1 {
+    grid-area: name;
+    margin: 0;
+  }
+
+  ${Avatar} {
+    width: 96px;
+    height: 96px;
+    grid-area: avatar;
+  }
+`;
+
+const ContactInfo = styled.div`
+  color: #666;
+  font-size: 1em;
+  grid-area: email;
+`;
+
+const PostList = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+`;
+
 export default function UserDetailsPage() {
   const { currentUser, user, postList } = useLoaderData() as LoaderData;
   const actionData = useActionData() as ActionData;
 
   return (
     <div>
-      <h1>{user.name}</h1>
-      <h3>{user.email}</h3>
+      <ProfileHeader>
+        <Avatar user={user} />
+        <h1>{user.name}</h1>
+        <ContactInfo>{user.email}</ContactInfo>
+      </ProfileHeader>
 
-      <Avatar user={user} />
-
-      <h2>Most Recent Posts</h2>
-      {postList.length ? (
-        <ul>
+      {postList.length && (
+        <PostList>
           {postList.map((post) => (
-            <li key={post.id}>
-              <h4>
+            <Panel.Panel key={post.id}>
+              <Panel.Title>
                 <PostLink post={post}>{post.title}</PostLink>
-              </h4>
-              <p>
-                <Link to={`/c/${post.category.slug}`}>
-                  {post.category.name}
-                </Link>{" "}
-                &mdash; {moment(post.createdAt).fromNow()}
-              </p>
-            </li>
+              </Panel.Title>
+              <Markdown content={post.content || ""} summarize />
+            </Panel.Panel>
           ))}
-        </ul>
-      ) : (
-        <p>They have yet to publish a post.</p>
+        </PostList>
       )}
 
       {currentUser.admin && <UserAdmin user={user} actionData={actionData} />}
