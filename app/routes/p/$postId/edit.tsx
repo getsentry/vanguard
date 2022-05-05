@@ -43,6 +43,10 @@ export const action: ActionFunction = async ({ request, params }) => {
   const title = formData.get("title");
   const content = formData.get("content");
   const categoryId = formData.get("categoryId");
+  const published =
+    formData.get("published") === null
+      ? undefined
+      : !!formData.get("published");
 
   if (typeof categoryId !== "string" || categoryId.length === 0) {
     return json<ActionData>(
@@ -71,6 +75,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     title,
     content,
     categoryId,
+    published,
   });
 
   return redirect(getPostLink(post));
