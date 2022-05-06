@@ -2,13 +2,12 @@ import { Link } from "@remix-run/react";
 import styled from "styled-components";
 import Logo from "app/icons/Logo";
 
-const Header = (props) => {
+const Header = () => {
   return (
     <HeaderWrapper>
       <Link to="/">
         <Logo height={32} className="logo" />
       </Link>
-      <ThemeToggle type="checkbox" onClick={() => props.toggleTheme()} />
     </HeaderWrapper>
   )
 };

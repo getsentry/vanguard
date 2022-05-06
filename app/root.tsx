@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import type {
   LinksFunction,
@@ -125,9 +125,16 @@ export default function App() {
   const { user, categoryList, ENV } = useLoaderData();
   const [theme, setTheme] = useState("light");
 
-  const toggleTheme = () => {
-    theme === "light" ? setTheme("dark") : setTheme("light");
-  };
+  useEffect(() => {
+    window.matchMedia('(prefers-color-scheme: dark)')
+      .addEventListener('change', event => {
+        if (event.matches) {
+          setTheme("dark");
+        } else {
+          setTheme("light");
+        }
+      })
+  }, []);
 
   return (
     <html lang="en" className="h-full">
@@ -145,7 +152,7 @@ export default function App() {
           </div>
           <div id="primary">
             <div className="container">
-              <Header toggleTheme={toggleTheme} />
+              <Header />
               <Outlet />
             </div>
           </div>
