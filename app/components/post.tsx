@@ -1,6 +1,7 @@
 import { Link } from "@remix-run/react";
 import moment from "moment";
 import styled from "styled-components";
+import breakpoint from 'styled-components-breakpoint';
 
 import Avatar from "./avatar";
 import Content from "./content";
@@ -21,16 +22,19 @@ const PostWrapper = styled.article`
       color: inherit;
     }
   }
-  ${TagWrapper} {
-    position: absolute;
-    right: calc(100% + 4rem);
-    top: 0.75rem;
-    width: 100rem;
 
-    span {
-      display: none;
+  ${breakpoint('desktop')`
+    ${TagWrapper} {
+      position: absolute;
+      right: calc(100% + 4rem);
+      top: 0.75rem;
+      width: 100rem;
+  
+      span {
+        display: none;
+      }
     }
-  }
+  `}
 
   & + & {
     margin-top: 4.8rem;

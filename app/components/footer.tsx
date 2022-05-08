@@ -1,4 +1,3 @@
-import { Fragment } from "react";
 import { Link } from "@remix-run/react";
 import styled from "styled-components";
 import Middot from "./middot";
@@ -13,11 +12,10 @@ const Footer = ({ version, admin }: Props) => {
     <FooterWrapper>
       <div>
         <span>Vanguard {version ? version.substring(0, 7) : ""}</span>
+      </div>
+      <div>
         {admin && (
-          <Fragment>
-            <Middot />
-            <Link to="/admin">Admin</Link>
-          </Fragment>
+          <Link to="/admin">Admin</Link>
         )}
         <Middot />
         <span>
@@ -30,12 +28,9 @@ const Footer = ({ version, admin }: Props) => {
 
 const FooterWrapper = styled.div`
   display: flex;
-  flex-direction: column;
-  width: 100vw;
-  padding: 6rem 0;
+  margin: 6rem 0;
+  font-size: 1.2rem;
   justify-content: space-between;
-  align-items: center;
-  font-size: 1rem;
   color: ${(p) => p.theme.textColorSecondary};
 `;
 

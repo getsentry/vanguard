@@ -1,4 +1,5 @@
 import { createGlobalStyle } from "styled-components";
+import breakpoint from 'styled-components-breakpoint';
 
 const GlobalStyles = createGlobalStyle`
   *,
@@ -8,8 +9,16 @@ const GlobalStyles = createGlobalStyle`
   }
 
   html {
-    font-size: 62.5%;
+    
     min-height: 100vh;
+
+    ${breakpoint('mobile', 'desktop')`
+      font-size: 50%;
+    `}
+
+    ${breakpoint('desktop')`
+      font-size: 62.5%;
+    `}
   }
 
   body {
@@ -19,27 +28,14 @@ const GlobalStyles = createGlobalStyle`
     color: ${(p) => p.theme.textColor};
     min-height: 100vh;
     overflow-x: hidden;
+
+    &.showSidebar {
+      overflow: hidden;
+    }
   }
 
   .logo {
     color: ${(p) => p.theme.textColor};
-  }
-
-  .wrapper {
-    min-height: 100vh;
-  }
-
-  #primary {
-    flex: 1;
-    padding-bottom: 6rem;
-    margin-right: 40rem;
-  }
-
-  .container {
-    width: 80%;
-    max-width: 120rem;
-    padding: 0 5rem;
-    margin: 0 auto;
   }
 
   a {
@@ -154,6 +150,7 @@ const GlobalStyles = createGlobalStyle`
     align-items: center;
     font-family: "IBM Plex Mono", monospace;
     color: ${(p) => p.theme.textMuted};
+    white-space: nowrap;
   }
 
   .btn-primary {

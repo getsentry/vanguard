@@ -57,7 +57,7 @@ const handleTagColor = ({ colorHex }) => {
 
 const TagWrapper = styled(Link)`
   font-family: "IBM Flex Mono", monospace;
-  display: flex;
+  display: inline-flex;
   gap: 0.8rem;
   justify-content: flex-end;
   align-items: center;

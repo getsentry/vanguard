@@ -17,7 +17,8 @@ import {
   ScrollRestoration,
   useLoaderData,
 } from "@remix-run/react";
-import { ThemeProvider } from "styled-components";
+import styled, { ThemeProvider, css } from "styled-components";
+import breakpoint from 'styled-components-breakpoint';
 import prismCss from "prism-sentry/index.css";
 
 import tailwindStylesheetUrl from "./styles/tailwind.css";
@@ -28,6 +29,7 @@ import { lightTheme, darkTheme } from "./styles/theme";
 import { getSession, getUser, sessionStorage } from "./session.server";
 import Footer from "./components/footer";
 import Header from "./components/header";
+import Container from "./components/container";
 import { Sidebar, SidebarSection } from "./components/sidebar";
 
 import { Toaster } from "react-hot-toast";
@@ -109,11 +111,11 @@ export function ErrorBoundary({ error }) {
       </head>
       <body className="wrapper">
         <div id="primary">
-          <div className="container">
+          <Container>
             <Header />
             <h1>Internal Server Error</h1>
             <pre>{error.stack}</pre>
-          </div>
+          </Container>
         </div>
         <Scripts />
       </body>
@@ -124,6 +126,8 @@ export function ErrorBoundary({ error }) {
 export default function App() {
   const { user, categoryList, ENV } = useLoaderData();
   const [theme, setTheme] = useState("light");
+  const [showSidebar, setShowSidebar] = useState(false);
+  const [isMobile, setIsMobile] = useState(true);
 
   useEffect(() => {
     window.matchMedia('(prefers-color-scheme: dark)')
@@ -136,8 +140,12 @@ export default function App() {
       })
   }, []);
 
+  const handleSidebar = () => {
+    setShowSidebar(!showSidebar);
+  };
+
   return (
-    <html lang="en" className="h-full">
+    <html lang="en">
       <head>
         <Sentry.Component />
         <Meta />
@@ -146,57 +154,83 @@ export default function App() {
       </head>
       <ThemeProvider theme={theme === "light" ? lightTheme : darkTheme}>
         <GlobalStyles />
-        <body className="wrapper">
-          <div>
-            <Toaster />
-          </div>
-          <div id="primary">
-            <div className="container">
-              <Header />
-              <Outlet />
-            </div>
-          </div>
-          <Sidebar>
-            <Link to="/new-post" className="btn btn-primary">
-              + New Post
-            </Link>
-            <Link to="/drafts" className="btn">
-              / Drafts
-            </Link>
-            <SidebarSection>
-              <Link to="/settings">
-                <Avatar user={user} />
+        <body className={showSidebar ? "showSidebar" : ""}>
+        <div>
+          <Toaster />
+        </div>
+        <Primary>
+          <Container>
+            <Header showSidebar={showSidebar} handleSidebar={handleSidebar} />
+            <Outlet />
+            <Footer version={ENV.VERSION} admin={user.admin} />
+          </Container>
+        </Primary>
+        <Sidebar showSidebar={showSidebar}>
+          <SidebarSection>
+            <UserMenu>
+              <Link to="/settings"><Avatar user={user} size="3.4rem" /></Link>
+              <Link to="/settings" className="btn secondary">
+                Settings
               </Link>
-            </SidebarSection>
-            <SidebarSection>
-              <Form method="get" action="/search">
-                <Input
-                  variant="search"
-                  name="q"
-                  placeholder="Search posts..."
-                />
-              </Form>
-            </SidebarSection>
-            <SidebarSection>
-              <h6>Sections</h6>
-              <CategoryTags>
-                {categoryList.map((category) => (
-                  <CategoryTag category={category} />
-                ))}
-              </CategoryTags>
-            </SidebarSection>
-          </Sidebar>
-          <Footer version={ENV.VERSION} admin={user.admin} />
-          <ScrollRestoration />
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `window.ENV = ${JSON.stringify(ENV)}`,
-            }}
-          />
-          <Scripts />
-          <LiveReload />
-        </body>
-      </ThemeProvider>
-    </html>
+              <UserMenuDivider />
+              <Link to="/drafts" className="btn">
+                Drafts
+              </Link>
+            </UserMenu>
+          </SidebarSection>
+          <SidebarSection>
+            <Form method="get" action="/search">
+              <Input
+                variant="search"
+                name="q"
+                placeholder="Search posts..."
+              />
+            </Form>
+          </SidebarSection>
+          <SidebarSection>
+            <h6>Sections</h6>
+            <CategoryTags>
+              {categoryList.map((category) => (
+                <CategoryTag category={category} />
+              ))}
+            </CategoryTags>
+          </SidebarSection>
+        </Sidebar>
+        <ScrollRestoration />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.ENV = ${JSON.stringify(ENV)}`,
+          }}
+        />
+        <Scripts />
+        <LiveReload />
+      </body>
+    </ThemeProvider>
+    </html >
   );
 }
+
+const Primary = styled.div`
+  padding-bottom: 6rem;
+  transition: margin-right .2s ease-in-out;
+
+  ${breakpoint('desktop')`
+    width: 80%;
+    padding: 0 5rem;
+    margin-right: 40rem;
+  `}
+`;
+
+const UserMenu = styled.div`
+  align-items: center;
+  display: flex;
+`;
+
+const UserMenuDivider = styled.div`
+  color: ${p => p.theme.borderColor};
+  font-family: "IBM Plex Mono", monospaced;
+  &:before {
+    content: "/";
+  }
+`;
+

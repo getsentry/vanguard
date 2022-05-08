@@ -8,6 +8,7 @@ import styled from "styled-components";
 import Button from "./button";
 import ButtonGroup from "./button-group";
 import ButtonDropdown, { ButtonDropdownItem } from "./button-dropdown";
+import Container from "./container";
 
 export type PostFormErrors = {
   title?: string;
@@ -178,7 +179,7 @@ export default function PostForm({
       </div>
       <PostFormButtons>
         <PostFormButtonsWrapper>
-          <div className="container">
+          <Container>
             <ButtonGroup>
               {initialData && initialData.published ? (
                 canUnpublish && initialData.published ? (
@@ -245,7 +246,7 @@ export default function PostForm({
                 </Button>
               )}
             </ButtonGroup>
-          </div>
+          </Container>
         </PostFormButtonsWrapper>
       </PostFormButtons>
     </Form>
