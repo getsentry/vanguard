@@ -7,6 +7,9 @@ import { requireAdmin } from "~/session.server";
 import type { Category } from "~/models/category.server";
 import { getCategory } from "~/models/category.server";
 import { prisma } from "~/db.server";
+import FormActions from "~/components/form-actions";
+import ButtonGroup from "~/components/button-group";
+import Button from "~/components/button";
 
 type LoaderData = {
   category: Category;
@@ -261,19 +264,16 @@ export default function Index() {
           </div>
         )}
       </div>
-      <div>
-        <button type="submit" className="btn btn-primary">
-          Save Changes
-        </button>
-        <button
-          type="submit"
-          name="deleted"
-          value="true"
-          className="btn btn-danger"
-        >
-          Delete
-        </button>
-      </div>
+      <FormActions>
+        <ButtonGroup>
+          <Button type="submit" mode="primary">
+            Save Changes
+          </Button>
+          <Button type="submit" name="deleted" value="true" mode="danger">
+            Delete
+          </Button>
+        </ButtonGroup>
+      </FormActions>
     </Form>
   );
 }
