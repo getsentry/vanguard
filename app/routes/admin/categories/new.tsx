@@ -4,6 +4,8 @@ import { Form, useActionData } from "@remix-run/react";
 
 import { requireAdmin } from "~/session.server";
 import { prisma } from "~/db.server";
+import FormActions from "~/components/form-actions";
+import Button from "~/components/button";
 
 type ActionData = {
   errors?: {
@@ -209,11 +211,11 @@ export default function Index() {
           </div>
         )}
       </div>
-      <div>
-        <button type="submit" className="btn btn-primary">
+      <FormActions>
+        <Button type="submit" mode="primary">
           Save Changes
-        </button>
-      </div>
+        </Button>
+      </FormActions>
     </Form>
   );
 }

@@ -10,6 +10,7 @@ import { getPostList } from "~/models/post.server";
 import moment from "moment";
 import BooleanIcon from "~/components/boolean-icon";
 import PostLink from "~/components/post-link";
+import PageHeader from "~/components/page-header";
 
 type LoaderData = {
   postListPaginated: Awaited<
@@ -34,7 +35,9 @@ export default function Index() {
 
   return (
     <div>
-      <h2>Posts</h2>
+      <PageHeader>
+        <h1>Posts</h1>
+      </PageHeader>
       <Paginated
         data={postListPaginated}
         render={(result) => {

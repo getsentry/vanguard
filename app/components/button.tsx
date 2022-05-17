@@ -3,7 +3,7 @@ import React, { ButtonHTMLAttributes } from "react";
 export type ButtonMode = "default" | "primary" | "danger";
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  mode: ButtonMode;
+  mode?: ButtonMode;
 }
 
 export function getButtonClassName({

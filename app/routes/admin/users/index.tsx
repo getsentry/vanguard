@@ -8,6 +8,7 @@ import { paginate, PaginatedResult } from "~/lib/paginator";
 import Paginated from "~/components/paginated";
 import Table from "~/components/table";
 import BooleanIcon from "~/components/boolean-icon";
+import PageHeader from "~/components/page-header";
 
 type LoaderData = {
   userListPaginated: Awaited<
@@ -28,7 +29,9 @@ export default function Index() {
 
   return (
     <div>
-      <h2>Users</h2>
+      <PageHeader>
+        <h1>Users</h1>
+      </PageHeader>
       <Paginated
         data={userListPaginated}
         render={(result) => {

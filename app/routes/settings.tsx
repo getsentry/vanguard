@@ -14,6 +14,9 @@ import uploadHandler from "~/lib/upload-handler";
 import AvatarInput from "~/components/avatar-input";
 import ButtonLink from "~/components/button-link";
 import styled from "styled-components";
+import FormActions from "~/components/form-actions";
+import Button from "~/components/button";
+import PageHeader from "~/components/page-header";
 
 type LoaderData = {
   user: User;
@@ -69,21 +72,6 @@ export const action: ActionFunction = async ({ request }) => {
   if (redirectTo?.indexOf("/") !== 0) redirectTo = "/";
   return redirect(redirectTo);
 };
-
-const PageHeader = styled.div`
-  margin-bottom: 3.2rem;
-  text-align: right;
-
-  &:after {
-    content: "";
-    display: table;
-    clear: both;
-  }
-
-  h1 {
-    float: left;
-  }
-`;
 
 export default function NewPostPage() {
   const { user } = useLoaderData() as LoaderData;
@@ -150,11 +138,11 @@ export default function NewPostPage() {
           </div>
         )}
       </div>
-      <div>
-        <button type="submit" className="btn btn-primary">
+      <FormActions>
+        <Button type="submit" mode="primary">
           Save Changes
-        </button>
-      </div>
+        </Button>
+      </FormActions>
     </Form>
   );
 }

@@ -9,6 +9,7 @@ import Table from "~/components/table";
 import BooleanIcon from "~/components/boolean-icon";
 import { getCategoryList } from "~/models/category.server";
 import ButtonLink from "~/components/button-link";
+import PageHeader from "~/components/page-header";
 
 type LoaderData = {
   categoryListPaginated: Awaited<
@@ -33,8 +34,10 @@ export default function Index() {
 
   return (
     <div>
-      <h2>Categories</h2>
-      <ButtonLink to="new">New Category</ButtonLink>
+      <PageHeader>
+        <h1>Categories</h1>
+        <ButtonLink to="new">New Category</ButtonLink>
+      </PageHeader>
       <Paginated
         data={categoryListPaginated}
         render={(result) => {
