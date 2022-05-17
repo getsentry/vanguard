@@ -56,7 +56,8 @@ const EmojiRection = ({
         }
       }}
     >
-      {emoji} {currentCount || null}
+      {emoji}
+      {currentCount ? ` ${currentCount}` : null}
     </EmojiButton>
   );
 };
