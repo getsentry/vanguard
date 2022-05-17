@@ -153,7 +153,7 @@ export default function UserDetailsPage() {
         <ContactInfo>{user.email}</ContactInfo>
       </ProfileHeader>
 
-      {postList.length && (
+      {!!postList.length && (
         <PostList>
           {postList.map((post) => (
             <Panel.Panel key={post.id}>
