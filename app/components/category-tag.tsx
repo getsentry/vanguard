@@ -1,13 +1,13 @@
 import { Link } from "@remix-run/react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import type { Category } from "~/models/category.server";
 import IconShip from "~/icons/IconShip";
 import IconEye from "~/icons/IconEye";
 
-const CategoryTag = ({ category }: { category: Category }) => {
+export const CategoryTag = ({ category }: { category: Category }) => {
   return (
-    <TagWrapper to={`/c/${category.slug}`} colorHex={category.colorHex}>
+    <CategoryTagWrapper to={`/c/${category.slug}`} colorHex={category.colorHex}>
       {category.slug === "shipped" && (
         <>
           <IconShip height={20} /> <span>{category.slug}</span>
@@ -18,7 +18,7 @@ const CategoryTag = ({ category }: { category: Category }) => {
           <IconEye height={20} /> <span>{category.slug}</span>
         </>
       )}
-    </TagWrapper>
+    </CategoryTagWrapper>
   );
 };
 
@@ -49,13 +49,15 @@ function contrastColor(colorHex: string) {
   return brightness > 125 ? "black" : "#eeeeee";
 }
 
-const handleTagColor = ({ colorHex }) => {
-  return `background: ${colorHex || "#eee"}; color: ${contrastColor(
-    colorHex || "#eeeeee"
-  )};`;
+export const categoryTagStyles = ({ colorHex }: { colorHex?: string }) => {
+  return css`
+    background: ${colorHex || "#eee"};
+    color: ${contrastColor(colorHex || "#eeeeee")};
+    border-color: ${colorHex || "#eee"}; ;
+  `;
 };
 
-const TagWrapper = styled(Link)`
+export const CategoryTagWrapper = styled(Link)`
   font-family: "IBM Flex Mono", monospace;
   display: inline-flex;
   gap: 0.8rem;
@@ -67,14 +69,12 @@ const TagWrapper = styled(Link)`
   height: 4rem;
   text-transform: uppercase;
 
-  ${(props) => handleTagColor(props)};
+  ${(props) => categoryTagStyles({ colorHex: props.colorHex })};
 `;
 
-const CategoryTags = styled.div`
+export const CategoryTags = styled.div`
   display: flex;
   gap: 0.8rem;
   flex-wrap: wrap;
   margin-bottom: 2.4rem;
 `;
-
-export { TagWrapper, CategoryTag, CategoryTags };

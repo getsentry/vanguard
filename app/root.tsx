@@ -194,7 +194,7 @@ export default function App() {
               <h6>Sections</h6>
               <CategoryTags>
                 {categoryList.map((category) => (
-                  <CategoryTag category={category} />
+                  <CategoryTag key={category.id} category={category} />
                 ))}
               </CategoryTags>
             </SidebarSection>

@@ -7,7 +7,7 @@ import Avatar from "./avatar";
 import Content from "./content";
 import PostLink from "./post-link";
 import Markdown from "./markdown";
-import { TagWrapper, CategoryTag } from "./category-tag";
+import { CategoryTagWrapper, CategoryTag } from "./category-tag";
 import type { PostQueryType } from "~/models/post.server";
 import Middot from "./middot";
 
@@ -24,7 +24,7 @@ const PostWrapper = styled.article`
   }
 
   ${breakpoint("desktop")`
-    ${TagWrapper} {
+    ${CategoryTagWrapper} {
       position: absolute;
       right: calc(100% + 4rem);
       top: 0.75rem;

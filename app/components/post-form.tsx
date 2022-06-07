@@ -1,4 +1,4 @@
-import { Fragment, useRef, useState } from "react";
+import { createRef, Fragment, useRef, useState } from "react";
 import { Form } from "@remix-run/react";
 
 import type { Category } from "../models/category.server";
@@ -9,6 +9,7 @@ import Button from "./button";
 import ButtonGroup from "./button-group";
 import ButtonDropdown, { ButtonDropdownItem } from "./button-dropdown";
 import FormActions from "./form-actions";
+import { categoryTagStyles } from "./category-tag";
 
 export type PostFormErrors = {
   title?: string;
@@ -24,53 +25,75 @@ export type PostFormInitialData = {
   announce?: boolean;
 };
 
-const AnnounceOption = ({
-  category,
-  defaultChecked,
-}: {
-  category?: Category;
-  defaultChecked?: boolean;
-}) => {
-  if (!category) return null;
-  const locations: string[] = Array.from(
-    new Set([
-      ...category.slackConfig.map((c) => c.channel || "Slack"),
-      ...category.emailConfig.map((c) => c.to),
-    ])
-  );
-  if (!locations.length) return null;
-  return (
-    <div>
-      <label>
-        <input
-          type="checkbox"
-          name="announce"
-          defaultChecked={defaultChecked}
-        />
-        Announce this post to {locations.join(", ")} (only on publish)
-      </label>
-    </div>
-  );
-};
-
 const HelpText = styled.div`
   font-size: 0.7em;
   color: #999;
 `;
 
-const PostFormButtons = styled.div`
-  position: fixed;
-  background: #eee;
-  padding: 1.5rem 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
+const CategoryOptionLabel = styled.label`
+  font-family: "IBM Flex Mono", monospace;
+  display: inline-flex;
+  flex-direction: row;
+  font-size: 0.9em;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 1.2rem;
+  border-radius: 3rem;
+  text-transform: uppercase;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  margin: 0;
+
+  ${(props) => props.active && categoryTagStyles({ colorHex: props.colorHex })};
 `;
 
-const PostFormButtonsWrapper = styled.div`
-  margin-right: 40rem;
-  text-align: right;
+export const CategoryOptionWrapper = styled.div`
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
 `;
+
+const CategorySelector = ({
+  name,
+  categoryList,
+  defaultValue = "",
+  error,
+  onChange,
+}: {
+  name: string;
+  categoryList: Category[];
+  defaultValue?: string;
+  error?: string;
+  onChange: (e: any, value: string) => void;
+}) => {
+  const [categoryId, setCategoryId] = useState(defaultValue);
+
+  return (
+    <>
+      <CategoryOptionWrapper>
+        {categoryList.map((category) => (
+          <CategoryOptionLabel
+            key={category.id}
+            colorHex={category.colorHex}
+            active={category.id === categoryId}
+          >
+            <input
+              type="radio"
+              name={name}
+              value={category.id}
+              defaultChecked={category.id === categoryId}
+              onChange={(e) => {
+                setCategoryId(e.target.value);
+                onChange(e, e.target.value);
+              }}
+            />{" "}
+            {category.name}
+          </CategoryOptionLabel>
+        ))}
+      </CategoryOptionWrapper>
+    </>
+  );
+};
 
 export default function PostForm({
   categoryList,
@@ -140,25 +163,15 @@ export default function PostForm({
       <div>
         <label className="flex w-full flex-col gap-1">
           <span>Category: </span>
-          <select
+          <CategorySelector
             name="categoryId"
-            required
-            onChange={(e) => {
-              setCategoryId(e.target.options[e.target.selectedIndex].value);
+            categoryList={categoryList}
+            defaultValue={categoryId || categoryList.find(() => true)?.id}
+            error={errors?.categoryId}
+            onChange={(e, value) => {
+              setCategoryId(value);
             }}
-            defaultValue={categoryId || ""}
-            aria-invalid={errors?.categoryId ? true : undefined}
-            aria-errormessage={
-              errors?.categoryId ? "categoryId-error" : undefined
-            }
-          >
-            <option />
-            {categoryList.map((category) => (
-              <option value={category.id} key={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
+          />
         </label>
         {errors?.categoryId && (
           <div className="pt-1 text-red-700" id="categoryId-error">
