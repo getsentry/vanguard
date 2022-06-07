@@ -1,7 +1,7 @@
-
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;700&display=swap");
 
 @font-face {
-    font-family: "Gazpacho-Heavy";
-    src: url('/fonts/gazpacho-heavy.woff2') format('woff2'), url('/fonts/gazpacho-heavy.woff') format('woff');
-  }
+  font-family: "Gazpacho-Heavy";
+  src: url("/fonts/gazpacho-heavy.woff2") format("woff2"),
+    url("/fonts/gazpacho-heavy.woff") format("woff");
+}

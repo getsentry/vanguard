@@ -15,7 +15,7 @@ const colors = {
   red: "#f0345f",
   purple: "#7854F6",
   blue: "#00a3ff",
-}
+};
 
 const lightTheme = {
   bgColor: colors.white,
@@ -31,18 +31,18 @@ const lightTheme = {
     defaultBackgroundColor: "transparent",
     defaultTextColor: colors.gray400,
     primaryBackgroundColor: colors.black,
-    primaryTextColor: colors.white
+    primaryTextColor: colors.white,
   },
   categories: {
     shipped: {
       bgColor: colors.purple,
-      textColor: colors.white
+      textColor: colors.white,
     },
     strategy: {
       bgColor: colors.yellow,
-      textColor: colors.black
-    }
-  }
+      textColor: colors.black,
+    },
+  },
 };
 
 const darkTheme = {
@@ -59,18 +59,18 @@ const darkTheme = {
     defaultBackgroundColor: "transparent",
     defaultTextColor: colors.gray400,
     primaryBackgroundColor: colors.gray200,
-    primaryTextColor: colors.black
+    primaryTextColor: colors.black,
   },
   categories: {
     shipped: {
       bgColor: colors.purple,
-      textColor: colors.white
+      textColor: colors.white,
     },
     strategy: {
       bgColor: colors.yellow,
-      textColor: colors.black
-    }
-  }
+      textColor: colors.black,
+    },
+  },
 };
 
 export { lightTheme, darkTheme };

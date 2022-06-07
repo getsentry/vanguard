@@ -8,8 +8,8 @@ const StyledToolbar = styled(ToolbarPrimitive.Root)`
   width: 100%;
   min-width: max-content;
   border-radius: 6px 6px 0 0;
-  background-color: ${p => p.theme.bgColor};
-  border: 1px solid ${p => p.theme.borderColor};
+  background-color: ${(p) => p.theme.bgColor};
+  border: 1px solid ${(p) => p.theme.borderColor};
   border-bottom: 0;
 `;
 
@@ -39,13 +39,13 @@ const itemStyles = css`
 
 const StyledButton = styled(ToolbarPrimitive.Button)`
   ${itemStyles}
-  background-color: ${p => p.theme.bgColor};
+  background-color: ${(p) => p.theme.bgColor};
 `;
 
 const StyledLink = styled(ToolbarPrimitive.Link)`
   ${itemStyles}
   background-color: transparent;
-  color: ${p => p.theme.textMuted};
+  color: ${(p) => p.theme.textMuted};
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -53,7 +53,7 @@ const StyledLink = styled(ToolbarPrimitive.Link)`
 
 const StyledSeparator = styled(ToolbarPrimitive.Separator)`
   width: 1px;
-  background-color: ${p => p.theme.borderColor};
+  background-color: ${(p) => p.theme.borderColor};
   margin: 0 10px;
 `;
 
@@ -65,7 +65,7 @@ const StyledToggleGroup = styled(ToolbarPrimitive.ToggleGroup)`
 const StyledToggleItem = styled(ToolbarPrimitive.ToggleItem)`
   ${itemStyles}
   box-shadow: 0;
-  background-color: ${p => p.theme.bgColor};
+  background-color: ${(p) => p.theme.bgColor};
   margin-left: 2px;
 
   &:first-child {
@@ -73,7 +73,7 @@ const StyledToggleItem = styled(ToolbarPrimitive.ToggleItem)`
   }
 
   &[data-state="on"] {
-    background-color: ${p => p.theme.bgLayer100};
+    background-color: ${(p) => p.theme.bgLayer100};
     color: ${violet.violet11};
     border: 0;
   }

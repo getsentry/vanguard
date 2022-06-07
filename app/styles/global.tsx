@@ -1,5 +1,5 @@
 import { createGlobalStyle } from "styled-components";
-import breakpoint from 'styled-components-breakpoint';
+import breakpoint from "styled-components-breakpoint";
 
 const GlobalStyles = createGlobalStyle`
   *,
@@ -9,14 +9,14 @@ const GlobalStyles = createGlobalStyle`
   }
 
   html {
-    
+
     min-height: 100vh;
 
-    ${breakpoint('mobile', 'desktop')`
+    ${breakpoint("mobile", "desktop")`
       font-size: 50%;
     `}
 
-    ${breakpoint('desktop')`
+    ${breakpoint("desktop")`
       font-size: 62.5%;
     `}
   }

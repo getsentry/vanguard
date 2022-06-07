@@ -14,9 +14,7 @@ const Footer = ({ version, admin }: Props) => {
         <span>Vanguard {version ? version.substring(0, 7) : ""}</span>
       </div>
       <div>
-        {admin && (
-          <Link to="/admin">Admin</Link>
-        )}
+        {admin && <Link to="/admin">Admin</Link>}
         <Middot />
         <span>
           <a href="https://github.com/getsentry/vanguard">GitHub</a>
