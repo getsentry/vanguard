@@ -31,11 +31,13 @@ async function main() {
     update: {
       restricted: false,
       slug: "shipped",
+      colorHex: "#7854f6",
     },
     create: {
       name: "Shipped",
       slug: "shipped",
       restricted: false,
+      colorHex: "#7854f6",
     },
   });
 
@@ -44,11 +46,13 @@ async function main() {
     update: {
       restricted: true,
       slug: "strategy",
+      colorHex: "#ffca00",
     },
     create: {
       name: "Strategy",
       slug: "strategy",
       restricted: true,
+      colorHex: "#ffca00",
     },
   });
 }
