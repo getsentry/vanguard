@@ -20,7 +20,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   invariant(category, "invalid category");
   const postList = await getPostList({
     userId,
-    categoryId: params.categoryId,
+    categoryId: category.id,
     published: true,
   });
   return json<LoaderData>({ category, postList });
