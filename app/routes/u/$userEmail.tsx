@@ -141,7 +141,6 @@ const PostList = styled.div`
 
 export default function UserDetailsPage() {
   const { currentUser, user, postList } = useLoaderData() as LoaderData;
-  const actionData = useActionData() as ActionData;
 
   return (
     <div>
@@ -164,7 +163,7 @@ export default function UserDetailsPage() {
         </PostList>
       )}
 
-      {currentUser.admin && <UserAdmin user={user} actionData={actionData} />}
+      {currentUser.admin && <UserAdmin user={user} />}
     </div>
   );
 }

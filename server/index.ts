@@ -6,7 +6,7 @@ import { createRequestHandler } from "@remix-run/express";
 
 import * as Sentry from "@sentry/node";
 import "@sentry/tracing";
-import { registerBuild, getLoadContext } from "./sentry-remix-node.ts";
+import { registerBuild, getLoadContext } from "./sentry-remix-node";
 
 Sentry.init({
   tracesSampleRate: 1.0,
