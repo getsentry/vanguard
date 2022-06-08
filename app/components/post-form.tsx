@@ -120,8 +120,8 @@ const MetaConfigField = ({
           required={required}
           defaultValue={defaultValue}
         />
+        {description && <HelpText>{description}</HelpText>}
       </label>
-      {description && <HelpText>{description}</HelpText>}
       {error && (
         <div className="pt-1 text-red-700" id="content-error">
           {error}
