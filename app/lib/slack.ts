@@ -71,7 +71,6 @@ export const notify = async (post: PostQueryType, config: SlackConfig) => {
     } catch (err) {
       data = res.body;
     }
-    console.log(data);
     error("slack webhook failed", {
       context: { webhook: data },
       tags: { statusCode: res.status },
