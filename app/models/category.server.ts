@@ -14,6 +14,9 @@ export function getCategory({
   if (!id && !slug) return null;
   return prisma.category.findFirst({
     where: { id, slug },
+    include: {
+      metaConfig: true,
+    },
   });
 }
 
@@ -60,6 +63,7 @@ export async function getCategoryList({
     include: {
       slackConfig: true,
       emailConfig: true,
+      metaConfig: true,
     },
   });
 }

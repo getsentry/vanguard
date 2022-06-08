@@ -10,6 +10,8 @@ import Markdown from "./markdown";
 import { CategoryTagWrapper, CategoryTag } from "./category-tag";
 import type { PostQueryType } from "~/models/post.server";
 import Middot from "./middot";
+import DefinitionList from "./definition-list";
+import { Fragment } from "react";
 
 const PostWrapper = styled.article`
   position: relative;
@@ -71,6 +73,12 @@ const Date = styled.div``;
 
 const ReadingTime = styled.div``;
 
+const URL_REGEXP = new RegExp(
+  /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g
+);
+
+const isUrl = (value: string) => value.match(URL_REGEXP);
+
 export default function Post({
   post,
   summary = false,
@@ -119,6 +127,24 @@ export default function Post({
         <PostLink post={post}>
           Read more ({readingTime(post.content || "")})
         </PostLink>
+      )}
+      {!summary && post.meta.length && (
+        <DefinitionList>
+          {post.meta
+            .filter((m) => !!m.content)
+            .map((meta) => (
+              <Fragment key={meta.id}>
+                <dt>{meta.name}</dt>
+                <dd>
+                  {isUrl(meta.content) ? (
+                    <a href={meta.content}>{meta.content}</a>
+                  ) : (
+                    meta.content
+                  )}
+                </dd>
+              </Fragment>
+            ))}
+        </DefinitionList>
       )}
     </PostWrapper>
   );

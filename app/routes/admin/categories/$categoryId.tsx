@@ -10,6 +10,8 @@ import { prisma } from "~/db.server";
 import FormActions from "~/components/form-actions";
 import ButtonGroup from "~/components/button-group";
 import Button from "~/components/button";
+import styled from "styled-components";
+import { createRef, useState } from "react";
 
 type LoaderData = {
   category: Category;
@@ -23,6 +25,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     include: {
       slackConfig: true,
       emailConfig: true,
+      metaConfig: true,
     },
   });
   invariant(category, "invalid category");
@@ -59,6 +62,26 @@ export const action: ActionFunction = async ({ request, params }) => {
   const deleted = !!formData.get("deleted");
   const slackWebhookUrl = formData.get("slack.webhookUrl");
   const emailTo = formData.get("email.to");
+
+  let meta: {
+    name: string;
+    id?: any;
+    description: string;
+    required: boolean;
+  }[] = [];
+  formData.forEach((value, key) => {
+    let match = key.match(/^meta\[(\d+)?]\.(.+)$/i);
+    if (match) {
+      const idx: number = match[1] ? parseInt(match[1]) + 1 : 0;
+      while (meta.length <= idx) {
+        meta.push({ id: null, name: "", description: "", required: false });
+      }
+      meta[idx][match[2]] = match[2] === "required" ? !!value : value;
+    }
+  });
+
+  meta = meta.filter(({ name }) => !!name);
+  const existingMetaIds = meta.map(({ id }) => id).filter((id) => !!id);
 
   if (typeof name !== "string" || name.length === 0) {
     return json<ActionData>(
@@ -101,6 +124,21 @@ export const action: ActionFunction = async ({ request, params }) => {
     }),
   ];
 
+  if (existingMetaIds) {
+    queries.push(
+      prisma.categoryMeta.deleteMany({
+        where: {
+          categoryId,
+          NOT: {
+            id: {
+              in: existingMetaIds,
+            },
+          },
+        },
+      })
+    );
+  }
+
   if (slackWebhookUrl) {
     queries.push(
       prisma.categorySlack.create({
@@ -123,10 +161,38 @@ export const action: ActionFunction = async ({ request, params }) => {
     );
   }
 
+  meta.forEach(({ id, ...data }) => {
+    if (id) {
+      // TODO(dcramer): we'd like to also pass in categoryId to the WHERE, but Prisma currently
+      // forbids updates with multiple conditions
+      queries.push(
+        prisma.categoryMeta.update({
+          where: { id },
+          data,
+        })
+      );
+    } else {
+      queries.push(
+        prisma.categoryMeta.create({
+          data: {
+            ...data,
+            categoryId,
+          },
+        })
+      );
+    }
+  });
+
   await prisma.$transaction(queries);
 
   return redirect("/admin/categories");
 };
+
+const MetaContainer = styled.div`
+  border: 1px solid ${(p) => p.theme.borderColor};
+  padding: 1.6em;
+  margin-bottom: 2.4rem;
+`;
 
 export default function Index() {
   const { category } = useLoaderData() as LoaderData;
@@ -135,6 +201,8 @@ export default function Index() {
 
   const slackConfig = category.slackConfig.find(() => true);
   const emailConfig = category.emailConfig.find(() => true);
+
+  const [metaConfig, setMetaConfig] = useState(category.metaConfig);
 
   return (
     <Form
@@ -150,7 +218,7 @@ export default function Index() {
     >
       <h1>Edit Category</h1>
       <div>
-        <label>
+        <label className="field-required">
           <span>Name</span>
           <input
             type="text"
@@ -170,7 +238,7 @@ export default function Index() {
         )}
       </div>
       <div>
-        <label>
+        <label className="field-required">
           <span>Slug</span>
           <input
             type="text"
@@ -189,7 +257,7 @@ export default function Index() {
         )}
       </div>
       <div>
-        <label>
+        <label className="field-required">
           <span>Color</span>
           <input
             type="text"
@@ -209,7 +277,7 @@ export default function Index() {
       </div>
 
       <div>
-        <label>
+        <label className="field-inline">
           <input
             type="checkbox"
             name="restricted"
@@ -264,6 +332,74 @@ export default function Index() {
           </div>
         )}
       </div>
+
+      <h2>Metadata</h2>
+      <p>
+        Define additional content fields to associate with posts. This is useful
+        for things like e.g. a fixed location for a video URL.
+      </p>
+
+      <div>
+        {metaConfig.map((meta, idx) => (
+          <MetaContainer key={meta.id || idx}>
+            <input
+              type="hidden"
+              name={`meta[${idx}].id`}
+              value={meta.id || ""}
+            />
+            <label className="field-required">
+              <span>Name</span>
+              <input
+                type="text"
+                name={`meta[${idx}].name`}
+                placeholder="e.g. Video URL"
+                defaultValue={meta.name}
+              />
+            </label>
+
+            <label>
+              <span>Description</span>
+              <input
+                type="text"
+                name={`meta[${idx}].description`}
+                placeholder="e.g. The URL to the public YouTube video for this post."
+                defaultValue={meta.description}
+              />
+            </label>
+
+            <div>
+              <label className="field-inline">
+                <input
+                  type="checkbox"
+                  name={`meta[${idx}].required`}
+                  defaultChecked={meta.required}
+                />
+                Require this information on new posts?
+              </label>
+            </div>
+
+            <ButtonGroup>
+              <Button
+                mode="danger"
+                size="sm"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setMetaConfig(metaConfig.filter((_, mcIdx) => idx !== mcIdx));
+                }}
+              >
+                Remove
+              </Button>
+            </ButtonGroup>
+          </MetaContainer>
+        ))}
+
+        <NewMetaConfig
+          onCreate={(newMetaConfig) => {
+            setMetaConfig([...metaConfig, newMetaConfig]);
+          }}
+        />
+      </div>
+
       <FormActions>
         <ButtonGroup>
           <Button type="submit" mode="primary">
@@ -277,3 +413,58 @@ export default function Index() {
     </Form>
   );
 }
+
+const NewMetaConfig = ({ onCreate }) => {
+  const nameRef = createRef<HTMLInputElement>();
+  const descRef = createRef<HTMLInputElement>();
+
+  return (
+    <MetaContainer>
+      <input type="hidden" name="meta[].id" value="" />
+      <label className="field-required">
+        <span>Name</span>
+        <input
+          type="text"
+          name="meta[].name"
+          placeholder="e.g. Video URL"
+          ref={nameRef}
+        />
+      </label>
+
+      <label>
+        <span>Description</span>
+        <input
+          type="text"
+          name="meta[].description"
+          placeholder="e.g. The URL to the public YouTube video for this post."
+          ref={descRef}
+        />
+      </label>
+
+      <div>
+        <label className="field-inline">
+          <input type="checkbox" name="meta[].required" />
+          Require this information on new posts?
+        </label>
+      </div>
+
+      <ButtonGroup>
+        <Button
+          mode="primary"
+          size="sm"
+          onClick={(e) => {
+            e.preventDefault();
+            onCreate({
+              name: nameRef.current!.value,
+              description: descRef.current!.value,
+            });
+            nameRef.current!.value = "";
+            descRef.current!.value = "";
+          }}
+        >
+          Add Another
+        </Button>
+      </ButtonGroup>
+    </MetaContainer>
+  );
+};

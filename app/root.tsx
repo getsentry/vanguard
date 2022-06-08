@@ -102,23 +102,26 @@ export function ErrorBoundary({ error }) {
   // TODO(dcramer): verify if this is useful
   Sentry.captureException(error);
   return (
-    <html>
+    <html lang="en">
       <head>
         <title>Oh no!</title>
         <Meta />
         <Links />
         {typeof document === "undefined" ? "__STYLES__" : null}
       </head>
-      <body className="wrapper">
-        <div id="primary">
-          <Container>
-            <Header />
-            <h1>Internal Server Error</h1>
-            <pre>{error.stack}</pre>
-          </Container>
-        </div>
-        <Scripts />
-      </body>
+      <ThemeProvider theme={lightTheme}>
+        <GlobalStyles />
+        <body>
+          <Primary>
+            <Container>
+              <Header />
+              <h1>Internal Server Error</h1>
+              <pre>{error.stack}</pre>
+            </Container>
+          </Primary>
+          <Scripts />
+        </body>
+      </ThemeProvider>
     </html>
   );
 }

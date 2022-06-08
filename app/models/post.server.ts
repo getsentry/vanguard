@@ -4,6 +4,7 @@ import type {
   Category,
   PostReaction,
   CategorySlack,
+  PostMeta,
 } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 import invariant from "tiny-invariant";
@@ -12,7 +13,14 @@ import * as email from "../lib/email";
 import * as slack from "../lib/slack";
 import { prisma } from "~/db.server";
 
-export type { Category, Post, PostReaction, User } from "@prisma/client";
+export type {
+  Category,
+  Post,
+  PostMeta,
+  PostRevision,
+  PostReaction,
+  User,
+} from "@prisma/client";
 
 export interface PostQueryType extends Post {
   author: User;
@@ -70,6 +78,7 @@ export async function getPost({
     include: {
       author: true,
       category: true,
+      meta: true,
     },
   });
 }
@@ -154,6 +163,7 @@ export async function updatePost({
   categoryId,
   published,
   deleted,
+  meta = [],
 }: {
   id: Post["id"];
   userId: User["id"];
@@ -162,6 +172,7 @@ export async function updatePost({
   categoryId?: Post["categoryId"];
   published?: Post["published"];
   deleted?: Post["deleted"];
+  meta?: Pick<PostMeta, "name" | "content">[];
 }): Promise<Post> {
   const user = await prisma.user.findFirst({ where: { id: userId } });
   invariant(user, "user not found");
@@ -202,12 +213,18 @@ export async function updatePost({
     ],
   };
 
+  // TODO
+  data.meta = {
+    deleteMany: {},
+    create: meta,
+  };
+
   const updatedPost = await prisma.post.update({
     where: {
       id,
     },
     data,
-    include: { author: true, category: true },
+    include: { author: true, category: true, meta: true },
   });
   return updatedPost;
 }
@@ -218,10 +235,12 @@ export async function createPost({
   title,
   categoryId,
   published = false,
+  meta = [],
 }: Pick<Post, "content" | "title"> & {
   userId: User["id"];
   published?: Post["published"];
   categoryId: Category["id"];
+  meta?: Pick<PostMeta, "name" | "content">[];
 }): Promise<Post> {
   return await prisma.post.create({
     data: {
@@ -248,6 +267,9 @@ export async function createPost({
             categoryId,
           },
         ],
+      },
+      meta: {
+        create: meta,
       },
     },
     include: { author: true, category: true },

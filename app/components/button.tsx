@@ -2,16 +2,20 @@ import React, { ButtonHTMLAttributes } from "react";
 
 export type ButtonMode = "default" | "primary" | "danger";
 
+export type ButtonSize = "sm" | "md";
+
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   mode?: ButtonMode;
+  size?: ButtonSize;
 }
 
 export function getButtonClassName({
   disabled,
   className,
   mode = "default",
+  size = "md",
 }: ButtonProps) {
-  className = `${className || ""} btn`;
+  className = `${className || ""} btn btn-${size}`;
 
   switch (mode) {
     case "primary":
@@ -34,9 +38,10 @@ const Button: React.FC<ButtonProps> = function Button({
   disabled,
   className,
   mode = "default",
+  size = "md",
   ...props
 }) {
-  className = getButtonClassName({ className, mode, disabled });
+  className = getButtonClassName({ className, mode, size, disabled });
 
   return (
     <button disabled={disabled} className={className} {...props}>

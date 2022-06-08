@@ -6,7 +6,7 @@ import { useActionData, useLoaderData } from "@remix-run/react";
 import { announcePost, getPost, updatePost } from "~/models/post.server";
 import type { Post } from "~/models/post.server";
 import { requireUserId } from "~/session.server";
-import { getCategoryList } from "~/models/category.server";
+import { getCategory, getCategoryList } from "~/models/category.server";
 import type { Category } from "~/models/category.server";
 import PostForm, { PostFormErrors } from "~/components/post-form";
 import invariant from "tiny-invariant";
@@ -51,8 +51,6 @@ export const action: ActionFunction = async ({ request, params }) => {
   const deleted =
     formData.get("deleted") !== null ? !!formData.get("deleted") : undefined;
 
-  console.log(published);
-
   if (typeof categoryId !== "string" || categoryId.length === 0) {
     return json<ActionData>(
       { errors: { categoryId: "Category is required" } },
@@ -74,6 +72,23 @@ export const action: ActionFunction = async ({ request, params }) => {
     );
   }
 
+  const category = await getCategory({ id: categoryId });
+
+  const meta = [];
+  category.metaConfig.forEach(({ name, required }) => {
+    const content = formData.get(`meta[${name}]`);
+    if (required && !content) {
+      return json<ActionData>(
+        { errors: { meta: { name: `${name} is required` } } },
+        { status: 400 }
+      );
+    }
+    meta.push({
+      name,
+      content,
+    });
+  });
+
   const post = await updatePost({
     id: params.postId,
     userId,
@@ -82,6 +97,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     categoryId,
     published,
     deleted,
+    meta,
   });
 
   if (!post.deleted && announce) {
@@ -99,6 +115,11 @@ export default function EditPostPage() {
   const { categoryList, post } = useLoaderData() as LoaderData;
   const actionData = useActionData() as ActionData;
 
+  const meta: { [name: string]: string } = {};
+  post.meta.forEach((m) => {
+    meta[m.name] = m.content;
+  });
+
   return (
     <PostForm
       categoryList={categoryList}
@@ -108,6 +129,7 @@ export default function EditPostPage() {
         content: post.content!,
         categoryId: post.categoryId,
         published: post.published,
+        meta,
       }}
       canDelete={true}
       canUnpublish={true}

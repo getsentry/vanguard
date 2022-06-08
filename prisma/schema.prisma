@@ -33,6 +33,7 @@ model Category {
   restricted    Boolean         @default(false)
   slackConfig   CategorySlack[]
   emailConfig   CategoryEmail[]
+  metaConfig    CategoryMeta[]
   colorHex      String?         @db.VarChar(7)
 }
 
@@ -54,6 +55,15 @@ model CategoryEmail {
   to         String
 }
 
+model CategoryMeta {
+  id          String   @id @default(cuid())
+  category    Category @relation(fields: [categoryId], references: [id])
+  categoryId  String
+  name        String   @db.VarChar(255)
+  description String?
+  required    Boolean  @default(false)
+}
+
 model Post {
   id          String         @id @default(cuid())
   createdAt   DateTime       @default(now())
@@ -68,6 +78,15 @@ model Post {
   category    Category       @relation(fields: [categoryId], references: [id])
   categoryId  String
   revisions   PostRevision[]
+  meta        PostMeta[]
+}
+
+model PostMeta {
+  id         String   @id @default(cuid())
+  post       Post     @relation(fields: [postId], references: [id])
+  postId     String
+  name       String
+  content    String
 }
 
 model PostRevision {

@@ -6,8 +6,10 @@ installGlobals();
 
 const clearDatabase = async () => {
   await prisma.$transaction([
+    prisma.postMeta.deleteMany(),
     prisma.postRevision.deleteMany(),
     prisma.post.deleteMany(),
+    prisma.categoryMeta.deleteMany(),
     prisma.category.deleteMany(),
     prisma.user.deleteMany(),
   ]);

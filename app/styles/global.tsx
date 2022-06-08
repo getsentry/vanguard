@@ -164,6 +164,11 @@ const GlobalStyles = createGlobalStyle`
     color: white;
   }
 
+  .btn-sm {
+    padding: 0.8rem 1.2rem;
+    font-size: 0.9em;
+  }
+
 
   /* Forms */
 
@@ -176,26 +181,38 @@ const GlobalStyles = createGlobalStyle`
       margin-bottom: 1.2rem;
       font-weight: 500;
       font-family: "IBM Plex Mono", monospace;
+      position: relative;
+    }
 
-  }
+    &.field-inline {
+      flex-direction: row;
+      align-items: center;
+      gap: 0.8em;
+      cursor: pointer;
+    }
 
-  input,
-  textarea,
-  select {
-    background: ${(p) => p.theme.bgColor};
-    border: 1px solid ${(p) => p.theme.borderColor};
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    display: block;
-    font-family: "Inter", sans-serif;
+    &.field-required span:before {
+      content: "* ";
+      position: absolute;
+      left: -1.5ch;
+    }
 
-    &:focus, &:focus-visible {
-      border: 1px solid ${(p) => p.theme.borderFocusColor};
-      outline-color: ${(p) => p.theme.borderFocusColor};
+    input,
+    textarea,
+    select {
+      background: ${(p) => p.theme.bgColor};
+      border: 1px solid ${(p) => p.theme.borderColor};
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      display: block;
+      font-family: "Inter", sans-serif;
+
+      &:focus, &:focus-visible {
+        border: 1px solid ${(p) => p.theme.borderFocusColor};
+        outline-color: ${(p) => p.theme.borderFocusColor};
+      }
     }
   }
-
-
 
   /* Post */
 

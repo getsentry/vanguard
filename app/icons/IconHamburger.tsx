@@ -1,4 +1,3 @@
-import * as React from "react";
 import { SVGProps } from "react";
 import styled, { css } from "styled-components";
 import breakpoint from "styled-components-breakpoint";
@@ -8,29 +7,29 @@ const IconHamburger = (props: SVGProps<SVGSVGElement>) => (
     <path
       className="hamburger-top"
       stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
+      strokeWidth="2"
+      strokeLinecap="round"
       d="M5 9h22"
     />
     <path
       className="hamburger-middle-front"
       stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
+      strokeWidth="2"
+      strokeLinecap="round"
       d="M5 16h22"
     />
     <path
       className="hamburger-middle-back"
       stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
+      strokeWidth="2"
+      strokeLinecap="round"
       d="M5 16h22"
     />
     <path
       className="hamburger-bottom"
       stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
+      strokeWidth="2"
+      strokeLinecap="round"
       d="M5 23h22"
     />
   </StyledSvg>

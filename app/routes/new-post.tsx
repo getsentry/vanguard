@@ -60,12 +60,30 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
+  const category = await getCategory({ id: categoryId });
+
+  const meta = [];
+  category.metaConfig.forEach(({ name, required }) => {
+    const content = formData.get(`meta[${name}]`);
+    if (required && !content) {
+      return json<ActionData>(
+        { errors: { meta: { name: `${name} is required` } } },
+        { status: 400 }
+      );
+    }
+    meta.push({
+      name,
+      content,
+    });
+  });
+
   const post = await createPost({
     userId,
     title,
     content,
     categoryId,
-    published: published,
+    published,
+    meta,
   });
 
   if (announce) {

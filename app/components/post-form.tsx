@@ -1,4 +1,4 @@
-import { createRef, Fragment, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Form } from "@remix-run/react";
 
 import type { Category } from "../models/category.server";
@@ -15,6 +15,7 @@ export type PostFormErrors = {
   title?: string;
   content?: string;
   categoryId?: string;
+  meta?: { [name: string]: string };
 };
 
 export type PostFormInitialData = {
@@ -23,6 +24,7 @@ export type PostFormInitialData = {
   categoryId?: string;
   published?: boolean;
   announce?: boolean;
+  meta?: { [name: string]: string }[];
 };
 
 const HelpText = styled.div`
@@ -62,12 +64,13 @@ const CategorySelector = ({
 }: {
   name: string;
   categoryList: Category[];
-  defaultValue?: string;
+  defaultValue?: string | null;
   error?: string;
   onChange: (e: any, value: string) => void;
 }) => {
   const [categoryId, setCategoryId] = useState(defaultValue);
 
+  console.log(categoryId);
   return (
     <>
       <CategoryOptionWrapper>
@@ -81,17 +84,50 @@ const CategorySelector = ({
               type="radio"
               name={name}
               value={category.id}
-              defaultChecked={category.id === categoryId}
+              checked={category.id === categoryId}
               onChange={(e) => {
                 setCategoryId(e.target.value);
                 onChange(e, e.target.value);
               }}
-            />{" "}
+            />
             {category.name}
           </CategoryOptionLabel>
         ))}
       </CategoryOptionWrapper>
     </>
+  );
+};
+
+const MetaConfigField = ({
+  name,
+  required,
+  description,
+  defaultValue,
+  error,
+}: {
+  name: string;
+  required: boolean;
+  description?: string;
+  defaultValue?: string;
+  error?: string;
+}) => {
+  return (
+    <div>
+      <label className={required ? "field-required" : ""}>
+        <span>{name}: </span>
+        <input
+          name={`meta[${name}]`}
+          required={required}
+          defaultValue={defaultValue}
+        />
+      </label>
+      {description && <HelpText>{description}</HelpText>}
+      {error && (
+        <div className="pt-1 text-red-700" id="content-error">
+          {error}
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -118,8 +154,10 @@ export default function PostForm({
   }
 
   const [categoryId, setCategoryId] = useState<string | null>(
-    initialData?.categoryId || null
+    initialData?.categoryId || categoryList.find(() => true)?.id || null
   );
+
+  const selectedCategory = categoryList.find((c) => c.id === categoryId);
 
   initialData.announce = !initialData?.published;
 
@@ -142,8 +180,8 @@ export default function PostForm({
       }}
     >
       <div>
-        <label className="">
-          <span>Title: </span>
+        <label className="field-required">
+          <span>Title:</span>
           <input
             name="title"
             required
@@ -161,12 +199,12 @@ export default function PostForm({
         )}
       </div>
       <div>
-        <label className="flex w-full flex-col gap-1">
-          <span>Category: </span>
+        <label className="field-required">
+          <span>Category:</span>
           <CategorySelector
             name="categoryId"
             categoryList={categoryList}
-            defaultValue={categoryId || categoryList.find(() => true)?.id}
+            defaultValue={categoryId}
             error={errors?.categoryId}
             onChange={(e, value) => {
               setCategoryId(value);
@@ -179,16 +217,26 @@ export default function PostForm({
           </div>
         )}
       </div>
+      {selectedCategory?.metaConfig.map((meta) => (
+        <MetaConfigField
+          key={meta.id}
+          required={meta.required}
+          name={meta.name}
+          defaultValue={(initialData?.meta || {})[meta.name]}
+          description={meta.description}
+          error={(errors?.meta || {})[meta.name]}
+        />
+      ))}
       <div>
-        <label>
-          <span>Content: </span>
+        <label className="field-required">
+          <span>Content:</span>
           <Editor defaultValue={initialData?.content} />
-          {errors?.content && (
-            <div className="pt-1 text-red-700" id="content-error">
-              {errors.content}
-            </div>
-          )}
         </label>
+        {errors?.content && (
+          <div className="pt-1 text-red-700" id="content-error">
+            {errors.content}
+          </div>
+        )}
       </div>
       <FormActions>
         <ButtonGroup>
@@ -214,7 +262,7 @@ export default function PostForm({
               </Button>
             )
           ) : canAnnounce ? (
-            <Fragment>
+            <>
               <ButtonDropdown
                 type="submit"
                 mode="primary"
@@ -235,7 +283,7 @@ export default function PostForm({
                 </ButtonDropdownItem>
               </ButtonDropdown>
               <Button type="submit">Save Draft</Button>
-            </Fragment>
+            </>
           ) : (
             <Button type="submit" name="published" value="true">
               Publish
