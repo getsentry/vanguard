@@ -70,7 +70,6 @@ const CategorySelector = ({
 }) => {
   const [categoryId, setCategoryId] = useState(defaultValue);
 
-  console.log(categoryId);
   return (
     <>
       <CategoryOptionWrapper>
@@ -176,7 +175,12 @@ export default function PostForm({
         setStoredDraft({});
       }}
       onChange={(e) => {
-        setStoredDraft({ ...storedDraft, [e.target.name]: e.target.value });
+        const match = e.target.name.match(/^meta\[(.+)\]$/);
+        const value = e.target.value;
+        const additions = match
+          ? { meta: { ...(storedDraft.meta || {}), [match[1]]: value } }
+          : { [e.target.name]: value };
+        setStoredDraft({ ...storedDraft, ...additions });
       }}
     >
       <div>
