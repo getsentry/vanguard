@@ -2,6 +2,7 @@ import { error } from "./logging";
 import type { PostQueryType } from "~/models/post.server";
 import moment from "moment";
 import { marked } from "marked";
+import { sanitize } from "isomorphic-dompurify";
 
 export type SlackConfig = {
   webhookUrl: string;
@@ -10,15 +11,19 @@ export type SlackConfig = {
   iconUrl?: string;
 };
 
+export const summarize = (content: string) => {
+  const sum = sanitize(marked.parse(content, { breaks: true }), {
+    ALLOWED_TAGS: [],
+  }).replace(/^[\s\n]+|[\s\n]+$/g, "");
+  if (sum.length > 256) return sum.substring(0, 256).split("\n")[0] + "...";
+  return sum;
+};
+
 export const notify = async (post: PostQueryType, config: SlackConfig) => {
   const { author, category } = post;
   console.log(`Sending Slack notification for post ${post.id}`);
 
-  const content =
-    DOMPurify.sanitize(
-      marked.parse(post.content, { breaks: true }).split("</p>")[0] + "</p>",
-      { ALLOWED_TAGS: [] }
-    ).substring(0, 256) + "...";
+  const content = summarize(post.content);
 
   const res = await fetch(config.webhookUrl, {
     method: "POST",
@@ -33,7 +38,7 @@ export const notify = async (post: PostQueryType, config: SlackConfig) => {
           block_id: "title",
           text: {
             type: "mrkdwn",
-            text: `*${category.name}:* <https://${process.env.BASE_URL}/p/${post.id}|${post.title}>`,
+            text: `*${category.name}:* <${process.env.BASE_URL}/p/${post.id}|${post.title}>`,
           },
         },
         {
