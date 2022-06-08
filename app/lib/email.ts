@@ -1,4 +1,4 @@
-import { error } from "./logging";
+// import { error } from "./logging";
 import type { PostQueryType } from "~/models/post.server";
 
 export type EmailConfig = {

@@ -1,4 +1,4 @@
-import { Category, Post, User } from "@prisma/client";
+import type { Category, Post, User } from "@prisma/client";
 import { prisma } from "~/db.server";
 import { getPostList } from "~/models/post.server";
 

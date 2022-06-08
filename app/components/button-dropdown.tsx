@@ -1,6 +1,8 @@
-import React, { MouseEventHandler, useEffect, useRef, useState } from "react";
+import type { MouseEventHandler } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import Button, { ButtonProps, getButtonClassName } from "./button";
+import type { ButtonProps } from "./button";
+import Button, { getButtonClassName } from "./button";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 
 const DropdownContent = styled.div`

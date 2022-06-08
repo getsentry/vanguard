@@ -1,6 +1,7 @@
 import os from "os";
 import fs from "fs/promises";
-import { LoaderFunction, Response, redirect } from "@remix-run/node";
+import { Response, redirect } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/node";
 import invariant from "tiny-invariant";
 
 import { requireUserId } from "~/session.server";

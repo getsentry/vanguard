@@ -4,7 +4,8 @@ import { Link, useLoaderData } from "@remix-run/react";
 
 import { requireAdmin } from "~/session.server";
 import { getUserList } from "~/models/user.server";
-import { paginate, PaginatedResult } from "~/lib/paginator";
+import { paginate } from "~/lib/paginator";
+import type { PaginatedResult } from "~/lib/paginator";
 import Paginated from "~/components/paginated";
 import Table from "~/components/table";
 import BooleanIcon from "~/components/boolean-icon";

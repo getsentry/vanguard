@@ -11,7 +11,6 @@ import type { User } from "~/models/user.server";
 import { requireAdmin, requireUser } from "~/session.server";
 import Avatar from "~/components/avatar";
 import * as Panel from "~/components/panel";
-import Post from "~/components/post";
 import PostLink from "~/components/post-link";
 import Markdown from "~/components/markdown";
 
@@ -59,7 +58,6 @@ export const action: ActionFunction = async ({ request, params }) => {
   }
 
   const formData = await request.formData();
-  const action = formData.get("action");
   if (formData.get("canPostRestricted") === "true") {
     await updateUser({
       userId: currentUser.id,

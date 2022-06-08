@@ -1,4 +1,4 @@
-import { ActionFunction } from "@remix-run/server-runtime";
+import type { ActionFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/node";
 import { unstable_parseMultipartFormData } from "@remix-run/node";
 import { requireUserId } from "~/session.server";

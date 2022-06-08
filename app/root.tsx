@@ -17,7 +17,7 @@ import {
   ScrollRestoration,
   useLoaderData,
 } from "@remix-run/react";
-import styled, { ThemeProvider, css } from "styled-components";
+import styled, { ThemeProvider } from "styled-components";
 import breakpoint from "styled-components-breakpoint";
 import prismCss from "prism-sentry/index.css";
 
@@ -130,7 +130,6 @@ export default function App() {
   const { user, categoryList, ENV } = useLoaderData();
   const [theme, setTheme] = useState("light");
   const [showSidebar, setShowSidebar] = useState(false);
-  const [isMobile, setIsMobile] = useState(true);
 
   useEffect(() => {
     window

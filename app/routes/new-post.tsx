@@ -1,4 +1,3 @@
-import React from "react";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useActionData, useLoaderData } from "@remix-run/react";
@@ -7,7 +6,8 @@ import { announcePost, createPost } from "~/models/post.server";
 import { requireUserId } from "~/session.server";
 import { getCategory, getCategoryList } from "~/models/category.server";
 import type { Category } from "~/models/category.server";
-import PostForm, { PostFormErrors } from "~/components/post-form";
+import PostForm from "~/components/post-form";
+import type { PostFormErrors } from "~/components/post-form";
 import { getPostLink } from "~/components/post-link";
 
 type LoaderData = {

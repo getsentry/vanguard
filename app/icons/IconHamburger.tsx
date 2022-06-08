@@ -1,4 +1,4 @@
-import { SVGProps } from "react";
+import type { SVGProps } from "react";
 import styled, { css } from "styled-components";
 import breakpoint from "styled-components-breakpoint";
 

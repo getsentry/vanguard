@@ -1,5 +1,5 @@
-import React, { ChangeEvent, useRef, useState } from "react";
-import type { ClipboardEvent, DragEvent } from "react";
+import React, { useRef, useState } from "react";
+import type { ClipboardEvent, DragEvent, ChangeEvent } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import TextareaMarkdown, { Cursor } from "textarea-markdown-editor";
 import type {

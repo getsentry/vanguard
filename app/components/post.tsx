@@ -74,7 +74,7 @@ const Date = styled.div``;
 const ReadingTime = styled.div``;
 
 const URL_REGEXP = new RegExp(
-  /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g
+  /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)/g
 );
 
 const isUrl = (value: string) => value.match(URL_REGEXP);
@@ -102,16 +102,20 @@ export default function Post({
           </Name>
           <Meta>
             <Date>{moment(post.publishedAt || post.createdAt).fromNow()}</Date>
-            {!summary && [
-              <Middot />,
-              <ReadingTime>
-                {readingTime(post.content || "", false)} read
-              </ReadingTime>,
-            ]}
-            {canEdit && [
-              <Middot />,
-              <Link to={`/p/${post!.id}/edit`}>Edit</Link>,
-            ]}
+            {!summary && (
+              <>
+                <Middot />
+                <ReadingTime>
+                  {readingTime(post.content || "", false)} read
+                </ReadingTime>
+              </>
+            )}
+            {canEdit && (
+              <>
+                <Middot />
+                <Link to={`/p/${post!.id}/edit`}>Edit</Link>
+              </>
+            )}
           </Meta>
         </Byline>
       </Credits>

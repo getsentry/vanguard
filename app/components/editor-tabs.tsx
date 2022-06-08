@@ -1,6 +1,4 @@
-import React from "react";
 import styled from "styled-components";
-import { violet, mauve, blackA, green } from "@radix-ui/colors";
 import * as TabsPrimitive from "@radix-ui/react-tabs";
 
 const StyledTabs = styled(TabsPrimitive.Root)`

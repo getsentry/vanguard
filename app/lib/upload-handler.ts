@@ -1,6 +1,6 @@
-import { UploadHandler } from "@remix-run/node";
+import type { UploadHandler } from "@remix-run/node";
 import { Storage } from "@google-cloud/storage";
-import { FileUploadHandlerOptions } from "@remix-run/node/upload/fileUploadHandler";
+import type { FileUploadHandlerOptions } from "@remix-run/node/upload/fileUploadHandler";
 import { unstable_createFileUploadHandler } from "@remix-run/node";
 import path from "path";
 import cuid from "cuid";

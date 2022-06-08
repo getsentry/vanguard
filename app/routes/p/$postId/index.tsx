@@ -54,6 +54,7 @@ const PostActions = ({
         const reactionData = reactions.find((r) => r.emoji === emoji);
         return (
           <EmojiRection
+            key={emoji}
             postId={post.id}
             count={reactionData?.total || 0}
             emoji={emoji}

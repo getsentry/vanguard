@@ -1,6 +1,6 @@
 import * as ToolbarPrimitive from "@radix-ui/react-toolbar";
 import styled, { css } from "styled-components";
-import { violet, blackA, mauve } from "@radix-ui/colors";
+import { violet, mauve } from "@radix-ui/colors";
 
 const StyledToolbar = styled(ToolbarPrimitive.Root)`
   display: flex;

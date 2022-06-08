@@ -1,5 +1,6 @@
 import { useNavigate } from "@remix-run/react";
-import React, { ButtonHTMLAttributes } from "react";
+import type { ButtonHTMLAttributes } from "react";
+import React from "react";
 import Button from "./button";
 
 interface ButtonLinkProps extends ButtonHTMLAttributes<HTMLButtonElement> {

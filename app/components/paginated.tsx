@@ -1,5 +1,5 @@
 import ButtonLink from "~/components/button-link";
-import { PaginatedResult } from "~/lib/paginator";
+import type { PaginatedResult } from "~/lib/paginator";
 import ButtonGroup from "./button-group";
 
 interface PaginatedProps<T> {

@@ -1,6 +1,7 @@
 // This is intended to be a somewhat agnostic abstraction to use IAP with Next.js
 
-import jwt, { JwtPayload } from "jsonwebtoken";
+import type { JwtPayload } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import * as Sentry from "./sentry-remix-client";
 
 export type Identity = {
