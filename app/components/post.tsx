@@ -132,7 +132,7 @@ export default function Post({
           Read more ({readingTime(post.content || "")})
         </PostLink>
       )}
-      {!summary && post.meta.length && (
+      {!summary && !!post.meta.length && (
         <DefinitionList>
           {post.meta
             .filter((m) => !!m.content)
