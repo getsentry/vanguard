@@ -140,6 +140,7 @@ export async function getPostList({
       title: true,
       content: true,
       author: true,
+      meta: true,
       category: true,
       published: true,
       publishedAt: true,

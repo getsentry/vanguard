@@ -21,18 +21,18 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export default function Index() {
-  const data = useLoaderData() as LoaderData;
+  const { postList } = useLoaderData() as LoaderData;
 
   return (
     <div>
       <h1>My Drafts</h1>
-      {data.postList.length === 0 ? (
+      {postList.length === 0 ? (
         <p className="p-4">
           You've got no posts in draft form.{" "}
           <Link to="/new-post">Get to writing!</Link>
         </p>
       ) : (
-        data.postList.map((post) => <Post post={post} key={post.id} />)
+        postList.map((post) => <Post post={post} key={post.id} />)
       )}
     </div>
   );
