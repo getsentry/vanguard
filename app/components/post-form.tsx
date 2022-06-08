@@ -24,7 +24,7 @@ export type PostFormInitialData = {
   categoryId?: string;
   published?: boolean;
   announce?: boolean;
-  meta?: { [name: string]: string }[];
+  meta?: { [name: string]: string };
 };
 
 const HelpText = styled.div`
@@ -222,9 +222,9 @@ export default function PostForm({
           key={meta.id}
           required={meta.required}
           name={meta.name}
-          defaultValue={(initialData?.meta || {})[meta.name]}
+          defaultValue={initialData?.meta?.[meta.name]}
           description={meta.description}
-          error={(errors?.meta || {})[meta.name]}
+          error={errors?.meta?.[meta.name]}
         />
       ))}
       <div>
