@@ -49,7 +49,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       : formData.get("published") === "true" ||
         formData.get("published") === "announce";
 
-  const announce = published && formData.get("announce");
+  const announce = published && formData.get("published") === "announce";
   const deleted =
     formData.get("deleted") !== null ? !!formData.get("deleted") : undefined;
 
