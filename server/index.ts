@@ -4,20 +4,8 @@ import compression from "compression";
 import morgan from "morgan";
 import { createRequestHandler } from "@remix-run/express";
 
-import * as Sentry from "@sentry/node";
-import "@sentry/tracing";
-import { registerBuild, getLoadContext } from "./sentry-remix-node";
-
-Sentry.init({
-  tracesSampleRate: 1.0,
-  dsn: process.env.SENTRY_DSN,
-  environment: process.env.NODE_ENV,
-});
-
 function loadBuild() {
-  let build = require(BUILD_DIR);
-  build = registerBuild(build);
-  return build;
+  return require(BUILD_DIR);
 }
 
 const app = express();
@@ -66,7 +54,6 @@ app.all(
         const requestHandler = createRequestHandler({
           build: loadBuild(),
           mode: MODE,
-          getLoadContext,
         });
         return requestHandler(...args);
       }

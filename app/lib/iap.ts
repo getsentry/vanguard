@@ -2,7 +2,7 @@
 
 import type { JwtPayload } from "jsonwebtoken";
 import jwt from "jsonwebtoken";
-import * as Sentry from "./sentry-remix-client";
+import * as Sentry from "@sentry/remix";
 
 export type Identity = {
   id: string;
