@@ -88,6 +88,6 @@ jobs:
       - name: ⚡️ Setup Node.js
         uses: actions/setup-node@v2
 
-      - name: ⚡️Build Next.js
+      - name: ⚡️ Build Remix
         run: |
           npm run build
