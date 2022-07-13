@@ -1,11 +1,15 @@
 import { useState } from "react";
 
-export default function useLocalStorage(key: string, initialValue: any) {
+export default function useLocalStorage(
+  key: string,
+  initialValue: any,
+  undefinedValue: any
+) {
   // State to store our value
   // Pass initial state function to useState so logic is only executed once
   const [storedValue, setStoredValue] = useState(() => {
     if (typeof window === "undefined") {
-      return initialValue;
+      return undefinedValue ?? initialValue;
     }
     try {
       // Get from local storage by key

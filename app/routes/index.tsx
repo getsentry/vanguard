@@ -7,6 +7,7 @@ import { getPostList } from "~/models/post.server";
 import Post from "~/components/post";
 import { paginate } from "~/lib/paginator";
 import Paginated from "~/components/paginated";
+import WelcomeBanner from "~/components/welcome-banner";
 
 type LoaderData = {
   postListPaginated: any;
@@ -28,15 +29,18 @@ export default function Index() {
   const { postListPaginated } = useLoaderData() as LoaderData;
 
   return (
-    <Paginated
-      data={postListPaginated}
-      render={(result) => {
-        return result.length === 0 ? (
-          <p>No posts yet</p>
-        ) : (
-          result.map((post) => <Post post={post} key={post.id} summary />)
-        );
-      }}
-    />
+    <>
+      <WelcomeBanner />
+      <Paginated
+        data={postListPaginated}
+        render={(result) => {
+          return result.length === 0 ? (
+            <p>No posts yet</p>
+          ) : (
+            result.map((post) => <Post post={post} key={post.id} summary />)
+          );
+        }}
+      />
+    </>
   );
 }
