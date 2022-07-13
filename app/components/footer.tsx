@@ -11,11 +11,15 @@ const Footer = ({ version, admin }: Props) => {
   return (
     <FooterWrapper>
       <div>
-        <span>Vanguard {version ? version.substring(0, 7) : ""}</span>
+        <span>Vanguard {version ? version.substring(0, 7) : ""}</span>{" "}
+        <Middot /> <Link to="/about">About</Link>
       </div>
       <div>
-        {admin && <Link to="/admin">Admin</Link>}
-        <Middot />
+        {admin && (
+          <>
+            <Link to="/admin">Admin</Link> <Middot />{" "}
+          </>
+        )}
         <span>
           <a href="https://github.com/getsentry/vanguard">GitHub</a>
         </span>

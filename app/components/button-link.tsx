@@ -16,6 +16,7 @@ const ButtonLink: React.FC<ButtonLinkProps> = function ButtonLink({
   const onClick = to
     ? (e) => {
         e.preventDefault();
+        onClick && onClick(e);
         navigate(to);
       }
     : undefined;

@@ -3,6 +3,7 @@ import styled from "styled-components";
 import useLocalStorage from "~/lib/useLocalStorage";
 import Button from "~/components/button";
 import ButtonGroup from "./button-group";
+import ButtonLink from "./button-link";
 
 const Container = styled.article`
   background: ${(p) => p.theme.bgLayer100};
@@ -21,22 +22,18 @@ const WelcomeBanner = () => {
     <Container>
       <p>
         Vanguard has been designed to provide a way to create permanence around
-        timely internal moments at Sentry. While the core of it is a simple
-        blog, it's intending to continuously enable the culture of sharing what
-        we're building at Sentry. Additionally we have recognized the need to
-        create more long lasting moments out of things that are top of mind,
-        which we're dubbing as 'Strategy' in this context. You'll see several
-        historical posts by myself of this nature.
+        timely internal moments at Sentry.
       </p>
       <ButtonGroup>
-        <Button
+        <ButtonLink
           mode="primary"
+          to="/about"
           onClick={() => {
             setHideBanner(true);
           }}
         >
-          Got it!
-        </Button>
+          Learn More
+        </ButtonLink>
       </ButtonGroup>
     </Container>
   );

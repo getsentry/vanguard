@@ -20,7 +20,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   return json<LoaderData>({ postList });
 };
 
-export default function Index() {
+export default function Drafts() {
   const { postList } = useLoaderData() as LoaderData;
 
   return (
