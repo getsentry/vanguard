@@ -32,7 +32,9 @@ export default function Index() {
           <Link to="/new-post">Get to writing!</Link>
         </p>
       ) : (
-        postList.map((post) => <Post post={post} key={post.id} />)
+        postList.map((post) => (
+          <Post post={post} key={post.id} summary canEdit />
+        ))
       )}
     </div>
   );
