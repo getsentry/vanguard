@@ -7,7 +7,7 @@ const EmojiButton = styled.button`
   border-radius: 4px;
   display: block;
   font-family: "Inter", sans-serif;
-  padding: 0.8rem 1.2rem;
+  padding: 0.6rem 0.8rem;
   border-radius: 0.4rem;
   line-height: 1;
   display: inline-flex;
