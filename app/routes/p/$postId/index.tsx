@@ -40,7 +40,7 @@ const PostActions = ({
   post: PostQueryType;
   reactions: any[];
 }) => {
-  const bakedIn = ["❤️"];
+  const bakedIn = ["❤️", "👍", "🎉", "🤯", "🚀"];
   const allEmoji = [
     ...bakedIn,
     ...reactions
