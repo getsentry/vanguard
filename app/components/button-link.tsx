@@ -10,10 +10,11 @@ interface ButtonLinkProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const ButtonLink: React.FC<ButtonLinkProps> = function ButtonLink({
   to,
   children,
+  onClick,
   ...props
 }) {
   const navigate = useNavigate();
-  const onClick = to
+  const newOnClick = to
     ? (e) => {
         e.preventDefault();
         onClick && onClick(e);
@@ -22,7 +23,7 @@ const ButtonLink: React.FC<ButtonLinkProps> = function ButtonLink({
     : undefined;
 
   return (
-    <Button onClick={onClick} {...props}>
+    <Button onClick={newOnClick} {...props}>
       {children}
     </Button>
   );
