@@ -42,10 +42,6 @@ It is built on top of [Remix](https://github.com/remix-run/remix), and intended 
   npm run dev
   ```
 
-## GitHub Actions
-
-We use GitHub Actions for continuous integration and deployment. Anything that gets into the `main` branch will be deployed to production after running tests/build/etc. Anything in the `dev` branch will be deployed to staging.
-
 ## Testing
 
 ### Vitest
