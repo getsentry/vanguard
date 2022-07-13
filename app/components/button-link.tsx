@@ -1,5 +1,5 @@
 import { useNavigate } from "@remix-run/react";
-import type { ButtonHTMLAttributes } from "react";
+import type { ButtonHTMLAttributes, MouseEvent } from "react";
 import React from "react";
 import Button from "./button";
 
@@ -15,7 +15,7 @@ const ButtonLink: React.FC<ButtonLinkProps> = function ButtonLink({
 }) {
   const navigate = useNavigate();
   const newOnClick = to
-    ? (e) => {
+    ? (e: MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         onClick && onClick(e);
         navigate(to);
