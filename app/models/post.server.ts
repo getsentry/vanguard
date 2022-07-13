@@ -152,7 +152,7 @@ export async function getPostList({
     },
     skip: offset,
     take: limit,
-    orderBy: { updatedAt: "desc" },
+    orderBy: { publishedAt: "desc" },
   });
 }
 
