@@ -84,6 +84,9 @@ jobs:
       - name: 📥 Download deps
         uses: bahmutov/npm-install@v1
 
+      - name: 📜 Setup env
+        run: npm run setup
+
       - name: ⚡ Run vitest
         run: npm run test -- --coverage --reporter=junit --outputFile=junit.xml --reporter=default
 
