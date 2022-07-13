@@ -50,18 +50,20 @@ const PostActions = ({
 
   return (
     <Block>
-      {allEmoji.map((emoji) => {
-        const reactionData = reactions.find((r) => r.emoji === emoji);
-        return (
-          <EmojiRection
-            key={emoji}
-            postId={post.id}
-            count={reactionData?.total || 0}
-            emoji={emoji}
-            selected={reactionData?.user || false}
-          />
-        );
-      })}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "5px" }}>
+        {allEmoji.map((emoji) => {
+          const reactionData = reactions.find((r) => r.emoji === emoji);
+          return (
+            <EmojiRection
+              key={emoji}
+              postId={post.id}
+              count={reactionData?.total || 0}
+              emoji={emoji}
+              selected={reactionData?.user || false}
+            />
+          );
+        })}
+      </div>
     </Block>
   );
 };
