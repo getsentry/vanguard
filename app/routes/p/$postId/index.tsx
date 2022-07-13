@@ -33,13 +33,16 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   return json<LoaderData>({ post, user, reactions });
 };
 
-const PostActions = ({
+const PostReactions = ({
   post,
   reactions,
 }: {
   post: PostQueryType;
   reactions: any[];
 }) => {
+  // dont show reactions if unpublished
+  if (!post.published) return null;
+
   const bakedIn = ["❤️", "👍", "🎉", "🤯", "🚀"];
   const allEmoji = [
     ...bakedIn,
@@ -76,7 +79,7 @@ export default function PostDetailsPage() {
   return (
     <div>
       <PostTemplate post={post} canEdit={canEdit} />
-      <PostActions post={post} reactions={reactions} />
+      <PostReactions post={post} reactions={reactions} />
     </div>
   );
 }
