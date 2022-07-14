@@ -1,16 +1,20 @@
 import styled from "styled-components";
 
 import useLocalStorage from "~/lib/useLocalStorage";
-import Button from "~/components/button";
 import ButtonGroup from "./button-group";
 import ButtonLink from "./button-link";
 
 const Container = styled.article`
-  background: ${(p) => p.theme.bgLayer100};
-  border: 1px solid ${(p) => p.theme.borderColor};
-  color: ${(p) => p.theme.textColorSecondary};
+  background: ${(p) => p.theme.borderColor};
+  border: 4px solid ${(p) => p.theme.borderColor};
+  color: ${(p) => p.theme.textColor};
   margin: 3rem 0;
-  padding: 2rem;
+  padding: 1rem;
+  border-radius: 4px;
+
+  p {
+    margin-bottom: 1rem;
+  }
 `;
 
 // TODO: this needs customizable for non-Sentry uses
@@ -26,8 +30,8 @@ const WelcomeBanner = () => {
       </p>
       <ButtonGroup>
         <ButtonLink
-          mode="primary"
           to="/about"
+          mode="primary"
           onClick={() => {
             setHideBanner(true);
           }}
