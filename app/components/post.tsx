@@ -29,7 +29,7 @@ const PostWrapper = styled.article`
     ${CategoryTagWrapper} {
       position: absolute;
       right: calc(100% + 4rem);
-      top: 0.75rem;
+      top: 0.1rem;
       width: 100rem;
 
       span {

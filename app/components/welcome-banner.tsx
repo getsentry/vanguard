@@ -5,11 +5,11 @@ import ButtonGroup from "./button-group";
 import ButtonLink from "./button-link";
 
 const Container = styled.article`
-  background: ${(p) => p.theme.borderColor};
-  border: 4px solid ${(p) => p.theme.borderColor};
+  border: 1px solid ${(p) => p.theme.borderColor};
+  background: ${(p) => p.theme.bgLayer100};
   color: ${(p) => p.theme.textColor};
-  margin: 3rem 0;
-  padding: 1rem;
+  margin: 0 0 4rem;
+  padding: 2rem;
   border-radius: 4px;
 
   p {
@@ -32,6 +32,7 @@ const WelcomeBanner = () => {
         <ButtonLink
           to="/about"
           mode="primary"
+          size="sm"
           onClick={() => {
             setHideBanner(true);
           }}
