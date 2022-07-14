@@ -43,7 +43,7 @@ const PostReactions = ({
   // dont show reactions if unpublished
   if (!post.published) return null;
 
-  const bakedIn = ["❤️", "👍", "🎉", "🤯", "🚀"];
+  const bakedIn = ["❤️", "👍", "🎉", "🤯", "🚀", "👀"];
   const allEmoji = [
     ...bakedIn,
     ...reactions
