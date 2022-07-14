@@ -38,6 +38,9 @@ import { CategoryTag, CategoryTags } from "./components/category-tag";
 import Input from "./components/input";
 import { getCategoryList } from "./models/category.server";
 import Avatar from "./components/avatar";
+import { getPostList } from "./models/post.server";
+import PostList from "./components/post-list";
+import moment from "moment";
 
 export const links: LinksFunction = () => {
   return [
@@ -53,9 +56,29 @@ export const meta: MetaFunction = () => ({
   viewport: "width=device-width,initial-scale=1",
 });
 
+moment.locale("en", {
+  relativeTime: {
+    future: "in %s",
+    past: "%s ago",
+    s: "1s",
+    ss: "%ss",
+    m: "1m",
+    mm: "%dm",
+    h: "1h",
+    hh: "%dh",
+    d: "1d",
+    dd: "%dd",
+    M: "1M",
+    MM: "%dM",
+    y: "1Y",
+    yy: "%dY",
+  },
+});
+
 type LoaderData = {
   user: Awaited<ReturnType<typeof getUser>>;
   categoryList: Awaited<ReturnType<typeof getCategoryList>>;
+  recentPostList: Awaited<ReturnType<typeof getPostList>>;
   ENV: { [key: string]: any };
 };
 
@@ -78,10 +101,17 @@ export const loader: LoaderFunction = async ({ request }) => {
     includeRestricted: true,
   });
 
+  const recentPostList = await getPostList({
+    userId: user!.id,
+    published: true,
+    limit: 3,
+  });
+
   return json<LoaderData>(
     {
       user,
       categoryList,
+      recentPostList,
       ENV: {
         SENTRY_DSN: process.env.SENTRY_DSN,
         NODE_ENV: process.env.NODE_ENV || "development",
@@ -127,7 +157,7 @@ export function ErrorBoundary({ error }) {
 }
 
 export default function App() {
-  const { user, categoryList, ENV } = useLoaderData();
+  const { user, categoryList, recentPostList, ENV } = useLoaderData();
   const [theme, setTheme] = useState("light");
   const [showSidebar, setShowSidebar] = useState(false);
 
@@ -193,13 +223,19 @@ export default function App() {
               </Form>
             </SidebarSection>
             <SidebarSection>
-              <h6>Sections</h6>
+              <h6>Divisions</h6>
               <CategoryTags>
                 {categoryList.map((category) => (
                   <CategoryTag key={category.id} category={category} />
                 ))}
               </CategoryTags>
             </SidebarSection>
+            {recentPostList.length > 0 && (
+              <SidebarSection>
+                <h6>Recent Posts</h6>
+                <PostList postList={recentPostList} />
+              </SidebarSection>
+            )}
           </Sidebar>
           <ScrollRestoration />
           <script
