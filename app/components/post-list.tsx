@@ -18,7 +18,7 @@ const PostListItem = styled.li`
     "avatar title"
     "avatar credits";
   grid-column-gap: 0.8rem;
-
+  margin-bottom: 1rem;
   padding: 0;
 `;
 
