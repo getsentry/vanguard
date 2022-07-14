@@ -3,6 +3,7 @@ import { json } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import styled from "styled-components";
+import breakpoint from "styled-components-breakpoint";
 
 import { getPostList } from "~/models/post.server";
 import type { Post } from "~/models/post.server";
@@ -106,37 +107,53 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 };
 
 const ProfileHeader = styled.div`
-  display: grid;
-  grid-template:
-    "name avatar"
-    "email avatar"
-    / auto 96px;
-
-  margin-bottom: 3.2rem;
-  gap: 5px;
-
-  h1 {
-    grid-area: name;
-    margin: 0;
-  }
+  display: flex;
+  margin-bottom: 3rem;
+  align-items: center;
 
   ${Avatar} {
     width: 96px;
     height: 96px;
-    grid-area: avatar;
+    margin-right: 1.6rem;
   }
 `;
 
+const Name = styled.h1`
+  margin: 0;
+`;
+
 const ContactInfo = styled.div`
-  color: #666;
+  color: ${(p) => p.theme.textMuted};
   font-size: 1em;
-  grid-area: email;
 `;
 
 const PostList = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 5px;
+  grid-template-columns: 1fr;
+  gap: 3rem;
+
+  ${breakpoint("desktop")`
+    grid-template-columns: 1fr 1fr;
+  `}
+`;
+
+const PostCardTitle = styled.h2`
+  font-family: "Gazpacho-Heavy", serif;
+`
+
+const PostCard = styled.div`
+  background: ${(p) => p.theme.bgColor};
+  border: 1px solid ${(p) => p.theme.borderColor};
+  border-radius: 6px;
+  padding: 2.4rem;
+
+  ${PostCardTitle} {
+    margin-bottom: 1rem;
+  }
+
+  p {
+    margin-bottom: 0;
+  }
 `;
 
 export default function UserDetailsPage() {
@@ -146,19 +163,21 @@ export default function UserDetailsPage() {
     <div>
       <ProfileHeader>
         <Avatar user={user} />
-        <h1>{user.name}</h1>
-        <ContactInfo>{user.email}</ContactInfo>
+        <div>
+          <Name>{user.name}</Name>
+          <ContactInfo>{user.email}</ContactInfo>
+        </div>
       </ProfileHeader>
 
       {!!postList.length && (
         <PostList>
           {postList.map((post) => (
-            <Panel.Panel key={post.id}>
-              <Panel.Title>
+            <PostCard key={post.id}>
+              <PostCardTitle>
                 <PostLink post={post}>{post.title}</PostLink>
-              </Panel.Title>
+              </PostCardTitle>
               <Markdown content={post.content || ""} summarize />
-            </Panel.Panel>
+            </PostCard>
           ))}
         </PostList>
       )}
