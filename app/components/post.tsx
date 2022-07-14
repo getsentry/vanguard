@@ -17,7 +17,7 @@ const PostWrapper = styled.article`
   position: relative;
   margin-bottom: 3.2rem;
   h2 {
-    font-size: 4rem;
+    font-size: 4.4rem;
     font-family: "Gazpacho-Heavy", serif;
 
     a {
@@ -29,7 +29,7 @@ const PostWrapper = styled.article`
     ${CategoryTagWrapper} {
       position: absolute;
       right: calc(100% + 4rem);
-      top: 0.1rem;
+      top: 0.2rem;
       width: 100rem;
 
       span {

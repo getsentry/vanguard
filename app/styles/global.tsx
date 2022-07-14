@@ -56,7 +56,7 @@ const GlobalStyles = createGlobalStyle`
   }
 
   h1 {
-    font-size: 4rem;
+    font-size: 4.4rem;
     margin-bottom: 3.2rem;
     font-family: "Gazpacho-Heavy", serif;
   }
