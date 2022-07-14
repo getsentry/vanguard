@@ -20,7 +20,7 @@ const EmojiButton = styled.button`
   }
 `;
 
-const EmojiRection = ({
+const EmojiReaction = ({
   postId,
   count,
   emoji,
@@ -62,4 +62,4 @@ const EmojiRection = ({
   );
 };
 
-export default EmojiRection;
+export default EmojiReaction;

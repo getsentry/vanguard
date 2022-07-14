@@ -9,7 +9,7 @@ import type { User } from "~/models/user.server";
 import { requireUser } from "~/session.server";
 import { default as PostTemplate } from "~/components/post";
 import Block from "~/components/block";
-import EmojiRection from "~/components/emoji-reaction";
+import EmojiReaction from "~/components/emoji-reaction";
 
 type LoaderData = {
   post: PostQueryType;
@@ -57,7 +57,7 @@ const PostReactions = ({
         {allEmoji.map((emoji) => {
           const reactionData = reactions.find((r) => r.emoji === emoji);
           return (
-            <EmojiRection
+            <EmojiReaction
               key={emoji}
               postId={post.id}
               count={reactionData?.total || 0}
