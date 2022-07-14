@@ -2,7 +2,7 @@
   "name": "vanguard",
   "private": true,
   "description": "",
-  "license": "",
+  "license": "Apache-2.0",
   "sideEffects": false,
   "scripts": {
     "build": "run-s build:*",
