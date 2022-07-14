@@ -17,7 +17,7 @@ const PostWrapper = styled.article`
   position: relative;
   margin-bottom: 3.2rem;
   h2 {
-    font-size: 5rem;
+    font-size: 4rem;
     font-family: "Gazpacho-Heavy", serif;
 
     a {
