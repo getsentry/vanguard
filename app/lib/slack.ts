@@ -30,7 +30,7 @@ export const notify = async (post: PostQueryType, config: SlackConfig) => {
     method: "POST",
     body: JSON.stringify({
       channel: config.channel || process.env.SLACK_CHANNEL,
-      username: config.username || process.env.SLACK_USERNAME,
+      username: config.username || process.env.SLACK_USERNAME || "Vanguard",
       icon_url: config.iconUrl || process.env.SLACK_ICON_URL,
       text: `A new post was published in *${category.name}*`,
       blocks: [
