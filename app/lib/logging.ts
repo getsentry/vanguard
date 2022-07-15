@@ -1,4 +1,4 @@
-import * as Sentry from "~/lib/sentry-remix-client";
+import * as Sentry from "@sentry/remix";
 
 type CaptureContext = {
   context: {

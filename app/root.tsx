@@ -33,7 +33,6 @@ import Container from "./components/container";
 import { Sidebar, SidebarSection } from "./components/sidebar";
 
 import { Toaster } from "react-hot-toast";
-import * as Sentry from "./lib/sentry-remix-client";
 import { CategoryTag, CategoryTags } from "./components/category-tag";
 import Input from "./components/input";
 import { getCategoryList } from "./models/category.server";
@@ -41,6 +40,8 @@ import Avatar from "./components/avatar";
 import { getPostList } from "./models/post.server";
 import PostList from "./components/post-list";
 import moment from "moment";
+
+import { withSentry, setUser, captureException } from "@sentry/remix";
 
 export const links: LinksFunction = () => {
   return [
@@ -87,6 +88,8 @@ export const loader: LoaderFunction = async ({ request }) => {
   const cookie = await sessionStorage.commitSession(session);
   const user = await getUser(request);
 
+  setUser(user);
+
   // probably a cleaner way to build this, but we're here for the duct tape
   const pathname = new URL(request.url).pathname;
   if (!user!.name && pathname !== "/welcome") {
@@ -127,10 +130,10 @@ export const loader: LoaderFunction = async ({ request }) => {
   );
 };
 
-export function ErrorBoundary({ error }) {
+export function ErrorBoundary({ error }: any) {
   console.error(error);
   // TODO(dcramer): verify if this is useful
-  Sentry.captureException(error);
+  captureException(error);
   return (
     <html lang="en">
       <head>
@@ -156,10 +159,12 @@ export function ErrorBoundary({ error }) {
   );
 }
 
-export default function App() {
+function App() {
   const { user, categoryList, recentPostList, ENV } = useLoaderData();
   const [theme, setTheme] = useState("light");
   const [showSidebar, setShowSidebar] = useState(false);
+
+  setUser(user);
 
   useEffect(() => {
     window
@@ -180,7 +185,6 @@ export default function App() {
   return (
     <html lang="en">
       <head>
-        <Sentry.Component />
         <Meta />
         <Links />
         {typeof document === "undefined" ? "__STYLES__" : null}
@@ -225,7 +229,7 @@ export default function App() {
             <SidebarSection>
               <h6>Divisions</h6>
               <CategoryTags>
-                {categoryList.map((category) => (
+                {categoryList.map((category: any) => (
                   <CategoryTag key={category.id} category={category} />
                 ))}
               </CategoryTags>
@@ -274,3 +278,28 @@ const UserMenuDivider = styled.div`
     content: "/";
   }
 `;
+
+const Fallback = () => (
+  <html lang="en">
+    <head>
+      <title>Oh no!</title>
+      <Meta />
+      <Links />
+      {typeof document === "undefined" ? "__STYLES__" : null}
+    </head>
+    <ThemeProvider theme={lightTheme}>
+      <GlobalStyles />
+      <body>
+        <Primary>
+          <Container>
+            <Header />
+            <h1>Something bad happened. Don't worry, we've sent the error to Sentry and we are on the case!</h1>
+          </Container>
+        </Primary>
+        <Scripts />
+      </body>
+    </ThemeProvider>
+  </html>
+);
+
+export default withSentry(App, { errorBoundaryOptions: { fallback: <Fallback /> } });

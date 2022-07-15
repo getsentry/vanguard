@@ -3,6 +3,18 @@ import { RemixServer } from "@remix-run/react";
 import { renderToString } from "react-dom/server";
 import { ServerStyleSheet } from "styled-components";
 
+import { prisma } from "~/db.server";
+
+import * as Sentry from "@sentry/remix";
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  environment: process.env.NODE_ENV,
+  release: process.env.VERSION,
+  tracesSampleRate: 1.0,
+  integrations: [new Sentry.Integrations.Prisma({ client: prisma })],
+});
+
 function handleRequest(
   request: Request,
   responseStatusCode: number,
