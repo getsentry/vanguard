@@ -41,7 +41,7 @@ import { getPostList } from "./models/post.server";
 import PostList from "./components/post-list";
 import moment from "moment";
 
-import { withSentry, setUser } from "@sentry/remix";
+import { withSentry, setUser, captureException } from "@sentry/remix";
 
 export const links: LinksFunction = () => {
   return [
@@ -130,6 +130,35 @@ export const loader: LoaderFunction = async ({ request }) => {
   );
 };
 
+export function ErrorBoundary({ error }: any) {
+  console.error(error);
+  // TODO(dcramer): verify if this is useful
+  captureException(error);
+  return (
+    <html lang="en">
+      <head>
+        <title>Oh no!</title>
+        <Meta />
+        <Links />
+        {typeof document === "undefined" ? "__STYLES__" : null}
+      </head>
+      <ThemeProvider theme={lightTheme}>
+        <GlobalStyles />
+        <body>
+          <Primary>
+            <Container>
+              <Header />
+              <h1>Internal Server Error</h1>
+              <pre>{error.stack}</pre>
+            </Container>
+          </Primary>
+          <Scripts />
+        </body>
+      </ThemeProvider>
+    </html>
+  );
+}
+
 function App() {
   const { user, categoryList, recentPostList, ENV } = useLoaderData();
   const [theme, setTheme] = useState("light");
@@ -200,7 +229,7 @@ function App() {
             <SidebarSection>
               <h6>Divisions</h6>
               <CategoryTags>
-                {categoryList.map((category) => (
+                {categoryList.map((category: any) => (
                   <CategoryTag key={category.id} category={category} />
                 ))}
               </CategoryTags>
@@ -250,4 +279,27 @@ const UserMenuDivider = styled.div`
   }
 `;
 
-export default withSentry(App);
+const Fallback = () => (
+  <html lang="en">
+    <head>
+      <title>Oh no!</title>
+      <Meta />
+      <Links />
+      {typeof document === "undefined" ? "__STYLES__" : null}
+    </head>
+    <ThemeProvider theme={lightTheme}>
+      <GlobalStyles />
+      <body>
+        <Primary>
+          <Container>
+            <Header />
+            <h1>Something bad happened. Don't worry, we've sent the error to Sentry and we are on the case!</h1>
+          </Container>
+        </Primary>
+        <Scripts />
+      </body>
+    </ThemeProvider>
+  </html>
+);
+
+export default withSentry(App, { errorBoundaryOptions: { fallback: <Fallback /> } });
