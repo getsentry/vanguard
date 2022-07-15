@@ -41,7 +41,7 @@ import { getPostList } from "./models/post.server";
 import PostList from "./components/post-list";
 import moment from "moment";
 
-import { withSentryRouteTracing, setUser } from "@sentry/remix";
+import { withSentry, setUser } from "@sentry/remix";
 
 export const links: LinksFunction = () => {
   return [
