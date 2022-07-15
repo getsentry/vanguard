@@ -190,8 +190,8 @@ jobs:
       - id: "deploy"
         uses: "google-github-actions/deploy-cloudrun@v0"
         with:
-          service: "${{ GCP_SERVICE_NAME }}"
-          image: "us.gcr.io/${{ GCP_PROJECT_ID }}/${{ GCP_SERVICE_NAME }}:${{ GITHUB_SHA }}"
+          service: "${{ env.GCP_SERVICE_NAME }}"
+          image: "us.gcr.io/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_SERVICE_NAME }}:${{ env.GITHUB_SHA }}"
 
       - name: "Use output"
         run: 'curl "${{ steps.deploy.outputs.url }}"'
