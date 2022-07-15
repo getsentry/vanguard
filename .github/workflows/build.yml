@@ -156,7 +156,7 @@ jobs:
       - id: "build"
         name: Trigger Cloud Build
         run: |-
-          gcloud builds submit triggers run ${{ secrets.GCP_TRIGGER_ID }}
+          gcloud beta builds submit triggers run ${{ secrets.GCP_TRIGGER_ID }}
 
   gcp_deploy:
     name: Deploy
