@@ -129,7 +129,7 @@ jobs:
   #         path: build
 
   gcp_build:
-    name: 🐳 Build
+    name: "🐳 Build"
     # only on main
     if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}
 
