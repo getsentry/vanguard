@@ -5,9 +5,9 @@
   "license": "Apache-2.0",
   "sideEffects": false,
   "scripts": {
-    "build": "run-s build:* && SENTRY_ORG=sentry SENTRY_PROJECT=vanguard sentry-upload-sourcemaps",
+    "build": "run-s build:*",
     "build:css": "npm run generate:css -- --minify",
-    "build:remix": "remix build --sourcemap",
+    "build:remix": "remix build",
     "build:server": "esbuild --platform=node --bundle --format=cjs ./server --outdir=build --sourcemap=external",
     "dev": "run-p dev:*",
     "dev:server": "cross-env NODE_ENV=development node --inspect --require ./node_modules/dotenv/config --require ./mocks ./build/server.js",
