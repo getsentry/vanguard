@@ -9,6 +9,7 @@ import { updateUser } from "~/models/user.server";
 import type { User } from "~/models/user.server";
 import uploadHandler from "~/lib/upload-handler";
 import AvatarInput from "~/components/avatar-input";
+import Button from "~/components/button";
 
 type LoaderData = {
   user: User;
@@ -29,8 +30,8 @@ type ActionData = {
 export const action: ActionFunction = async ({ request }) => {
   const userId = await requireUserId(request);
 
-  const filter = ({ mimetype }: { mimetype: string }) => {
-    return /image/i.test(mimetype);
+  const filter = ({ contentType }: { contentType: string }) => {
+    return /image/i.test(contentType);
   };
 
   const formData = await unstable_parseMultipartFormData(
@@ -61,7 +62,10 @@ export const action: ActionFunction = async ({ request }) => {
 
   const url = new URL(request.url);
   let redirectTo = url.searchParams.get("redirectTo");
+  // only redirect to same domain
   if (redirectTo?.indexOf("/") !== 0) redirectTo = "/";
+  // dont redirect to self
+  else if (redirectTo?.indexOf("/welcome") === 0) redirectTo = "/";
   return redirect(redirectTo);
 };
 
@@ -130,9 +134,9 @@ export default function WelcomePage() {
         </label>
       </div>
       <div>
-        <button type="submit" className="btn btn-primary">
+        <Button type="submit" mode="primary">
           Let's Go
-        </button>
+        </Button>
       </div>
     </Form>
   );

@@ -3,13 +3,14 @@ import { json } from "@remix-run/node";
 import { unstable_parseMultipartFormData } from "@remix-run/node";
 import { requireUserId } from "~/session.server";
 import uploadHandler from "~/lib/upload-handler";
+import type { FileUploadHandlerOptions } from "@remix-run/node/dist/upload/fileUploadHandler";
 
 export const action: ActionFunction = async ({ request }) => {
   if (request.method !== "POST") return json({}, 405);
   const userId = await requireUserId(request);
 
-  const filter = ({ mimetype }: { mimetype: string }) => {
-    return /image/i.test(mimetype);
+  const filter: FileUploadHandlerOptions["filter"] = ({ contentType }) => {
+    return /image/i.test(contentType);
   };
 
   const formData = await unstable_parseMultipartFormData(

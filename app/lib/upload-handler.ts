@@ -1,7 +1,12 @@
-import type { UploadHandler } from "@remix-run/node";
+import {
+  unstable_composeUploadHandlers,
+  unstable_createFileUploadHandler,
+  unstable_createMemoryUploadHandler,
+  writeAsyncIterableToWritable,
+} from "@remix-run/node";
 import { Storage } from "@google-cloud/storage";
-import type { FileUploadHandlerOptions } from "@remix-run/node/upload/fileUploadHandler";
-import { unstable_createFileUploadHandler } from "@remix-run/node";
+import type { FileUploadHandlerOptions } from "@remix-run/node/dist/upload/fileUploadHandler";
+import type { UploadHandler } from "@remix-run/node";
 import path from "path";
 import cuid from "cuid";
 
@@ -22,25 +27,41 @@ export default function uploadHandler({
   filter,
   urlPrefix,
   fieldName,
-}: UploadHandlerOptions) {
+}: UploadHandlerOptions): UploadHandler {
   const useGcs = !!process.env.USE_GCS_STORAGE;
 
-  if (useGcs)
-    return createCloudStorageUploadHandler({
+  let handler: UploadHandler;
+  if (useGcs) {
+    handler = createCloudStorageUploadHandler({
       namespace,
       filter,
       urlPrefix,
       fieldName,
     });
+  } else {
+    handler = async (params) => {
+      const { name } = params;
+      if (name !== fieldName) {
+        return undefined;
+      }
 
-  return async (...rest) => {
-    const handler = unstable_createFileUploadHandler({
-      filter,
-    });
-    const file = await handler(...rest);
-    if (file && file.name) return `${urlPrefix}/${file.name}`;
-    return file;
-  };
+      const fileHandler = unstable_createFileUploadHandler({
+        filter,
+        file: ({ filename }) => `${namespace}/${filename}`,
+      });
+      const file = await fileHandler(params);
+      if (file && file.name) return `${urlPrefix}/${namespace}/${file.name}`;
+      // if you dont return a non-false value (aka null or undefined) it will
+      // go to the next upload handler, which is in-memory, and return an object
+      // with params we dont want
+      return "";
+    };
+  }
+
+  return unstable_composeUploadHandlers(
+    handler,
+    unstable_createMemoryUploadHandler()
+  );
 }
 
 export type CloudStorageUploaderHandlerOptions = {
@@ -56,16 +77,18 @@ export function createCloudStorageUploadHandler({
   urlPrefix,
   filter,
 }: CloudStorageUploaderHandlerOptions): UploadHandler {
-  return async (data): Promise<string | undefined> => {
-    const { name, stream, filename } = data;
+  return async (params): Promise<string | undefined> => {
+    const { name, data, filename } = params;
     if (fieldName && name !== fieldName) {
-      stream.resume();
-      return;
+      return undefined;
     }
 
-    if (filter && !filter(data)) {
-      stream.resume();
-      return;
+    if (!filename) {
+      return undefined;
+    }
+
+    if (filter && !filter(params)) {
+      return undefined;
     }
 
     const bucketName = process.env.GCS_BUCKET_NAME as string;
@@ -80,12 +103,7 @@ export function createCloudStorageUploadHandler({
       .bucket(bucketName)
       .file(`${bucketPath}${newFilename}`);
 
-    await new Promise((resolve, reject) => {
-      stream
-        .pipe(file.createWriteStream())
-        .on("finish", resolve)
-        .on("error", reject);
-    });
+    await writeAsyncIterableToWritable(data, file.createWriteStream());
 
     return `${urlPrefix}/${newFilename}`;
   };

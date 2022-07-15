@@ -82,11 +82,11 @@ model Post {
 }
 
 model PostMeta {
-  id         String   @id @default(cuid())
-  post       Post     @relation(fields: [postId], references: [id])
-  postId     String
-  name       String
-  content    String
+  id      String @id @default(cuid())
+  post    Post   @relation(fields: [postId], references: [id])
+  postId  String
+  name    String
+  content String
 }
 
 model PostRevision {

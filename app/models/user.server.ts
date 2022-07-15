@@ -67,14 +67,14 @@ export async function upsertUser({
   externalId,
 }: {
   email: User["email"];
-  externalId: User["externalId"];
+  externalId: string;
 }) {
   return await prisma.user.upsert({
     where: {
-      email,
+      externalId,
     },
     update: {
-      externalId,
+      email,
     },
     create: {
       email,
