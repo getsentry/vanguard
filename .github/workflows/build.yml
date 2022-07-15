@@ -128,70 +128,71 @@ jobs:
   #         name: build
   #         path: build
 
-  gcp_build:
-    name: "🐳 Build"
-    # only on main
-    if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: 🛑 Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.9.1
+  # TODO(dcramer): we'd like to bring build visibility into GH, but its tricky to get right + secure secrets
+  # gcp_build:
+  #   name: "🐳 Build"
+  #   # only on main
+  #   if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: 🛑 Cancel Previous Runs
+  #       uses: styfle/cancel-workflow-action@0.9.1
 
-      - name: ⬇️ Checkout repo
-        uses: actions/checkout@v3
+  #     - name: ⬇️ Checkout repo
+  #       uses: actions/checkout@v3
 
-      - id: "auth"
-        uses: "google-github-actions/auth@v0"
-        with:
-          credentials_json: "${{ secrets.GCP_SA_KEY }}"
-        # with:
-        #   workload_identity_provider: "projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider"
-        #   service_account: "my-service-account@my-project.iam.gserviceaccount.com"
+  #     - id: "auth"
+  #       uses: "google-github-actions/auth@v0"
+  #       with:
+  #         credentials_json: "${{ secrets.GCP_SA_KEY }}"
+  #       # with:
+  #       #   workload_identity_provider: "projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider"
+  #       #   service_account: "my-service-account@my-project.iam.gserviceaccount.com"
 
-      # Setup gcloud CLI
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v0
-        with:
-          install_components: "beta"
+  #     # Setup gcloud CLI
+  #     - name: Set up Cloud SDK
+  #       uses: google-github-actions/setup-gcloud@v0
+  #       with:
+  #         install_components: "beta"
 
-      # Build and push image to Google Container Registry
-      - id: "build"
-        name: Trigger Cloud Build
-        run: |-
-          gcloud beta builds triggers run ${{ secrets.GCP_TRIGGER_ID }} --quiet
+  #     # Build and push image to Google Container Registry
+  #     - id: "build"
+  #       name: Trigger Cloud Build
+  #       run: |-
+  #         gcloud beta builds triggers run ${{ secrets.GCP_TRIGGER_ID }} --quiet
 
-  gcp_deploy:
-    name: Deploy
-    # only on main
-    if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}
-    runs-on: ubuntu-latest
-    needs: [gcp_build, vitest, lint]
+  # gcp_deploy:
+  #   name: Deploy
+  #   # only on main
+  #   if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}
+  #   runs-on: ubuntu-latest
+  #   needs: [gcp_build, vitest, lint]
 
-    permissions:
-      contents: "read"
-      id-token: "write"
+  #   permissions:
+  #     contents: "read"
+  #     id-token: "write"
 
-    steps:
-      - name: 🛑 Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.9.1
+  #   steps:
+  #     - name: 🛑 Cancel Previous Runs
+  #       uses: styfle/cancel-workflow-action@0.9.1
 
-      - name: ⬇️ Checkout repo
-        uses: actions/checkout@v3
+  #     - name: ⬇️ Checkout repo
+  #       uses: actions/checkout@v3
 
-      - id: "auth"
-        uses: "google-github-actions/auth@v0"
-        with:
-          credentials_json: "${{ secrets.GCP_SA_KEY }}"
-        # with:
-        #   workload_identity_provider: "projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider"
-        #   service_account: "my-service-account@my-project.iam.gserviceaccount.com"
+  #     - id: "auth"
+  #       uses: "google-github-actions/auth@v0"
+  #       with:
+  #         credentials_json: "${{ secrets.GCP_SA_KEY }}"
+  #       # with:
+  #       #   workload_identity_provider: "projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider"
+  #       #   service_account: "my-service-account@my-project.iam.gserviceaccount.com"
 
-      # Activate image on GCR
-      - id: "deploy"
-        uses: "google-github-actions/deploy-cloudrun@v0"
-        with:
-          service: "${{ env.GCP_SERVICE_NAME }}"
-          image: "us.gcr.io/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_SERVICE_NAME }}:${{ env.GITHUB_SHA }}"
+  #     # Activate image on GCR
+  #     - id: "deploy"
+  #       uses: "google-github-actions/deploy-cloudrun@v0"
+  #       with:
+  #         service: "${{ env.GCP_SERVICE_NAME }}"
+  #         image: "us.gcr.io/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_SERVICE_NAME }}:${{ env.GITHUB_SHA }}"
 
-      - name: "Use output"
-        run: 'curl "${{ steps.deploy.outputs.url }}"'
+  #     - name: "Use output"
+  #       run: 'curl "${{ steps.deploy.outputs.url }}"'
