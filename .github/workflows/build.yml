@@ -2,6 +2,8 @@ name: ci
 
 env:
   DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GCP_SERVICE_NAME: vanguard
 
 on:
   push:
@@ -96,32 +98,90 @@ jobs:
         with:
           report_paths: "**/junit.xml"
 
-  build:
+  # build:
+  #   name: 🐳 Build
+  #   # only on main
+  #   if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: 🛑 Cancel Previous Runs
+  #       uses: styfle/cancel-workflow-action@0.9.1
+
+  #     - name: ⬇️ Checkout repo
+  #       uses: actions/checkout@v3
+
+  #     - name: ⎔ Setup node
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 16
+
+  #     - name: 📥 Download deps
+  #       uses: bahmutov/npm-install@v1
+
+  #     - name: ⚡️ Build Remix
+  #       run: |
+  #         npm run build
+
+  #     - name: Archive Production Artifact
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: build
+  #         path: build
+
+  gcp_build:
     name: 🐳 Build
     # only on main
     if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}
-    runs-on: ubuntu-latest
+
+    permissions:
+      contents: "read"
+      id-token: "write"
+
     steps:
-      - name: 🛑 Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.9.1
-
-      - name: ⬇️ Checkout repo
-        uses: actions/checkout@v3
-
-      - name: ⎔ Setup node
-        uses: actions/setup-node@v3
+      - id: "auth"
+        uses: "google-github-actions/auth@v0"
         with:
-          node-version: 16
+          credentials_json: "${{ secrets.GCP_SA_KEY }}"
+        # with:
+        #   workload_identity_provider: "projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider"
+        #   service_account: "my-service-account@my-project.iam.gserviceaccount.com"
 
-      - name: 📥 Download deps
-        uses: bahmutov/npm-install@v1
+      # Setup gcloud CLI
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0
 
-      - name: ⚡️ Build Remix
-        run: |
-          npm run build
+      # Build and push image to Google Container Registry
+      - id: "build"
+        name: Build
+        run: |-
+          gcloud builds submit \
+            --quiet \
+            --tag "gcr.io/$GCP_PROJECT_ID/$GCP_SERVICE_NAME:$GITHUB_SHA"
 
-      - name: Archive Production Artifact
-        uses: actions/upload-artifact@v3
+  gcp_deploy:
+    name: Deploy
+    # only on main
+    if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}
+
+    permissions:
+      contents: "read"
+      id-token: "write"
+
+    steps:
+      - id: "auth"
+        uses: "google-github-actions/auth@v0"
         with:
-          name: build
-          path: build
+          credentials_json: "${{ secrets.GCP_SA_KEY }}"
+        # with:
+        #   workload_identity_provider: "projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider"
+        #   service_account: "my-service-account@my-project.iam.gserviceaccount.com"
+
+      # Activate image on GCR
+      - id: "deploy"
+        uses: "google-github-actions/deploy-cloudrun@v0"
+        with:
+          service: "$GCP_SERVICE_NAME"
+          image: "us.gcr.io/$GCP_PROJECT_ID/$GCP_SERVICE_NAME:$GITHUB_SHA"
+
+      - name: "Use output"
+        run: 'curl "${{ steps.deploy.outputs.url }}"'
