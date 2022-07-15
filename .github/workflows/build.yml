@@ -156,14 +156,14 @@ jobs:
         name: Build
         run: |-
           gcloud builds submit \
-            --quiet \
-            --tag "gcr.io/$GCP_PROJECT_ID/$GCP_SERVICE_NAME:$GITHUB_SHA"
+            --quiet
 
   gcp_deploy:
     name: Deploy
     # only on main
     if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}
     runs-on: ubuntu-latest
+    needs: [gcp_build, vitest, lint]
 
     permissions:
       contents: "read"
