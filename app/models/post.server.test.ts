@@ -163,7 +163,6 @@ describe("getPostList", () => {
 describe("getReactionsForPosts", () => {
   let author: User;
   let otherAuthor: User;
-  let admin: User;
   let category: Category;
   let post: Post;
   let otherUnpublishedPost: Post;
