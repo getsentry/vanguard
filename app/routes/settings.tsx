@@ -33,8 +33,8 @@ type ActionData = {
 export const action: ActionFunction = async ({ request }) => {
   const userId = await requireUserId(request);
 
-  const filter = ({ mimetype }: { mimetype: string }) => {
-    return /image/i.test(mimetype);
+  const filter = ({ contentType }: { contentType: string }) => {
+    return /image/i.test(contentType);
   };
 
   const formData = await unstable_parseMultipartFormData(

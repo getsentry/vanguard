@@ -93,7 +93,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   // probably a cleaner way to build this, but we're here for the duct tape
   const pathname = new URL(request.url).pathname;
-  if (!user!.name && pathname !== "/welcome") {
+  if (!user!.name && pathname.indexOf("/welcome") !== 0) {
     // send em to onboarding
     const redirectTo = new URL(request.url).pathname;
     const searchParams = new URLSearchParams([["redirectTo", redirectTo]]);
