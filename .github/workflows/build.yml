@@ -132,6 +132,7 @@ jobs:
     name: "🐳 Build"
     # only on main
     if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}
+    runs-on: ubuntu-latest
 
     permissions:
       contents: "read"
