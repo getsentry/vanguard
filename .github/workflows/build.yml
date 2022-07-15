@@ -133,11 +133,6 @@ jobs:
     # only on main
     if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: "read"
-      id-token: "write"
-
     steps:
       - name: 🛑 Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.9.1
@@ -159,10 +154,9 @@ jobs:
 
       # Build and push image to Google Container Registry
       - id: "build"
-        name: Build
+        name: Trigger Cloud Build
         run: |-
-          gcloud builds submit \
-            --quiet
+          gcloud builds submit triggers run ${{ secrets.GCP_TRIGGER_ID }}
 
   gcp_deploy:
     name: Deploy
