@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "sideEffects": false,
   "scripts": {
-    "build": "run-s build:* && sentry-upload-sourcemaps",
+    "build": "run-s build:* && SENTRY_ORG=sentry SENTRY_PROJECT=vanguard sentry-upload-sourcemaps",
     "build:css": "npm run generate:css -- --minify",
     "build:remix": "remix build --sourcemap",
     "build:server": "esbuild --platform=node --bundle --format=cjs ./server --outdir=build --sourcemap=external",
