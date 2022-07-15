@@ -158,7 +158,7 @@ jobs:
       - id: "build"
         name: Trigger Cloud Build
         run: |-
-          gcloud beta builds triggers run ${{ secrets.GCP_TRIGGER_ID }}
+          gcloud beta builds triggers run ${{ secrets.GCP_TRIGGER_ID }} --quiet
 
   gcp_deploy:
     name: Deploy
