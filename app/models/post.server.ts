@@ -304,7 +304,9 @@ export async function getReactionsForPosts({
 }: {
   userId: User["id"];
   postList: Post[];
-}) {
+}): Promise<{
+  [postId: string]: { emoji: string; total: number; user: boolean }[];
+}> {
   const postIds = postList.map((p) => p.id);
   const reactionCounts = await prisma.postReaction.groupBy({
     by: ["emoji", "postId"],
