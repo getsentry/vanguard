@@ -42,6 +42,7 @@ import PostList from "./components/post-list";
 import moment from "moment";
 
 import { withSentry, setUser, captureException } from "@sentry/remix";
+import LoadingIndicator from "./components/loading-indicator";
 
 export const links: LinksFunction = () => {
   return [
@@ -145,6 +146,7 @@ export function ErrorBoundary({ error }: any) {
       <ThemeProvider theme={lightTheme}>
         <GlobalStyles />
         <body>
+          <LoadingIndicator />
           <Primary>
             <Container>
               <Header />
@@ -293,7 +295,10 @@ const Fallback = () => (
         <Primary>
           <Container>
             <Header />
-            <h1>Something bad happened. Don't worry, we've sent the error to Sentry and we are on the case!</h1>
+            <h1>
+              Something bad happened. Don't worry, we've sent the error to
+              Sentry and we are on the case!
+            </h1>
           </Container>
         </Primary>
         <Scripts />
@@ -302,4 +307,6 @@ const Fallback = () => (
   </html>
 );
 
-export default withSentry(App, { errorBoundaryOptions: { fallback: <Fallback /> } });
+export default withSentry(App, {
+  errorBoundaryOptions: { fallback: <Fallback /> },
+});

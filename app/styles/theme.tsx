@@ -27,6 +27,7 @@ const lightTheme = {
   textMuted: colors.gray400,
   linkColor: colors.red,
   tabActiveColor: violet.violet11,
+  loadingIndicator: colors.purple,
   button: {
     defaultBackgroundColor: "transparent",
     defaultTextColor: colors.gray400,
@@ -55,6 +56,7 @@ const darkTheme = {
   textMuted: colors.gray400,
   linkColor: "#FF557C",
   tabActiveColor: colors.gray200,
+  loadingIndicator: colors.purple,
   button: {
     defaultBackgroundColor: "transparent",
     defaultTextColor: colors.gray400,
