@@ -36,12 +36,7 @@ const ButtonCluster = styled.div`
   }
 `;
 
-const DropdownTrigger = styled.button`
-  svg {
-    width: 100%;
-    height: 100%;
-  }
-`;
+const DropdownTrigger = styled.button``;
 
 export const ButtonDropdownItem = styled.button`
   all: unset;
