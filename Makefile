@@ -1,4 +1,4 @@
-PG_CONTAINER=docker exec -t vanguard_postgres_1
+PG_CONTAINER=docker exec -t vanguard-remix-postgres-1
 
 develop: install-requirements setup-git
 
