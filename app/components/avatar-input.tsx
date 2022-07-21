@@ -8,7 +8,8 @@ const UnstyledAvatarInput: React.FC<{
   error?: string;
   name: string;
   className?: string;
-}> = ({ className, initialValue, error, name }) => {
+  required?: boolean;
+}> = ({ className, initialValue, error, name, required }) => {
   const fileRef = useRef<HTMLInputElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
   const [isHover, setHover] = useState(false);
@@ -69,6 +70,7 @@ const UnstyledAvatarInput: React.FC<{
         accept="image/*"
         aria-invalid={error ? true : undefined}
         aria-errormessage={error ? "picture-error" : undefined}
+        required={required}
         onChange={(e) => {
           e.preventDefault();
           updatePreview();

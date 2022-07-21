@@ -130,6 +130,7 @@ export default function WelcomePage() {
             initialValue={user.picture}
             name="picture"
             error={errors?.picture}
+            required
           />
         </label>
       </div>
