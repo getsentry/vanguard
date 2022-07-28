@@ -44,7 +44,7 @@
     "@remix-run/node": "^1.6.5",
     "@remix-run/react": "^1.6.5",
     "@remix-run/server-runtime": "^1.6.5",
-    "@sentry/remix": "^7.7.0",
+    "@sentry/remix": "^7.8.0",
     "compression": "^1.7.4",
     "cross-env": "^7.0.3",
     "cuid": "^2.1.8",
