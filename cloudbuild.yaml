@@ -53,18 +53,16 @@ steps:
         npx prisma db seed
   - id: Deploy
     name: "gcr.io/google.com/cloudsdktool/cloud-sdk:slim"
-    args:
-      - run
-      - services
-      - update
-      - $_SERVICE_NAME
-      - "--platform=managed"
-      - "--image=${_IMAGE_NAME}:${COMMIT_SHA}"
-      - >-
-        --labels=managed-by=gcp-cloud-build-deploy-cloud-run,commit-sha=${COMMIT_SHA},gcb-build-id=$BUILD_ID,gcb-trigger-id=${_TRIGGER_ID},${_LABELS}
-      - "--region=${_DEPLOY_REGION}"
-      - "--quiet"
     entrypoint: gcloud
+    args:
+      - "run"
+      - "deploy"
+      - "$_SERVICE_NAME"
+      - "--image"
+      - "${_IMAGE_NAME}:${COMMIT_SHA}"
+      - "--region"
+      - "${_DEPLOY_REGION}"
+      - "--quiet"
 images:
   - "${_IMAGE_NAME}:${COMMIT_SHA}"
 options:
