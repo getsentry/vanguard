@@ -17,6 +17,9 @@ steps:
       - .
       - "-f"
       - Dockerfile
+    env:
+      - "SENTRY_ORG=${_SENTRY_ORG}"
+      - "SENTRY_PROJECT=${_SENTRY_PROJECT}"
   - id: Publish Container
     name: gcr.io/cloud-builders/docker
     args:
