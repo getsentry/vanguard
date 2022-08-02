@@ -10,7 +10,6 @@ function useProgress(): MutableRefObject<HTMLElement> {
   const { location } = useTransition();
 
   useEffect(() => {
-    console.log("here");
     if (!location || !el.current) {
       return;
     }

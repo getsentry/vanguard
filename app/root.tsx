@@ -146,7 +146,6 @@ export function ErrorBoundary({ error }: any) {
       <ThemeProvider theme={lightTheme}>
         <GlobalStyles />
         <body>
-          <LoadingIndicator />
           <Primary>
             <Container>
               <Header />
@@ -194,6 +193,7 @@ function App() {
       <ThemeProvider theme={theme === "light" ? lightTheme : darkTheme}>
         <GlobalStyles />
         <body className={showSidebar ? "showSidebar" : ""}>
+          <LoadingIndicator />
           <div>
             <Toaster />
           </div>
