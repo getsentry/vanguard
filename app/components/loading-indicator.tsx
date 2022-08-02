@@ -54,6 +54,7 @@ function useProgress(): MutableRefObject<HTMLElement> {
 }
 
 const Container = styled.div`
+  z-index: 2147483647;
   position: fixed;
   left: 0;
   right: 0;
