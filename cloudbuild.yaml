@@ -10,6 +10,10 @@ steps:
       - VERSION=${COMMIT_SHA}
       - "--build-arg"
       - SENTRY_AUTH_TOKEN=$_SENTRY_AUTH_TOKEN
+      - "--build-arg"
+      - SENTRY_ORG=$_SENTRY_ORG
+      - "--build-arg"
+      - SENTRY_PROJECT=$_SENTRY_PROJECT
       - "-t"
       - "${_IMAGE_NAME}:${COMMIT_SHA}"
       - "-t"
@@ -21,7 +25,7 @@ steps:
     name: gcr.io/cloud-builders/docker
     args:
       - push
-      - "$_IMAGE_NAME"
+      - "${_IMAGE_NAME}:${COMMIT_SHA}"
   - id: Build SQL Proxy
     name: "gcr.io/cloud-builders/docker"
     entrypoint: /bin/bash
@@ -53,18 +57,16 @@ steps:
         npx prisma db seed
   - id: Deploy
     name: "gcr.io/google.com/cloudsdktool/cloud-sdk:slim"
-    args:
-      - run
-      - services
-      - update
-      - $_SERVICE_NAME
-      - "--platform=managed"
-      - "--image=${_IMAGE_NAME}:${COMMIT_SHA}"
-      - >-
-        --labels=managed-by=gcp-cloud-build-deploy-cloud-run,commit-sha=${COMMIT_SHA},gcb-build-id=$BUILD_ID,gcb-trigger-id=${_TRIGGER_ID},${_LABELS}
-      - "--region=${_DEPLOY_REGION}"
-      - "--quiet"
     entrypoint: gcloud
+    args:
+      - "run"
+      - "deploy"
+      - "$_SERVICE_NAME"
+      - "--image"
+      - "${_IMAGE_NAME}:${COMMIT_SHA}"
+      - "--region"
+      - "${_DEPLOY_REGION}"
+      - "--quiet"
 images:
   - "${_IMAGE_NAME}:${COMMIT_SHA}"
 options:
