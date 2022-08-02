@@ -25,7 +25,7 @@ steps:
     name: gcr.io/cloud-builders/docker
     args:
       - push
-      - "$_IMAGE_NAME"
+      - "${_IMAGE_NAME}:${COMMIT_SHA}"
   - id: Build SQL Proxy
     name: "gcr.io/cloud-builders/docker"
     entrypoint: /bin/bash
