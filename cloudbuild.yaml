@@ -10,6 +10,10 @@ steps:
       - VERSION=${COMMIT_SHA}
       - "--build-arg"
       - SENTRY_AUTH_TOKEN=$_SENTRY_AUTH_TOKEN
+      - "--build-arg"
+      - SENTRY_ORG=$_SENTRY_ORG
+      - "--build-arg"
+      - SENTRY_PROJECT=$_SENTRY_PROJECT
       - "-t"
       - "${_IMAGE_NAME}:${COMMIT_SHA}"
       - "-t"
@@ -17,9 +21,6 @@ steps:
       - .
       - "-f"
       - Dockerfile
-    env:
-      - "SENTRY_ORG=${_SENTRY_ORG}"
-      - "SENTRY_PROJECT=${_SENTRY_PROJECT}"
   - id: Publish Container
     name: gcr.io/cloud-builders/docker
     args:
