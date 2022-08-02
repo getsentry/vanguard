@@ -126,6 +126,7 @@ export default function NewPostPage() {
             initialValue={user.picture}
             name="picture"
             error={errors?.picture}
+            required={!user.picture}
           />
         </label>
         {errors?.picture && (
