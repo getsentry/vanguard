@@ -83,12 +83,14 @@ export function createCloudStorageUploadHandler({
       return undefined;
     }
 
+    // if you dont return a non-false value (aka null or undefined) it will
+    // go to the next upload handler, which is in-memory, and return an object
+    // with params we dont want
     if (!filename) {
-      return undefined;
+      return "";
     }
-
     if (filter && !filter(params)) {
-      return undefined;
+      return "";
     }
 
     const bucketName = process.env.GCS_BUCKET_NAME as string;

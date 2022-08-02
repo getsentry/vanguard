@@ -22,6 +22,7 @@ export const action: ActionFunction = async ({ request }) => {
       urlPrefix: "/image-uploads",
     })
   );
+
   const imageUrl = formData.get("file");
 
   const width = 0;
