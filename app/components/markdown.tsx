@@ -1,5 +1,5 @@
 import { marked } from "marked";
-import DOMPurify from "isomorphic-dompurify";
+import { sanitize } from "isomorphic-dompurify";
 import prismjs from "prismjs";
 
 import "prism-sentry/index.css";
@@ -35,8 +35,13 @@ export default function Markdown({
   summarize: boolean;
 }) {
   const markdownContent = marked.parse(content, { breaks: true });
-  let html = DOMPurify.sanitize(
-    summarize ? markdownContent.split("</p>")[0] + "</p>" : markdownContent
+  const contentBlocks = sanitize(marked.parse(content, { breaks: true }), {
+    ALLOWED_TAGS: ["p", "blockquote", "#text"],
+    KEEP_CONTENT: false,
+  });
+
+  let html = sanitize(
+    summarize ? contentBlocks.split("</p>")[0] + "</p>" : markdownContent
   );
   return <div dangerouslySetInnerHTML={{ __html: html }} />;
 }
