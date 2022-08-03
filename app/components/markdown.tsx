@@ -35,13 +35,14 @@ export default function Markdown({
   summarize: boolean;
 }) {
   const markdownContent = marked.parse(content, { breaks: true });
-  const contentBlocks = sanitize(marked.parse(content, { breaks: true }), {
-    ALLOWED_TAGS: ["p", "blockquote", "#text"],
-    KEEP_CONTENT: false,
-  });
 
   let html = sanitize(
-    summarize ? contentBlocks.split("</p>")[0] + "</p>" : markdownContent
+    summarize
+      ? sanitize(marked.parse(content, { breaks: true }), {
+          ALLOWED_TAGS: ["p", "blockquote", "#text"],
+          KEEP_CONTENT: false,
+        }).split("</p>")[0] + "</p>"
+      : markdownContent
   );
   return <div dangerouslySetInnerHTML={{ __html: html }} />;
 }
