@@ -14,7 +14,7 @@ An excerpt in how we describe this at Sentry:
 
 It is built on top of [Remix](https://github.com/remix-run/remix), and intended to be deployed on private GCP infrastructure.
 
-**Note: This project is a work in progress, and is primarily intended for Sentry use. Our hope is that we can keep it generic enough that its usable elsewhere, but that may require effort from the opens ource community.**
+**Note: This project is a work in progress, and is primarily intended for Sentry use. Our hope is that we can keep it generic enough that its usable elsewhere, but that may require effort from the open source community.**
 
 ![screenshot of vanguard](/screenshot.png?raw=true)
 
