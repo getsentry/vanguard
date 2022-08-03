@@ -47,7 +47,10 @@ export const action: ActionFunction = async ({ request }) => {
     })
   );
   const name = formData.get("name");
-  const picture = formData.get("picture");
+  let picture: any = formData.get("picture");
+  // empty values get returned as empty strings, which will unset
+  // the picture rather than leave it unchanged
+  if (picture === "") picture = undefined;
 
   if (typeof name !== "string" || name.length === 0) {
     return json<ActionData>(
