@@ -29,6 +29,11 @@ export const notify = async (post: PostQueryType, config: SlackConfig) => {
   const { author, category } = post;
   console.log(`Sending Slack notification for post ${post.id}`);
 
+  if (!process.env.BASE_URL) {
+    error("BASE_URL is not configured");
+    return;
+  }
+
   const content = summarize(post.content);
 
   const res = await fetch(config.webhookUrl, {
