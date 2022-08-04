@@ -21,6 +21,12 @@ steps:
       - .
       - "-f"
       - Dockerfile
+    env:
+      - "SENTRY_DSN=${_SENTRY_DSN}"
+      - "SMTP_FROM=${_SMTP_FROM}"
+      - "SMTP_HOST=${_SMTP_HOST}"
+      - "SMTP_USER=${_SMTP_USER}"
+      - "SMTP_PASS=${_SMTP_PASS}"
   - id: Publish Container
     name: gcr.io/cloud-builders/docker
     args:
