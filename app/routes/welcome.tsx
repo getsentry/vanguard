@@ -44,14 +44,17 @@ export const action: ActionFunction = async ({ request }) => {
     })
   );
   const name = formData.get("name");
-  const picture = formData.get("picture");
-
   if (typeof name !== "string" || name.length === 0) {
     return json<ActionData>(
       { errors: { name: "Name is required" } },
       { status: 400 }
     );
   }
+
+  let picture: any = formData.get("picture");
+  // empty values get returned as empty strings, which will unset
+  // the picture rather than leave it unchanged
+  if (picture === "") picture = undefined;
 
   await updateUser({
     userId,
@@ -130,7 +133,6 @@ export default function WelcomePage() {
             initialValue={user.picture}
             name="picture"
             error={errors?.picture}
-            required
           />
         </label>
       </div>
