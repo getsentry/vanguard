@@ -1,0 +1,33 @@
+_metadata:
+  major_version: 1
+  minor_version: 1
+display_information:
+  name: Vanguard
+  description: Two-way conversations between Vanguard and Slack
+  background_color: "#0000AA"
+settings:
+  socket_mode_enabled: false
+  interactivity:
+    is_enabled: true
+    # request_url: https://example.com/slack/message_action
+  event_subscriptions:
+    bot_events:
+      - app_home_opened
+features:
+  # app_home:
+  #   home_tab_enabled: true
+  #   messages_tab_enabled: true
+  #   messages_tab_read_only_enabled: false
+  bot_user:
+    display_name: Vanguard
+  slash_commands:
+    - command: /vanguard
+      usage_hint: /vanguard subscribe shipped
+oauth_config:
+  scopes:
+    bot:
+      - commands
+      - chat:write
+      - chat:write.public
+  # redirect_urls:
+  #   - https://example.com/slack/auth

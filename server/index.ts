@@ -4,6 +4,7 @@ import compression from "compression";
 import morgan from "morgan";
 import { createRequestHandler } from "@remix-run/express";
 import { wrapExpressCreateRequestHandler } from "@sentry/remix";
+import { boltApp } from "~/lib/slack";
 
 function loadBuild() {
   return require(BUILD_DIR);
@@ -42,6 +43,10 @@ app.use(
 app.use(express.static("public", { maxAge: "1h" }));
 
 app.use(morgan("tiny"));
+
+// https://github.com/slackapi/bolt-js/issues/212#issuecomment-959396464
+console.log("Enabling Slack integration");
+app.use(`/slack`, boltApp.router);
 
 const MODE = process.env.NODE_ENV;
 const BUILD_DIR = path.join(process.cwd(), "build");
