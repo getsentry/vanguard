@@ -1,9 +1,71 @@
 import type { Category, Post, User } from "@prisma/client";
 import { prisma } from "~/db.server";
-import { getPostList, getReactionsForPosts } from "~/models/post.server";
+import {
+  getPost,
+  getPostList,
+  getReactionsForPosts,
+} from "~/models/post.server";
 
 const THUMBSUP = "👍";
 const HEART = "❤️";
+
+describe("getPost", () => {
+  let author: User;
+  let otherAuthor: User;
+  let admin: User;
+  let category: Category;
+  let post: Post;
+  let otherUnpublishedPost: Post;
+
+  beforeEach(async () => {
+    author = await prisma.user.create({
+      data: {
+        email: "foo@example.com",
+      },
+    });
+    otherAuthor = await prisma.user.create({
+      data: {
+        email: "bar@example.com",
+      },
+    });
+
+    category = await prisma.category.create({
+      data: {
+        name: "Foo Category",
+        slug: "foo-category",
+      },
+    });
+    post = await prisma.post.create({
+      data: {
+        title: "Test",
+        content: "**Content**",
+        deleted: false,
+        published: true,
+        authorId: author.id,
+        categoryId: category.id,
+      },
+    });
+    otherUnpublishedPost = await prisma.post.create({
+      data: {
+        title: "Foo",
+        content: "**Bar**",
+        published: false,
+        deleted: false,
+        authorId: otherAuthor.id,
+        categoryId: category.id,
+      },
+    });
+  });
+  describe("a normal user", () => {
+    test("can view a draft", async () => {
+      let result = await getPost({
+        userId: author.id,
+        id: otherUnpublishedPost.id,
+      });
+      expect(result?.id).toBe(otherUnpublishedPost.id);
+    });
+  });
+});
 
 describe("getPostList", () => {
   let author: User;

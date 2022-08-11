@@ -139,7 +139,7 @@ const PostList = styled.div`
 
 const PostCardTitle = styled.h2`
   font-family: "Gazpacho-Heavy", serif;
-`
+`;
 
 const PostCard = styled.div`
   background: ${(p) => p.theme.bgColor};

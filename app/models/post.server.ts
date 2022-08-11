@@ -61,20 +61,26 @@ export async function announcePost(post: PostQueryType) {
 export async function getPost({
   id,
   userId,
+  onlyPublished = false,
 }: Pick<Post, "id"> & {
   userId: User["id"];
+  onlyPublished?: boolean;
 }): Promise<PostQueryType | null> {
   const user = await prisma.user.findFirst({ where: { id: userId } });
   invariant(user, "user not found");
 
+  const where = onlyPublished
+    ? {
+        OR: [
+          { id, authorId: userId, deleted: false },
+          { id, published: true, deleted: false },
+          ...(user.admin ? [{ id }] : []),
+        ],
+      }
+    : { OR: [{ id, deleted: false }, ...(user.admin ? [{ id }] : [])] };
+
   return await prisma.post.findFirst({
-    where: {
-      OR: [
-        { id, authorId: userId, deleted: false },
-        { id, published: true, deleted: false },
-        ...(user.admin ? [{ id }] : []),
-      ],
-    },
+    where,
     include: {
       author: true,
       category: true,

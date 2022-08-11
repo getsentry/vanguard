@@ -12,11 +12,11 @@ Sentry.init({
   tracesSampleRate: 1.0,
   integrations: [
     new Sentry.BrowserTracing({
-        routingInstrumentation: Sentry.remixRouterInstrumentation(
-            useEffect,
-            useLocation,
-            useMatches,
-        ),
+      routingInstrumentation: Sentry.remixRouterInstrumentation(
+        useEffect,
+        useLocation,
+        useMatches
+      ),
     }),
   ],
 });
