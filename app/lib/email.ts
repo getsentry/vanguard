@@ -28,32 +28,40 @@ const createMailTransport = () => {
   });
 };
 
-export const notify = async (post: PostQueryType, config: EmailConfig) => {
+export const notify = async (
+  post: PostQueryType,
+  config: EmailConfig,
+  transport: Transporter<SMTPTransport.SentMessageInfo> = mailTransport
+) => {
   console.log(`Sending email notification for post ${post.id} to ${config.to}`);
-
-  if (!process.env.SMTP_FROM) {
-    error("SMTP_FROM is not configured");
-    return;
-  }
 
   if (!process.env.BASE_URL) {
     error("BASE_URL is not configured");
     return;
   }
 
-  if (!mailTransport) mailTransport = createMailTransport();
+  if (!process.env.SMTP_FROM) {
+    error("SMTP_FROM is not configured");
+    return;
+  }
+
+  if (!transport) {
+    transport = mailTransport = createMailTransport();
+  }
 
   const authorUrl = `${process.env.BASE_URL}/u/${post.author.email}`;
   const postUrl = `${process.env.BASE_URL}/p/${post.id}`;
   const html = marked.parse(post.content as string, { breaks: true });
+  const sender = `"${post.author.name}" <${post.author.email}>`;
 
   try {
-    await mailTransport.sendMail({
+    await transport.sendMail({
       from: `"Vanguard" <${process.env.SMTP_FROM}>`,
       to: config.to,
       subject: post.title,
       replyTo: config.to,
-      sender: `"${post.author.name}" <${post.author.email}>`,
+      cc: [sender],
+      sender,
       text: `View this post on Vanguard: ${postUrl}\n\n${post.content}`,
       html: `
       <div style="padding:5px;border:1px solid #ccc;margin-bottom:10px">
