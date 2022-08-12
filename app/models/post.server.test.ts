@@ -16,6 +16,7 @@ describe("getPost", () => {
   let category: Category;
   let post: Post;
   let otherUnpublishedPost: Post;
+  let deletedPost: Post;
 
   beforeEach(async () => {
     author = await prisma.user.create({
@@ -55,7 +56,37 @@ describe("getPost", () => {
         categoryId: category.id,
       },
     });
+    deletedPost = await prisma.post.create({
+      data: {
+        title: "Foo",
+        content: "**Bar**",
+        published: false,
+        deleted: true,
+        authorId: otherAuthor.id,
+        categoryId: category.id,
+      },
+    });
   });
+
+  describe("an admin user", () => {
+    beforeEach(async () => {
+      admin = await prisma.user.create({
+        data: {
+          email: "admin@example.com",
+          admin: true,
+        },
+      });
+    });
+
+    test("can view deleted posts", async () => {
+      let result = await getPost({
+        userId: admin.id,
+        id: deletedPost.id,
+      });
+      expect(result?.id).toBe(deletedPost.id);
+    });
+  });
+
   describe("a normal user", () => {
     test("can view a draft", async () => {
       let result = await getPost({
@@ -63,6 +94,23 @@ describe("getPost", () => {
         id: otherUnpublishedPost.id,
       });
       expect(result?.id).toBe(otherUnpublishedPost.id);
+    });
+
+    test("cannot view a draft with onlyPublished", async () => {
+      let result = await getPost({
+        userId: author.id,
+        id: otherUnpublishedPost.id,
+        onlyPublished: true,
+      });
+      expect(result).toBe(null);
+    });
+
+    test("cannot view deleted posts", async () => {
+      let result = await getPost({
+        userId: author.id,
+        id: deletedPost.id,
+      });
+      expect(result).toBe(null);
     });
   });
 });
