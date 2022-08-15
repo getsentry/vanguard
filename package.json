@@ -48,6 +48,7 @@
     "compression": "^1.7.4",
     "cross-env": "^7.0.3",
     "cuid": "^2.1.8",
+    "emoji-picker-react": "^3.6.1",
     "express": "^4.17.3",
     "isomorphic-dompurify": "^0.18.0",
     "jsonwebtoken": "^8.5.1",

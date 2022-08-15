@@ -8,8 +8,7 @@ import type { PostQueryType } from "~/models/post.server";
 import type { User } from "~/models/user.server";
 import { requireUser } from "~/session.server";
 import { default as PostTemplate } from "~/components/post";
-import Block from "~/components/block";
-import EmojiReaction from "~/components/emoji-reaction";
+import PostReactions from "~/components/post-reactions";
 
 type LoaderData = {
   post: PostQueryType;
@@ -31,44 +30,6 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   )[post.id];
 
   return json<LoaderData>({ post, user, reactions });
-};
-
-const PostReactions = ({
-  post,
-  reactions,
-}: {
-  post: PostQueryType;
-  reactions: any[];
-}) => {
-  // dont show reactions if unpublished
-  if (!post.published) return null;
-
-  const bakedIn = ["❤️", "👍", "🎉", "🤯", "🚀", "👀"];
-  const allEmoji = [
-    ...bakedIn,
-    ...reactions
-      .filter((r) => bakedIn.indexOf(r.emoji) === -1)
-      .map((r) => r.emoji),
-  ];
-
-  return (
-    <Block>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "5px" }}>
-        {allEmoji.map((emoji) => {
-          const reactionData = reactions.find((r) => r.emoji === emoji);
-          return (
-            <EmojiReaction
-              key={emoji}
-              postId={post.id}
-              count={reactionData?.total || 0}
-              emoji={emoji}
-              selected={reactionData?.user || false}
-            />
-          );
-        })}
-      </div>
-    </Block>
-  );
 };
 
 export default function PostDetailsPage() {
