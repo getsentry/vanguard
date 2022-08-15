@@ -1,63 +1,45 @@
-import { useState } from "react";
 import styled from "styled-components";
 
 const EmojiButton = styled.button`
-  background: ${(p) => (p.selected ? p.theme.borderColor : p.theme.bgColor)};
-  border: 1px solid ${(p) => p.theme.borderColor};
+  background: ${(p) => p.theme.bgColor};
+  border: 1px solid
+    ${(p) => (p.selected ? p.theme.linkColor : p.theme.borderColor)};
   border-radius: 4px;
   display: block;
-  font-family: "Inter", sans-serif;
   padding: 0.6rem 0.8rem;
   border-radius: 0.4rem;
   line-height: 1;
   display: inline-flex;
   align-items: center;
-  font-family: "IBM Plex Mono", monospace;
-  color: ${(p) => p.theme.textMuted};
+  font-family: "Lucida Sans Unicode", "Lucida Grande", "Arial Unicode MS",
+    sans-serif;
+  color: ${(p) => (p.selected ? p.theme.linkColor : p.theme.color)};
+
+  span {
+    font-size: "IBM Plex Mono", "monospace";
+  }
 
   &:hover {
     background: ${(p) => p.theme.borderColor};
+    border: 1px solid ${(p) => p.theme.borderFocusColor};
   }
 `;
 
 const EmojiReaction = ({
-  postId,
   count,
   emoji,
   selected,
+  onClick,
 }: {
-  postId: string;
-  count: number;
+  count?: number;
   emoji: string;
-  selected: boolean;
+  selected?: boolean;
+  onClick: Function;
 }) => {
-  const [currentCount, setCount] = useState(count);
-  const [currentSelected, setSelected] = useState(selected);
-
   return (
-    <EmojiButton
-      selected={currentSelected}
-      onClick={async () => {
-        const res = await fetch(`/api/posts/${postId}/reactions`, {
-          method: "POST",
-          body: JSON.stringify({
-            emoji,
-          }),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        if (res.status === 200) {
-          const data = await res.json();
-          setCount(currentCount + data.delta);
-          setSelected(data.delta > 0);
-        } else {
-          alert("Unable to save reaction");
-        }
-      }}
-    >
+    <EmojiButton selected={selected} onClick={onClick}>
       {emoji}
-      {currentCount ? ` ${currentCount}` : null}
+      <span>{count ? ` ${count}` : null}</span>
     </EmojiButton>
   );
 };
