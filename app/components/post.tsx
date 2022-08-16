@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { Form, Link } from "@remix-run/react";
 import moment from "moment";
 import styled from "styled-components";
 import breakpoint from "styled-components-breakpoint";
@@ -12,6 +12,8 @@ import type { PostQueryType } from "~/models/post.server";
 import Middot from "./middot";
 import DefinitionList from "./definition-list";
 import { Fragment } from "react";
+import ButtonDropdown, { ButtonDropdownItem } from "./button-dropdown";
+import HelpText from "./help-text";
 
 const PostWrapper = styled.article`
   position: relative;
@@ -81,6 +83,54 @@ const URL_REGEXP = new RegExp(
 
 const isUrl = (value: string) => value.match(URL_REGEXP);
 
+const DraftNoteForm = styled(Form)`
+  border-radius: 15rem;
+  padding: 1.6rem;
+  background: ${(p) => p.theme.alert.backgroundColor};
+  color: ${(p) => p.theme.alert.textColor};
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1.6rem;
+  gap: 1.6rem;
+
+  p {
+    font-size: 1.6rem;
+    margin: 0;
+  }
+
+  form {
+    margin: 0;
+  }
+`;
+
+const DraftNote = () => {
+  return (
+    <DraftNoteForm method="post">
+      <p>
+        This post has not been published, and is only visible if you have the
+        link.
+      </p>
+      <ButtonDropdown
+        type="submit"
+        mode="primary"
+        name="published"
+        value="announce"
+        label="Publish"
+      >
+        <ButtonDropdownItem type="submit" name="published" value="announce">
+          Publish
+        </ButtonDropdownItem>
+        <ButtonDropdownItem type="submit" name="published" value="true">
+          Publish Silently
+          <HelpText>Don't send announcements (if configured).</HelpText>
+        </ButtonDropdownItem>
+      </ButtonDropdown>
+    </DraftNoteForm>
+  );
+};
+
 export default function Post({
   post,
   summary = false,
@@ -131,11 +181,7 @@ export default function Post({
           </Meta>
         </Byline>
       </Credits>
-      {!post.published && (
-        <div className="py-6">
-          <strong>This post has not yet been published.</strong>
-        </div>
-      )}
+      {!post.published && <DraftNote post={post} />}
       <Content>
         <Markdown content={post.content || ""} summarize={summary} />
       </Content>
