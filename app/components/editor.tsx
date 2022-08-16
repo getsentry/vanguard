@@ -294,6 +294,7 @@ function Editor({ defaultValue }: { defaultValue?: string }) {
           </TextareaMarkdown.Wrapper>
         </Tabs.Content>
         <Tabs.Content value="preview">
+          <input type="hidden" name="content" value={value} />
           <Content>
             <Markdown content={value} />
           </Content>
