@@ -264,7 +264,7 @@ export default function PostForm({
               </Button>
             )
           ) : (
-            <Button type="submit" name="published" value="false">
+            <Button type="submit" mode="primary" name="published" value="false">
               Save Draft
             </Button>
           )}
