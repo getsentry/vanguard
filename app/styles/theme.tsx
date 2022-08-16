@@ -28,8 +28,12 @@ const lightTheme = {
   linkColor: colors.red,
   tabActiveColor: violet.violet11,
   loadingIndicator: colors.purple,
+  alert: {
+    backgroundColor: colors.purple,
+    textColor: colors.white,
+  },
   button: {
-    defaultBackgroundColor: "transparent",
+    defaultBackgroundColor: colors.white,
     defaultTextColor: colors.gray400,
     primaryBackgroundColor: colors.black,
     primaryTextColor: colors.white,
@@ -47,6 +51,8 @@ const lightTheme = {
 };
 
 const darkTheme = {
+  ...lightTheme,
+
   bgColor: colors.black,
   bgLayer100: "#221930",
   borderColor: colors.gray600,
@@ -58,7 +64,7 @@ const darkTheme = {
   tabActiveColor: colors.gray200,
   loadingIndicator: colors.purple,
   button: {
-    defaultBackgroundColor: "transparent",
+    defaultBackgroundColor: colors.black,
     defaultTextColor: colors.gray400,
     primaryBackgroundColor: colors.gray200,
     primaryTextColor: colors.black,

@@ -1,15 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { Form } from "@remix-run/react";
+import styled from "styled-components";
 
 import type { Category } from "../models/category.server";
 import Editor from "./editor";
 import useLocalStorage from "~/lib/useLocalStorage";
-import styled from "styled-components";
 import Button from "./button";
 import ButtonGroup from "./button-group";
 import ButtonDropdown, { ButtonDropdownItem } from "./button-dropdown";
 import FormActions from "./form-actions";
 import { categoryTagStyles } from "./category-tag";
+import HelpText from "./help-text";
 
 export type PostFormErrors = {
   title?: string;
@@ -26,11 +27,6 @@ export type PostFormInitialData = {
   announce?: boolean;
   meta?: { [name: string]: string };
 };
-
-const HelpText = styled.div`
-  font-size: 0.7em;
-  color: #999;
-`;
 
 const CategoryOptionLabel = styled.label`
   font-family: "IBM Flex Mono", monospace;
@@ -162,8 +158,6 @@ export default function PostForm({
 
   const selectedCategory = categoryList.find((c) => c.id === categoryId);
 
-  initialData.announce = !initialData?.published;
-
   return (
     <Form
       method="post"
@@ -250,7 +244,7 @@ export default function PostForm({
         <ButtonGroup>
           {initialData && initialData.published ? (
             canUnpublish && initialData.published ? (
-              <ButtonDropdown type="submit" mode="primary" label="Save">
+              <ButtonDropdown type="submit" mode="primary" label="Save Changes">
                 <ButtonDropdownItem
                   type="submit"
                   name="published"
@@ -266,35 +260,12 @@ export default function PostForm({
               </ButtonDropdown>
             ) : (
               <Button type="submit" mode="primary">
-                Save
+                Save Changes
               </Button>
             )
-          ) : canAnnounce ? (
-            <>
-              <ButtonDropdown
-                type="submit"
-                mode="primary"
-                name="published"
-                value="announce"
-                label="Publish"
-              >
-                <ButtonDropdownItem
-                  type="submit"
-                  name="published"
-                  value="announce"
-                >
-                  Publish
-                </ButtonDropdownItem>
-                <ButtonDropdownItem type="submit" name="published" value="true">
-                  Publish Silently
-                  <HelpText>Don't send announcements (if configured).</HelpText>
-                </ButtonDropdownItem>
-              </ButtonDropdown>
-              <Button type="submit">Save Draft</Button>
-            </>
           ) : (
-            <Button type="submit" name="published" value="true">
-              Publish
+            <Button type="submit" name="published" value="false">
+              Save Draft
             </Button>
           )}
           {canDelete && (
