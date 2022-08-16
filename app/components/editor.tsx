@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import type { ClipboardEvent, DragEvent, ChangeEvent } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import TextareaMarkdown, { Cursor } from "textarea-markdown-editor";
@@ -171,6 +171,11 @@ const EditorWrapper = styled.div`
 
 function Editor({ defaultValue }: { defaultValue?: string }) {
   const [value, setValue] = useState(defaultValue || "");
+
+  useEffect(() => {
+    setValue(defaultValue || "");
+  }, [defaultValue]);
+
   const ref = useRef<TextareaMarkdownRef>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
