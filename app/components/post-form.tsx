@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Form } from "@remix-run/react";
 
 import type { Category } from "../models/category.server";
@@ -69,6 +69,10 @@ const CategorySelector = ({
   onChange: (e: any, value: string) => void;
 }) => {
   const [categoryId, setCategoryId] = useState(defaultValue);
+
+  useEffect(() => {
+    setCategoryId(defaultValue);
+  }, [defaultValue]);
 
   return (
     <>
