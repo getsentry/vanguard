@@ -353,6 +353,36 @@ export async function getReactionsForPosts({
   return results;
 }
 
+export async function countReactionsForPosts({
+  userId,
+  postList,
+}: {
+  userId: User["id"];
+  postList: Post[];
+}): Promise<{
+  [postId: string]: number;
+}> {
+  const postIds = postList.map((p) => p.id);
+  const reactionCounts = await prisma.postReaction.groupBy({
+    by: ["postId"],
+    where: {
+      postId: { in: postIds },
+    },
+    _count: {
+      postId: true,
+    },
+  });
+
+  const results: {
+    [postId: string]: number;
+  } = {};
+  postIds.forEach((pId) => (results[pId] = 0));
+  reactionCounts.forEach((row) => {
+    results[row.postId] = row._count.postId;
+  });
+  return results;
+}
+
 export async function togglePostReaction({
   postId,
   userId,

@@ -3,7 +3,7 @@ import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
 import { requireUserId } from "~/session.server";
-import { getPostList } from "~/models/post.server";
+import { countReactionsForPosts, getPostList } from "~/models/post.server";
 import Post from "~/components/post";
 import { paginate } from "~/lib/paginator";
 import Paginated from "~/components/paginated";
@@ -11,6 +11,7 @@ import WelcomeBanner from "~/components/welcome-banner";
 
 type LoaderData = {
   postListPaginated: any;
+  reactionCounts: any[];
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -22,11 +23,15 @@ export const loader: LoaderFunction = async ({ request }) => {
     { userId, published: true },
     cursor
   );
-  return json<LoaderData>({ postListPaginated });
+  const reactionCounts = await countReactionsForPosts({
+    userId,
+    postList: postListPaginated.result,
+  });
+  return json<LoaderData>({ postListPaginated, reactionCounts });
 };
 
 export default function Index() {
-  const { postListPaginated } = useLoaderData() as LoaderData;
+  const { postListPaginated, reactionCounts } = useLoaderData() as LoaderData;
 
   return (
     <>
@@ -37,7 +42,14 @@ export default function Index() {
           return result.length === 0 ? (
             <p>No posts yet</p>
           ) : (
-            result.map((post) => <Post post={post} key={post.id} summary />)
+            result.map((post) => (
+              <Post
+                post={post}
+                key={post.id}
+                totalReactions={reactionCounts[post.id]}
+                summary
+              />
+            ))
           );
         }}
       />
