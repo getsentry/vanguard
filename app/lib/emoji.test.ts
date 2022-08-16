@@ -7,13 +7,15 @@ const EMOJI = ["🦰", "🌼", "🌺", "🌸"];
 describe("isEmoji", () => {
   test("disqualifies non-emoji", async () => {
     NOT_EMOJI.forEach((item) => {
-      expect(isEmoji(item), `testing ${item}`).toBe(false);
+      console.log(`testing ${item}`);
+      expect(isEmoji(item)).toBe(false);
     });
   });
 
   test("qualifies emoji", async () => {
     EMOJI.forEach((item) => {
-      expect(isEmoji(item), `testing ${item}`).toBe(true);
+      console.log(`testing ${item}`);
+      expect(isEmoji(item)).toBe(true);
     });
   });
 });
