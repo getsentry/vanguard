@@ -90,7 +90,7 @@ jobs:
         run: npm run setup
 
       - name: ⚡ Run vitest
-        run: npm run test -- --coverage --reporter=junit --outputFile=junit.xml --reporter=default
+        run: npm run test:ci
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v3

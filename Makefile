@@ -1,6 +1,6 @@
-PG_CONTAINER=docker exec -t vanguard-remix-postgres-1
+PG_CONTAINER=docker exec -t vanguard_postgres_1
 
-develop: install-requirements setup-git
+develop: install-requirements setup-git create-db migrate-db
 
 upgrade: install-requirements migrate-db
 
@@ -21,13 +21,15 @@ reset-db:
 	$(MAKE) migrate-db
 
 drop-db:
-	$(PG_CONTAINER) dropdb --if-exists -h 127.0.0.1 -p 5432 -U postgres postgres
+	$(PG_CONTAINER) dropdb --if-exists -h 127.0.0.1 -p 5432 -U postgres vanguard
+	$(PG_CONTAINER) dropdb --if-exists -h 127.0.0.1 -p 5432 -U postgres test_vanguard
 
 create-db:
-	$(PG_CONTAINER) createdb -E utf-8 -h 127.0.0.1 -p 5432 -U postgres postgres
+	$(PG_CONTAINER) createdb -E utf-8 -h 127.0.0.1 -p 5432 -U postgres vanguard
+	$(PG_CONTAINER) createdb -E utf-8 -h 127.0.0.1 -p 5432 -U postgres test_vanguard
 
 migrate-db:
-	npx prisma migrate dev
+	npm run db:migrate
 
 build-docker-image:
 	docker build -t vanguard .
