@@ -1,8 +1,7 @@
 import { isEmoji } from "./emoji";
 
 const NOT_EMOJI = ["a", "0", "hello", "world", "abc", "0123"];
-
-const EMOJI = ["🦰", "🌼", "🌺", "🌸"];
+const EMOJI = ["🦰", "🌼", "🌺", "🌸", "🇨🇦"];
 
 describe("isEmoji", () => {
   test("disqualifies non-emoji", async () => {
