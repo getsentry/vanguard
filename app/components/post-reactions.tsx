@@ -3,7 +3,7 @@ import styled from "styled-components";
 import type { PostQueryType } from "~/models/post.server";
 import Block from "~/components/block";
 import EmojiReaction from "~/components/emoji-reaction";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Picker from "~/components/emoji-picker";
 
 const toggleReaction = async (
@@ -49,10 +49,11 @@ export default ({
   // dont show reactions if unpublished
   if (!post.published) return null;
 
+  const [pickerVisible, setPickerVisible] = useState(false);
+
   const defaults = ["❤️", "🎉", "🚀"].filter(
     (d) => !reactions.find((r) => r.emoji === d)
   );
-
   const initialEmojiList = [
     ...defaults.map((d) => ({ selected: false, count: 0, value: d })),
     ...reactions.map((r) => ({
@@ -62,10 +63,25 @@ export default ({
     })),
   ];
   initialEmojiList.sort((a, b) => b.count - a.count);
-
   const [emojiList, setEmojiList] = useState(initialEmojiList);
 
-  const [pickerVisible, setPickerVisible] = useState(false);
+  useEffect(() => {
+    const defaults = ["❤️", "🎉", "🚀"].filter(
+      (d) => !reactions.find((r) => r.emoji === d)
+    );
+    const initialEmojiList = [
+      ...defaults.map((d) => ({ selected: false, count: 0, value: d })),
+      ...reactions.map((r) => ({
+        selected: !!r.user,
+        count: r.total,
+        value: r.emoji,
+      })),
+    ];
+
+    initialEmojiList.sort((a, b) => b.count - a.count);
+
+    setEmojiList(initialEmojiList);
+  }, [reactions]);
 
   const onEmojiClick = async (_event: any, value: string) => {
     const delta = await toggleReaction(post.id, value);
