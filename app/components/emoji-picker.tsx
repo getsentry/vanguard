@@ -20,7 +20,7 @@ export default ({
   onEmojiSelect: (event: Event, emoji: string) => void;
   style?: any;
 }) => {
-  const [Component, setComponent] = useState<React.ElementType | null>(null);
+  const [Component, setComponent] = useState<React.ReactNode | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
