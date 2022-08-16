@@ -1,10 +1,16 @@
 import styled from "styled-components";
 
 const EmojiButton = styled.button`
-  background: ${(p) => p.theme.bgColor};
-  border: 1px solid
-    ${(p) => (p.selected ? p.theme.linkColor : p.theme.borderColor)};
-  border-radius: 4px;
+  background: ${(p) =>
+    p.selected
+      ? p.theme.emoji.selectedBackgroundColor
+      : p.theme.emoji.defaultBackgroundColor};
+  color: ${(p) =>
+    p.selected
+      ? p.theme.emoji.selectedTextColor
+      : p.theme.emoji.defaultTextColor};
+
+  border-radius: 3rem;
   display: block;
   padding: 0.6rem 0.8rem;
   border-radius: 0.4rem;
@@ -13,15 +19,14 @@ const EmojiButton = styled.button`
   align-items: center;
   font-family: "Lucida Sans Unicode", "Lucida Grande", "Arial Unicode MS",
     sans-serif;
-  color: ${(p) => (p.selected ? p.theme.linkColor : p.theme.color)};
 
   span {
     font-size: "IBM Plex Mono", "monospace";
   }
 
   &:hover {
-    background: ${(p) => p.theme.borderColor};
-    border: 1px solid ${(p) => p.theme.borderFocusColor};
+    background: ${(p) => p.theme.emoji.highlightBackgroundColor};
+    color: ${(p) => p.theme.emoji.highlightTextColor};
   }
 `;
 

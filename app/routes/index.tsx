@@ -3,7 +3,7 @@ import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
 import { requireUserId } from "~/session.server";
-import { countReactionsForPosts, getPostList } from "~/models/post.server";
+import { getPostList, getReactionsForPosts } from "~/models/post.server";
 import Post from "~/components/post";
 import { paginate } from "~/lib/paginator";
 import Paginated from "~/components/paginated";
@@ -12,15 +12,13 @@ import ClusteredPostList from "~/components/clustered-post-list";
 
 type LoaderData = {
   postListPaginated: any;
-  reactionCounts: any[];
+  reactions: any[];
 };
 
 // TODO: make configurable
 const clusteredCategories = ["shipped"];
 
-const FragmentedPostList = ({ posts, reactionCounts }) => {
-  const output: React.ReactNode[] = [];
-
+const FragmentedPostList = ({ posts, reactions }) => {
   let clusters: React.ReactNode[] = [];
   let remainingPosts: any[] = [];
 
@@ -36,7 +34,7 @@ const FragmentedPostList = ({ posts, reactionCounts }) => {
         <ClusteredPostList
           category={buffer[0].category}
           posts={buffer}
-          reactionCounts={reactionCounts}
+          reactions={reactions}
           key={buffer[0].id}
         />
       );
@@ -48,7 +46,7 @@ const FragmentedPostList = ({ posts, reactionCounts }) => {
         <Post
           post={post}
           key={post.id}
-          totalReactions={reactionCounts[post.id]}
+          reactions={reactions[post.id]}
           summary
         />
       );
@@ -64,7 +62,7 @@ const FragmentedPostList = ({ posts, reactionCounts }) => {
       <ClusteredPostList
         category={buffer[0].category}
         posts={buffer}
-        reactionCounts={reactionCounts}
+        reactions={reactions}
         key={buffer[0].id}
       />
     );
@@ -95,15 +93,16 @@ export const loader: LoaderFunction = async ({ request }) => {
     cursor
   );
 
-  const reactionCounts = await countReactionsForPosts({
+  const reactions = await getReactionsForPosts({
     userId,
     postList: postListPaginated.result,
   });
-  return json<LoaderData>({ postListPaginated, reactionCounts });
+
+  return json<LoaderData>({ postListPaginated, reactions });
 };
 
 export default function Index() {
-  const { postListPaginated, reactionCounts } = useLoaderData() as LoaderData;
+  const { postListPaginated, reactions } = useLoaderData() as LoaderData;
 
   return (
     <>
@@ -114,10 +113,7 @@ export default function Index() {
           return result.length === 0 ? (
             <p>No posts yet.</p>
           ) : (
-            <FragmentedPostList
-              posts={result}
-              reactionCounts={reactionCounts}
-            />
+            <FragmentedPostList posts={result} reactions={reactions} />
           );
         }}
       />

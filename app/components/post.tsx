@@ -67,9 +67,10 @@ const Meta = styled.div`
   color: ${(p) => p.theme.textColorSecondary};
   flex-direction: row;
   display: flex;
+  flex-grow: 1;
 `;
 
-const ReactionCount = styled.div``;
+const Reactions = styled.div``;
 
 const Date = styled.div``;
 
@@ -85,12 +86,12 @@ export default function Post({
   post,
   summary = false,
   canEdit = false,
-  totalReactions,
+  reactions,
 }: {
   post: PostQueryType;
   summary?: boolean;
   canEdit?: boolean;
-  totalReactions?: number;
+  reactions?: any[];
 }) {
   return (
     <PostWrapper>
@@ -114,19 +115,18 @@ export default function Post({
                 </ReadingTime>
               </>
             )}
-            {totalReactions > 0 && (
-              <>
-                <Middot />
-                <ReactionCount>
-                  {totalReactions.toLocaleString()} ♡'s
-                </ReactionCount>
-              </>
-            )}
             {canEdit && (
               <>
                 <Middot />
                 <Link to={`/p/${post!.id}/edit`}>Edit</Link>
               </>
+            )}
+            {summary && (
+              <Reactions>
+                {reactions?.map((r) => (
+                  <span key={r.emoji}>{r.emoji}</span>
+                ))}
+              </Reactions>
             )}
           </Meta>
         </Byline>

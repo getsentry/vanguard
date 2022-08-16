@@ -24,13 +24,12 @@ const Meta = styled.div`
   color: ${(p) => p.theme.textColorSecondary};
   flex-direction: row;
   display: flex;
+  flex-grow: 1;
 `;
-
-const ReactionCount = styled.div``;
 
 const Date = styled.div``;
 
-const ReadingTime = styled.div``;
+const Reactions = styled.div``;
 
 const ClusterWrapper = styled.article`
   position: relative;
@@ -68,13 +67,13 @@ const ClusterWrapper = styled.article`
   }
 `;
 
-export default ({ category, posts, reactionCounts }) => {
+export default ({ category, posts, reactions }) => {
   return (
     <ClusterWrapper category={category}>
       <CategoryTag category={category} />
       <ul>
         {posts.map((post) => {
-          const totalReactions = reactionCounts[post.id];
+          const postReactions = reactions[post.id];
           return (
             <li key={post.id}>
               <h3>
@@ -91,15 +90,12 @@ export default ({ category, posts, reactionCounts }) => {
                   <Date>
                     {moment(post.publishedAt || post.createdAt).fromNow()}
                   </Date>
-                  {totalReactions > 0 && (
-                    <>
-                      <Middot />
-                      <ReactionCount>
-                        {totalReactions.toLocaleString()} ♡'s
-                      </ReactionCount>
-                    </>
-                  )}
                 </Meta>
+                <Reactions>
+                  {postReactions.map((r) => (
+                    <span key={r.emoji}>{r.emoji}</span>
+                  ))}
+                </Reactions>
               </Byline>
             </li>
           );
