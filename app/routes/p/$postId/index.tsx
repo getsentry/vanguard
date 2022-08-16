@@ -39,7 +39,7 @@ export default function PostDetailsPage() {
 
   return (
     <div>
-      <PostTemplate post={post} canEdit={canEdit} />
+      <PostTemplate post={post} canEdit={canEdit} reactions={reactions} />
       <PostReactions post={post} reactions={reactions} />
     </div>
   );

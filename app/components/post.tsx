@@ -67,10 +67,12 @@ const Meta = styled.div`
   color: ${(p) => p.theme.textColorSecondary};
   flex-direction: row;
   display: flex;
-  flex-grow: 1;
 `;
 
-const Reactions = styled.div``;
+const Reactions = styled.div`
+  flex-grow: 1;
+  text-align: right;
+`;
 
 const Date = styled.div``;
 
@@ -93,6 +95,9 @@ export default function Post({
   canEdit?: boolean;
   reactions?: any[];
 }) {
+  const totalReactions =
+    reactions?.reduce((value, r) => value + r.total, 0) || 0;
+
   return (
     <PostWrapper>
       <CategoryTag category={post.category} />
@@ -107,6 +112,15 @@ export default function Post({
           </Name>
           <Meta>
             <Date>{moment(post.publishedAt || post.createdAt).fromNow()}</Date>
+            {summary && (
+              <>
+                <Middot />
+                <div>
+                  {totalReactions.toLocaleString()} reaction
+                  {totalReactions !== 1 && "s"}
+                </div>
+              </>
+            )}
             {!summary && (
               <>
                 <Middot />

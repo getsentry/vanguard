@@ -74,6 +74,10 @@ export default ({ category, posts, reactions }) => {
       <ul>
         {posts.map((post) => {
           const postReactions = reactions[post.id];
+          const totalReactions = postReactions.reduce(
+            (value, r) => value + r.total,
+            0
+          );
           return (
             <li key={post.id}>
               <h3>
@@ -90,6 +94,11 @@ export default ({ category, posts, reactions }) => {
                   <Date>
                     {moment(post.publishedAt || post.createdAt).fromNow()}
                   </Date>
+                  <Middot />
+                  <div>
+                    {totalReactions.toLocaleString()} reaction
+                    {totalReactions !== 1 && "s"}
+                  </div>
                 </Meta>
                 <Reactions>
                   {postReactions.map((r) => (
