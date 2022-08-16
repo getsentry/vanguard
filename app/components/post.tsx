@@ -69,6 +69,8 @@ const Meta = styled.div`
   display: flex;
 `;
 
+const ReactionCount = styled.div``;
+
 const Date = styled.div``;
 
 const ReadingTime = styled.div``;
@@ -83,10 +85,12 @@ export default function Post({
   post,
   summary = false,
   canEdit = false,
+  totalReactions,
 }: {
   post: PostQueryType;
   summary?: boolean;
   canEdit?: boolean;
+  totalReactions?: number;
 }) {
   return (
     <PostWrapper>
@@ -108,6 +112,14 @@ export default function Post({
                 <ReadingTime>
                   {readingTime(post.content || "", false)} read
                 </ReadingTime>
+              </>
+            )}
+            {totalReactions > 0 && (
+              <>
+                <Middot />
+                <ReactionCount>
+                  {totalReactions.toLocaleString()} ♡'s
+                </ReactionCount>
               </>
             )}
             {canEdit && (

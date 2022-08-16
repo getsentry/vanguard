@@ -49,7 +49,7 @@ export default ({
   // dont show reactions if unpublished
   if (!post.published) return null;
 
-  const defaults = ["❤️", "👍", "🎉", "🤯", "🚀", "👀"].filter(
+  const defaults = ["❤️", "🎉", "🚀"].filter(
     (d) => !reactions.find((r) => r.emoji === d)
   );
 
