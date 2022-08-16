@@ -23,15 +23,13 @@ It is built on top of [Remix](https://github.com/remix-run/remix), and intended 
 - Start the Postgres Database in [Docker](https://www.docker.com/get-started):
 
   ```sh
-  npm run docker
+  docker-compose up -d
   ```
-
-  > **Note:** The npm script will complete while Docker sets up the container in the background. Ensure that Docker has finished and your container is running before proceeding.
 
 - Initial setup:
 
   ```sh
-  npm run setup
+  make
   ```
 
 - Run the first build:

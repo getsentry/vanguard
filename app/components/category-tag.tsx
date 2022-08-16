@@ -5,19 +5,22 @@ import type { Category } from "~/models/category.server";
 import IconShip from "~/icons/IconShip";
 import IconEye from "~/icons/IconEye";
 
+const CategoryIcon = ({ category, ...props }: { category: Category }) => {
+  switch (category.slug) {
+    case "shipped":
+      return <IconShip {...props} />;
+    case "strategy":
+      return <IconEye {...props} />;
+    default:
+      return null;
+  }
+};
+
 export const CategoryTag = ({ category }: { category: Category }) => {
   return (
     <CategoryTagWrapper to={`/c/${category.slug}`} colorHex={category.colorHex}>
-      {category.slug === "shipped" && (
-        <>
-          <IconShip height={20} /> <span>{category.slug}</span>
-        </>
-      )}
-      {category.slug === "strategy" && (
-        <>
-          <IconEye height={20} /> <span>{category.slug}</span>
-        </>
-      )}
+      <CategoryIcon category={category} height={20} />
+      <span>{category.slug}</span>
     </CategoryTagWrapper>
   );
 };

@@ -1,14 +1,20 @@
-import type { LoaderFunction } from "@remix-run/node";
+import { ActionFunction, LoaderFunction, redirect } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 
-import { getPost, getReactionsForPosts } from "~/models/post.server";
+import {
+  announcePost,
+  getPost,
+  getReactionsForPosts,
+  updatePost,
+} from "~/models/post.server";
 import type { PostQueryType } from "~/models/post.server";
 import type { User } from "~/models/user.server";
-import { requireUser } from "~/session.server";
+import { requireUser, requireUserId } from "~/session.server";
 import { default as PostTemplate } from "~/components/post";
 import PostReactions from "~/components/post-reactions";
+import { getPostLink } from "~/components/post-link";
 
 type LoaderData = {
   post: PostQueryType;
@@ -30,6 +36,31 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   )[post.id];
 
   return json<LoaderData>({ post, user, reactions });
+};
+
+export const action: ActionFunction = async ({ request, params }) => {
+  const userId = await requireUserId(request);
+  invariant(params.postId, "postId not found");
+
+  const formData = await request.formData();
+  const published =
+    formData.get("published") === null
+      ? undefined
+      : formData.get("published") === "true" ||
+        formData.get("published") === "announce";
+
+  const announce = published && formData.get("published") === "announce";
+  const post = await updatePost({
+    id: params.postId,
+    userId,
+    published,
+  });
+
+  if (!post.deleted && announce) {
+    announcePost(post);
+  }
+
+  return redirect(getPostLink(post));
 };
 
 export default function PostDetailsPage() {

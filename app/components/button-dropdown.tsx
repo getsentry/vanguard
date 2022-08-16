@@ -7,7 +7,8 @@ import { ChevronDownIcon } from "@radix-ui/react-icons";
 
 const DropdownContent = styled.div`
   white-space: nowrap;
-  background-color: white;
+  color: ${(p) => p.theme.button.defaultTextColor};
+  background-color: ${(p) => p.theme.button.defaultBackgroundColor};
   box-shadow: 0px 10px 38px -10px rgba(22, 23, 24, 0.35),
     0px 10px 20px -15px rgba(22, 23, 24, 0.2);
   border-radius: 4px;
@@ -48,6 +49,9 @@ export const ButtonDropdownItem = styled.button`
   cursor: pointer;
   border-radius: 4px;
 
+  color: ${(p) => p.theme.button.defaultTextColor};
+  background-color: ${(p) => p.theme.button.defaultBackgroundColor};
+
   &:first-child {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
@@ -60,8 +64,8 @@ export const ButtonDropdownItem = styled.button`
 
   &:focus,
   &:hover {
-    color: #fff;
-    background-color: #000;
+    color: ${(p) => p.theme.button.primaryTextColor};
+    background-color: ${(p) => p.theme.button.primaryBackgroundColor};
   }
 `;
 

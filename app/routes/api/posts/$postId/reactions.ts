@@ -1,19 +1,15 @@
 import type { ActionFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
+import invariant from "tiny-invariant";
 
 import { togglePostReaction } from "~/models/post.server";
 import { requireUserId } from "~/session.server";
-import invariant from "tiny-invariant";
+import { isEmoji } from "~/lib/emoji";
 
 type ActionData = {
   errors?: {
     emoji?: string;
   };
-};
-
-const isEmoji = (value: string): boolean => {
-  const pattern = /\p{Extended_Pictographic}/gu;
-  return value.match(pattern)?.length === 1;
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
