@@ -39,8 +39,8 @@ export default function PostDetailsPage() {
 
   return (
     <div>
-      <PostTemplate post={post} canEdit={canEdit} />
-      <PostReactions post={post} reactions={reactions} />
+      <PostTemplate key={post.id} post={post} canEdit={canEdit} />
+      <PostReactions key={post.id} post={post} reactions={reactions} />
     </div>
   );
 }

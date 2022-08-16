@@ -2,8 +2,6 @@ import { marked } from "marked";
 import { sanitize } from "isomorphic-dompurify";
 import prismjs from "prismjs";
 
-import "prism-sentry/index.css";
-
 const renderer = new marked.Renderer();
 
 renderer.code = function (code, lang, escaped) {
@@ -18,7 +16,7 @@ renderer.code = function (code, lang, escaped) {
 
 marked.setOptions({
   renderer,
-  highlight: function (code, lang) {
+  highlight: (code, lang) => {
     if (prismjs.languages[lang]) {
       return prismjs.highlight(code, prismjs.languages[lang], lang);
     } else {
