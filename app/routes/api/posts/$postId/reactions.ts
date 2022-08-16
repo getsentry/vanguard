@@ -20,9 +20,9 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (request.method !== "POST") {
     return json({ message: "Method not allowed" }, 405);
   }
+  invariant(params.postId, "postId not found");
 
   const userId = await requireUserId(request);
-  invariant(params.postId, "postId not found");
 
   const { emoji } = await request.json();
 

@@ -346,6 +346,7 @@ describe("getReactionsForPosts", () => {
     expect(result[post.id]).toBeDefined();
     expect(result[otherUnpublishedPost.id]).toBeUndefined();
     expect(result[post.id].length).toBe(2);
+    result[post.id].sort((a, b) => b.total - a.total);
     const firstEmoji = result[post.id][0];
     expect(firstEmoji.emoji).toBe(HEART);
     expect(firstEmoji.total).toBe(2);
