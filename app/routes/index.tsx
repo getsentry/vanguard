@@ -19,8 +19,25 @@ type LoaderData = {
 const clusteredCategories = ["shipped"];
 
 const FragmentedPostList = ({ posts, reactions }) => {
-  let clusters: React.ReactNode[] = [];
-  let remainingPosts: any[] = [];
+  // pull out the first unclustered post
+  let firstUnclusteredPost = posts.find(
+    (p) => clusteredCategories.indexOf(p.category.slug) === -1
+  );
+
+  // remaining posts
+  posts = posts.filter((p) => p.id !== firstUnclusteredPost?.id);
+
+  let output: React.ReactNode[] = [];
+  if (firstUnclusteredPost) {
+    output.push(
+      <Post
+        post={firstUnclusteredPost}
+        key={firstUnclusteredPost.id}
+        reactions={reactions[firstUnclusteredPost.id]}
+        summary
+      />
+    );
+  }
 
   let buffer: any[] = [];
   posts.forEach((post) => {
@@ -30,7 +47,7 @@ const FragmentedPostList = ({ posts, reactions }) => {
       buffer.length &&
       (!isClustered || buffer[0].category.slug !== post.category.slug)
     ) {
-      clusters.push(
+      output.push(
         <ClusteredPostList
           category={buffer[0].category}
           posts={buffer}
@@ -42,7 +59,7 @@ const FragmentedPostList = ({ posts, reactions }) => {
 
     if (!isClustered) {
       buffer = [];
-      remainingPosts.push(
+      output.push(
         <Post
           post={post}
           key={post.id}
@@ -58,7 +75,7 @@ const FragmentedPostList = ({ posts, reactions }) => {
   });
 
   if (buffer.length) {
-    clusters.push(
+    output.push(
       <ClusteredPostList
         category={buffer[0].category}
         posts={buffer}
@@ -68,18 +85,7 @@ const FragmentedPostList = ({ posts, reactions }) => {
     );
   }
 
-  // show a focused point first
-  if (remainingPosts.length) {
-    return (
-      <>
-        {remainingPosts[0]}
-        {clusters}
-        {remainingPosts.slice(1)}
-      </>
-    );
-  }
-
-  return <>{clusters}</>;
+  return <>{output}</>;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
