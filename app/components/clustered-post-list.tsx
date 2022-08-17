@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import breakpoint from "styled-components-breakpoint";
 import { Link } from "@remix-run/react";
 
 import Avatar from "./avatar";
@@ -6,6 +7,7 @@ import PostLink from "./post-link";
 import { CategoryTagWrapper, CategoryTag } from "./category-tag";
 import moment from "moment";
 import Middot from "./middot";
+import IconCollapsedPost from "~/icons/IconCollapsedPost";
 
 const Byline = styled.div`
   display: flex;
@@ -27,6 +29,9 @@ const Meta = styled.div`
   flex-grow: 1;
 `;
 
+// make icon eligible for interpolation
+const StyledIconCollapsedPost = styled(IconCollapsedPost)``;
+
 const Date = styled.div``;
 
 const Reactions = styled.div``;
@@ -35,35 +40,65 @@ const ClusterWrapper = styled.article`
   position: relative;
   margin-bottom: 3.2rem;
 
+  ${breakpoint("desktop")`
+    ${CategoryTagWrapper} {
+      position: absolute;
+      right: calc(100% + 4rem);
+      top: 0.2rem;
+      width: 100rem;
+
+      span {
+        display: none;
+      }
+    }
+  `}
+
+    margin-top: 4.8rem;
+
   > ul {
-    border: 1px solid ${(p) => p.category.colorHex || "#000"};
-    border-top: 0;
-    margin: 0 1.6rem;
-    padding: 0.8rem 1.6rem;
     list-style: none;
+    margin: 0;
+    padding: 0;
 
     > li {
-      margin-bottom: 1.6rem;
+      margin-bottom: 2.4rem;
+      padding: 0;
+      position: relative;
+
+      &:first-child {
+        ${StyledIconCollapsedPost} {
+          display: none;
+        }
+      }
 
       &:last-child {
         margin-bottom: 0;
+      }
+
+      ${StyledIconCollapsedPost} {
+        /* Hide on mobile */
+        display: none;
+
+        ${breakpoint("desktop")`
+          color: ${(p) => p.theme.borderColor};
+          display: block;
+          position: absolute;
+
+          /* Icon size + gutter size */
+          left: calc(-19px + -4rem);
+          top: -.4rem;
+        `
       }
     }
   }
 
   h3 {
-    font-size: 2rem;
+    font-size: 2.6rem;
     font-family: "Gazpacho-Heavy", serif;
-    margin: 0;
+    margin-bottom: .4rem;
     a {
       color: inherit;
     }
-  }
-
-  ${CategoryTagWrapper} {
-    width: 100%;
-    justify-content: flex-start;
-    margin-bottom: 0;
   }
 `;
 
@@ -80,6 +115,7 @@ export default ({ category, posts, reactions }) => {
           );
           return (
             <li key={post.id}>
+              <StyledIconCollapsedPost />
               <h3>
                 <PostLink post={post}>{post.title}</PostLink>
               </h3>
