@@ -3,6 +3,7 @@ import express from "express";
 import compression from "compression";
 import morgan from "morgan";
 import { createRequestHandler } from "@remix-run/express";
+import { wrapExpressCreateRequestHandler } from "@sentry/remix";
 
 function loadBuild() {
   return require(BUILD_DIR);
@@ -45,13 +46,16 @@ app.use(morgan("tiny"));
 const MODE = process.env.NODE_ENV;
 const BUILD_DIR = path.join(process.cwd(), "build");
 
+const createRequestHandlerWithSentry =
+  wrapExpressCreateRequestHandler(createRequestHandler);
+
 app.all(
   "*",
   MODE === "production"
-    ? createRequestHandler({ build: require(BUILD_DIR) })
+    ? createRequestHandlerWithSentry({ build: require(BUILD_DIR) })
     : (...args) => {
         purgeRequireCache();
-        const requestHandler = createRequestHandler({
+        const requestHandler = createRequestHandlerWithSentry({
           build: loadBuild(),
           mode: MODE,
         });
