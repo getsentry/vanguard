@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { PlusIcon } from "@radix-ui/react-icons";
 
 import type { PostQueryType } from "~/models/post.server";
 import Block from "~/components/block";
@@ -124,7 +125,7 @@ export default ({
         })}
         <PickerContainer>
           <EmojiReaction
-            emoji="☺ +"
+            emoji={<PlusIcon />}
             onClick={(e) => setPickerVisible(!pickerVisible)}
           />
           <Picker
