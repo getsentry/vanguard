@@ -3,7 +3,7 @@ import { useState } from "react";
 export default function useLocalStorage(
   key: string,
   initialValue: any,
-  undefinedValue: any
+  undefinedValue?: any
 ) {
   // State to store our value
   // Pass initial state function to useState so logic is only executed once

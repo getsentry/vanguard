@@ -3,7 +3,7 @@ import React from "react";
 
 export type ButtonMode = "default" | "primary" | "danger";
 
-export type ButtonSize = "sm" | "md";
+export type ButtonSize = "xs" | "sm" | "md";
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   mode?: ButtonMode;

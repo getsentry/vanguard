@@ -169,7 +169,15 @@ const EditorWrapper = styled.div`
   }
 `;
 
-function Editor({ defaultValue }: { defaultValue?: string }) {
+function Editor({
+  name,
+  defaultValue,
+  minRows = 15,
+}: {
+  name: string;
+  defaultValue?: string;
+  minRows?: number;
+}) {
   const [value, setValue] = useState(defaultValue || "");
 
   useEffect(() => {
@@ -280,8 +288,8 @@ function Editor({ defaultValue }: { defaultValue?: string }) {
             }}
           >
             <TextareaAutosize
-              name="content"
-              minRows={15}
+              name={name}
+              minRows={minRows}
               required
               value={value}
               onChange={(e) => setValue(e.target.value)}
@@ -299,7 +307,7 @@ function Editor({ defaultValue }: { defaultValue?: string }) {
           </TextareaMarkdown.Wrapper>
         </Tabs.Content>
         <Tabs.Content value="preview">
-          <input type="hidden" name="content" value={value} />
+          <input type="hidden" name={name} value={value} />
           <Content>
             <Markdown content={value} />
           </Content>

@@ -172,6 +172,11 @@ const GlobalStyles = createGlobalStyle`
     font-size: 0.9em;
   }
 
+  .btn-xs {
+    padding: 0.6rem 1rem;
+    font-size: 0.8em;
+  }
+
 
   /* Forms */
 

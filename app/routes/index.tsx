@@ -3,12 +3,14 @@ import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
 import { requireUserId } from "~/session.server";
-import { getPostList, getReactionsForPosts } from "~/models/post.server";
+
+import { getPostList } from "~/models/post.server";
 import Post from "~/components/post";
 import { paginate } from "~/lib/paginator";
 import Paginated from "~/components/paginated";
 import WelcomeBanner from "~/components/welcome-banner";
 import ClusteredPostList from "~/components/clustered-post-list";
+import { getReactionsForPosts } from "~/models/post-reactions.server";
 
 type LoaderData = {
   postListPaginated: any;

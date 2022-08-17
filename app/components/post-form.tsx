@@ -232,7 +232,7 @@ export default function PostForm({
       <div>
         <label className="field-required">
           <span>Content:</span>
-          <Editor defaultValue={initialData?.content} />
+          <Editor name="content" defaultValue={initialData?.content} />
         </label>
         {errors?.content && (
           <div className="pt-1 text-red-700" id="content-error">

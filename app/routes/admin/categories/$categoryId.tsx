@@ -59,6 +59,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   const slug = formData.get("slug");
   const colorHex = formData.get("colorHex");
   const restricted = !!formData.get("restricted");
+  const allowComments = !!formData.get("allowComments");
   const deleted = !!formData.get("deleted");
   const slackWebhookUrl = formData.get("slack.webhookUrl");
   const emailTo = formData.get("email.to");
@@ -114,6 +115,7 @@ export const action: ActionFunction = async ({ request, params }) => {
         colorHex,
         restricted,
         deleted,
+        allowComments,
       },
     }),
     prisma.categorySlack.deleteMany({
@@ -284,6 +286,17 @@ export default function Index() {
             defaultChecked={category.restricted}
           />
           Restrict posting to this category
+        </label>
+      </div>
+
+      <div>
+        <label className="field-inline">
+          <input
+            type="checkbox"
+            name="allowComments"
+            defaultChecked={category.allowComments}
+          />
+          Allow comments on posts in this category
         </label>
       </div>
 
