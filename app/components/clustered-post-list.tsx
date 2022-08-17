@@ -16,6 +16,7 @@ const Byline = styled.div`
   justify-items: space-between;
   align-items: center;
   gap: 5px;
+  font-family: "IBM Plex Mono", monospace;
 `;
 
 const Name = styled.div`
