@@ -94,6 +94,7 @@ export async function getPostList({
   published,
   authorId,
   categoryId,
+  categoryIds,
   query,
   offset = 0,
   limit = 50,
@@ -102,6 +103,7 @@ export async function getPostList({
   published?: boolean | null;
   authorId?: User["id"];
   categoryId?: Category["id"];
+  categoryIds?: Category["id"][];
   query?: string;
   offset?: number;
   limit?: number;
@@ -121,7 +123,10 @@ export async function getPostList({
   }
   if (categoryId) {
     where.AND = [...(where.AND || []), { categoryId }];
+  } else if (categoryIds) {
+    where.AND = [...(where.AND || []), { categoryId: { in: categoryIds } }];
   }
+
   if (query !== undefined) {
     where.AND = [
       ...(where.AND || []),

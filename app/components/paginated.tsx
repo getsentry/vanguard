@@ -4,7 +4,7 @@ import ButtonGroup from "./button-group";
 
 interface PaginatedProps<T> {
   data: PaginatedResult<T>;
-  render: (result: PaginatedResult<T>["result"]) => React.ElementType;
+  render: (result: PaginatedResult<T>["result"]) => React.ReactNode;
   renderHeader?: boolean;
   renderFooter?: boolean;
 }

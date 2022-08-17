@@ -71,7 +71,10 @@ const Meta = styled.div`
   display: flex;
 `;
 
-const ReactionCount = styled.div``;
+const Reactions = styled.div`
+  flex-grow: 1;
+  text-align: right;
+`;
 
 const Date = styled.div``;
 
@@ -135,13 +138,16 @@ export default function Post({
   post,
   summary = false,
   canEdit = false,
-  totalReactions,
+  reactions,
 }: {
   post: PostQueryType;
   summary?: boolean;
   canEdit?: boolean;
-  totalReactions?: number;
+  reactions?: any[];
 }) {
+  const totalReactions =
+    reactions?.reduce((value, r) => value + r.total, 0) || 0;
+
   return (
     <PostWrapper>
       <CategoryTag category={post.category} />
@@ -156,6 +162,15 @@ export default function Post({
           </Name>
           <Meta>
             <Date>{moment(post.publishedAt || post.createdAt).fromNow()}</Date>
+            {summary && (
+              <>
+                <Middot />
+                <div>
+                  {totalReactions.toLocaleString()} reaction
+                  {totalReactions !== 1 && "s"}
+                </div>
+              </>
+            )}
             {!summary && (
               <>
                 <Middot />
@@ -164,19 +179,18 @@ export default function Post({
                 </ReadingTime>
               </>
             )}
-            {totalReactions > 0 && (
-              <>
-                <Middot />
-                <ReactionCount>
-                  {totalReactions.toLocaleString()} ♡'s
-                </ReactionCount>
-              </>
-            )}
             {canEdit && (
               <>
                 <Middot />
                 <Link to={`/p/${post!.id}/edit`}>Edit</Link>
               </>
+            )}
+            {summary && (
+              <Reactions>
+                {reactions?.map((r) => (
+                  <span key={r.emoji}>{r.emoji}</span>
+                ))}
+              </Reactions>
             )}
           </Meta>
         </Byline>

@@ -28,6 +28,8 @@ const GlobalStyles = createGlobalStyle`
     color: ${(p) => p.theme.textColor};
     min-height: 100vh;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    font-smooth: always;
 
     &.showSidebar {
       overflow: hidden;

@@ -38,6 +38,14 @@ const lightTheme = {
     primaryBackgroundColor: colors.black,
     primaryTextColor: colors.white,
   },
+  emoji: {
+    defaultBackgroundColor: colors.gray100,
+    defaultTextColor: colors.gray500,
+    selectedBackgroundColor: colors.purple,
+    selectedTextColor: colors.white,
+    highlightBackgroundColor: colors.gray200,
+    highlightTextColor: colors.gray500,
+  },
   categories: {
     shipped: {
       bgColor: colors.purple,
