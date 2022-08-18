@@ -139,11 +139,13 @@ export default function Post({
   summary = false,
   canEdit = false,
   reactions,
+  totalComments,
 }: {
   post: PostQueryType;
   summary?: boolean;
   canEdit?: boolean;
   reactions?: any[];
+  totalComments?: number;
 }) {
   const totalReactions =
     reactions?.reduce((value, r) => value + r.total, 0) || 0;
@@ -162,12 +164,17 @@ export default function Post({
           </Name>
           <Meta>
             <Date>{moment(post.publishedAt || post.createdAt).fromNow()}</Date>
-            {summary && (
+            {summary && totalComments !== undefined && (
               <>
                 <Middot />
                 <div>
                   {totalReactions.toLocaleString()} reaction
                   {totalReactions !== 1 && "s"}
+                </div>
+                <Middot />
+                <div>
+                  {totalComments.toLocaleString()} comment
+                  {totalComments !== 1 && "s"}
                 </div>
               </>
             )}

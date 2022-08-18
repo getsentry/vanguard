@@ -31,7 +31,6 @@ export async function getCommentList({
       post: !!postId, // we are prob too clever here
       deleted: true,
       createdAt: true,
-      allowComments: true,
     },
     where,
     orderBy: {
@@ -96,6 +95,7 @@ export async function createComment({
 
 export async function deleteComment({
   userId,
+  postId,
   id,
 }: {
   userId: User["id"];
@@ -107,23 +107,27 @@ export async function deleteComment({
   const where: { [key: string]: any } = { id };
   if (!user.admin) where.authorId = userId;
 
-  const post = await prisma.postComment.findFirst({
-    where,
+  const comment = await prisma.postComment.findFirst({ where });
+  invariant(comment, "comment not found");
+
+  const post = await prisma.post.findFirst({
+    where: {
+      id: postId,
+    },
     select: {
-      id,
-      allowComments,
-      category,
+      id: true,
+      allowComments: true,
+      category: true,
     },
   });
   invariant(post, "post not found");
-
   invariant(
     post.allowComments && post.category.allowComments,
     "comments disabled for post"
   );
 
   await prisma.postComment.update({
-    where: { id: post.id },
+    where: { id },
     data: {
       deleted: true,
     },

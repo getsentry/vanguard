@@ -71,6 +71,20 @@ const deleteComment = async (
   }
 };
 
+const toggleSubscription = async (
+  postId: string,
+  active: boolean
+): Promise<string | undefined> => {
+  const res = await fetch(`/api/posts/${postId}/subscription`, {
+    method: active ? "POST" : "DELETE",
+  });
+  if (res.status === 200) {
+    return !active;
+  } else {
+    alert("Unable to delete comment");
+  }
+};
+
 export default ({
   comments,
   user,

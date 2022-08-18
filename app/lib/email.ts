@@ -11,6 +11,11 @@ export type EmailConfig = {
 
 let mailTransport: Transporter<SMTPTransport.SentMessageInfo>;
 
+// XXX(dcramer): futuer proof for optional email support
+const hasEmailSupport = () => {
+  return true;
+};
+
 const createMailTransport = () => {
   const user = process.env.SMTP_USER;
   const auth = user
@@ -33,6 +38,8 @@ export const notify = async (
   config: EmailConfig,
   transport: Transporter<SMTPTransport.SentMessageInfo> = mailTransport
 ) => {
+  if (!hasEmailSupport()) return;
+
   console.log(`Sending email notification for post ${post.id} to ${config.to}`);
 
   if (!process.env.BASE_URL) {

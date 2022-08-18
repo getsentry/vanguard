@@ -2,9 +2,45 @@ import { installGlobals } from "@remix-run/node";
 import "@testing-library/jest-dom/extend-expect";
 import { prisma } from "~/db.server";
 
+import { faker } from "@faker-js/faker";
+
 installGlobals();
 
 global.DefaultFixtures = {};
+
+global.Fixtures = {
+  User: async ({ ...data } = {}) => {
+    return await prisma.user.create({
+      data: {
+        name: faker.name.firstName(),
+        email: faker.internet.email(),
+        ...data,
+      },
+    });
+  },
+
+  Category: async ({ ...data } = {}) => {
+    return await prisma.category.create({
+      data: {
+        name: faker.lorem.word(),
+        slug: faker.lorem.slug(),
+        ...data,
+      },
+    });
+  },
+
+  Post: async ({ ...data } = {}) => {
+    return await prisma.post.create({
+      data: {
+        title: faker.lorem.words(3),
+        content: faker.lorem.paragraphs(),
+        deleted: false,
+        published: true,
+        ...data,
+      },
+    });
+  },
+};
 
 const clearDatabase = async () => {
   // TODO: good idea, but too slow

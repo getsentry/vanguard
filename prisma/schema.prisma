@@ -135,3 +135,12 @@ model PostComment {
   deleted   Boolean   @default(false)
   content   String
 }
+
+model PostSubscription {
+  id        String    @id @default(cuid())
+  postId    String
+  userId    String
+  createdAt DateTime  @default(now())
+
+  @@unique([postId, userId])
+}

@@ -1,23 +1,26 @@
 import type { ActionFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import invariant from "tiny-invariant";
-import { deleteComment } from "~/models/post-comments.server";
+import {
+  createSubscription,
+  deleteSubscription,
+} from "~/models/post-subscription.server";
 
 import { requireUserId } from "~/session.server";
 
 export const action: ActionFunction = async ({ request, params }) => {
-  if (request.method !== "DELETE") {
+  if (request.method !== "DELETE" && request.method !== "POST") {
     return json({ message: "Method not allowed" }, 405);
   }
   invariant(params.postId, "postId not found");
-  invariant(params.commentId, "commentId not found");
 
   const userId = await requireUserId(request);
-  await deleteComment({
-    userId,
-    postId: params.postId,
-    id: params.commentId,
-  });
+
+  if (request.method === "DELETE") {
+    await deleteSubscription({ userId, postId: params.postId });
+  } else if (request.method === "POST") {
+    await createSubscription({ userId, postId: params.postId });
+  }
 
   return json({});
 };

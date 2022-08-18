@@ -179,32 +179,12 @@ describe("deleteComment", () => {
   let post: Post;
 
   beforeEach(async () => {
-    author = await prisma.user.create({
-      data: {
-        email: "foo@example.com",
-      },
-    });
-    admin = await prisma.user.create({
-      data: {
-        admin: true,
-        email: "bar@example.com",
-      },
-    });
-    category = await prisma.category.create({
-      data: {
-        name: "Foo Category",
-        slug: "foo-category",
-      },
-    });
-    post = await prisma.post.create({
-      data: {
-        title: "Test",
-        content: "**Content**",
-        deleted: false,
-        published: true,
-        authorId: author.id,
-        categoryId: category.id,
-      },
+    author = await Fixtures.User();
+    admin = await Fixtures.User({ admin: true });
+    category = await Fixtures.Category();
+    post = await Fixtures.Post({
+      authorId: author.id,
+      categoryId: category.id,
     });
   });
 
@@ -218,6 +198,7 @@ describe("deleteComment", () => {
     });
     const result = await deleteComment({
       userId: admin.id,
+      postId: post.id,
       id: comment.id,
     });
 
@@ -237,6 +218,7 @@ describe("deleteComment", () => {
     });
     const result = await deleteComment({
       userId: author.id,
+      postId: post.id,
       id: comment.id,
     });
 
@@ -257,6 +239,7 @@ describe("deleteComment", () => {
     try {
       const result = await deleteComment({
         userId: author.id,
+        postId: post.id,
         id: comment.id,
       });
     } catch (err) {}

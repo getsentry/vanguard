@@ -157,6 +157,7 @@ export async function getPostList({
       deleted: true,
       createdAt: true,
       updatedAt: true,
+      allowComments: true,
     },
     skip: offset,
     take: limit,
