@@ -173,10 +173,12 @@ function Editor({
   name,
   defaultValue,
   minRows = 15,
+  noPreview,
 }: {
   name: string;
   defaultValue?: string;
   minRows?: number;
+  noPreview?: boolean;
 }) {
   const [value, setValue] = useState(defaultValue || "");
 
@@ -187,132 +189,140 @@ function Editor({
   const ref = useRef<TextareaMarkdownRef>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  const editorBlock = (
+    <>
+      <Toolbar.Toolbar aria-label="Formatting options">
+        <Toolbar.Button
+          value="bold"
+          aria-label="Bold"
+          onClick={() => ref.current?.trigger("bold")}
+        >
+          <FontBoldIcon />
+        </Toolbar.Button>
+        <Toolbar.Button
+          value="italic"
+          aria-label="Italic"
+          onClick={() => ref.current?.trigger("italic")}
+        >
+          <FontItalicIcon />
+        </Toolbar.Button>
+        <Toolbar.Button
+          value="strikethrough"
+          aria-label="Strike through"
+          onClick={() => ref.current?.trigger("strike-through")}
+        >
+          <StrikethroughIcon />
+        </Toolbar.Button>
+        <Toolbar.Separator />
+        <Toolbar.Button
+          value="unordered-list"
+          aria-label="Unordered List"
+          onClick={() => ref.current?.trigger("vg-unordered-list")}
+        >
+          <ListBulletIcon />
+        </Toolbar.Button>
+        <Toolbar.Button
+          value="code-block"
+          aria-label="code-block"
+          onClick={() => ref.current?.trigger("vg-code-block")}
+        >
+          <CodeIcon />
+        </Toolbar.Button>
+        <Toolbar.Button
+          value="quote-block"
+          aria-label="quote-block"
+          onClick={() => ref.current?.trigger("vg-quote-block")}
+        >
+          <QuoteIcon />
+        </Toolbar.Button>
+        <Toolbar.Separator />
+        <Toolbar.Button
+          value="link"
+          aria-label="Link"
+          onClick={() => ref.current?.trigger("link")}
+        >
+          <Link1Icon />
+        </Toolbar.Button>
+        <Toolbar.Button
+          value="image"
+          aria-label="image"
+          onClick={(e) => {
+            fileRef.current?.click();
+          }}
+        >
+          <ImageIcon />
+        </Toolbar.Button>
+        {/* <Toolbar.Separator />
+  <Toolbar.Link href="#" target="_blank" style={{ marginRight: 10 }}>
+    Edited 2 hours ago
+  </Toolbar.Link> */}
+      </Toolbar.Toolbar>
+
+      <TextareaMarkdown.Wrapper
+        ref={ref}
+        commands={[
+          {
+            name: "indent",
+            enable: false,
+          },
+          {
+            name: "vg-quote-block",
+            handler: quoteCommandHandler,
+          },
+          {
+            name: "vg-unordered-list",
+            handler: unorderedListCommandHandler,
+          },
+          {
+            name: "vg-code-block",
+            handler: codeCommandHandler,
+          },
+        ]}
+        options={{
+          codeBlockPlaceholder: "```\nfunction helloWorld() { }\n```",
+          blockQuotesPlaceholder: "> quote",
+        }}
+      >
+        <TextareaAutosize
+          name={name}
+          minRows={minRows}
+          required
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          //   aria-invalid={actionData?.errors?.content ? true : undefined}
+          //   aria-errormessage={
+          //     actionData?.errors?.content ? "content-error" : undefined
+          //   }
+          onPaste={(event) => {
+            onUploadFiles(ref.current!, event, event.clipboardData.files);
+          }}
+          onDrop={(event) => {
+            onUploadFiles(ref.current!, event, event.dataTransfer.files);
+          }}
+        />
+      </TextareaMarkdown.Wrapper>
+    </>
+  );
+
   return (
     <EditorWrapper>
-      <Tabs.Tabs defaultValue="edit">
-        <Tabs.List>
-          <Tabs.Trigger value="edit">Edit</Tabs.Trigger>
-          <Tabs.Trigger value="preview">Preview</Tabs.Trigger>
-        </Tabs.List>
-        <Tabs.Content value="edit">
-          <Toolbar.Toolbar aria-label="Formatting options">
-            <Toolbar.Button
-              value="bold"
-              aria-label="Bold"
-              onClick={() => ref.current?.trigger("bold")}
-            >
-              <FontBoldIcon />
-            </Toolbar.Button>
-            <Toolbar.Button
-              value="italic"
-              aria-label="Italic"
-              onClick={() => ref.current?.trigger("italic")}
-            >
-              <FontItalicIcon />
-            </Toolbar.Button>
-            <Toolbar.Button
-              value="strikethrough"
-              aria-label="Strike through"
-              onClick={() => ref.current?.trigger("strike-through")}
-            >
-              <StrikethroughIcon />
-            </Toolbar.Button>
-            <Toolbar.Separator />
-            <Toolbar.Button
-              value="unordered-list"
-              aria-label="Unordered List"
-              onClick={() => ref.current?.trigger("vg-unordered-list")}
-            >
-              <ListBulletIcon />
-            </Toolbar.Button>
-            <Toolbar.Button
-              value="code-block"
-              aria-label="code-block"
-              onClick={() => ref.current?.trigger("vg-code-block")}
-            >
-              <CodeIcon />
-            </Toolbar.Button>
-            <Toolbar.Button
-              value="quote-block"
-              aria-label="quote-block"
-              onClick={() => ref.current?.trigger("vg-quote-block")}
-            >
-              <QuoteIcon />
-            </Toolbar.Button>
-            <Toolbar.Separator />
-            <Toolbar.Button
-              value="link"
-              aria-label="Link"
-              onClick={() => ref.current?.trigger("link")}
-            >
-              <Link1Icon />
-            </Toolbar.Button>
-            <Toolbar.Button
-              value="image"
-              aria-label="image"
-              onClick={(e) => {
-                fileRef.current?.click();
-              }}
-            >
-              <ImageIcon />
-            </Toolbar.Button>
-            {/* <Toolbar.Separator />
-            <Toolbar.Link href="#" target="_blank" style={{ marginRight: 10 }}>
-              Edited 2 hours ago
-            </Toolbar.Link> */}
-          </Toolbar.Toolbar>
-
-          <TextareaMarkdown.Wrapper
-            ref={ref}
-            commands={[
-              {
-                name: "indent",
-                enable: false,
-              },
-              {
-                name: "vg-quote-block",
-                handler: quoteCommandHandler,
-              },
-              {
-                name: "vg-unordered-list",
-                handler: unorderedListCommandHandler,
-              },
-              {
-                name: "vg-code-block",
-                handler: codeCommandHandler,
-              },
-            ]}
-            options={{
-              codeBlockPlaceholder: "```\nfunction helloWorld() { }\n```",
-              blockQuotesPlaceholder: "> quote",
-            }}
-          >
-            <TextareaAutosize
-              name={name}
-              minRows={minRows}
-              required
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              //   aria-invalid={actionData?.errors?.content ? true : undefined}
-              //   aria-errormessage={
-              //     actionData?.errors?.content ? "content-error" : undefined
-              //   }
-              onPaste={(event) => {
-                onUploadFiles(ref.current!, event, event.clipboardData.files);
-              }}
-              onDrop={(event) => {
-                onUploadFiles(ref.current!, event, event.dataTransfer.files);
-              }}
-            />
-          </TextareaMarkdown.Wrapper>
-        </Tabs.Content>
-        <Tabs.Content value="preview">
-          <input type="hidden" name={name} value={value} />
-          <Content>
-            <Markdown content={value} />
-          </Content>
-        </Tabs.Content>
-      </Tabs.Tabs>
+      {noPreview ? (
+        editorBlock
+      ) : (
+        <Tabs.Tabs defaultValue="edit">
+          <Tabs.List>
+            <Tabs.Trigger value="edit">Edit</Tabs.Trigger>
+            <Tabs.Trigger value="preview">Preview</Tabs.Trigger>
+          </Tabs.List>
+          <Tabs.Content value="edit">{editorBlock}</Tabs.Content>
+          <Tabs.Content value="preview">
+            <input type="hidden" name={name} value={value} />
+            <Content>
+              <Markdown content={value} />
+            </Content>
+          </Tabs.Content>
+        </Tabs.Tabs>
+      )}
       <input
         ref={fileRef}
         type="file"

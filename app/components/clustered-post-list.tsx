@@ -8,6 +8,7 @@ import { CategoryTagWrapper, CategoryTag } from "./category-tag";
 import moment from "moment";
 import Middot from "./middot";
 import IconCollapsedPost from "~/icons/IconCollapsedPost";
+import { ChatBubbleIcon, HeartIcon } from "@radix-ui/react-icons";
 
 const Byline = styled.div`
   display: flex;
@@ -17,9 +18,11 @@ const Byline = styled.div`
   align-items: center;
   gap: 5px;
   font-family: "IBM Plex Mono", monospace;
+  font-size: 0.9em;
 `;
 
 const Name = styled.div`
+  font-size: 1em;
   font-weight: 500;
 `;
 
@@ -36,6 +39,20 @@ const StyledIconCollapsedPost = styled(IconCollapsedPost)``;
 const Date = styled.div``;
 
 const Reactions = styled.div``;
+
+const ReactionCount = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+`;
+
+const CommentCount = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+`;
 
 const ClusterWrapper = styled.article`
   position: relative;
@@ -132,15 +149,13 @@ export default ({ category, posts, reactions, commentCounts }) => {
                     {moment(post.publishedAt || post.createdAt).fromNow()}
                   </Date>
                   <Middot />
-                  <div>
-                    {totalReactions.toLocaleString()} reaction
-                    {totalReactions !== 1 && "s"}
-                  </div>
+                  <ReactionCount>
+                    <HeartIcon /> {totalReactions.toLocaleString()}
+                  </ReactionCount>
                   <Middot />
-                  <div>
-                    {totalComments.toLocaleString()} comment
-                    {totalComments !== 1 && "s"}
-                  </div>
+                  <CommentCount>
+                    <ChatBubbleIcon /> {totalComments.toLocaleString()}
+                  </CommentCount>
                 </Meta>
                 <Reactions>
                   {postReactions.map((r) => (

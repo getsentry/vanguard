@@ -19,6 +19,7 @@ type LoaderData = {
   comments: any[];
   reactions: any[];
   user: User;
+  hasSubscription: boolean;
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -37,6 +38,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const comments = await getCommentList({
     userId: user.id,
     postId: post.id,
+    limit: 1000,
   });
 
   return json<LoaderData>({
@@ -72,14 +74,6 @@ export const action: ActionFunction = async ({ request, params }) => {
       announcePost(post);
     }
   }
-  const commentContent = formData.get("comment");
-  if (commentContent) {
-    await createComment({
-      userId,
-      postId: params.postId,
-      content: commentContent,
-    });
-  }
 
   return json({});
 };
@@ -100,7 +94,9 @@ export default function PostDetailsPage() {
             post={post}
             comments={comments}
             user={user}
-            allowComments={post.allowComments && post.category.allowComments}
+            allowComments={
+              !!(post.allowComments && post.category.allowComments)
+            }
             hasSubscription={hasSubscription}
           />
         </>

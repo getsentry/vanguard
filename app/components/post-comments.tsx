@@ -2,6 +2,7 @@ import { Link } from "@remix-run/react";
 import moment from "moment";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
+import { ResetIcon } from "@radix-ui/react-icons";
 
 import Block from "~/components/block";
 import Avatar from "./avatar";
@@ -11,6 +12,8 @@ import Markdown from "./markdown";
 import Middot from "./middot";
 import type { User } from "~/models/user.server";
 import { PostQueryType } from "~/models/post.server";
+import IconCollapsedPost from "~/icons/IconCollapsedPost";
+import { PostComment } from "@prisma/client";
 
 const Byline = styled.div`
   display: flex;
@@ -38,7 +41,20 @@ const Content = styled.div`
   overflow: auto;
 `;
 
-const Comment = styled.div`
+const CommentWrapper = styled.div``;
+
+const StyledIconCollapsedPost = styled(IconCollapsedPost)`
+  color: ${(p) => p.theme.borderColor};
+`;
+
+const CommentContainer = styled.div`
+  display: flex;
+  gap: 15px;
+  flex-direction: row;
+`;
+
+const CommentBody = styled.div`
+  flex-grow: 1;
   border-radius: 1rem;
   padding: 1.6rem 1.6rem 0;
   margin-bottom: 1.6rem;
@@ -62,16 +78,16 @@ const CommentsHeader = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  margin-bottom: 3rem;
+  margin-bottom: 1.6rem;
+  gap: 1.6rem;
 
   h3 {
-    flex-grow: 1;
     margin: 0;
   }
+`;
 
-  ${Button} {
-    justify-self: flex-end;
-  }
+const CommentsFormBlock = styled.div`
+  marign-bottom: 1.6rem;
 `;
 
 const deleteComment = async (
@@ -114,6 +130,7 @@ const SubscribeButton = ({ postId, initialValue }) => {
 
   return (
     <Button
+      size="sm"
       onClick={async () => {
         setLoading(true);
         try {
@@ -129,6 +146,77 @@ const SubscribeButton = ({ postId, initialValue }) => {
     >
       {loading ? "..." : label}
     </Button>
+  );
+};
+
+const Comment = ({
+  comment,
+  user,
+  childList = [],
+  onDelete,
+  onReplyTo,
+  asChild = false,
+}: {
+  comment: PostComment;
+  user: User;
+  childList?: PostComment[];
+  onDelete: (comment: PostComment) => void;
+  onReplyTo: (comment: PostComment) => void;
+  asChild?: boolean;
+}) => {
+  const canDelete = user.admin || comment.authorId === user.id;
+  return (
+    <CommentWrapper id={`c_${comment.id}`}>
+      <CommentContainer>
+        {asChild && <StyledIconCollapsedPost />}
+        <CommentBody>
+          <Byline>
+            <Avatar user={comment.author} size="24px" />
+            <Name>
+              <Link to={`/u/${comment.author.email}`}>
+                {comment.author.name}
+              </Link>
+            </Name>
+            <Middot />
+            <Date>{moment(comment.createdAt).fromNow()}</Date>
+            {canDelete && (
+              <>
+                <Middot />
+                <Button baseStyle="link" onClick={() => onDelete(comment)}>
+                  Delete
+                </Button>
+              </>
+            )}
+            <Controls>
+              {!comment.parentId && (
+                <Button
+                  size="xs"
+                  baseStyle="link"
+                  onClick={() => onReplyTo(comment)}
+                >
+                  <ResetIcon />
+                </Button>
+              )}
+            </Controls>
+          </Byline>
+          <Content>
+            <Markdown content={comment.content} />
+          </Content>
+        </CommentBody>
+      </CommentContainer>
+      {childList.map((childComment) => {
+        return (
+          <Comment
+            asChild
+            key={childComment.id}
+            comment={childComment}
+            user={user}
+            onDelete={onDelete}
+            onReplyTo={onReplyTo}
+          />
+        );
+      })}
+    </CommentWrapper>
   );
 };
 
@@ -151,51 +239,61 @@ export default ({
     setCommentList(comments);
   }, [comments]);
 
+  const [inReplyTo, setInReplyTo] = useState<PostComment | null>(null);
+
+  const onDeleteComment = async (comment: PostComment) => {
+    if (await deleteComment(comment.postId, comment.id)) {
+      setCommentList(commentList.filter((c) => c.id !== comment.id));
+    }
+  };
+
+  const onReplyToComment = (comment: PostComment) => {
+    setInReplyTo(comment);
+  };
+
+  const sortedCommentList: PostComment[] = [];
+  const childCommentsByparent: { [commentId: string]: PostComment[] } = {};
+  commentList.forEach((comment) => {
+    if (comment.parentId) {
+      if (!childCommentsByparent[comment.parentId])
+        childCommentsByparent[comment.parentId] = [];
+      childCommentsByparent[comment.parentId].push(comment);
+    } else {
+      sortedCommentList.push(comment);
+    }
+  });
+
+  // TODO(dcramer): i've not bothered to optimize the loop mechanics on rendering because the dataset is
+  // small and im lazy
   return (
     <Block>
       <CommentsHeader>
         <h3>Comments</h3>
         <SubscribeButton postId={post.id} initialValue={hasSubscription} />
       </CommentsHeader>
-      {allowComments ? (
-        <CommentForm />
-      ) : (
-        <p>Comments are disabled for this post.</p>
-      )}
+      <CommentsFormBlock>
+        {allowComments ? (
+          <CommentForm
+            post={post}
+            inReplyTo={inReplyTo}
+            onInReplayTo={(comment) => setInReplyTo(comment || null)}
+            onComment={(comment) => setCommentList([...comments, comment])}
+          />
+        ) : (
+          <p>Comments are disabled for this post.</p>
+        )}
+      </CommentsFormBlock>
       <div>
-        {commentList.map((comment) => {
+        {sortedCommentList.map((comment) => {
           return (
-            <Comment key={comment.id} id={`c_${comment.id}`}>
-              <Byline>
-                <Avatar user={comment.author} size="24px" />
-                <Name>
-                  <Link to={`/u/${comment.author.email}`}>
-                    {comment.author.name}
-                  </Link>
-                </Name>
-                <Middot />
-                <Date>{moment(comment.createdAt).fromNow()}</Date>
-                {(user.admin || comment.authorId === user.id) && (
-                  <Controls>
-                    <Button
-                      size="xs"
-                      onClick={async () => {
-                        if (await deleteComment(comment.postId, comment.id)) {
-                          setCommentList(
-                            commentList.filter((c) => c.id !== comment.id)
-                          );
-                        }
-                      }}
-                    >
-                      Delete
-                    </Button>
-                  </Controls>
-                )}
-              </Byline>
-              <Content>
-                <Markdown content={comment.content} />
-              </Content>
-            </Comment>
+            <Comment
+              key={comment.id}
+              comment={comment}
+              user={user}
+              onDelete={onDeleteComment}
+              onReplyTo={onReplyToComment}
+              childList={childCommentsByparent[comment.id]}
+            />
           );
         })}
       </div>

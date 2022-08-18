@@ -154,27 +154,45 @@ const GlobalStyles = createGlobalStyle`
     font-family: "IBM Plex Mono", monospace;
     color: ${(p) => p.theme.textMuted};
     white-space: nowrap;
+
+
+    &.btn-primary {
+      background: ${(p) => p.theme.button.primaryBackgroundColor};
+      color: ${(p) => p.theme.button.primaryTextColor};
+    }
+
+    // here you go chris
+    &.btn-danger {
+      background: red;
+      color: white;
+    }
+
+    &.btn-sm {
+      padding: 0.8rem 1.2rem;
+      font-size: 0.9em;
+    }
+
+    &.btn-xs {
+      padding: 0.6rem 1rem;
+      font-size: 0.8em;
+    }
   }
 
-  .btn-primary {
-    background: ${(p) => p.theme.button.primaryBackgroundColor};
-    color: ${(p) => p.theme.button.primaryTextColor};
-  }
+  .btn-link {
+    display: inline;
+    border: 0;
+    background: inherit;
+    color: ${(p) => p.theme.linkColor};
+    padding: 0;
+    margin: 0;
 
-  // here you go chris
-  .btn-danger {
-    background: red;
-    color: white;
-  }
+    &.btn-sm {
+      font-size: 0.9em;
+    }
 
-  .btn-sm {
-    padding: 0.8rem 1.2rem;
-    font-size: 0.9em;
-  }
-
-  .btn-xs {
-    padding: 0.6rem 1rem;
-    font-size: 0.8em;
+    &.btn-xs {
+      font-size: 0.8em;
+    }
   }
 
 
