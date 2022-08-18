@@ -12,6 +12,7 @@ import { requireUser, requireUserId } from "~/session.server";
 import { default as PostTemplate } from "~/components/post";
 import PostReactions from "~/components/post-reactions";
 import PostComments from "~/components/post-comments";
+import { hasSubscription } from "~/models/post-subscription.server";
 
 type LoaderData = {
   post: PostQueryType;
@@ -38,7 +39,16 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     postId: post.id,
   });
 
-  return json<LoaderData>({ post, user, reactions, comments });
+  return json<LoaderData>({
+    post,
+    user,
+    reactions,
+    comments,
+    hasSubscription: await hasSubscription({
+      userId: user.id,
+      postId: post.id,
+    }),
+  });
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
@@ -75,20 +85,26 @@ export const action: ActionFunction = async ({ request, params }) => {
 };
 
 export default function PostDetailsPage() {
-  let { post, user, reactions, comments } = useLoaderData() as LoaderData;
+  let { post, user, reactions, comments, hasSubscription } =
+    useLoaderData() as LoaderData;
 
   const canEdit = post.authorId === user.id || user.admin;
 
   return (
     <div>
       <PostTemplate post={post} canEdit={canEdit} reactions={reactions} />
-      <PostReactions post={post} reactions={reactions} />
-      <PostComments
-        post={post}
-        comments={comments}
-        user={user}
-        allowComments={post.allowComments && post.category.allowComments}
-      />
+      {post.published && (
+        <>
+          <PostReactions post={post} reactions={reactions} />
+          <PostComments
+            post={post}
+            comments={comments}
+            user={user}
+            allowComments={post.allowComments && post.category.allowComments}
+            hasSubscription={hasSubscription}
+          />
+        </>
+      )}
     </div>
   );
 }

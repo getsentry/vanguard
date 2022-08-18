@@ -1,5 +1,7 @@
 import type { User, Post, PostComment } from "@prisma/client";
+import { json } from "@remix-run/node";
 import invariant from "tiny-invariant";
+
 import { prisma } from "~/db.server";
 
 export type { PostComment } from "@prisma/client";
@@ -80,17 +82,32 @@ export async function createComment({
   userId: User["id"];
   postId: Post;
   content: string;
-}): Promise<Comment> {
-  return await prisma.postComment.create({
-    data: {
-      postId,
-      authorId: userId,
-      content,
+}): Promise<Comment | null> {
+  const post = await prisma.post.findFirst({
+    where: {
+      id: postId,
     },
-    include: {
-      author: true,
+    select: {
+      id: true,
+      allowComments: true,
+      category: true,
     },
   });
+  invariant(post, "post not found");
+
+  if (post.allowComments && post.category.allowComments) {
+    return await prisma.postComment.create({
+      data: {
+        postId,
+        authorId: userId,
+        content,
+      },
+      include: {
+        author: true,
+      },
+    });
+  }
+  return null;
 }
 
 export async function deleteComment({
@@ -121,10 +138,6 @@ export async function deleteComment({
     },
   });
   invariant(post, "post not found");
-  invariant(
-    post.allowComments && post.category.allowComments,
-    "comments disabled for post"
-  );
 
   await prisma.postComment.update({
     where: { id },

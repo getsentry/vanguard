@@ -6,49 +6,22 @@ import {
   getCommentList,
 } from "./post-comments.server";
 
+import * as Fixtures from "~/lib/test/fixtures";
+
 describe("getCommentList", () => {
   let author: User;
   let otherAuthor: User;
-  let category: Category;
   let post: Post;
   let otherUnpublishedPost: Post;
 
   beforeEach(async () => {
-    author = await prisma.user.create({
-      data: {
-        email: "foo@example.com",
-      },
+    author = await Fixtures.User();
+    otherAuthor = await Fixtures.User();
+    post = await Fixtures.Post({
+      authorId: author.id,
     });
-    otherAuthor = await prisma.user.create({
-      data: {
-        email: "bar@example.com",
-      },
-    });
-    category = await prisma.category.create({
-      data: {
-        name: "Foo Category",
-        slug: "foo-category",
-      },
-    });
-    post = await prisma.post.create({
-      data: {
-        title: "Test",
-        content: "**Content**",
-        deleted: false,
-        published: true,
-        authorId: author.id,
-        categoryId: category.id,
-      },
-    });
-    otherUnpublishedPost = await prisma.post.create({
-      data: {
-        title: "Foo",
-        content: "**Bar**",
-        published: false,
-        deleted: false,
-        authorId: otherAuthor.id,
-        categoryId: category.id,
-      },
+    otherUnpublishedPost = await Fixtures.Post({
+      authorId: otherAuthor.id,
     });
     await prisma.postComment.create({
       data: {
@@ -93,46 +66,17 @@ describe("getCommentList", () => {
 describe("countCommentsForPosts", () => {
   let author: User;
   let otherAuthor: User;
-  let category: Category;
   let post: Post;
   let otherUnpublishedPost: Post;
 
   beforeEach(async () => {
-    author = await prisma.user.create({
-      data: {
-        email: "foo@example.com",
-      },
+    author = await Fixtures.User();
+    otherAuthor = await Fixtures.User();
+    post = await Fixtures.Post({
+      authorId: author.id,
     });
-    otherAuthor = await prisma.user.create({
-      data: {
-        email: "bar@example.com",
-      },
-    });
-    category = await prisma.category.create({
-      data: {
-        name: "Foo Category",
-        slug: "foo-category",
-      },
-    });
-    post = await prisma.post.create({
-      data: {
-        title: "Test",
-        content: "**Content**",
-        deleted: false,
-        published: true,
-        authorId: author.id,
-        categoryId: category.id,
-      },
-    });
-    otherUnpublishedPost = await prisma.post.create({
-      data: {
-        title: "Foo",
-        content: "**Bar**",
-        published: false,
-        deleted: false,
-        authorId: otherAuthor.id,
-        categoryId: category.id,
-      },
+    otherUnpublishedPost = await Fixtures.Post({
+      authorId: otherAuthor.id,
     });
     await prisma.postComment.create({
       data: {
@@ -196,16 +140,15 @@ describe("deleteComment", () => {
         postId: post.id,
       },
     });
-    const result = await deleteComment({
+    await deleteComment({
       userId: admin.id,
-      postId: post.id,
       id: comment.id,
     });
 
     const newComment = await prisma.postComment.findFirst({
       where: { id: comment.id },
     });
-    expect(newComment.deleted).toBe(true);
+    expect(newComment?.deleted).toBe(true);
   });
 
   test("can delete comment as author", async () => {
@@ -216,16 +159,15 @@ describe("deleteComment", () => {
         postId: post.id,
       },
     });
-    const result = await deleteComment({
+    await deleteComment({
       userId: author.id,
-      postId: post.id,
       id: comment.id,
     });
 
     const newComment = await prisma.postComment.findFirst({
       where: { id: comment.id },
     });
-    expect(newComment.deleted).toBe(true);
+    expect(newComment?.deleted).toBe(true);
   });
 
   test("cannot delete comment as non author", async () => {
@@ -237,9 +179,8 @@ describe("deleteComment", () => {
       },
     });
     try {
-      const result = await deleteComment({
+      await deleteComment({
         userId: author.id,
-        postId: post.id,
         id: comment.id,
       });
     } catch (err) {}
@@ -247,6 +188,6 @@ describe("deleteComment", () => {
     const newComment = await prisma.postComment.findFirst({
       where: { id: comment.id },
     });
-    expect(newComment.deleted).toBe(false);
+    expect(newComment?.deleted).toBe(false);
   });
 });

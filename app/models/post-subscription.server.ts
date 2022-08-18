@@ -9,7 +9,7 @@ export async function hasSubscription({
 }: {
   userId: PostSubscription["userId"];
   postId: PostSubscription["postId"];
-}): Promise<PostSubsription> {
+}): Promise<boolean> {
   const sub = await prisma.postSubscription.findFirst({
     select: {
       id: true,

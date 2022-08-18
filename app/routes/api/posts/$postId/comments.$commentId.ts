@@ -15,9 +15,8 @@ export const action: ActionFunction = async ({ request, params }) => {
   const userId = await requireUserId(request);
   await deleteComment({
     userId,
-    postId: params.postId,
     id: params.commentId,
   });
 
-  return json({});
+  return json({}, 204);
 };

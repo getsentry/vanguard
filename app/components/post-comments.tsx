@@ -10,6 +10,7 @@ import CommentForm from "./comment-form";
 import Markdown from "./markdown";
 import Middot from "./middot";
 import type { User } from "~/models/user.server";
+import { PostQueryType } from "~/models/post.server";
 
 const Byline = styled.div`
   display: flex;
@@ -57,6 +58,22 @@ const Comment = styled.div`
   }
 `;
 
+const CommentsHeader = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 3rem;
+
+  h3 {
+    flex-grow: 1;
+    margin: 0;
+  }
+
+  ${Button} {
+    justify-self: flex-end;
+  }
+`;
+
 const deleteComment = async (
   postId: string,
   commentId: string
@@ -74,25 +91,59 @@ const deleteComment = async (
 const toggleSubscription = async (
   postId: string,
   active: boolean
-): Promise<string | undefined> => {
+): Promise<boolean | undefined> => {
   const res = await fetch(`/api/posts/${postId}/subscription`, {
     method: active ? "POST" : "DELETE",
   });
   if (res.status === 200) {
-    return !active;
+    return active;
   } else {
     alert("Unable to delete comment");
   }
 };
 
+const SubscribeButton = ({ postId, initialValue }) => {
+  const [value, setValue] = useState(initialValue);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  const label = value ? "Unsubscribe" : "Subscribe";
+
+  return (
+    <Button
+      onClick={async () => {
+        setLoading(true);
+        try {
+          const active = await toggleSubscription(postId, !value);
+          if (active !== undefined) {
+            setValue(active);
+          }
+        } finally {
+          setLoading(false);
+        }
+      }}
+      disabled={loading}
+    >
+      {loading ? "..." : label}
+    </Button>
+  );
+};
+
 export default ({
+  post,
   comments,
   user,
   allowComments,
+  hasSubscription,
 }: {
+  post: PostQueryType;
   comments: any[];
   user: User;
   allowComments: boolean;
+  hasSubscription: boolean;
 }) => {
   const [commentList, setCommentList] = useState(comments);
 
@@ -102,7 +153,10 @@ export default ({
 
   return (
     <Block>
-      <h3>Comments</h3>
+      <CommentsHeader>
+        <h3>Comments</h3>
+        <SubscribeButton postId={post.id} initialValue={hasSubscription} />
+      </CommentsHeader>
       {allowComments ? (
         <CommentForm />
       ) : (

@@ -6,6 +6,8 @@ import {
   hasSubscription,
 } from "./post-subscription.server";
 
+import * as Fixtures from "~/lib/test/fixtures";
+
 describe("hasSubscription", () => {
   let user: User;
   let post: Post;
