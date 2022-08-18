@@ -55,7 +55,7 @@ app.all(
     ? createRequestHandlerWithSentry({ build: require(BUILD_DIR) })
     : (...args) => {
         purgeRequireCache();
-        const requestHandler = createRequestHandlerWithSentry({
+        const requestHandler = createRequestHandler({
           build: loadBuild(),
           mode: MODE,
         });
