@@ -24,15 +24,9 @@ export async function getCommentList({
   if (postId) where.postId = postId;
 
   return await prisma.postComment.findMany({
-    select: {
-      id: true,
-      content: true,
-      authorId: true,
+    include: {
       author: true,
-      postId: true,
       post: !!postId, // we are prob too clever here
-      deleted: true,
-      createdAt: true,
     },
     where,
     orderBy: {
@@ -87,10 +81,12 @@ export async function createComment({
   userId,
   postId,
   content,
+  parentId = null,
 }: {
   userId: User["id"];
   postId: Post["id"];
   content: string;
+  parentId?: PostComment["id"];
 }): Promise<PostComment | null> {
   const post = await prisma.post.findFirst({
     where: {
@@ -109,6 +105,7 @@ export async function createComment({
         postId,
         authorId: userId,
         content,
+        parentId: parentId || null,
       },
       include: {
         author: true,

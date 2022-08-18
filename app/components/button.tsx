@@ -5,18 +5,31 @@ export type ButtonMode = "default" | "primary" | "danger";
 
 export type ButtonSize = "xs" | "sm" | "md";
 
+export type ButtonStyle = "button" | "link";
+
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   mode?: ButtonMode;
   size?: ButtonSize;
+  baseStyle?: ButtonStyle;
 }
 
 export function getButtonClassName({
   disabled,
   className,
   mode = "default",
+  baseStyle = "button",
   size = "md",
 }: ButtonProps) {
-  className = `${className || ""} btn btn-${size}`;
+  className = `${className || ""} btn-${size}`;
+
+  switch (baseStyle) {
+    case "link":
+      className = `${className} btn-link`;
+      break;
+    case "button":
+      className = `${className} btn `;
+      break;
+  }
 
   switch (mode) {
     case "primary":
@@ -34,15 +47,28 @@ export function getButtonClassName({
   return className;
 }
 
-const Button: React.FC<ButtonProps> = function Button({
+interface OurButtonProps extends ButtonProps {
+  size?: ButtonSize;
+  baseStyle?: ButtonStyle;
+  mode?: ButtonMode;
+}
+
+const Button: React.FC<OurButtonProps> = function Button({
   children,
   disabled,
   className,
   mode = "default",
   size = "md",
+  baseStyle = "button",
   ...props
 }) {
-  className = getButtonClassName({ className, mode, size, disabled });
+  className = getButtonClassName({
+    className,
+    mode,
+    size,
+    disabled,
+    baseStyle,
+  });
 
   return (
     <button disabled={disabled} className={className} {...props}>

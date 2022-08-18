@@ -14,6 +14,7 @@ import DefinitionList from "./definition-list";
 import { Fragment } from "react";
 import ButtonDropdown, { ButtonDropdownItem } from "./button-dropdown";
 import HelpText from "./help-text";
+import { ChatBubbleIcon, HeartIcon } from "@radix-ui/react-icons";
 
 const PostWrapper = styled.article`
   position: relative;
@@ -74,6 +75,20 @@ const Meta = styled.div`
 const Reactions = styled.div`
   flex-grow: 1;
   text-align: right;
+`;
+
+const ReactionCount = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+`;
+
+const CommentCount = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
 `;
 
 const Date = styled.div``;
@@ -167,15 +182,13 @@ export default function Post({
             {summary && totalComments !== undefined && (
               <>
                 <Middot />
-                <div>
-                  {totalReactions.toLocaleString()} reaction
-                  {totalReactions !== 1 && "s"}
-                </div>
+                <ReactionCount>
+                  <HeartIcon /> {totalReactions.toLocaleString()}
+                </ReactionCount>
                 <Middot />
-                <div>
-                  {totalComments.toLocaleString()} comment
-                  {totalComments !== 1 && "s"}
-                </div>
+                <CommentCount>
+                  <ChatBubbleIcon /> {totalComments.toLocaleString()}
+                </CommentCount>
               </>
             )}
             {!summary && (

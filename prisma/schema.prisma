@@ -12,14 +12,14 @@ datasource db {
 }
 
 model User {
-  id                String         @id @default(cuid())
-  externalId        String?        @unique
+  id                String             @id @default(cuid())
+  externalId        String?            @unique
   picture           String?
-  email             String         @unique
+  email             String             @unique
   name              String?
   posts             Post[]
-  canPostRestricted Boolean        @default(false)
-  admin             Boolean        @default(false)
+  canPostRestricted Boolean            @default(false)
+  admin             Boolean            @default(false)
   PostComment       PostComment[]
   PostRevision      PostRevision[]
   PostReaction      PostReaction[]
@@ -69,24 +69,24 @@ model CategoryMeta {
 }
 
 model Post {
-  id          String         @id @default(cuid())
-  createdAt   DateTime       @default(now())
-  publishedAt DateTime?      @default(now())
-  updatedAt   DateTime       @updatedAt
-  title       String         @db.VarChar(255)
-  content     String?
-  published   Boolean        @default(false)
-  deleted     Boolean        @default(false)
-  author      User           @relation(fields: [authorId], references: [id])
-  authorId    String
-  category    Category       @relation(fields: [categoryId], references: [id])
-  categoryId  String
-  allowComments Boolean?      @default(true)
+  id            String    @id @default(cuid())
+  createdAt     DateTime  @default(now())
+  publishedAt   DateTime? @default(now())
+  updatedAt     DateTime  @updatedAt
+  title         String    @db.VarChar(255)
+  content       String?
+  published     Boolean   @default(false)
+  deleted       Boolean   @default(false)
+  author        User      @relation(fields: [authorId], references: [id])
+  authorId      String
+  category      Category  @relation(fields: [categoryId], references: [id])
+  categoryId    String
+  allowComments Boolean?  @default(true)
 
-  revisions   PostRevision[]
-  meta        PostMeta[]
-  comments    PostComment[]
-  reactions   PostReaction[]
+  revisions     PostRevision[]
+  meta          PostMeta[]
+  comments      PostComment[]
+  reactions     PostReaction[]
   subscriptions PostSubscription[]
 }
 
@@ -114,12 +114,12 @@ model PostRevision {
 }
 
 model PostReaction {
-  id        String   @id @default(cuid())
-  postId    String
-  post      Post     @relation(fields: [postId], references: [id])
+  id     String @id @default(cuid())
+  postId String
+  post   Post   @relation(fields: [postId], references: [id])
 
-  authorId  String
-  author    User     @relation(fields: [authorId], references: [id])
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id])
 
   createdAt DateTime @default(now())
   emoji     String   @db.VarChar(8)
@@ -128,23 +128,26 @@ model PostReaction {
 }
 
 model PostComment {
-  id        String    @id @default(cuid())
+  id        String        @id @default(cuid())
   postId    String
-  post      Post      @relation(fields: [postId], references: [id])
+  post      Post          @relation(fields: [postId], references: [id])
   authorId  String
-  author    User      @relation(fields: [authorId], references: [id])
-  createdAt DateTime  @default(now())
-  deleted   Boolean   @default(false)
+  author    User          @relation(fields: [authorId], references: [id])
+  createdAt DateTime      @default(now())
+  deleted   Boolean       @default(false)
   content   String
+  parentId  String?
+  parent    PostComment?  @relation("CommentChildren", fields: [parentId], references: [id])
+  children  PostComment[] @relation("CommentChildren")
 }
 
 model PostSubscription {
-  id        String    @id @default(cuid())
+  id        String   @id @default(cuid())
   postId    String
-  post      Post      @relation(fields: [postId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id])
   userId    String
-  user      User      @relation(fields: [userId], references: [id])
-  createdAt DateTime  @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
 
   @@unique([postId, userId])
 }
