@@ -98,6 +98,7 @@ export async function createComment({
     },
     include: {
       author: true,
+      category: true,
     },
   });
   invariant(post, "post not found");
@@ -123,7 +124,6 @@ export async function createComment({
 
 export async function deleteComment({
   userId,
-  postId,
   id,
 }: {
   userId: User["id"];
@@ -137,18 +137,6 @@ export async function deleteComment({
 
   const comment = await prisma.postComment.findFirst({ where });
   invariant(comment, "comment not found");
-
-  const post = await prisma.post.findFirst({
-    where: {
-      id: postId,
-    },
-    select: {
-      id: true,
-      allowComments: true,
-      category: true,
-    },
-  });
-  invariant(post, "post not found");
 
   await prisma.postComment.update({
     where: { id },
