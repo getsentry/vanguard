@@ -265,6 +265,8 @@ const Primary = styled.div`
     width: 80%;
     padding: 0 5rem;
     margin-right: 40rem;
+    position: relative;
+    z-index: 1;
   `}
 `;
 
