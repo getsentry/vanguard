@@ -95,7 +95,7 @@ const DraftNoteForm = styled(Form)`
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  margin-bottom: 1.6rem;
+  margin-bottom: 3rem;
   gap: 1.6rem;
 
   p {
