@@ -1,9 +1,7 @@
 import type { Category, Post, User } from "@prisma/client";
 import { prisma } from "~/db.server";
-import { getPost, getPostList } from "~/models/post.server";
-
-const THUMBSUP = "👍";
-const HEART = "❤️";
+import { createPost, getPost, getPostList } from "~/models/post.server";
+import * as Fixtures from "~/lib/test/fixtures";
 
 describe("getPost", () => {
   let author: User;
@@ -15,23 +13,9 @@ describe("getPost", () => {
   let deletedPost: Post;
 
   beforeEach(async () => {
-    author = await prisma.user.create({
-      data: {
-        email: "foo@example.com",
-      },
-    });
-    otherAuthor = await prisma.user.create({
-      data: {
-        email: "bar@example.com",
-      },
-    });
-
-    category = await prisma.category.create({
-      data: {
-        name: "Foo Category",
-        slug: "foo-category",
-      },
-    });
+    author = await Fixtures.User();
+    otherAuthor = await Fixtures.User();
+    category = await Fixtures.Category();
     post = await prisma.post.create({
       data: {
         title: "Test",
@@ -120,23 +104,9 @@ describe("getPostList", () => {
   let otherUnpublishedPost: Post;
 
   beforeEach(async () => {
-    author = await prisma.user.create({
-      data: {
-        email: "foo@example.com",
-      },
-    });
-    otherAuthor = await prisma.user.create({
-      data: {
-        email: "bar@example.com",
-      },
-    });
-
-    category = await prisma.category.create({
-      data: {
-        name: "Foo Category",
-        slug: "foo-category",
-      },
-    });
+    author = await Fixtures.User();
+    otherAuthor = await Fixtures.User();
+    category = await Fixtures.Category();
     post = await prisma.post.create({
       data: {
         title: "Test",
@@ -263,5 +233,56 @@ describe("getPostList", () => {
         expect(result[0].id).toBe(otherUnpublishedPost.id);
       });
     });
+  });
+});
+
+describe("createPost", () => {
+  let author: User;
+  let category: Category;
+
+  beforeEach(async () => {
+    author = await Fixtures.User();
+    category = await Fixtures.Category();
+  });
+
+  it("creates a post", async () => {
+    let post = await createPost({
+      userId: author.id,
+      categoryId: category.id,
+      content: "test content",
+      title: "test",
+    });
+    expect(post).toBeDefined();
+    expect(post.title).toBe("test");
+    expect(post.content).toBe("test content");
+  });
+
+  test("creates default subscription", async () => {
+    let post = await createPost({
+      userId: author.id,
+      categoryId: category.id,
+      content: "test",
+      title: "test",
+    });
+    const subs = await prisma.postSubscription.findMany({
+      where: { postId: post.id },
+    });
+    expect(subs.length).toBe(1);
+    expect(subs[0].userId).toBe(author.id);
+  });
+
+  test("creates default revision", async () => {
+    let post = await createPost({
+      userId: author.id,
+      categoryId: category.id,
+      content: "test content",
+      title: "test",
+    });
+    const revs = await prisma.postRevision.findMany({
+      where: { postId: post.id },
+    });
+    expect(revs.length).toBe(1);
+    expect(revs[0].content).toBe("test content");
+    expect(revs[0].title).toBe("test");
   });
 });

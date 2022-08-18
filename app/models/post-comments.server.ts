@@ -1,8 +1,8 @@
 import type { User, Post, PostComment } from "@prisma/client";
-import { json } from "@remix-run/node";
 import invariant from "tiny-invariant";
 
 import { prisma } from "~/db.server";
+import { notifyComment } from "~/lib/email";
 
 export type { PostComment } from "@prisma/client";
 
@@ -74,6 +74,15 @@ export async function countCommentsForPosts({
   return results;
 }
 
+export async function announceComment(post: Post, comment: PostComment) {
+  const mailConfig = await prisma.categoryEmail.findMany({
+    where: {
+      categoryId: post.categoryId,
+    },
+  });
+  notifyComment(post, comment, mailConfig);
+}
+
 export async function createComment({
   userId,
   postId,
@@ -82,7 +91,7 @@ export async function createComment({
   userId: User["id"];
   postId: Post;
   content: string;
-}): Promise<Comment | null> {
+}): Promise<PostComment | null> {
   const post = await prisma.post.findFirst({
     where: {
       id: postId,
@@ -96,7 +105,7 @@ export async function createComment({
   invariant(post, "post not found");
 
   if (post.allowComments && post.category.allowComments) {
-    return await prisma.postComment.create({
+    const comment = await prisma.postComment.create({
       data: {
         postId,
         authorId: userId,
@@ -106,6 +115,10 @@ export async function createComment({
         author: true,
       },
     });
+
+    announceComment(post, comment);
+
+    return comment;
   }
   return null;
 }

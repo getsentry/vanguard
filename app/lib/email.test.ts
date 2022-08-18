@@ -1,8 +1,15 @@
+import { User, Post, PostComment, prisma } from "@prisma/client";
 import { createTransport, Transporter } from "nodemailer";
 import type Mail from "nodemailer/lib/mailer";
 import type SMTPTransport from "nodemailer/lib/smtp-transport";
 
-import { notify } from "./email";
+import * as Fixtures from "~/lib/test/fixtures";
+import { prisma } from "~/db.server";
+
+import { notify, notifyComment } from "./email";
+
+let transport: Transporter<SMTPTransport.SentMessageInfo>;
+let outbox: Mail.Options[];
 
 const mailConfig = {
   to: "test@example.com",
@@ -31,8 +38,9 @@ const createEmailTestHarness = () => {
           response: "ok",
         };
         callback(null, info);
-        outbox.push(mail.data);
       });
+
+      outbox.push(mail.data);
     },
   };
 
@@ -42,47 +50,29 @@ const createEmailTestHarness = () => {
   };
 };
 
+beforeEach(async () => {
+  process.env.BASE_URL = "http://localhost";
+  process.env.SMTP_FROM = "vanguard@example.com";
+
+  const harness = createEmailTestHarness();
+  transport = harness.transport;
+  outbox = harness.outbox;
+});
+
 describe("notify", () => {
-  const post = {
-    id: "cl6po7ehs82560ks6yffffben",
-    createdAt: new Date(),
-    publishedAt: new Date(),
-    updatedAt: new Date(),
-    title: "An Essay",
-    content: "**An Essay** on _life_",
-    published: true,
-    deleted: false,
-    authorId: "cl6pgiylv20600ks6b2937yfu",
-    author: {
-      id: "cl6pgiylv20600ks6b2937yfu",
-      name: "Jane Doe",
-      email: "jane@example.com",
-      admin: false,
-      externalId: "jane.doe",
-      picture: null,
-      canPostRestricted: false,
-    },
-    categoryId: "cl6pem4fj293610ks6w9sb8ea4",
-    category: {
-      id: "cl6pem4fj293610ks6w9sb8ea4",
-      name: "Shipped",
-      slug: "shipped",
-      deleted: false,
-      restricted: false,
-      colorHex: "#000000",
-    },
-  };
+  let author: User;
+  let post: Post;
 
-  let transport: Transporter<SMTPTransport.SentMessageInfo>;
-  let outbox: Mail.Options[];
-
-  beforeEach(() => {
-    process.env.BASE_URL = "http://localhost";
-    process.env.SMTP_FROM = "vanguard@example.com";
-
-    const harness = createEmailTestHarness();
-    transport = harness.transport;
-    outbox = harness.outbox;
+  beforeEach(async () => {
+    author = await Fixtures.User({
+      name: "Joe Doe",
+      email: "joe@example.com",
+    });
+    post = await Fixtures.Post({
+      title: "An Essay",
+      content: "**An Essay** on _life_",
+      authorId: author.id,
+    });
   });
 
   test("adds author to cc", async () => {
@@ -90,6 +80,53 @@ describe("notify", () => {
     expect(outbox.length).toBe(1);
     const message = outbox[0];
     expect(message.cc.length).toBe(1);
-    expect(message.cc[0]).toBe('"Jane Doe" <jane@example.com>');
+    expect(message.cc[0]).toBe('"Joe Doe" <joe@example.com>');
+  });
+});
+
+describe("notifyComment", () => {
+  let author: User;
+  let post: Post;
+  let comment: PostComment;
+
+  beforeEach(async () => {
+    author = await Fixtures.User({
+      name: "Joe Doe",
+      email: "joe@example.com",
+    });
+    post = await Fixtures.Post({
+      title: "An Essay",
+      authorId: author.id,
+    });
+    comment = await Fixtures.PostComment({
+      content: "**An Comment** on _life_",
+      authorId: author.id,
+    });
+
+    await prisma.postSubscription.create({
+      data: {
+        userId: author.id,
+        postId: post.id,
+      },
+    });
+  });
+
+  test("doesnt notify author", async () => {
+    await notifyComment(post, comment, mailConfig, transport);
+    expect(outbox.length).toBe(0);
+  });
+
+  test("does notify subscriber", async () => {
+    const otherAuthor = await Fixtures.User();
+    await prisma.postSubscription.create({
+      data: {
+        userId: otherAuthor.id,
+        postId: post.id,
+      },
+    });
+    await notifyComment(post, comment, mailConfig, transport);
+    expect(outbox.length).toBe(1);
+    const msg = outbox[0];
+    expect(msg.to).toBe(otherAuthor.email);
   });
 });

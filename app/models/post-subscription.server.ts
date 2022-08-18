@@ -1,7 +1,7 @@
-import type { PostSubsription } from "@prisma/client";
+import type { PostSubsription, User } from "@prisma/client";
 import { prisma } from "~/db.server";
 
-export type { PostComment } from "@prisma/client";
+export type { PostSubsription } from "@prisma/client";
 
 export async function hasSubscription({
   userId,
@@ -20,6 +20,23 @@ export async function hasSubscription({
     },
   });
   return !!sub;
+}
+
+export async function getSubscriptions({
+  postId,
+}: {
+  postId: PostSubscription["postId"];
+}): Promise<User[]> {
+  return (
+    await prisma.postSubscription.findMany({
+      select: {
+        user: true,
+      },
+      where: {
+        postId,
+      },
+    })
+  ).map((ps) => ps.user);
 }
 
 export async function createSubscription({

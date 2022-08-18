@@ -278,6 +278,13 @@ export async function createPost({
           },
         ],
       },
+      subscriptions: {
+        create: [
+          {
+            userId,
+          },
+        ],
+      },
       meta: {
         create: meta,
       },

@@ -33,6 +33,9 @@ export const Post = async ({ ...data } = {}) => {
       published: true,
       ...data,
     },
+    include: {
+      author: true,
+    },
   });
 };
 
@@ -50,6 +53,10 @@ export const PostComment = async ({ ...data } = {}) => {
       content: faker.lorem.paragraphs(),
       deleted: false,
       ...data,
+    },
+
+    include: {
+      author: true,
     },
   });
 };

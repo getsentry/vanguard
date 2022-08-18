@@ -23,6 +23,7 @@ model User {
   PostComment       PostComment[]
   PostRevision      PostRevision[]
   PostReaction      PostReaction[]
+  PostSubscription  PostSubscription[]
 }
 
 model Category {
@@ -86,6 +87,7 @@ model Post {
   meta        PostMeta[]
   comments    PostComment[]
   reactions   PostReaction[]
+  subscriptions PostSubscription[]
 }
 
 model PostMeta {
@@ -139,7 +141,9 @@ model PostComment {
 model PostSubscription {
   id        String    @id @default(cuid())
   postId    String
+  post      Post      @relation(fields: [postId], references: [id])
   userId    String
+  user      User      @relation(fields: [userId], references: [id])
   createdAt DateTime  @default(now())
 
   @@unique([postId, userId])

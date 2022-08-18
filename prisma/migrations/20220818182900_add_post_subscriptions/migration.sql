@@ -10,3 +10,9 @@ CREATE TABLE "PostSubscription" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "PostSubscription_postId_userId_key" ON "PostSubscription"("postId", "userId");
+
+-- AddForeignKey
+ALTER TABLE "PostSubscription" ADD CONSTRAINT "PostSubscription_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PostSubscription" ADD CONSTRAINT "PostSubscription_postId_fkey" FOREIGN KEY ("postId") REFERENCES "Post"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
