@@ -1,4 +1,4 @@
-import { User, Post, PostComment, prisma } from "@prisma/client";
+import { User, Post, PostComment } from "@prisma/client";
 import { createTransport, Transporter } from "nodemailer";
 import type Mail from "nodemailer/lib/mailer";
 import type SMTPTransport from "nodemailer/lib/smtp-transport";

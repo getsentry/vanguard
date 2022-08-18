@@ -12,16 +12,12 @@ describe("getCommentList", () => {
   let author: User;
   let otherAuthor: User;
   let post: Post;
-  let otherUnpublishedPost: Post;
 
   beforeEach(async () => {
     author = await Fixtures.User();
     otherAuthor = await Fixtures.User();
     post = await Fixtures.Post({
       authorId: author.id,
-    });
-    otherUnpublishedPost = await Fixtures.Post({
-      authorId: otherAuthor.id,
     });
     await prisma.postComment.create({
       data: {
