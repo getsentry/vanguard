@@ -1,8 +1,13 @@
 PG_CONTAINER=docker exec -t vanguard_postgres_1
 
-develop: install-requirements setup-git create-db migrate-db
+develop: setup-env setup-git install-requirements create-db migrate-db
 
 upgrade: install-requirements migrate-db
+
+setup-env:
+	if ! [ -f .env ]; then \
+		cp .env.example .env; \
+	fi
 
 setup-git:
 	pre-commit install
@@ -10,7 +15,6 @@ setup-git:
 
 install-requirements:
 	npm install
-	npm run setup
 
 test:
 	npm run test
@@ -25,8 +29,8 @@ drop-db:
 	$(PG_CONTAINER) dropdb --if-exists -h 127.0.0.1 -p 5432 -U postgres test_vanguard
 
 create-db:
-	$(PG_CONTAINER) createdb -E utf-8 -h 127.0.0.1 -p 5432 -U postgres vanguard
-	$(PG_CONTAINER) createdb -E utf-8 -h 127.0.0.1 -p 5432 -U postgres test_vanguard
+	$(PG_CONTAINER) createdb -E utf-8 -h 127.0.0.1 -p 5432 -U postgres vanguard || exit 0
+	$(PG_CONTAINER) createdb -E utf-8 -h 127.0.0.1 -p 5432 -U postgres test_vanguard || exit 0
 
 migrate-db:
 	npm run db:migrate

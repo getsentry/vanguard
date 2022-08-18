@@ -87,7 +87,7 @@ jobs:
         uses: bahmutov/npm-install@v1
 
       - name: 📜 Setup env
-        run: npm run setup
+        run: npm run db:migrate:test
 
       - name: ⚡ Run vitest
         run: npm run test:ci

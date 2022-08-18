@@ -20,6 +20,13 @@ It is built on top of [Remix](https://github.com/remix-run/remix), and intended 
 
 ## Development
 
+- Bootstrap the environment:
+
+  ```sh
+  # this will copy the default config to .env
+  make
+  ```
+
 - Start the Postgres Database in [Docker](https://www.docker.com/get-started):
 
   ```sh
