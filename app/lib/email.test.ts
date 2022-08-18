@@ -116,7 +116,7 @@ describe("notifyComment", () => {
     expect(outbox.length).toBe(0);
   });
 
-  test("does notify subscriber", async () => {
+  test("constructs appropriate email", async () => {
     const otherAuthor = await Fixtures.User();
     await prisma.postSubscription.create({
       data: {
@@ -128,5 +128,6 @@ describe("notifyComment", () => {
     expect(outbox.length).toBe(1);
     const msg = outbox[0];
     expect(msg.to).toBe(otherAuthor.email);
+    expect(msg.subject).toBe("Re: An Essay");
   });
 });
