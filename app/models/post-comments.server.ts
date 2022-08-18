@@ -89,17 +89,15 @@ export async function createComment({
   content,
 }: {
   userId: User["id"];
-  postId: Post;
+  postId: Post["id"];
   content: string;
 }): Promise<PostComment | null> {
   const post = await prisma.post.findFirst({
     where: {
       id: postId,
     },
-    select: {
-      id: true,
-      allowComments: true,
-      category: true,
+    include: {
+      author: true,
     },
   });
   invariant(post, "post not found");
