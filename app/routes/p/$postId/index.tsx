@@ -1,23 +1,22 @@
-import { ActionFunction, LoaderFunction, redirect } from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 
-import {
-  announcePost,
-  getPost,
-  getReactionsForPosts,
-  updatePost,
-} from "~/models/post.server";
+import { announcePost, getPost, updatePost } from "~/models/post.server";
+import { getReactionsForPosts } from "~/models/post-reactions.server";
 import type { PostQueryType } from "~/models/post.server";
+import { getCommentList, createComment } from "~/models/post-comments.server";
 import type { User } from "~/models/user.server";
 import { requireUser, requireUserId } from "~/session.server";
 import { default as PostTemplate } from "~/components/post";
 import PostReactions from "~/components/post-reactions";
-import { getPostLink } from "~/components/post-link";
+import PostComments from "~/components/post-comments";
+import { hasSubscription } from "~/models/post-subscription.server";
 
 type LoaderData = {
   post: PostQueryType;
+  comments: any[];
   reactions: any[];
   user: User;
 };
@@ -35,7 +34,21 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     await getReactionsForPosts({ userId: user.id, postList: [post] })
   )[post.id];
 
-  return json<LoaderData>({ post, user, reactions });
+  const comments = await getCommentList({
+    userId: user.id,
+    postId: post.id,
+  });
+
+  return json<LoaderData>({
+    post,
+    user,
+    reactions,
+    comments,
+    hasSubscription: await hasSubscription({
+      userId: user.id,
+      postId: post.id,
+    }),
+  });
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
@@ -44,34 +57,54 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   const formData = await request.formData();
   const published =
-    formData.get("published") === null
-      ? undefined
-      : formData.get("published") === "true" ||
-        formData.get("published") === "announce";
+    formData.get("published") === "true" ||
+    formData.get("published") === "announce";
 
-  const announce = published && formData.get("published") === "announce";
-  const post = await updatePost({
-    id: params.postId,
-    userId,
-    published,
-  });
+  if (published) {
+    const announce = published && formData.get("published") === "announce";
+    const post = await updatePost({
+      id: params.postId,
+      userId,
+      published,
+    });
 
-  if (!post.deleted && announce) {
-    announcePost(post);
+    if (!post.deleted && announce) {
+      announcePost(post);
+    }
+  }
+  const commentContent = formData.get("comment");
+  if (commentContent) {
+    await createComment({
+      userId,
+      postId: params.postId,
+      content: commentContent,
+    });
   }
 
-  return redirect(getPostLink(post));
+  return json({});
 };
 
 export default function PostDetailsPage() {
-  const { post, user, reactions } = useLoaderData() as LoaderData;
+  let { post, user, reactions, comments, hasSubscription } =
+    useLoaderData() as LoaderData;
 
   const canEdit = post.authorId === user.id || user.admin;
 
   return (
     <div>
       <PostTemplate post={post} canEdit={canEdit} reactions={reactions} />
-      <PostReactions post={post} reactions={reactions} />
+      {post.published && (
+        <>
+          <PostReactions post={post} reactions={reactions} />
+          <PostComments
+            post={post}
+            comments={comments}
+            user={user}
+            allowComments={post.allowComments && post.category.allowComments}
+            hasSubscription={hasSubscription}
+          />
+        </>
+      )}
     </div>
   );
 }

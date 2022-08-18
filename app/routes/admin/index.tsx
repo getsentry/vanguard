@@ -20,6 +20,9 @@ export default function Index() {
           <Link to="./categories">Categories</Link>
         </li>
         <li>
+          <Link to="./comments">Comments</Link>
+        </li>
+        <li>
           <Link to="./posts">Posts</Link>
         </li>
         <li>

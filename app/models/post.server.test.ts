@@ -1,14 +1,7 @@
 import type { Category, Post, User } from "@prisma/client";
 import { prisma } from "~/db.server";
-import {
-  countReactionsForPosts,
-  getPost,
-  getPostList,
-  getReactionsForPosts,
-} from "~/models/post.server";
-
-const THUMBSUP = "👍";
-const HEART = "❤️";
+import { createPost, getPost, getPostList } from "~/models/post.server";
+import * as Fixtures from "~/lib/test/fixtures";
 
 describe("getPost", () => {
   let author: User;
@@ -20,23 +13,9 @@ describe("getPost", () => {
   let deletedPost: Post;
 
   beforeEach(async () => {
-    author = await prisma.user.create({
-      data: {
-        email: "foo@example.com",
-      },
-    });
-    otherAuthor = await prisma.user.create({
-      data: {
-        email: "bar@example.com",
-      },
-    });
-
-    category = await prisma.category.create({
-      data: {
-        name: "Foo Category",
-        slug: "foo-category",
-      },
-    });
+    author = await Fixtures.User();
+    otherAuthor = await Fixtures.User();
+    category = await Fixtures.Category();
     post = await prisma.post.create({
       data: {
         title: "Test",
@@ -125,23 +104,9 @@ describe("getPostList", () => {
   let otherUnpublishedPost: Post;
 
   beforeEach(async () => {
-    author = await prisma.user.create({
-      data: {
-        email: "foo@example.com",
-      },
-    });
-    otherAuthor = await prisma.user.create({
-      data: {
-        email: "bar@example.com",
-      },
-    });
-
-    category = await prisma.category.create({
-      data: {
-        name: "Foo Category",
-        slug: "foo-category",
-      },
-    });
+    author = await Fixtures.User();
+    otherAuthor = await Fixtures.User();
+    category = await Fixtures.Category();
     post = await prisma.post.create({
       data: {
         title: "Test",
@@ -271,179 +236,53 @@ describe("getPostList", () => {
   });
 });
 
-describe("getReactionsForPosts", () => {
+describe("createPost", () => {
   let author: User;
-  let otherAuthor: User;
   let category: Category;
-  let post: Post;
-  let otherUnpublishedPost: Post;
 
   beforeEach(async () => {
-    author = await prisma.user.create({
-      data: {
-        email: "foo@example.com",
-      },
-    });
-    otherAuthor = await prisma.user.create({
-      data: {
-        email: "bar@example.com",
-      },
-    });
-    category = await prisma.category.create({
-      data: {
-        name: "Foo Category",
-        slug: "foo-category",
-      },
-    });
-    post = await prisma.post.create({
-      data: {
-        title: "Test",
-        content: "**Content**",
-        deleted: false,
-        published: true,
-        authorId: author.id,
-        categoryId: category.id,
-      },
-    });
-    otherUnpublishedPost = await prisma.post.create({
-      data: {
-        title: "Foo",
-        content: "**Bar**",
-        published: false,
-        deleted: false,
-        authorId: otherAuthor.id,
-        categoryId: category.id,
-      },
-    });
-    await prisma.postReaction.create({
-      data: {
-        postId: post.id,
-        emoji: HEART,
-        authorId: author.id,
-      },
-    });
-    await prisma.postReaction.create({
-      data: {
-        postId: post.id,
-        emoji: HEART,
-        authorId: otherAuthor.id,
-      },
-    });
-    await prisma.postReaction.create({
-      data: {
-        postId: post.id,
-        emoji: THUMBSUP,
-        authorId: otherAuthor.id,
-      },
-    });
+    author = await Fixtures.User();
+    category = await Fixtures.Category();
   });
 
-  test("returns reaction counts for single post", async () => {
-    const result = await getReactionsForPosts({
+  it("creates a post", async () => {
+    let post = await createPost({
       userId: author.id,
-      postList: [post],
+      categoryId: category.id,
+      content: "test content",
+      title: "test",
     });
-    expect(result[post.id]).toBeDefined();
-    expect(result[otherUnpublishedPost.id]).toBeUndefined();
-    expect(result[post.id].length).toBe(2);
-    result[post.id].sort((a, b) => b.total - a.total);
-    const firstEmoji = result[post.id][0];
-    expect(firstEmoji.emoji).toBe(HEART);
-    expect(firstEmoji.total).toBe(2);
-    expect(firstEmoji.user).toBe(true);
-
-    const secondEmoji = result[post.id][1];
-    expect(secondEmoji.emoji).toBe(THUMBSUP);
-    expect(secondEmoji.total).toBe(1);
-    expect(secondEmoji.user).toBe(false);
-  });
-});
-
-describe("countReactionsForPosts", () => {
-  let author: User;
-  let otherAuthor: User;
-  let category: Category;
-  let post: Post;
-  let otherUnpublishedPost: Post;
-
-  beforeEach(async () => {
-    author = await prisma.user.create({
-      data: {
-        email: "foo@example.com",
-      },
-    });
-    otherAuthor = await prisma.user.create({
-      data: {
-        email: "bar@example.com",
-      },
-    });
-    category = await prisma.category.create({
-      data: {
-        name: "Foo Category",
-        slug: "foo-category",
-      },
-    });
-    post = await prisma.post.create({
-      data: {
-        title: "Test",
-        content: "**Content**",
-        deleted: false,
-        published: true,
-        authorId: author.id,
-        categoryId: category.id,
-      },
-    });
-    otherUnpublishedPost = await prisma.post.create({
-      data: {
-        title: "Foo",
-        content: "**Bar**",
-        published: false,
-        deleted: false,
-        authorId: otherAuthor.id,
-        categoryId: category.id,
-      },
-    });
-    await prisma.postReaction.create({
-      data: {
-        postId: post.id,
-        emoji: HEART,
-        authorId: author.id,
-      },
-    });
-    await prisma.postReaction.create({
-      data: {
-        postId: post.id,
-        emoji: HEART,
-        authorId: otherAuthor.id,
-      },
-    });
-    await prisma.postReaction.create({
-      data: {
-        postId: post.id,
-        emoji: THUMBSUP,
-        authorId: otherAuthor.id,
-      },
-    });
+    expect(post).toBeDefined();
+    expect(post.title).toBe("test");
+    expect(post.content).toBe("test content");
   });
 
-  test("returns reaction counts for single post", async () => {
-    const result = await countReactionsForPosts({
+  test("creates default subscription", async () => {
+    let post = await createPost({
       userId: author.id,
-      postList: [post],
+      categoryId: category.id,
+      content: "test",
+      title: "test",
     });
-    expect(result[post.id]).toBeDefined();
-    expect(result[post.id]).toBe(3);
-    expect(result[otherUnpublishedPost.id]).toBeUndefined();
+    const subs = await prisma.postSubscription.findMany({
+      where: { postId: post.id },
+    });
+    expect(subs.length).toBe(1);
+    expect(subs[0].userId).toBe(author.id);
   });
 
-  test("returns reaction counts for multiple posts", async () => {
-    const result = await countReactionsForPosts({
+  test("creates default revision", async () => {
+    let post = await createPost({
       userId: author.id,
-      postList: [post, otherUnpublishedPost],
+      categoryId: category.id,
+      content: "test content",
+      title: "test",
     });
-    expect(result[post.id]).toBeDefined();
-    expect(result[post.id]).toBe(3);
-    expect(result[otherUnpublishedPost.id]).toBeDefined();
-    expect(result[otherUnpublishedPost.id]).toBe(0);
+    const revs = await prisma.postRevision.findMany({
+      where: { postId: post.id },
+    });
+    expect(revs.length).toBe(1);
+    expect(revs[0].content).toBe("test content");
+    expect(revs[0].title).toBe("test");
   });
 });

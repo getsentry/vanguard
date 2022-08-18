@@ -3,22 +3,26 @@ import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
 import { requireUserId } from "~/session.server";
-import { getPostList, getReactionsForPosts } from "~/models/post.server";
+
+import { getPostList } from "~/models/post.server";
 import Post from "~/components/post";
 import { paginate } from "~/lib/paginator";
 import Paginated from "~/components/paginated";
 import WelcomeBanner from "~/components/welcome-banner";
 import ClusteredPostList from "~/components/clustered-post-list";
+import { getReactionsForPosts } from "~/models/post-reactions.server";
+import { countCommentsForPosts } from "~/models/post-comments.server";
 
 type LoaderData = {
   postListPaginated: any;
   reactions: any[];
+  commentCounts: any[];
 };
 
 // TODO: make configurable
 const clusteredCategories = ["shipped"];
 
-const FragmentedPostList = ({ posts, reactions }) => {
+const FragmentedPostList = ({ posts, reactions, commentCounts }) => {
   // pull out the first unclustered post
   let firstUnclusteredPost = posts.find(
     (p) => clusteredCategories.indexOf(p.category.slug) === -1
@@ -34,6 +38,7 @@ const FragmentedPostList = ({ posts, reactions }) => {
         post={firstUnclusteredPost}
         key={firstUnclusteredPost.id}
         reactions={reactions[firstUnclusteredPost.id]}
+        totalComments={commentCounts[firstUnclusteredPost.id]}
         summary
       />
     );
@@ -52,6 +57,7 @@ const FragmentedPostList = ({ posts, reactions }) => {
           category={buffer[0].category}
           posts={buffer}
           reactions={reactions}
+          commentCounts={commentCounts}
           key={buffer[0].id}
         />
       );
@@ -64,6 +70,7 @@ const FragmentedPostList = ({ posts, reactions }) => {
           post={post}
           key={post.id}
           reactions={reactions[post.id]}
+          totalComments={commentCounts[post.id]}
           summary
         />
       );
@@ -80,6 +87,7 @@ const FragmentedPostList = ({ posts, reactions }) => {
         category={buffer[0].category}
         posts={buffer}
         reactions={reactions}
+        commentCounts={commentCounts}
         key={buffer[0].id}
       />
     );
@@ -104,11 +112,17 @@ export const loader: LoaderFunction = async ({ request }) => {
     postList: postListPaginated.result,
   });
 
-  return json<LoaderData>({ postListPaginated, reactions });
+  const commentCounts = await countCommentsForPosts({
+    userId,
+    postList: postListPaginated.result,
+  });
+
+  return json<LoaderData>({ postListPaginated, reactions, commentCounts });
 };
 
 export default function Index() {
-  const { postListPaginated, reactions } = useLoaderData() as LoaderData;
+  const { postListPaginated, reactions, commentCounts } =
+    useLoaderData() as LoaderData;
 
   return (
     <>
@@ -119,7 +133,11 @@ export default function Index() {
           return result.length === 0 ? (
             <p>No posts yet.</p>
           ) : (
-            <FragmentedPostList posts={result} reactions={reactions} />
+            <FragmentedPostList
+              posts={result}
+              reactions={reactions}
+              commentCounts={commentCounts}
+            />
           );
         }}
       />

@@ -20,7 +20,10 @@ model User {
   posts             Post[]
   canPostRestricted Boolean        @default(false)
   admin             Boolean        @default(false)
+  PostComment       PostComment[]
   PostRevision      PostRevision[]
+  PostReaction      PostReaction[]
+  PostSubscription  PostSubscription[]
 }
 
 model Category {
@@ -35,6 +38,7 @@ model Category {
   emailConfig   CategoryEmail[]
   metaConfig    CategoryMeta[]
   colorHex      String?         @db.VarChar(7)
+  allowComments Boolean         @default(true)
 }
 
 model CategorySlack {
@@ -77,8 +81,13 @@ model Post {
   authorId    String
   category    Category       @relation(fields: [categoryId], references: [id])
   categoryId  String
+  allowComments Boolean?      @default(true)
+
   revisions   PostRevision[]
   meta        PostMeta[]
+  comments    PostComment[]
+  reactions   PostReaction[]
+  subscriptions PostSubscription[]
 }
 
 model PostMeta {
@@ -107,9 +116,35 @@ model PostRevision {
 model PostReaction {
   id        String   @id @default(cuid())
   postId    String
+  post      Post     @relation(fields: [postId], references: [id])
+
   authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+
   createdAt DateTime @default(now())
   emoji     String   @db.VarChar(8)
 
   @@unique([postId, authorId, emoji])
+}
+
+model PostComment {
+  id        String    @id @default(cuid())
+  postId    String
+  post      Post      @relation(fields: [postId], references: [id])
+  authorId  String
+  author    User      @relation(fields: [authorId], references: [id])
+  createdAt DateTime  @default(now())
+  deleted   Boolean   @default(false)
+  content   String
+}
+
+model PostSubscription {
+  id        String    @id @default(cuid())
+  postId    String
+  post      Post      @relation(fields: [postId], references: [id])
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  createdAt DateTime  @default(now())
+
+  @@unique([postId, userId])
 }

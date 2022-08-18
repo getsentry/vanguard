@@ -2,9 +2,9 @@ import type { ActionFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import invariant from "tiny-invariant";
 
-import { togglePostReaction } from "~/models/post.server";
 import { requireUserId } from "~/session.server";
 import { isEmoji } from "~/lib/emoji";
+import { togglePostReaction } from "~/models/post-reactions.server";
 
 type ActionData = {
   errors?: {

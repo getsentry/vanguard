@@ -25,6 +25,8 @@ const clearDatabase = async () => {
   // }
 
   await prisma.$transaction([
+    prisma.postSubscription.deleteMany(),
+    prisma.postComment.deleteMany(),
     prisma.postReaction.deleteMany(),
     prisma.postMeta.deleteMany(),
     prisma.postRevision.deleteMany(),

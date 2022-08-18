@@ -88,8 +88,7 @@ const ClusterWrapper = styled.article`
           /* Icon size + gutter size */
           left: calc(-19px + -4rem);
           top: -.4rem;
-        `
-      }
+        `}
     }
   }
 
@@ -103,7 +102,7 @@ const ClusterWrapper = styled.article`
   }
 `;
 
-export default ({ category, posts, reactions }) => {
+export default ({ category, posts, reactions, commentCounts }) => {
   return (
     <ClusterWrapper category={category}>
       <CategoryTag category={category} />
@@ -114,6 +113,7 @@ export default ({ category, posts, reactions }) => {
             (value, r) => value + r.total,
             0
           );
+          const totalComments = commentCounts[post.id];
           return (
             <li key={post.id}>
               <StyledIconCollapsedPost />
@@ -135,6 +135,11 @@ export default ({ category, posts, reactions }) => {
                   <div>
                     {totalReactions.toLocaleString()} reaction
                     {totalReactions !== 1 && "s"}
+                  </div>
+                  <Middot />
+                  <div>
+                    {totalComments.toLocaleString()} comment
+                    {totalComments !== 1 && "s"}
                   </div>
                 </Meta>
                 <Reactions>

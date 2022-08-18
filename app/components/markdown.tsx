@@ -30,9 +30,10 @@ marked.setOptions({
 export default function Markdown({
   content,
   summarize,
+  ...props
 }: {
   content: string;
-  summarize: boolean;
+  summarize?: boolean;
 }) {
   const markdownContent = marked.parse(content, { breaks: true });
 
@@ -44,5 +45,5 @@ export default function Markdown({
         }).split("</p>")[0] + "</p>"
       : markdownContent
   );
-  return <div dangerouslySetInnerHTML={{ __html: html }} />;
+  return <div dangerouslySetInnerHTML={{ __html: html }} {...props} />;
 }
