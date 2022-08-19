@@ -68,3 +68,7 @@ This project uses ESLint for linting. That is configured in `.eslintrc.js`.
 ### Formatting
 
 We use [Prettier](https://prettier.io/) for auto-formatting in this project. It's recommended to install an editor plugin (like the [VSCode Prettier plugin](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)) to get auto-formatting on save. There's also a `npm run format` script you can run to format all files in the project.
+
+## License
+
+See `LICENSE`, with an asterisk that Gazpacho is currently bundled in the repository and requires a commercial license. We'll fix this to make it optional in the future.
