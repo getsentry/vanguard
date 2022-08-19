@@ -1,4 +1,5 @@
 import type { User } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 import invariant from "tiny-invariant";
 
 import { prisma } from "~/db.server";
@@ -69,18 +70,40 @@ export async function upsertUser({
   email: User["email"];
   externalId: string;
 }) {
-  return await prisma.user.upsert({
-    where: {
-      externalId,
-    },
-    update: {
-      email,
-    },
-    create: {
-      email,
-      externalId,
-    },
-  });
+  try {
+    return await prisma.user.upsert({
+      where: {
+        externalId,
+      },
+      update: {
+        email,
+      },
+      create: {
+        email,
+        externalId,
+      },
+    });
+  } catch (e) {
+    // handles a rare case where an externalId was not set
+    if (e instanceof PrismaClientKnownRequestError) {
+      // The .code property can be accessed in a type-safe manner
+      if (e.code === "P2002") {
+        return await prisma.user.upsert({
+          where: {
+            email,
+          },
+          update: {
+            externalId,
+          },
+          create: {
+            email,
+            externalId,
+          },
+        });
+      }
+    }
+    throw e;
+  }
 }
 
 export async function updateUser({
@@ -90,13 +113,15 @@ export async function updateUser({
   name,
   picture,
   canPostRestricted,
+  notifyReplies,
 }: {
   id: User["id"];
   userId: User["id"];
   admin?: User["admin"] | null;
   name?: User["name"] | null;
   picture?: User["picture"] | null;
-  canPostRestricted?: User["canPostRestricted"] | null;
+  canPostRestricted?: User["canPostRestricted"] | undefined;
+  notifyReplies?: User["notifyReplies"] | undefined;
 }) {
   const user = await prisma.user.findFirst({ where: { id: userId } });
   invariant(user, "user not found");
@@ -112,6 +137,7 @@ export async function updateUser({
 
   if (name !== undefined) data.name = name;
   if (picture !== undefined) data.picture = picture;
+  if (notifyReplies !== undefined) data.notifyReplies = notifyReplies;
 
   return await prisma.user.update({
     where: {

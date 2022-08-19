@@ -20,6 +20,7 @@ model User {
   posts             Post[]
   canPostRestricted Boolean            @default(false)
   admin             Boolean            @default(false)
+  notifyReplies     Boolean            @default(true)
   PostComment       PostComment[]
   PostRevision      PostRevision[]
   PostReaction      PostReaction[]

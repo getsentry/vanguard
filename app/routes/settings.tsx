@@ -47,6 +47,7 @@ export const action: ActionFunction = async ({ request }) => {
     })
   );
   const name = formData.get("name");
+  const notifyReplies = !!formData.get("notifyReplies");
   let picture: any = formData.get("picture");
   // empty values get returned as empty strings, which will unset
   // the picture rather than leave it unchanged
@@ -64,6 +65,7 @@ export const action: ActionFunction = async ({ request }) => {
     id: userId,
     name,
     picture,
+    notifyReplies,
   });
 
   const url = new URL(request.url);
@@ -136,6 +138,16 @@ export default function NewPostPage() {
             {errors.picture}
           </div>
         )}
+      </div>
+      <div>
+        <label className="field-inline">
+          <input
+            type="checkbox"
+            name="notifyReplies"
+            defaultChecked={user.notifyReplies}
+          />
+          Receive notifications about replies to your comments?
+        </label>
       </div>
       <FormActions>
         <Button type="submit" mode="primary">

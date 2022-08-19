@@ -76,7 +76,11 @@ describe("notify", () => {
   });
 
   test("adds author to cc", async () => {
-    await notify(post, mailConfig, transport);
+    await notify({
+      post,
+      config: mailConfig,
+      transport,
+    });
     expect(outbox.length).toBe(1);
     const message = outbox[0];
     expect(message.cc.length).toBe(1);
@@ -112,7 +116,7 @@ describe("notifyComment", () => {
   });
 
   test("doesnt notify author", async () => {
-    await notifyComment(post, comment, mailConfig, transport);
+    await notifyComment({ post, comment, config: mailConfig, transport });
     expect(outbox.length).toBe(0);
   });
 
@@ -124,10 +128,38 @@ describe("notifyComment", () => {
         postId: post.id,
       },
     });
-    await notifyComment(post, comment, mailConfig, transport);
+    await notifyComment({
+      post,
+      comment,
+      config: mailConfig,
+      transport,
+    });
     expect(outbox.length).toBe(1);
     const msg = outbox[0];
     expect(msg.to).toBe(otherAuthor.email);
     expect(msg.subject).toBe("Re: An Essay");
+  });
+
+  describe("with parent", () => {
+    test("notifies comment author on reply", async () => {
+      let otherAuthor = await Fixtures.User();
+      let childComment = await Fixtures.PostComment({
+        parentId: comment.id,
+        authorId: otherAuthor.id,
+      });
+      childComment.author = otherAuthor;
+
+      await notifyComment({
+        post,
+        comment: childComment,
+        parent: comment,
+        config: mailConfig,
+        transport,
+      });
+      expect(outbox.length).toBe(1);
+      const msg = outbox[0];
+      expect(msg.to).toBe(author.email);
+      expect(msg.subject).toBe("Re: An Essay");
+    });
   });
 });

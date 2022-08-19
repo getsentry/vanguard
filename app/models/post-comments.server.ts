@@ -68,13 +68,17 @@ export async function countCommentsForPosts({
   return results;
 }
 
-export async function announceComment(post: Post, comment: PostComment) {
+export async function announceComment(
+  post: Post,
+  comment: PostComment,
+  parent?: PostComment
+) {
   const mailConfig = await prisma.categoryEmail.findMany({
     where: {
       categoryId: post.categoryId,
     },
   });
-  notifyComment(post, comment, mailConfig);
+  notifyComment(post, comment, parent, mailConfig);
 }
 
 export async function createComment({
@@ -100,19 +104,26 @@ export async function createComment({
   invariant(post, "post not found");
 
   if (post.allowComments && post.category.allowComments) {
+    const parent = parentId
+      ? await prisma.postComment.findFirst({
+          where: { postId, id: parentId },
+          include: { author: true },
+        })
+      : null;
+
     const comment = await prisma.postComment.create({
       data: {
         postId,
         authorId: userId,
         content,
-        parentId: parentId || null,
+        parentId: parent ? parent.id : null,
       },
       include: {
         author: true,
       },
     });
 
-    announceComment(post, comment);
+    announceComment(post, comment, parent);
 
     return comment;
   }
