@@ -40,7 +40,16 @@ export default function Markdown({
   let html = sanitize(
     summarize
       ? sanitize(marked.parse(content, { breaks: true }), {
-          ALLOWED_TAGS: ["p", "blockquote", "#text"],
+          ALLOWED_TAGS: [
+            "p",
+            "blockquote",
+            "#text",
+            "strong",
+            "em",
+            "i",
+            "b",
+            "a",
+          ],
           KEEP_CONTENT: false,
         }).split("</p>")[0] + "</p>"
       : markdownContent
