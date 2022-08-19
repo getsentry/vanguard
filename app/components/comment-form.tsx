@@ -103,6 +103,7 @@ export default function CommentForm({
 
           if (res.status === 200) {
             setStoredDraft({});
+            onInReplyTo(null);
             onComment(await res.json());
           }
         } finally {
