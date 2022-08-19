@@ -1,4 +1,4 @@
-import { summarize } from "~/lib/slack";
+import summarize from "./summarize";
 
 describe("summarize", () => {
   test("summarizes short single paragraph ignoring images", async () => {

@@ -11,7 +11,7 @@
     "build:server": "esbuild --platform=node --bundle --format=cjs ./server --outdir=build --sourcemap=external",
     "build:sourcemaps": "sentry-upload-sourcemaps",
     "db:migrate": "run-p db:migrate:*",
-    "db:migrate:dev": "npx prisma migrate dev",
+    "db:migrate:dev": "npx prisma migrate dev && npx prisma db seed",
     "db:migrate:test": "dotenv -e .env.test -- npx prisma db push --accept-data-loss",
     "dev": "run-p dev:*",
     "dev:server": "cross-env NODE_ENV=development node --inspect --require ./node_modules/dotenv/config --require ./mocks ./build/server.js",

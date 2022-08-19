@@ -6,6 +6,18 @@ import type SMTPTransport from "nodemailer/lib/smtp-transport";
 import type { PostQueryType } from "~/models/post.server";
 import type { PostComment } from "~/models/post-comments.server";
 import { getSubscriptions } from "~/models/post-subscription.server";
+import summarize from "./summarize";
+import { lightTheme } from "~/styles/theme";
+import { User } from "@sentry/remix";
+
+const escape = (value: string): string => {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+};
 
 export type EmailConfig = {
   to: string;
@@ -45,11 +57,15 @@ const createMailTransport = () => {
   });
 };
 
-export const notify = async (
-  post: PostQueryType,
-  config: EmailConfig,
-  transport: Transporter<SMTPTransport.SentMessageInfo> = mailTransport
-) => {
+export const notify = async ({
+  post,
+  config,
+  transport = mailTransport,
+}: {
+  post: PostQueryType;
+  config: EmailConfig;
+  transport: Transporter<SMTPTransport.SentMessageInfo>;
+}) => {
   if (!hasEmailSupport()) return;
 
   console.log(`Sending email notification for post ${post.id} to ${config.to}`);
@@ -59,9 +75,7 @@ export const notify = async (
     transport = mailTransport;
   }
 
-  const authorUrl = `${process.env.BASE_URL}/u/${post.author.email}`;
   const postUrl = `${process.env.BASE_URL}/p/${post.id}`;
-  const html = marked.parse(post.content as string, { breaks: true });
   const sender = `"${post.author.name}" <${post.author.email}>`;
 
   try {
@@ -73,26 +87,61 @@ export const notify = async (
       cc: [sender],
       sender,
       text: `View this post on Vanguard: ${postUrl}\n\n${post.content}`,
-      html: `
-      <div style="padding:5px;border:1px solid #ccc;margin-bottom:10px">
-      <h1 style="margin:0">${post.title}</h1>
-      <div>Published by <a href="${authorUrl}">${post.author.name}</a></div>
-      <div><a href="${postUrl}">View this post on Vanguard</a></div>
-      </div>
-      ${html}
-      `,
+      html: buildPostEmail(post),
     });
   } catch (err) {
     error("email notification failed");
   }
 };
 
-export const notifyComment = async (
-  post: PostQueryType,
-  comment: PostComment,
-  config: EmailConfig,
-  transport: Transporter<SMTPTransport.SentMessageInfo> = mailTransport
-) => {
+const buildPostEmail = (post: PostQueryType): string => {
+  const postUrl = `${process.env.BASE_URL}/p/${post.id}`;
+  const html = marked.parse(post.content as string, { breaks: true });
+
+  return `
+    <h2 style="margin-top:0;margin-bottom:15px;color:${
+      lightTheme.textColor
+    };">${escape(post.title)}</h2>
+    <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td style="vertical-align:top"><img src="${
+            post.author.picture ||
+            `${process.env.BASE_URL}/img/placeholder-avatar.png`
+          }" width="36" height="36" style="border-radius:36px;display:block;" /></td>
+        <td style="padding-left:15px">
+        <table cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td>
+              <b style="color:${lightTheme.textColor};">${escape(
+    post.author.name
+  )}</b>
+            </td>
+          </tr>
+          <tr>
+            <td><a href="${postUrl}" style="color:${
+    lightTheme.linkColor
+  };">View this Post</a></td>
+          </tr>
+        </td>
+      </tr>
+    </table>
+    <div style="margin-top:15px;">${html}</td>
+    `;
+};
+
+export const notifyComment = async ({
+  post,
+  comment,
+  parent,
+  config,
+  transport = mailTransport,
+}: {
+  post: PostQueryType;
+  comment: PostComment;
+  parent?: PostComment;
+  config: EmailConfig;
+  transport: Transporter<SMTPTransport.SentMessageInfo>;
+}) => {
   if (!hasEmailSupport()) return;
 
   if (!transport) {
@@ -100,35 +149,110 @@ export const notifyComment = async (
     transport = mailTransport;
   }
 
-  const authorUrl = `${process.env.BASE_URL}/u/${comment.author.email}`;
   const commentUrl = `${process.env.BASE_URL}/p/${post.id}#c_${comment.id}`;
-  const html = marked.parse(comment.content as string, { breaks: true });
   const sender = `"${comment.author.name}" <${comment.author.email}>`;
+  const subject = `Re: ${post.title}`;
 
-  (await getSubscriptions({ postId: post.id }))
+  const subscriptions: User[] = await getSubscriptions({ postId: post.id });
+  if (
+    parent &&
+    parent.author.notifyReplies &&
+    !subscriptions.find((u) => u.id === parent.authorId)
+  ) {
+    subscriptions.push(parent.author);
+  }
+
+  subscriptions
     .filter((user) => user.id !== comment.authorId)
     .forEach(async (user) => {
       console.log(
         `Sending email notification for comment ${comment.id} to ${user.email}`
       );
 
+      const html = buildCommentHtml(user, post, comment, parent);
+
       try {
         await transport.sendMail({
           from: `"Vanguard" <${process.env.SMTP_FROM}>`,
           to: user.email,
-          subject: `Re: ${post.title}`,
+          subject: subject,
+          replyTo: comment.author.email,
           sender,
           text: `View this comment on Vanguard: ${commentUrl}\n\n${comment.content}`,
-          html: `
-          <div style="padding:5px;border:1px solid #ccc;margin-bottom:10px">
-          A new comment was posted by <a href="${authorUrl}">${comment.author.name}</a></div>
-          <div><a href="${commentUrl}">View this comment on Vanguard</a></div>
-          </div>
-          ${html}
-          `,
+          html,
         });
       } catch (err) {
         error("email notification failed");
       }
     });
+};
+
+const buildCommentHtml = (
+  toUser: User,
+  post: PostQueryType,
+  comment: PostComment,
+  parent?: PostComment
+): string => {
+  const postUrl = `${process.env.BASE_URL}/p/${post.id}`;
+  const commentUrl = `${process.env.BASE_URL}/p/${post.id}#c_${comment.id}`;
+  const settingsUrl = `${process.env.BASE_URL}/settings`;
+
+  const isInReplyTo = parent && parent.authorId === toUser.id;
+  const titleLine = isInReplyTo
+    ? `${escape(comment.author.name)} just replied to your comment`
+    : `${escape(comment.author.name)} left a new comment`;
+  const reasonLine = isInReplyTo
+    ? `You are being notified because you have notification replies enabled. <a href="${settingsUrl}">Account Settings</a>`
+    : `You are being notified because you are subscribed to this post. <a href="${postUrl}">Post Settings</a>`;
+
+  return `
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <title>New Comment</title>
+      <meta http-equiv="Content-Type" content="text/html charset=UTF-8" />
+    </head>
+    <body>
+      <h2 style="margin-top:0;margin-bottom:15px;color:${
+        lightTheme.textColor
+      };">${titleLine}</h2>
+      ${
+        isInReplyTo
+          ? `<p style="margin-top:0;margin-bottom:15px;color:${
+              lightTheme.textColor
+            };">&quot;${escape(summarize(parent.content))}&quot;</p>`
+          : ""
+      }
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td style="vertical-align:top"><img src="${
+            comment.author.picture ||
+            `${process.env.BASE_URL}/img/placeholder-avatar.png`
+          }" width="36" height="36" style="border-radius:36px;display:block;" /></td>
+          <td style="padding-left:15px">
+            <table cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td><b style="color:${lightTheme.textColor};">${escape(
+    comment.author.name
+  )}</b></td>
+              </tr>
+              <tr>
+              <td style="color:${lightTheme.textColorSecondary};">${escape(
+    summarize(comment.content)
+  )}</td>
+            </tr>
+            <tr>
+              <td style="padding-top:15px;"><a href="${commentUrl}" style="color:${
+    lightTheme.linkColor
+  };">View this Comment</a></td>
+            </tr>
+            </table>
+        </tr>
+      </table>
+      <p style="color:${
+        lightTheme.textColorSecondary
+      };margin:15px 0 0;">${reasonLine}</p>
+    </body>
+  </html>
+  `;
 };

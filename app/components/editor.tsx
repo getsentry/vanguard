@@ -165,6 +165,7 @@ const EditorWrapper = styled.div`
   textarea {
     width: 100%;
     border-radius: 0 0 6px 6px;
+    padding: 5px;
     border: 1px solid ${(p) => p.theme.borderColor};
   }
 `;

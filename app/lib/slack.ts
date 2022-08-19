@@ -1,8 +1,7 @@
 import { error } from "./logging";
 import type { PostQueryType } from "~/models/post.server";
 import moment from "moment";
-import { marked } from "marked";
-import { sanitize } from "isomorphic-dompurify";
+import summarize from "./summarize";
 
 export type SlackConfig = {
   webhookUrl: string;
@@ -11,21 +10,13 @@ export type SlackConfig = {
   iconUrl?: string;
 };
 
-export const summarize = (content: string, maxLength = 256): string => {
-  // first remove elements we wouldn't want as a summary
-  const contentBlocks = sanitize(marked.parse(content, { breaks: true }), {
-    ALLOWED_TAGS: ["p", "blockquote", "#text"],
-    KEEP_CONTENT: false,
-  });
-  const sum = sanitize(contentBlocks, {
-    ALLOWED_TAGS: [],
-  }).replace(/^[\s\n]+|[\s\n]+$/g, "");
-  if (sum.length > maxLength)
-    return sum.substring(0, maxLength - 3).split("\n")[0] + "...";
-  return sum;
-};
-
-export const notify = async (post: PostQueryType, config: SlackConfig) => {
+export const notify = async ({
+  post,
+  config,
+}: {
+  post: PostQueryType;
+  config: SlackConfig;
+}) => {
   const { author, category } = post;
   console.log(`Sending Slack notification for post ${post.id}`);
 

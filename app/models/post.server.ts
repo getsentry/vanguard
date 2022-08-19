@@ -32,7 +32,10 @@ export async function announcePost(post: PostQueryType) {
   });
 
   emailConfig.forEach(async (config) => {
-    await email.notify(post, config as email.EmailConfig);
+    await email.notify({
+      post,
+      config: config as email.EmailConfig,
+    });
   });
 
   let slackConfig: slack.SlackConfig[] | CategorySlack[] =
@@ -51,7 +54,10 @@ export async function announcePost(post: PostQueryType) {
   }
 
   slackConfig.forEach(async (config) => {
-    await slack.notify(post, config as slack.SlackConfig);
+    await slack.notify({
+      post,
+      config: config as slack.SlackConfig,
+    });
   });
 }
 

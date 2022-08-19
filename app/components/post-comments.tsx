@@ -277,7 +277,7 @@ export default ({
             post={post}
             inReplyTo={inReplyTo}
             onInReplyTo={(comment) => setInReplyTo(comment || null)}
-            onComment={(comment) => setCommentList([...comments, comment])}
+            onComment={(comment) => setCommentList([...commentList, comment])}
           />
         ) : (
           <p>Comments are disabled for this post.</p>

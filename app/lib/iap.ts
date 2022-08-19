@@ -64,12 +64,11 @@ async function verifyGoogleToken(token: string) {
 
 export async function getIdentity(request: Request): Promise<Identity | null> {
   if (process.env.NODE_ENV !== "production") {
-    console.log(
-      "Dev environment bypassing authentication as jane.doe@example.com"
-    );
+    const email = process.env.DUMMY_USER_EMAIL || "jane.doe@example.com";
+    console.log(`Dev environment bypassing authentication as ${email}`);
     return {
       id: "dummy-iap-user",
-      email: "jane.doe@example.com",
+      email,
     };
   }
 

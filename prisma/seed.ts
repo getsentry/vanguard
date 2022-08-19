@@ -2,30 +2,7 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-const ADMINS = [
-  ["david@sentry.io", "David Cramer"],
-  ["chris@sentry.io", "Chris Jennings"],
-];
-
 async function main() {
-  let adminsByEmail: { [email: string]: any } = {};
-
-  ADMINS.forEach(async ([email, name]) => {
-    adminsByEmail[email] = await prisma.user.upsert({
-      where: { email },
-      update: {
-        canPostRestricted: true,
-        admin: true,
-      },
-      create: {
-        email,
-        name,
-        canPostRestricted: true,
-        admin: true,
-      },
-    });
-  });
-
   await prisma.category.upsert({
     where: { name: "Shipped" },
     update: {
