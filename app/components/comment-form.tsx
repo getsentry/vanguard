@@ -59,14 +59,14 @@ export default function CommentForm({
   errors,
   initialData,
   inReplyTo = null,
-  onInReplayTo,
+  onInReplyTo,
   onComment,
 }: {
   post: Post;
   errors?: CommentFormErrors;
   initialData?: CommentFormInitialData;
   inReplyTo?: PostComment | null;
-  onInReplayTo: (comment?: PostComment) => void;
+  onInReplyTo: (comment?: PostComment) => void;
   onComment: (comment?: PostComment) => void;
 }) {
   const [loading, setLoading] = useState(false);
@@ -127,7 +127,7 @@ export default function CommentForm({
         <ParentComment
           comment={inReplyTo}
           onClear={() => {
-            onInReplayTo(null);
+            onInReplyTo(null);
           }}
         />
       </fieldset>

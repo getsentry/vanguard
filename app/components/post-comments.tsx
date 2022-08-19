@@ -276,7 +276,7 @@ export default ({
           <CommentForm
             post={post}
             inReplyTo={inReplyTo}
-            onInReplayTo={(comment) => setInReplyTo(comment || null)}
+            onInReplyTo={(comment) => setInReplyTo(comment || null)}
             onComment={(comment) => setCommentList([...comments, comment])}
           />
         ) : (
