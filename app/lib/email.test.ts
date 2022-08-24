@@ -86,6 +86,20 @@ describe("notify", () => {
     expect(message.cc.length).toBe(1);
     expect(message.cc[0]).toBe('"Joe Doe" <joe@example.com>');
   });
+
+  test("uses subjectPrefix", async () => {
+    await notify({
+      post,
+      config: {
+        ...mailConfig,
+        subjectPrefix: "[test]",
+      },
+      transport,
+    });
+    expect(outbox.length).toBe(1);
+    const message = outbox[0];
+    expect(message.subject).toBe("[test] An Essay");
+  });
 });
 
 describe("notifyComment", () => {

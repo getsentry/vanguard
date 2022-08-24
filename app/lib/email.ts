@@ -21,6 +21,7 @@ const escape = (value: string): string => {
 
 export type EmailConfig = {
   to: string;
+  subjectPrefix?: string;
 };
 
 let mailTransport: Transporter<SMTPTransport.SentMessageInfo>;
@@ -77,12 +78,15 @@ export const notify = async ({
 
   const postUrl = `${process.env.BASE_URL}/p/${post.id}`;
   const sender = `"${post.author.name}" <${post.author.email}>`;
+  const subject = config.subjectPrefix
+    ? `${config.subjectPrefix} ${post.title}`
+    : post.title;
 
   try {
     await transport.sendMail({
       from: `"Vanguard" <${process.env.SMTP_FROM}>`,
       to: config.to,
-      subject: post.title,
+      subject,
       replyTo: config.to,
       cc: [sender],
       sender,
