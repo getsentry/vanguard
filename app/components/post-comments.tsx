@@ -33,7 +33,7 @@ const Date = styled.div`
 const Name = styled.div``;
 
 const Controls = styled.div`
-  flex-grow: 1;
+  flex: 1;
   text-align: right;
 `;
 
@@ -54,7 +54,7 @@ const CommentContainer = styled.div`
 `;
 
 const CommentBody = styled.div`
-  flex-grow: 1;
+  flex: 1;
   border-radius: 1rem;
   padding: 1.6rem 1.6rem 0;
   margin-bottom: 1.6rem;
