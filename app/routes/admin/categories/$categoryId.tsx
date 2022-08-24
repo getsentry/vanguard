@@ -63,6 +63,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   const deleted = !!formData.get("deleted");
   const slackWebhookUrl = formData.get("slack.webhookUrl");
   const emailTo = formData.get("email.to");
+  const emailSubjectPrefix = formData.get("email.subjectPrefix");
 
   let meta: {
     name: string;
@@ -158,6 +159,7 @@ export const action: ActionFunction = async ({ request, params }) => {
         data: {
           categoryId,
           to: emailTo,
+          subjectPrefix: emailSubjectPrefix || null,
         },
       })
     );
@@ -342,6 +344,29 @@ export default function Index() {
         {errors?.emailConfig?.to && (
           <div className="pt-1 text-red-700" id="email-to-error">
             {errors.emailConfig?.to}
+          </div>
+        )}
+      </div>
+
+      <div>
+        <label>
+          <span>Subject Prefix</span>
+          <input
+            type="text"
+            name="email.subjectPrefix"
+            placeholder="e.g. [shipped]"
+            defaultValue={emailConfig?.subjectPrefix || ""}
+            aria-invalid={errors?.emailConfig?.subjectPrefix ? true : undefined}
+            aria-errormessage={
+              errors?.emailConfig?.subjectPrefix
+                ? "email-subject-prefix-error"
+                : undefined
+            }
+          />
+        </label>
+        {errors?.emailConfig?.subjectPrefix && (
+          <div className="pt-1 text-red-700" id="email-subject-prefix-error">
+            {errors.emailConfig?.subjectPrefix}
           </div>
         )}
       </div>

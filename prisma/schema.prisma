@@ -54,10 +54,11 @@ model CategorySlack {
 }
 
 model CategoryEmail {
-  id         String   @id @default(cuid())
-  category   Category @relation(fields: [categoryId], references: [id])
-  categoryId String
-  to         String
+  id            String   @id @default(cuid())
+  category      Category @relation(fields: [categoryId], references: [id])
+  categoryId    String
+  to            String
+  subjectPrefix String?
 }
 
 model CategoryMeta {
