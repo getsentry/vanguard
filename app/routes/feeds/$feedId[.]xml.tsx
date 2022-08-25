@@ -5,7 +5,9 @@ import { requireUserId } from "~/session.server";
 import { getPostLink } from "~/components/post-link";
 import invariant from "tiny-invariant";
 import { marked } from "marked";
-import { escapeCdata } from "~/lib/html";
+import { escapeCdata, escapeHtml } from "~/lib/html";
+import summarize from "~/lib/summarize";
+import { buildUrl } from "~/lib/http";
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   invariant(params.feedId, "feedId not found");
@@ -19,12 +21,13 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     published: true,
     feedId: params.feedId,
   });
+  const baseUrl = buildUrl(request);
 
   const rssString = `
-    <rss xmlns:blogChannel="${process.env.BASE_URL}" version="2.0">
+    <rss xmlns:blogChannel="${baseUrl}" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">>
       <channel>
         <title>${feed.name}</title>
-        <link>${process.env.BASE_URL}</link>
+        <link>${baseUrl}</link>
         <description></description>
         <language>en-us</language>
         <generator>Vanguard</generator>
@@ -33,12 +36,13 @@ export const loader: LoaderFunction = async ({ request, params }) => {
             `
             <item>
               <title><![CDATA[${escapeCdata(post.title)}]]></title>
-              <description><![CDATA[${escapeCdata(
+              <description>${escapeHtml(summarize(post.content))}</description>
+              <content:encoded><![CDATA[${escapeCdata(
                 marked.parse(post.content as string, { breaks: true })
-              )}]]></description>
-              <author><![CDATA[${escapeCdata(post.author.name)}]]></author>
+              )}]]></content:encoded>
+              <author>${escapeHtml(post.author.name)}></author>
               <pubDate>${post.publishedAt.toUTCString()}</pubDate>
-              <link>${process.env.BASE_URL}${getPostLink(post)}</link>
+              <link>${buildUrl(request, getPostLink(post))}</link>
               <guid>${post.id}</guid>
             </item>
           `.trim()

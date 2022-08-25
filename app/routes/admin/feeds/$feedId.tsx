@@ -10,9 +10,11 @@ import { prisma } from "~/db.server";
 import FormActions from "~/components/form-actions";
 import ButtonGroup from "~/components/button-group";
 import Button from "~/components/button";
+import { buildUrl } from "~/lib/http";
 
 type LoaderData = {
   feed: Feed;
+  feedUrl: string;
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -22,7 +24,9 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const feed = await getFeed({ id: feedId });
   if (!feed) throw new Response("Not Found", { status: 404 });
 
-  return json<LoaderData>({ feed });
+  const feedUrl = buildUrl(request, `/feeds/${feed.id}.xml`);
+
+  return json<LoaderData>({ feed, feedUrl });
 };
 
 type ActionData = {
@@ -75,11 +79,9 @@ export const action: ActionFunction = async ({ request, params }) => {
 };
 
 export default function Details() {
-  const { feed } = useLoaderData() as LoaderData;
+  const { feed, feedUrl } = useLoaderData() as LoaderData;
   const actionData = useActionData() as ActionData;
   const errors = actionData?.errors;
-
-  const feedUrl = `${process.env.BASE_URL}/feeds/${feed.id}`;
 
   return (
     <Form
