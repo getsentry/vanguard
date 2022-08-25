@@ -91,6 +91,10 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   setUser(user);
 
+  if (!user) {
+    throw new Response("Not Found", { status: 401 });
+  }
+
   // probably a cleaner way to build this, but we're here for the duct tape
   const pathname = new URL(request.url).pathname;
   if (!user!.name && pathname.indexOf("/welcome") !== 0) {
