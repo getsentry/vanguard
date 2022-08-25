@@ -3,6 +3,7 @@ import { Form } from "@remix-run/react";
 import styled from "styled-components";
 
 import type { Category } from "../models/category.server";
+import type { Feed } from "../models/feed.server";
 import Editor from "./editor";
 import useLocalStorage from "~/lib/useLocalStorage";
 import Button from "./button";
@@ -17,6 +18,7 @@ export type PostFormErrors = {
   content?: string;
   categoryId?: string;
   meta?: { [name: string]: string };
+  feedId?: string;
 };
 
 export type PostFormInitialData = {
@@ -25,6 +27,7 @@ export type PostFormInitialData = {
   categoryId?: string;
   published?: boolean;
   announce?: boolean;
+  feedIds?: string[];
   meta?: { [name: string]: string };
 };
 
@@ -132,6 +135,7 @@ const MetaConfigField = ({
 
 export default function PostForm({
   categoryList,
+  feedList,
   errors,
   initialData,
   canDelete = false,
@@ -139,6 +143,7 @@ export default function PostForm({
   canAnnounce = true,
 }: {
   categoryList: Category[];
+  feedList: Feed[];
   errors?: PostFormErrors;
   initialData?: PostFormInitialData;
   canDelete?: boolean;
@@ -240,6 +245,31 @@ export default function PostForm({
           </div>
         )}
       </div>
+      {!!feedList.length && (
+        <>
+          <h6>Syndication</h6>
+          <ul>
+            {feedList.map((feed) => (
+              <li key={feed.id}>
+                <div>
+                  <label className="field-inline">
+                    <input
+                      type="checkbox"
+                      name="feedId"
+                      value={feed.id}
+                      defaultChecked={
+                        initialData?.feedIds &&
+                        initialData?.feedIds?.indexOf(feed.id) !== -1
+                      }
+                    />
+                    Publish to {feed.name}
+                  </label>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
       <FormActions>
         <ButtonGroup>
           {initialData && initialData.published ? (

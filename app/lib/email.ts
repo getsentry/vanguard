@@ -9,15 +9,7 @@ import { getSubscriptions } from "~/models/post-subscription.server";
 import summarize from "./summarize";
 import { lightTheme } from "~/styles/theme";
 import { User } from "@sentry/remix";
-
-const escape = (value: string): string => {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-};
+import { escapeHtml } from "./html";
 
 export type EmailConfig = {
   to: string;
@@ -105,7 +97,7 @@ const buildPostEmail = (post: PostQueryType): string => {
   return `
     <h2 style="margin-top:0;margin-bottom:15px;color:${
       lightTheme.textColor
-    };">${escape(post.title)}</h2>
+    };">${escapeHtml(post.title)}</h2>
     <table cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td style="vertical-align:top"><img src="${
@@ -116,7 +108,7 @@ const buildPostEmail = (post: PostQueryType): string => {
         <table cellpadding="0" cellspacing="0" border="0">
           <tr>
             <td>
-              <b style="color:${lightTheme.textColor};">${escape(
+              <b style="color:${lightTheme.textColor};">${escapeHtml(
     post.author.name
   )}</b>
             </td>
@@ -203,8 +195,8 @@ const buildCommentHtml = (
 
   const isInReplyTo = parent && parent.authorId === toUser.id;
   const titleLine = isInReplyTo
-    ? `${escape(comment.author.name)} just replied to your comment`
-    : `${escape(comment.author.name)} left a new comment`;
+    ? `${escapeHtml(comment.author.name)} just replied to your comment`
+    : `${escapeHtml(comment.author.name)} left a new comment`;
   const reasonLine = isInReplyTo
     ? `You are being notified because you have notification replies enabled. <a href="${settingsUrl}">Account Settings</a>`
     : `You are being notified because you are subscribed to this post. <a href="${postUrl}">Post Settings</a>`;
@@ -224,7 +216,7 @@ const buildCommentHtml = (
         isInReplyTo
           ? `<p style="margin-top:0;margin-bottom:15px;color:${
               lightTheme.textColor
-            };">&quot;${escape(summarize(parent.content))}&quot;</p>`
+            };">&quot;${escapeHtml(summarize(parent.content))}&quot;</p>`
           : ""
       }
       <table cellpadding="0" cellspacing="0" border="0">
@@ -236,12 +228,12 @@ const buildCommentHtml = (
           <td style="padding-left:15px">
             <table cellpadding="0" cellspacing="0" border="0">
               <tr>
-                <td><b style="color:${lightTheme.textColor};">${escape(
+                <td><b style="color:${lightTheme.textColor};">${escapeHtml(
     comment.author.name
   )}</b></td>
               </tr>
               <tr>
-              <td style="color:${lightTheme.textColorSecondary};">${escape(
+              <td style="color:${lightTheme.textColorSecondary};">${escapeHtml(
     summarize(comment.content)
   )}</td>
             </tr>

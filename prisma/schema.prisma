@@ -70,6 +70,15 @@ model CategoryMeta {
   required    Boolean  @default(false)
 }
 
+model Feed {
+  id         String  @id @default(cuid())
+  name       String  @unique
+  restricted Boolean @default(false)
+  deleted    Boolean @default(false)
+
+  posts Post[]
+}
+
 model Post {
   id            String    @id @default(cuid())
   createdAt     DateTime  @default(now())
@@ -90,6 +99,7 @@ model Post {
   comments      PostComment[]
   reactions     PostReaction[]
   subscriptions PostSubscription[]
+  feeds         Feed[]
 }
 
 model PostMeta {

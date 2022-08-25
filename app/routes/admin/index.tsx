@@ -26,6 +26,9 @@ export default function Index() {
           <Link to="./posts">Posts</Link>
         </li>
         <li>
+          <Link to="./feeds">Syndication Feeds</Link>
+        </li>
+        <li>
           <Link to="./users">Users</Link>
         </li>
       </ul>
