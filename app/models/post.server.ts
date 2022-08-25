@@ -13,6 +13,7 @@ import { prisma } from "~/db.server";
 
 export type {
   Category,
+  Feed,
   Post,
   PostMeta,
   PostRevision,
@@ -88,6 +89,7 @@ export async function getPost({
       author: true,
       category: true,
       meta: true,
+      feeds: true,
     },
   });
 }
@@ -98,6 +100,7 @@ export async function getPostList({
   authorId,
   categoryId,
   categoryIds,
+  feedId,
   query,
   offset = 0,
   limit = 50,
@@ -107,6 +110,7 @@ export async function getPostList({
   authorId?: User["id"];
   categoryId?: Category["id"];
   categoryIds?: Category["id"][];
+  feedId?: Feed["id"];
   query?: string;
   offset?: number;
   limit?: number;
@@ -128,6 +132,18 @@ export async function getPostList({
     where.AND = [...(where.AND || []), { categoryId }];
   } else if (categoryIds) {
     where.AND = [...(where.AND || []), { categoryId: { in: categoryIds } }];
+  }
+  if (feedId) {
+    where.AND = [
+      ...(where.AND || []),
+      {
+        feeds: {
+          some: {
+            id: feedId,
+          },
+        },
+      },
+    ];
   }
 
   if (query !== undefined) {
@@ -177,6 +193,7 @@ export async function updatePost({
   title,
   content,
   categoryId,
+  feedIds,
   published,
   deleted,
   meta = [],
@@ -186,6 +203,7 @@ export async function updatePost({
   title?: Post["title"];
   content?: Post["content"];
   categoryId?: Post["categoryId"];
+  feedIds?: Feed["id"][];
   published?: Post["published"];
   deleted?: Post["deleted"];
   meta?: Pick<PostMeta, "name" | "content">[];
@@ -229,19 +247,31 @@ export async function updatePost({
     ],
   };
 
-  // TODO
-  data.meta = {
-    deleteMany: {},
-    create: meta,
-  };
+  const queries: any[] = [];
+  if (feedIds !== undefined) {
+    data.feeds = {
+      connect: feedIds.map((feedId) => ({ id: feedId })),
+    };
+  }
+  if (meta !== undefined) {
+    data.meta = {
+      deleteMany: {},
+      create: meta,
+    };
+  }
 
-  const updatedPost = await prisma.post.update({
-    where: {
-      id,
-    },
-    data,
-    include: { author: true, category: true, meta: true },
-  });
+  queries.push(
+    prisma.post.update({
+      where: {
+        id,
+      },
+      data,
+      include: { author: true, category: true, meta: true, feeds: true },
+    })
+  );
+
+  const result = await prisma.$transaction(queries);
+  const updatedPost = result[result.length - 1];
   return updatedPost;
 }
 
@@ -250,11 +280,13 @@ export async function createPost({
   content,
   title,
   categoryId,
+  feedIds,
   published = false,
   meta = [],
 }: Pick<Post, "content" | "title"> & {
   userId: User["id"];
   published?: Post["published"];
+  feedIds?: Feed["id"][];
   categoryId: Category["id"];
   meta?: Pick<PostMeta, "name" | "content">[];
 }): Promise<Post> {
@@ -284,6 +316,9 @@ export async function createPost({
           },
         ],
       },
+      feeds: {
+        connect: (feedIds || []).map((feedId) => ({ id: feedId })),
+      },
       subscriptions: {
         create: [
           {
@@ -295,7 +330,7 @@ export async function createPost({
         create: meta,
       },
     },
-    include: { author: true, category: true },
+    include: { author: true, category: true, meta: true, feeds: true },
   });
 }
 

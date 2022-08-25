@@ -93,7 +93,6 @@ export default ({
     const existing = emojiList.find((e) => e.value === value);
     if (existing) {
       newEmojiList = emojiList.filter((e) => e.value !== value);
-      console.log({ newEmojiList });
       const newItem = {
         value,
         count: existing.count + delta,

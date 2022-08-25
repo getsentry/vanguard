@@ -4,16 +4,19 @@ import { useActionData, useLoaderData } from "@remix-run/react";
 
 import { announcePost, getPost, updatePost } from "~/models/post.server";
 import type { Post } from "~/models/post.server";
-import { requireUserId } from "~/session.server";
+import { requireUser, requireUserId } from "~/session.server";
 import { getCategory, getCategoryList } from "~/models/category.server";
 import type { Category } from "~/models/category.server";
 import PostForm from "~/components/post-form";
 import type { PostFormErrors } from "~/components/post-form";
 import invariant from "tiny-invariant";
 import { getPostLink } from "~/components/post-link";
+import { getFeedList } from "~/models/feed.server";
+import type { Feed } from "~/models/feed.server";
 
 type LoaderData = {
   categoryList: Category[];
+  feedList: Feed[];
   post: Post;
 };
 
@@ -28,7 +31,11 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     userId,
     includeRestricted: false,
   });
-  return json<LoaderData>({ categoryList, post });
+  const feedList = await getFeedList({
+    userId,
+    includeRestricted: false,
+  });
+  return json<LoaderData>({ categoryList, feedList, post });
 };
 
 type ActionData = {
@@ -36,13 +43,14 @@ type ActionData = {
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
-  const userId = await requireUserId(request);
+  const user = await requireUser(request);
   invariant(params.postId, "postId not found");
 
   const formData = await request.formData();
   const title = formData.get("title");
   const content = formData.get("content");
   const categoryId = formData.get("categoryId");
+  const feedIds = formData.get("feedId") ? formData.getAll("feedId") : null;
   const published =
     formData.get("published") === null
       ? undefined
@@ -53,53 +61,91 @@ export const action: ActionFunction = async ({ request, params }) => {
   const deleted =
     formData.get("deleted") !== null ? !!formData.get("deleted") : undefined;
 
-  if (typeof categoryId !== "string" || categoryId.length === 0) {
+  if (
+    categoryId !== null &&
+    (typeof categoryId !== "string" || categoryId.length === 0)
+  ) {
     return json<ActionData>(
       { errors: { categoryId: "Category is required" } },
       { status: 400 }
     );
   }
 
-  if (typeof title !== "string" || title.length === 0) {
+  if (title !== null && (typeof title !== "string" || title.length === 0)) {
     return json<ActionData>(
       { errors: { title: "Title is required" } },
       { status: 400 }
     );
   }
 
-  if (typeof content !== "string" || content.length === 0) {
+  if (
+    content !== null &&
+    (typeof content !== "string" || content.length === 0)
+  ) {
     return json<ActionData>(
       { errors: { content: "Content is required" } },
       { status: 400 }
     );
   }
 
-  const category = await getCategory({ id: categoryId });
+  const data: { [key: string]: any } = {};
 
-  const meta = [];
-  category.metaConfig.forEach(({ name, required }) => {
-    const content = formData.get(`meta[${name}]`);
-    if (required && !content) {
+  // gross attempt to make this form partial
+  if (categoryId !== null) data.categoryId = categoryId;
+  if (title !== null) data.title = title;
+  if (content !== null) data.content = content;
+  if (published !== null) data.published = published;
+  if (deleted !== null) data.deleted = deleted;
+  if (feedIds !== null) {
+    const allowedFeedIds = (
+      await getFeedList({
+        userId: user.id,
+        includeRestricted: false,
+      })
+    ).map((f) => f.id);
+    const invalid = feedIds.find((f) => allowedFeedIds.indexOf(f) === -1);
+    if (invalid) {
       return json<ActionData>(
-        { errors: { meta: { name: `${name} is required` } } },
+        { errors: { feedId: "Invalid feed" } },
         { status: 400 }
       );
     }
-    meta.push({
-      name,
-      content,
+    data.feedIds = feedIds;
+  }
+
+  if (categoryId) {
+    const category = await getCategory({ id: categoryId });
+    if (!category || (category.restricted && !user.canPostRestricted)) {
+      return json<ActionData>(
+        { errors: { categoryId: "Invalid category" } },
+        { status: 400 }
+      );
+    }
+
+    const meta = [];
+    let anyMeta = false;
+    category.metaConfig.forEach(({ name, required }) => {
+      const content = formData.get(`meta[${name}]`);
+      if (content === null) return;
+      anyMeta = true;
+      if (required && !content) {
+        return json<ActionData>(
+          { errors: { meta: { name: `${name} is required` } } },
+          { status: 400 }
+        );
+      }
+      meta.push({
+        name,
+        content,
+      });
     });
-  });
+    if (anyMeta) data.meta = meta;
+  }
 
   const post = await updatePost({
     id: params.postId,
-    userId,
-    title,
-    content,
-    categoryId,
-    published,
-    deleted,
-    meta,
+    userId: user.id,
+    ...data,
   });
 
   if (!post.deleted && announce) {
@@ -114,7 +160,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 };
 
 export default function EditPostPage() {
-  const { categoryList, post } = useLoaderData() as LoaderData;
+  const { categoryList, feedList, post } = useLoaderData() as LoaderData;
   const actionData = useActionData() as ActionData;
 
   const meta: { [name: string]: string } = {};
@@ -125,6 +171,7 @@ export default function EditPostPage() {
   return (
     <PostForm
       categoryList={categoryList}
+      feedList={feedList}
       errors={actionData?.errors}
       initialData={{
         title: post.title,
@@ -132,6 +179,7 @@ export default function EditPostPage() {
         categoryId: post.categoryId,
         published: post.published,
         meta,
+        feedIds: post.feeds.map((f) => f.id),
       }}
       canDelete={true}
       canUnpublish={true}

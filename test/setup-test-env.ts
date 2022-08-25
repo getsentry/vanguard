@@ -8,33 +8,33 @@ global.DefaultFixtures = {};
 
 const clearDatabase = async () => {
   // TODO: good idea, but too slow
-  // const tablenames = await prisma.$queryRaw<
-  //   Array<{ tablename: string }>
-  // >`SELECT tablename FROM pg_tables WHERE schemaname='public'`;
+  const tablenames = await prisma.$queryRaw<
+    Array<{ tablename: string }>
+  >`SELECT tablename FROM pg_tables WHERE schemaname='public'`;
 
-  // for (const { tablename } of tablenames) {
-  //   if (tablename !== "_prisma_migrations") {
-  //     try {
-  //       await prisma.$executeRawUnsafe(
-  //         `TRUNCATE TABLE "public"."${tablename}" CASCADE;`
-  //       );
-  //     } catch (error) {
-  //       console.log({ error });
-  //     }
-  //   }
-  // }
-
-  await prisma.$transaction([
-    prisma.postSubscription.deleteMany(),
-    prisma.postComment.deleteMany(),
-    prisma.postReaction.deleteMany(),
-    prisma.postMeta.deleteMany(),
-    prisma.postRevision.deleteMany(),
-    prisma.post.deleteMany(),
-    prisma.categoryMeta.deleteMany(),
-    prisma.category.deleteMany(),
-    prisma.user.deleteMany(),
-  ]);
+  for (const { tablename } of tablenames) {
+    if (tablename !== "_prisma_migrations") {
+      try {
+        await prisma.$executeRawUnsafe(
+          `TRUNCATE TABLE "public"."${tablename}" CASCADE;`
+        );
+      } catch (error) {
+        console.log({ error });
+      }
+    }
+  }
+  // await prisma.$transaction([
+  //   prisma.postSubscription.deleteMany(),
+  //   prisma.postComment.deleteMany(),
+  //   prisma.postReaction.deleteMany(),
+  //   prisma.postMeta.deleteMany(),
+  //   prisma.postRevision.deleteMany(),
+  //   prisma.post.deleteMany(),
+  //   prisma.feed.deleteMany(),
+  //   prisma.categoryMeta.deleteMany(),
+  //   prisma.category.deleteMany(),
+  //   prisma.user.deleteMany(),
+  // ]);
 };
 
 const createDummyUser = async () => {

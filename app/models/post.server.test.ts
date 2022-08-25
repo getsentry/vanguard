@@ -1,6 +1,11 @@
 import type { Category, Post, User } from "@prisma/client";
 import { prisma } from "~/db.server";
-import { createPost, getPost, getPostList } from "~/models/post.server";
+import {
+  createPost,
+  getPost,
+  getPostList,
+  updatePost,
+} from "~/models/post.server";
 import * as Fixtures from "~/lib/test/fixtures";
 
 describe("getPost", () => {
@@ -255,6 +260,7 @@ describe("createPost", () => {
     expect(post).toBeDefined();
     expect(post.title).toBe("test");
     expect(post.content).toBe("test content");
+    expect(post.feeds.length).toBe(0);
   });
 
   test("creates default subscription", async () => {
@@ -284,5 +290,49 @@ describe("createPost", () => {
     expect(revs.length).toBe(1);
     expect(revs[0].content).toBe("test content");
     expect(revs[0].title).toBe("test");
+  });
+
+  it("creates feed links", async () => {
+    let feed = await Fixtures.Feed();
+    let post = await createPost({
+      userId: author.id,
+      categoryId: category.id,
+      content: "test content",
+      title: "test",
+      feedIds: [feed.id],
+    });
+    expect(post).toBeDefined();
+    expect(post.feeds.length).toBe(1);
+    expect(post.feeds[0].id).toBe(feed.id);
+  });
+});
+
+describe("updatePost", () => {
+  let post: Post;
+
+  beforeEach(async () => {
+    post = await Fixtures.Post();
+  });
+
+  it("updates the title", async () => {
+    let updatedPost = await updatePost({
+      id: post.id,
+      userId: post.authorId,
+      title: "updates a post",
+    });
+    expect(updatedPost).toBeDefined();
+    expect(updatedPost.title).toBe("updates a post");
+  });
+
+  it("updates the feedIds", async () => {
+    let feed = await Fixtures.Feed();
+    let updatedPost = await updatePost({
+      id: post.id,
+      userId: post.authorId,
+      feedIds: [feed.id],
+    });
+    expect(updatedPost).toBeDefined();
+    expect(updatedPost.feeds.length).toBe(1);
+    expect(updatedPost.feeds[0].id).toBe(feed.id);
   });
 });

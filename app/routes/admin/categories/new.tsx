@@ -103,7 +103,7 @@ export default function Index() {
       }}
       className="p-4"
     >
-      <h1>Edit Category</h1>
+      <h1>Create Category</h1>
       <div>
         <label>
           <span>Name</span>
@@ -162,7 +162,7 @@ export default function Index() {
       </div>
 
       <div>
-        <label>
+        <label className="field-inline">
           <input type="checkbox" name="restricted" />
           Restrict posting to this category
         </label>

@@ -22,6 +22,15 @@ export const Category = async ({ ...data } = {}) => {
   });
 };
 
+export const Feed = async ({ ...data } = {}) => {
+  return await prisma.feed.create({
+    data: {
+      name: faker.lorem.word(),
+      ...data,
+    },
+  });
+};
+
 export const Post = async ({ ...data } = {}) => {
   if (!data.categoryId) data.categoryId = (await Category()).id;
   if (!data.authorId) data.authorId = (await User()).id;

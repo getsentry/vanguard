@@ -52,7 +52,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   invariant(params.categoryId, "categoryId not found");
   const { categoryId } = params;
   const category = await getCategory({ id: categoryId });
-  invariant(category, "invalid category");
+  if (!category) throw new Response("Not Found", { status: 404 });
 
   const formData = await request.formData();
   const name = formData.get("name");

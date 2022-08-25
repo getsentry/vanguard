@@ -5,10 +5,10 @@ import breakpoint from "styled-components-breakpoint";
 
 import Avatar from "./avatar";
 import Content from "./content";
-import PostLink from "./post-link";
+import PostLink, { getPostLink } from "./post-link";
 import Markdown from "./markdown";
 import { CategoryTagWrapper, CategoryTag } from "./category-tag";
-import type { PostQueryType } from "~/models/post.server";
+import type { Post as PostType } from "~/models/post.server";
 import Middot from "./middot";
 import DefinitionList from "./definition-list";
 import { Fragment } from "react";
@@ -101,6 +101,11 @@ const URL_REGEXP = new RegExp(
 
 const isUrl = (value: string) => value.match(URL_REGEXP);
 
+const SyndicationNote = styled.div`
+  color: ${(p) => p.theme.textColorSecondary};
+  font-size: 1.4rem;
+`;
+
 const DraftNoteForm = styled(Form)`
   border-radius: 15rem;
   padding: 1.6rem;
@@ -123,9 +128,9 @@ const DraftNoteForm = styled(Form)`
   }
 `;
 
-const DraftNote = () => {
+const DraftNote = ({ post }: { post: PostType }) => {
   return (
-    <DraftNoteForm method="post">
+    <DraftNoteForm method="post" action={`${getPostLink(post)}/edit`}>
       <p>
         This post has not been published, and is only visible if you have the
         link.
@@ -156,7 +161,7 @@ export default function Post({
   reactions,
   totalComments,
 }: {
-  post: PostQueryType;
+  post: PostType;
   summary?: boolean;
   canEdit?: boolean;
   reactions?: any[];
@@ -241,6 +246,11 @@ export default function Post({
               </Fragment>
             ))}
         </DefinitionList>
+      )}
+      {post.published && !summary && !!post.feeds.length && (
+        <SyndicationNote>
+          Syndicated to {post.feeds.map((f) => f.name).join(", ")}
+        </SyndicationNote>
       )}
     </PostWrapper>
   );
