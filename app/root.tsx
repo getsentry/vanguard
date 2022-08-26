@@ -79,8 +79,8 @@ moment.locale("en", {
 
 type LoaderData = {
   user: Awaited<ReturnType<typeof getUser>>;
-  categoryList: Awaited<ReturnType<typeof getCategoryList>>;
-  recentPostList: Awaited<ReturnType<typeof getPostList>>;
+  categoryList?: Awaited<ReturnType<typeof getCategoryList>> | null;
+  recentPostList?: Awaited<ReturnType<typeof getPostList>> | null;
   ENV: { [key: string]: any };
 };
 
@@ -91,41 +91,41 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   setUser(user);
 
-  if (!user) {
-    throw new Response("Not Found", { status: 401 });
+  if (user) {
+    // probably a cleaner way to build this, but we're here for the duct tape
+    const pathname = new URL(request.url).pathname;
+    if (!user!.name && pathname.indexOf("/welcome") !== 0) {
+      // send em to onboarding
+      const redirectTo = new URL(request.url).pathname;
+      const searchParams = new URLSearchParams([["redirectTo", redirectTo]]);
+      return redirect(`/welcome?${searchParams}`);
+    }
   }
 
-  // probably a cleaner way to build this, but we're here for the duct tape
-  const pathname = new URL(request.url).pathname;
-  if (!user!.name && pathname.indexOf("/welcome") !== 0) {
-    // send em to onboarding
-    const redirectTo = new URL(request.url).pathname;
-    const searchParams = new URLSearchParams([["redirectTo", redirectTo]]);
-    return redirect(`/welcome?${searchParams}`);
+  const loaderData: LoaderData = {
+    user,
+    ENV: {
+      SENTRY_DSN: process.env.SENTRY_DSN,
+      NODE_ENV: process.env.NODE_ENV || "development",
+      VERSION: process.env.VERSION,
+    },
+  };
+
+  if (user) {
+    loaderData.categoryList = await getCategoryList({
+      userId: user?.id,
+      includeRestricted: true,
+    });
+
+    loaderData.recentPostList = await getPostList({
+      userId: user?.id,
+      published: true,
+      limit: 3,
+    });
   }
-
-  const categoryList = await getCategoryList({
-    userId: user!.id,
-    includeRestricted: true,
-  });
-
-  const recentPostList = await getPostList({
-    userId: user!.id,
-    published: true,
-    limit: 3,
-  });
 
   return json<LoaderData>(
-    {
-      user,
-      categoryList,
-      recentPostList,
-      ENV: {
-        SENTRY_DSN: process.env.SENTRY_DSN,
-        NODE_ENV: process.env.NODE_ENV || "development",
-        VERSION: process.env.VERSION,
-      },
-    },
+    loaderData,
     // XXX(dcramer): is this the best way to ensure the session is persisted here?
     {
       headers: {
@@ -232,15 +232,17 @@ function App() {
                 />
               </Form>
             </SidebarSection>
-            <SidebarSection>
-              <h6>Divisions</h6>
-              <CategoryTags>
-                {categoryList.map((category: any) => (
-                  <CategoryTag key={category.id} category={category} />
-                ))}
-              </CategoryTags>
-            </SidebarSection>
-            {recentPostList.length > 0 && (
+            {categoryList && categoryList.length > 0 && (
+              <SidebarSection>
+                <h6>Divisions</h6>
+                <CategoryTags>
+                  {categoryList.map((category: any) => (
+                    <CategoryTag key={category.id} category={category} />
+                  ))}
+                </CategoryTags>
+              </SidebarSection>
+            )}
+            {recentPostList && recentPostList.length > 0 && (
               <SidebarSection>
                 <h6>Recent Posts</h6>
                 <PostList postList={recentPostList} />

@@ -15,38 +15,28 @@ import * as Panel from "~/components/panel";
 import PostLink from "~/components/post-link";
 import Markdown from "~/components/markdown";
 
-const UserAdmin: React.FC<{ user: User }> = ({ user }) => {
-  return (
-    <Panel.Panel>
-      <Panel.Title>Admin</Panel.Title>
-      <Form method="post">
-        <ul>
-          <li>
-            {!user.admin ? (
-              <button name="admin" value="true" type="submit">
-                Make Admin
-              </button>
-            ) : (
-              <button name="admin" value="false" type="submit">
-                Remove Admin
-              </button>
-            )}
-          </li>
-          <li>
-            {!user.canPostRestricted ? (
-              <button name="canPostRestricted" value="true" type="submit">
-                Allow posting in restricted categories
-              </button>
-            ) : (
-              <button name="canPostRestricted" value="false" type="submit">
-                Restrict posting in restricted categories
-              </button>
-            )}
-          </li>
-        </ul>
-      </Form>
-    </Panel.Panel>
-  );
+type LoaderData = {
+  postList: Post[];
+  user: User;
+  currentUser: User;
+};
+
+export const loader: LoaderFunction = async ({ request, params }) => {
+  const currentUser = await requireUser(request);
+  invariant(params.userEmail, "userEmail not found");
+
+  const user = await getUserByEmail(params.userEmail);
+  if (!user) {
+    throw new Response("Not Found", { status: 404 });
+  }
+
+  const postList = await getPostList({
+    userId: currentUser.id,
+    authorId: user.id,
+    published: true,
+    limit: 5,
+  });
+  return json<LoaderData>({ currentUser, user, postList });
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
@@ -82,28 +72,38 @@ export const action: ActionFunction = async ({ request, params }) => {
   return null;
 };
 
-type LoaderData = {
-  postList: Post[];
-  user: User;
-  currentUser: User;
-};
-
-export const loader: LoaderFunction = async ({ request, params }) => {
-  const currentUser = await requireUser(request);
-  invariant(params.userEmail, "userEmail not found");
-
-  const user = await getUserByEmail(params.userEmail);
-  if (!user) {
-    throw new Response("Not Found", { status: 404 });
-  }
-
-  const postList = await getPostList({
-    userId: currentUser.id,
-    authorId: user.id,
-    published: true,
-    limit: 5,
-  });
-  return json<LoaderData>({ currentUser, user, postList });
+const UserAdmin: React.FC<{ user: User }> = ({ user }) => {
+  return (
+    <Panel.Panel>
+      <Panel.Title>Admin</Panel.Title>
+      <Form method="post">
+        <ul>
+          <li>
+            {!user.admin ? (
+              <button name="admin" value="true" type="submit">
+                Make Admin
+              </button>
+            ) : (
+              <button name="admin" value="false" type="submit">
+                Remove Admin
+              </button>
+            )}
+          </li>
+          <li>
+            {!user.canPostRestricted ? (
+              <button name="canPostRestricted" value="true" type="submit">
+                Allow posting in restricted categories
+              </button>
+            ) : (
+              <button name="canPostRestricted" value="false" type="submit">
+                Restrict posting in restricted categories
+              </button>
+            )}
+          </li>
+        </ul>
+      </Form>
+    </Panel.Panel>
+  );
 };
 
 const ProfileHeader = styled.div`

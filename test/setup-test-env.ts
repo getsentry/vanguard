@@ -11,17 +11,14 @@ const clearDatabase = async () => {
   const tablenames = await prisma.$queryRaw<
     Array<{ tablename: string }>
   >`SELECT tablename FROM pg_tables WHERE schemaname='public'`;
-
-  for (const { tablename } of tablenames) {
-    if (tablename !== "_prisma_migrations") {
-      try {
-        await prisma.$executeRawUnsafe(
-          `TRUNCATE TABLE "public"."${tablename}" CASCADE;`
-        );
-      } catch (error) {
-        console.log({ error });
-      }
-    }
+  const tableNames = tablenames
+    .filter(({ tablename }) => tablename !== "_prisma_migrations")
+    .map(({ tablename }) => `"public"."${tablename}"`)
+    .join(", ");
+  try {
+    await prisma.$executeRawUnsafe(`TRUNCATE TABLE ${tableNames} CASCADE;`);
+  } catch (error) {
+    console.log({ error });
   }
   // await prisma.$transaction([
   //   prisma.postSubscription.deleteMany(),

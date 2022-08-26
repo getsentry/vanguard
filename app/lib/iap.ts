@@ -68,7 +68,7 @@ async function verifyGoogleToken(token: string): Promise<GoogleJwtPayload> {
 }
 
 export async function getIdentity(request: Request): Promise<Identity | null> {
-  if (process.env.NODE_ENV !== "production") {
+  if (process.env.NODE_ENV !== "production" && process.env.IAP_DUMMY_USER) {
     const email = process.env.DUMMY_USER_EMAIL || "jane.doe@example.com";
     console.log(`Dev environment bypassing authentication as ${email}`);
     return {

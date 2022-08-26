@@ -1,7 +1,6 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { getFeed } from "~/models/feed.server";
 import { getPostList } from "~/models/post.server";
-import { requireUserId } from "~/session.server";
 import { getPostLink } from "~/components/post-link";
 import invariant from "tiny-invariant";
 import { marked } from "marked";
@@ -11,13 +10,10 @@ import { buildUrl } from "~/lib/http";
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   invariant(params.feedId, "feedId not found");
-  const userId = await requireUserId(request);
-
   const feed = await getFeed({ id: params.feedId });
   if (!feed) throw new Response("Not Found", { status: 404 });
 
   const posts = await getPostList({
-    userId,
     published: true,
     feedId: params.feedId,
   });

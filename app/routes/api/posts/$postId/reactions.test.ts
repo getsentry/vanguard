@@ -39,6 +39,7 @@ describe("post reactions action", () => {
       request: new Request(`http://localhost/api/posts/${post.id}/reactions`, {
         method: "POST",
         body: JSON.stringify({ emoji: HEART }),
+        headers: {},
       }),
       params: { postId: post.id },
       context: {},
