@@ -6,7 +6,7 @@ import invariant from "tiny-invariant";
 import { announcePost, getPost, updatePost } from "~/models/post.server";
 import { getReactionsForPosts } from "~/models/post-reactions.server";
 import type { PostQueryType } from "~/models/post.server";
-import { getCommentList, createComment } from "~/models/post-comments.server";
+import { getCommentList } from "~/models/post-comments.server";
 import type { User } from "~/models/user.server";
 import { requireUser, requireUserId } from "~/session.server";
 import { default as PostTemplate } from "~/components/post";
@@ -24,7 +24,6 @@ type LoaderData = {
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const user = await requireUser(request);
-  invariant(params.postId, "postId not found");
 
   const post = await getPost({ userId: user.id, id: params.postId });
   if (!post) {

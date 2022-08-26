@@ -4,14 +4,11 @@ import { Response, redirect } from "@remix-run/node";
 import type { LoaderFunction } from "@remix-run/node";
 import invariant from "tiny-invariant";
 
-import { requireUserId } from "~/session.server";
 import path from "path";
 
 const MAX_AGE = 60 * 60 ** 24;
 
-export const loader: LoaderFunction = async ({ request, params }) => {
-  await requireUserId(request);
-
+export const loader: LoaderFunction = async ({ params }) => {
   const fileParam = params["*"];
 
   invariant(fileParam, "filename is required");

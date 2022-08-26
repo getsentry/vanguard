@@ -29,6 +29,7 @@ export async function getSession(request: Request) {
   if (request.hasOwnProperty("session")) {
     return request.session;
   }
+
   const identity = await getIdentity(request);
   const cookie = request.headers.get("Cookie");
   const session = await sessionStorage.getSession(cookie);

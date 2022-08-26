@@ -105,7 +105,7 @@ export async function getPostList({
   offset = 0,
   limit = 50,
 }: {
-  userId: User["id"];
+  userId?: User["id"];
   published?: boolean | null;
   authorId?: User["id"];
   categoryId?: Category["id"];
@@ -115,14 +115,19 @@ export async function getPostList({
   offset?: number;
   limit?: number;
 }): Promise<PostQueryType[]> {
-  const user = await prisma.user.findFirst({ where: { id: userId } });
-  invariant(user, "user not found");
+  const user = userId
+    ? await prisma.user.findFirst({ where: { id: userId } })
+    : null;
+
+  if (!user && !feedId) {
+    throw new Error("Cannot query posts without either userId or feedId");
+  }
 
   const where: { [key: string]: any } = { deleted: false };
   if (published !== undefined) {
     where.published = published;
   }
-  if (where.published !== true && !user.admin) {
+  if (where.published !== true && !user?.admin) {
     where.authorId = userId;
   }
   if (authorId) {

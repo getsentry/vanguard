@@ -1,4 +1,4 @@
-import type { ActionFunction } from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 
@@ -19,6 +19,10 @@ type ActionData = {
       to?: string;
     };
   };
+};
+
+export const loader: LoaderFunction = async ({ request }) => {
+  await requireAdmin(request);
 };
 
 export const action: ActionFunction = async ({ request, params }) => {

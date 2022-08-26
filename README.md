@@ -51,6 +51,26 @@ It is built on top of [Remix](https://github.com/remix-run/remix), and intended 
   npm run dev
   ```
 
+### Authentication
+
+Authentication is enforced per-route via the Remix loaders. All routes **must** enforce authentication unless they are intended to be publicly accessible.
+
+```typescript
+export const loader: LoaderFunction = async ({ request }) => {
+  await requireUserId(request);
+};
+```
+
+If you are also using actions on the route, you need to define the same check in the action:
+
+```typescript
+export const action: ActionFunction = async ({ request }) => {
+  await requireUserId(request);
+};
+```
+
+All endpoints which require auth must also contain a test asserting that authentication is enforced.
+
 ## Testing
 
 ### Vitest

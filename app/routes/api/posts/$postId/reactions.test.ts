@@ -1,37 +1,43 @@
-import type { Category, Post, User } from "@prisma/client";
+import type { Post, User } from "@prisma/client";
 import { prisma } from "~/db.server";
+import { setDefaultTestIdentity, setTestIdentity } from "~/lib/__mocks__/iap";
+import { expectRequiresUser } from "~/lib/test/expects";
+import * as Fixtures from "~/lib/test/fixtures";
+
 import { action } from "./reactions";
 
 const THUMBSUP = "👍";
 const HEART = "❤️";
 
-describe("post reactions action", () => {
+describe("POST /api/posts/$postId/reactions", () => {
   let author: User;
-  let category: Category;
   let post: Post;
 
   beforeEach(async () => {
-    author = await prisma.user.create({
-      data: {
-        email: "foo@example.com",
-      },
+    author = await Fixtures.User();
+    post = await Fixtures.Post({
+      authorId: author.id,
     });
-    category = await prisma.category.create({
-      data: {
-        name: "Foo Category",
-        slug: "foo-category",
-      },
-    });
-    post = await prisma.post.create({
-      data: {
-        title: "Test",
-        content: "**Content**",
-        deleted: false,
-        published: true,
-        authorId: author.id,
-        categoryId: category.id,
-      },
-    });
+  });
+
+  beforeEach(() => {
+    setDefaultTestIdentity();
+  });
+
+  it("requires user", async () => {
+    setTestIdentity(null);
+    await expectRequiresUser(
+      action({
+        request: new Request(
+          `http://localhost/api/posts/${post.id}/reactions`,
+          {
+            method: "POST",
+          }
+        ),
+        params: { postId: post.id },
+        context: {},
+      })
+    );
   });
 
   it("creates a new reaction", async () => {

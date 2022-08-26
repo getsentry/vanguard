@@ -1,6 +1,7 @@
 import { installGlobals } from "@remix-run/node";
 import "@testing-library/jest-dom/extend-expect";
 import { prisma } from "~/db.server";
+import { DefaultTestIdentity, setTestIdentity } from "~/lib/__mocks__/iap";
 
 installGlobals();
 
@@ -11,17 +12,14 @@ const clearDatabase = async () => {
   const tablenames = await prisma.$queryRaw<
     Array<{ tablename: string }>
   >`SELECT tablename FROM pg_tables WHERE schemaname='public'`;
-
-  for (const { tablename } of tablenames) {
-    if (tablename !== "_prisma_migrations") {
-      try {
-        await prisma.$executeRawUnsafe(
-          `TRUNCATE TABLE "public"."${tablename}" CASCADE;`
-        );
-      } catch (error) {
-        console.log({ error });
-      }
-    }
+  const tableNames = tablenames
+    .filter(({ tablename }) => tablename !== "_prisma_migrations")
+    .map(({ tablename }) => `"public"."${tablename}"`)
+    .join(", ");
+  try {
+    await prisma.$executeRawUnsafe(`TRUNCATE TABLE ${tableNames} CASCADE;`);
+  } catch (error) {
+    console.log({ error });
   }
   // await prisma.$transaction([
   //   prisma.postSubscription.deleteMany(),
@@ -41,8 +39,8 @@ const createDummyUser = async () => {
   return await prisma.user.create({
     data: {
       id: "cl6vih0pm16012nklaetl2tvze",
-      email: "jane.doe@example.com",
-      externalId: "dummy-iap-user",
+      email: DefaultTestIdentity.email,
+      externalId: DefaultTestIdentity.id,
     },
   });
 };
@@ -55,12 +53,16 @@ global.beforeEach(async () => {
   global.DefaultFixtures = {};
 
   global.DefaultFixtures.DUMMY_USER = await createDummyUser();
+
+  setTestIdentity(null);
 });
 
-// global.afterEach(async () => {
-//   await clearDatabase();
-// });
+global.afterEach(async () => {
+  vi.clearAllMocks();
+});
 
 global.afterAll(async () => {
   await prisma.$disconnect();
 });
+
+vi.mock("~/lib/iap");

@@ -21,6 +21,10 @@ type ActionData = {
   };
 };
 
+export const loader: LoaderFunction = async ({ request }) => {
+  await requireAdmin(request);
+};
+
 export const action: ActionFunction = async ({ request, params }) => {
   await requireAdmin(request);
   const formData = await request.formData();

@@ -9620,7 +9620,7 @@
   optionalDependencies:
     "fsevents" "~2.3.2"
 
-"vitest@^0.8.2":
+"vitest@^0.8.5":
   "integrity" "sha512-UOBAfyLUn9++isUDC5vk8joLcaBZj7esLS2Yx3GZSRMWzayOfEEzU1Iv4SBb4HkJun9e1D5ifZoSclhNHKn7IA=="
   "resolved" "https://registry.npmjs.org/vitest/-/vitest-0.8.5.tgz"
   "version" "0.8.5"
