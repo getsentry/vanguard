@@ -9,6 +9,11 @@ export type Identity = {
   email: string;
 };
 
+interface GoogleJwtPayload extends JwtPayload {
+  hd?: string;
+  google: string[];
+}
+
 const GOOGLE_PUBLIC_KEY = "https://www.gstatic.com/iap/verify/public_key";
 
 // TODO: cache
@@ -18,7 +23,7 @@ async function getSigningKey(kid: string): Promise<string | null> {
   return certs[kid] || null;
 }
 
-function jwtAsyncVerify(token: string): Promise<JwtPayload> {
+function jwtAsyncVerify(token: string): Promise<GoogleJwtPayload> {
   return new Promise((resolve, reject) => {
     jwt.verify(
       token,
@@ -30,13 +35,13 @@ function jwtAsyncVerify(token: string): Promise<JwtPayload> {
       },
       (err, decoded) => {
         if (err) reject(err);
-        else resolve(decoded as JwtPayload);
+        else resolve(decoded as GoogleJwtPayload);
       }
     );
   });
 }
 
-async function verifyGoogleToken(token: string) {
+async function verifyGoogleToken(token: string): Promise<GoogleJwtPayload> {
   // Verify the id_token, and access the claims.
   const payload = await jwtAsyncVerify(token);
 
@@ -79,6 +84,10 @@ export async function getIdentity(request: Request): Promise<Identity | null> {
       payload = await verifyGoogleToken(token as string);
     } catch (err) {
       Sentry.captureException(err);
+    }
+    // check the account domain for IAP scenarios where non-workspace access is eaabled
+    if (process.env.GOOGLE_HD && payload?.hd !== process.env.GOOGLE_HD) {
+      return null;
     }
     if (payload) {
       console.log(`IAP header verified as ${payload!.email}`);
