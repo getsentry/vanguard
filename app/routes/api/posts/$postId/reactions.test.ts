@@ -1,5 +1,6 @@
 import type { Category, Post, User } from "@prisma/client";
 import { prisma } from "~/db.server";
+import { setDefaultIdentity } from "~/lib/__mocks__/iap";
 import { action } from "./reactions";
 
 const THUMBSUP = "👍";
@@ -34,12 +35,19 @@ describe("post reactions action", () => {
     });
   });
 
+  beforeEach(() => {
+    setDefaultIdentity();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it("creates a new reaction", async () => {
     const response: Response = await action({
       request: new Request(`http://localhost/api/posts/${post.id}/reactions`, {
         method: "POST",
         body: JSON.stringify({ emoji: HEART }),
-        headers: {},
       }),
       params: { postId: post.id },
       context: {},

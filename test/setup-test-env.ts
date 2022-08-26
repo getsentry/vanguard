@@ -1,6 +1,7 @@
 import { installGlobals } from "@remix-run/node";
 import "@testing-library/jest-dom/extend-expect";
 import { prisma } from "~/db.server";
+import { DefaultIdentity, setTestIdentity } from "~/lib/__mocks__/iap";
 
 installGlobals();
 
@@ -38,8 +39,8 @@ const createDummyUser = async () => {
   return await prisma.user.create({
     data: {
       id: "cl6vih0pm16012nklaetl2tvze",
-      email: "jane.doe@example.com",
-      externalId: "dummy-iap-user",
+      email: DefaultIdentity.email,
+      externalId: DefaultIdentity.id,
     },
   });
 };
@@ -52,12 +53,16 @@ global.beforeEach(async () => {
   global.DefaultFixtures = {};
 
   global.DefaultFixtures.DUMMY_USER = await createDummyUser();
+
+  setTestIdentity(null);
 });
 
-// global.afterEach(async () => {
-//   await clearDatabase();
-// });
+global.afterEach(async () => {
+  vi.clearAllMocks();
+});
 
 global.afterAll(async () => {
   await prisma.$disconnect();
 });
+
+vi.mock("~/lib/iap");
