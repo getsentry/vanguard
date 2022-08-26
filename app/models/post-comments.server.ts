@@ -78,7 +78,7 @@ export async function announceComment(
       categoryId: post.categoryId,
     },
   });
-  notifyComment(post, comment, parent, mailConfig);
+  notifyComment({ post, comment, parent, mailConfig });
 }
 
 export async function createComment({

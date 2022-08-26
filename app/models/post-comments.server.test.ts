@@ -2,6 +2,7 @@ import type { Category, Post, User } from "@prisma/client";
 import { prisma } from "~/db.server";
 import {
   countCommentsForPosts,
+  createComment,
   deleteComment,
   getCommentList,
 } from "./post-comments.server";
@@ -109,6 +110,48 @@ describe("countCommentsForPosts", () => {
     expect(result[post.id]).toBe(2);
     expect(result[otherUnpublishedPost.id]).toBeDefined();
     expect(result[otherUnpublishedPost.id]).toBe(0);
+  });
+});
+
+describe("createComment", () => {
+  let author: User;
+  let post: Post;
+
+  beforeEach(async () => {
+    author = await Fixtures.User();
+    post = await Fixtures.Post({
+      authorId: author.id,
+    });
+  });
+
+  test("without a parent", async () => {
+    const comment = await createComment({
+      userId: author.id,
+      postId: post.id,
+      content: "hello world!",
+    });
+    expect(comment?.authorId).toBe(author.id);
+    expect(comment?.postId).toBe(post.id);
+    expect(comment?.parentId).toBe(null);
+    expect(comment?.deleted).toBe(false);
+    expect(comment?.content).toBe("hello world!");
+  });
+
+  test("with a parent", async () => {
+    const parent = await Fixtures.PostComment({
+      postId: post.id,
+    });
+    const comment = await createComment({
+      userId: author.id,
+      postId: post.id,
+      content: "hello world!",
+      parentId: parent.id,
+    });
+    expect(comment?.authorId).toBe(author.id);
+    expect(comment?.postId).toBe(post.id);
+    expect(comment?.parentId).toBe(parent.id);
+    expect(comment?.deleted).toBe(false);
+    expect(comment?.content).toBe("hello world!");
   });
 });
 
