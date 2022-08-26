@@ -2,7 +2,7 @@ import { expectRequiresAdmin } from "~/lib/test/expects";
 import { setDefaultTestIdentity } from "~/lib/__mocks__/iap";
 import { loader } from ".";
 
-describe("/admin/categories/", () => {
+describe("GET /admin/categories/", () => {
   it("requires admin", async () => {
     setDefaultTestIdentity();
 
