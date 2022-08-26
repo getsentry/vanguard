@@ -85,16 +85,26 @@ export async function getIdentity(request: Request): Promise<Identity | null> {
     } catch (err) {
       Sentry.captureException(err);
     }
+
+    if (!payload) {
+      console.warn(`Unable to verify JWT of IAP header`);
+      return null;
+    }
+
     // check the account domain for IAP scenarios where non-workspace access is eaabled
     if (process.env.GOOGLE_HD && payload?.hd !== process.env.GOOGLE_HD) {
+      console.warn(`IAP header has mismatched hd: ${payload?.hd}`);
+      return null;
+    }
+    if (!payload.sub || !payload.email) {
+      console.warn(`IAP header has no sub or email`);
       return null;
     }
     if (payload) {
       console.log(`IAP header verified as ${payload!.email}`);
       return {
-        id: payload!.sub,
-        email: payload!.email,
-        token,
+        id: payload.sub,
+        email: payload.email,
       };
     }
   }
