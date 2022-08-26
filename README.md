@@ -69,6 +69,8 @@ export const action: ActionFunction = async ({ request }) => {
 };
 ```
 
+All endpoints which require auth must also contain a test asserting that authentication is enforced.
+
 ## Testing
 
 ### Vitest

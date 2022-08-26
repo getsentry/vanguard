@@ -18,11 +18,3 @@ export const DefaultTestIdentity = {
   email: "test-iap-user@example.com",
   id: "test-iap-user",
 };
-
-// vi.mock("~/lib/iap", async () => {
-//   const mod = await vi.importActual<typeof import("~/lib/iap")>("~/lib/iap");
-//   return {
-//     ...mod,
-//     mocked: vi.fn(),
-//   };
-// });
