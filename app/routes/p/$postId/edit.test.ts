@@ -1,12 +1,10 @@
 import { expectRequiresUser } from "~/lib/test/expects";
 import * as Fixtures from "~/lib/test/fixtures";
-import { setTestIdentity } from "~/lib/__mocks__/iap";
 import { loader, action } from ".";
 
 describe("GET /p/$postId/edit", () => {
   it("requires user", async () => {
     const post = await Fixtures.Post();
-
     await expectRequiresUser(
       loader({
         request: new Request(`http://localhost/p/${post.id}/edit`, {
@@ -22,7 +20,6 @@ describe("GET /p/$postId/edit", () => {
 describe("POST /p/$postId/edit", () => {
   it("requires user", async () => {
     const post = await Fixtures.Post();
-
     await expectRequiresUser(
       action({
         request: new Request(`http://localhost/p/${post.id}/edit`, {

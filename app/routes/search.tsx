@@ -26,7 +26,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   return json<LoaderData>({ postListPaginated, query });
 };
 
-export default function Index() {
+export default function Search() {
   const { postListPaginated, query } = useLoaderData() as LoaderData;
 
   return (

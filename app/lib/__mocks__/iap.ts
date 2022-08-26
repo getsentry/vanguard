@@ -10,11 +10,11 @@ export const setTestIdentity = (identity: iap.Identity | null = null) => {
   currentIdentity = identity;
 };
 
-export const setDefaultIdentity = () => {
-  currentIdentity = DefaultIdentity;
+export const setDefaultTestIdentity = () => {
+  currentIdentity = DefaultTestIdentity;
 };
 
-export const DefaultIdentity = {
+export const DefaultTestIdentity = {
   email: "test-iap-user@example.com",
   id: "test-iap-user",
 };
