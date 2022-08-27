@@ -324,7 +324,7 @@ describe("updatePost", () => {
     expect(updatedPost.title).toBe("updates a post");
   });
 
-  it("updates the feedIds", async () => {
+  it("adds feedIds", async () => {
     let feed = await Fixtures.Feed();
     let updatedPost = await updatePost({
       id: post.id,
@@ -334,5 +334,29 @@ describe("updatePost", () => {
     expect(updatedPost).toBeDefined();
     expect(updatedPost.feeds.length).toBe(1);
     expect(updatedPost.feeds[0].id).toBe(feed.id);
+  });
+
+  it("removes feedIds", async () => {
+    let feed = await Fixtures.Feed();
+    await prisma.post.update({
+      where: { id: post.id },
+      data: {
+        feeds: {
+          connect: [{ id: feed.id }],
+        },
+      },
+    });
+    let updatedPost = await updatePost({
+      id: post.id,
+      userId: post.authorId,
+      feedIds: [],
+    });
+    expect(updatedPost).toBeDefined();
+    expect(updatedPost.feeds.length).toBe(0);
+
+    const newFeed = await prisma.feed.findFirst({
+      where: { id: feed.id },
+    });
+    expect(newFeed).toBeDefined();
   });
 });

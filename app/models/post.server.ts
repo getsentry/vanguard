@@ -255,6 +255,7 @@ export async function updatePost({
   const queries: any[] = [];
   if (feedIds !== undefined) {
     data.feeds = {
+      set: [],
       connect: feedIds.map((feedId) => ({ id: feedId })),
     };
   }
