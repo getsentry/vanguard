@@ -186,6 +186,7 @@ export default function PostForm({
         setStoredDraft({ ...storedDraft, ...additions });
       }}
     >
+      <input type="hidden" name="action" value="update" />
       <div>
         <label className="field-required">
           <span>Title:</span>

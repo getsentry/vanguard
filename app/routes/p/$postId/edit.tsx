@@ -47,10 +47,12 @@ export const action: ActionFunction = async ({ request, params }) => {
   invariant(params.postId, "postId not found");
 
   const formData = await request.formData();
+  const action = formData.get("action");
   const title = formData.get("title");
   const content = formData.get("content");
   const categoryId = formData.get("categoryId");
-  const feedIds = formData.get("feedId") ? formData.getAll("feedId") : null;
+  // to check if they've unticked feedIds we have to make sure they were using the edit form vs the publish action
+  const feedIds = action === "update" ? formData.getAll("feedId") : null;
   const published =
     formData.get("published") === null
       ? undefined
