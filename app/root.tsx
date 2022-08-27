@@ -203,35 +203,43 @@ function App() {
           </div>
           <Primary>
             <Container>
-              <Header showSidebar={showSidebar} handleSidebar={handleSidebar} />
+              <Header
+                showSidebar={showSidebar}
+                handleSidebar={handleSidebar}
+                user={user}
+              />
               <Outlet />
-              <Footer version={ENV.VERSION} admin={user.admin} />
+              <Footer version={ENV.VERSION} admin={user?.admin} />
             </Container>
           </Primary>
           <Sidebar showSidebar={showSidebar}>
-            <SidebarSection>
-              <UserMenu>
-                <Link to="/settings">
-                  <Avatar user={user} size="3.4rem" />
-                </Link>
-                <Link to="/settings" className="btn secondary">
-                  Settings
-                </Link>
-                <UserMenuDivider />
-                <Link to="/drafts" className="btn">
-                  Drafts
-                </Link>
-              </UserMenu>
-            </SidebarSection>
-            <SidebarSection>
-              <Form method="get" action="/search">
-                <Input
-                  variant="search"
-                  name="q"
-                  placeholder="Search posts..."
-                />
-              </Form>
-            </SidebarSection>
+            {!!user && (
+              <>
+                <SidebarSection>
+                  <UserMenu>
+                    <Link to="/settings">
+                      <Avatar user={user} size="3.4rem" />
+                    </Link>
+                    <Link to="/settings" className="btn secondary">
+                      Settings
+                    </Link>
+                    <UserMenuDivider />
+                    <Link to="/drafts" className="btn">
+                      Drafts
+                    </Link>
+                  </UserMenu>
+                </SidebarSection>
+                <SidebarSection>
+                  <Form method="get" action="/search">
+                    <Input
+                      variant="search"
+                      name="q"
+                      placeholder="Search posts..."
+                    />
+                  </Form>
+                </SidebarSection>
+              </>
+            )}
             {categoryList && categoryList.length > 0 && (
               <SidebarSection>
                 <h6>Divisions</h6>
