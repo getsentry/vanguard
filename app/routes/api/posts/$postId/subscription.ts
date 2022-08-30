@@ -6,7 +6,7 @@ import {
   deleteSubscription,
 } from "~/models/post-subscription.server";
 
-import { requireUserId } from "~/session.server";
+import { requireUserId } from "~/services/session.server";
 
 export const action: ActionFunction = async ({ request, params }) => {
   if (request.method !== "DELETE" && request.method !== "POST") {

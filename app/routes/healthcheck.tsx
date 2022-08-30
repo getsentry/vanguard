@@ -1,6 +1,6 @@
 import type { LoaderFunction } from "@remix-run/node";
 
-import { prisma } from "~/db.server";
+import { prisma } from "~/services/db.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const host =

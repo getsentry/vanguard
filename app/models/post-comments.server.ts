@@ -1,7 +1,7 @@
 import type { User, Post, PostComment } from "@prisma/client";
 import invariant from "tiny-invariant";
 
-import { prisma } from "~/db.server";
+import { prisma } from "~/services/db.server";
 import { notifyComment } from "~/lib/email";
 
 export type { PostComment } from "@prisma/client";

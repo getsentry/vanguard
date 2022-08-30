@@ -1,6 +1,6 @@
 import type { User, Feed } from "@prisma/client";
 
-import { prisma } from "~/db.server";
+import { prisma } from "~/services/db.server";
 
 export type { Feed } from "@prisma/client";
 

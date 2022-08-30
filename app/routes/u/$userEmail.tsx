@@ -9,7 +9,7 @@ import { getPostList } from "~/models/post.server";
 import type { Post } from "~/models/post.server";
 import { getUserByEmail, updateUser } from "~/models/user.server";
 import type { User } from "~/models/user.server";
-import { requireAdmin, requireUser } from "~/session.server";
+import { requireAdmin, requireUser } from "~/services/session.server";
 import Avatar from "~/components/avatar";
 import * as Panel from "~/components/panel";
 import PostLink from "~/components/post-link";

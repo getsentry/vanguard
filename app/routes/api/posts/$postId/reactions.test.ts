@@ -1,5 +1,5 @@
 import type { Post, User } from "@prisma/client";
-import { prisma } from "~/db.server";
+import { prisma } from "~/services/db.server";
 import { setDefaultTestIdentity, setTestIdentity } from "~/lib/__mocks__/iap";
 import { expectRequiresUser } from "~/lib/test/expects";
 import * as Fixtures from "~/lib/test/fixtures";

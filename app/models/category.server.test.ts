@@ -1,5 +1,5 @@
 import type { Category, User } from "@prisma/client";
-import { prisma } from "~/db.server";
+import { prisma } from "~/services/db.server";
 import { getCategory, getCategoryList } from "~/models/category.server";
 
 describe("getCategoryList", () => {

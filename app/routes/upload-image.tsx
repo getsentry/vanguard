@@ -1,7 +1,7 @@
 import type { ActionFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/node";
 import { unstable_parseMultipartFormData } from "@remix-run/node";
-import { requireUserId } from "~/session.server";
+import { requireUserId } from "~/services/session.server";
 import uploadHandler from "~/lib/upload-handler";
 import type { FileUploadHandlerOptions } from "@remix-run/node/dist/upload/fileUploadHandler";
 

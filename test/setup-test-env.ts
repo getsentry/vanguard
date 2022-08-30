@@ -1,6 +1,6 @@
 import { installGlobals } from "@remix-run/node";
 import "@testing-library/jest-dom/extend-expect";
-import { prisma } from "~/db.server";
+import { prisma } from "~/services/db.server";
 import { DefaultTestIdentity, setTestIdentity } from "~/lib/__mocks__/iap";
 
 installGlobals();

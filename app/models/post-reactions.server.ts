@@ -1,6 +1,6 @@
 import type { User, Post, PostReaction } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
-import { prisma } from "~/db.server";
+import { prisma } from "~/services/db.server";
 
 export type { PostReaction } from "@prisma/client";
 

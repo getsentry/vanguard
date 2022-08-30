@@ -2,7 +2,7 @@ import type { User } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 import invariant from "tiny-invariant";
 
-import { prisma } from "~/db.server";
+import { prisma } from "~/services/db.server";
 
 export type { User } from "@prisma/client";
 

@@ -3,7 +3,7 @@ import { json, redirect } from "@remix-run/node";
 import { useActionData, useLoaderData } from "@remix-run/react";
 
 import { announcePost, createPost } from "~/models/post.server";
-import { requireUser, requireUserId } from "~/session.server";
+import { requireUser, requireUserId } from "~/services/session.server";
 import { getCategory, getCategoryList } from "~/models/category.server";
 import type { Category } from "~/models/category.server";
 import PostForm from "~/components/post-form";

@@ -4,7 +4,7 @@ import { unstable_parseMultipartFormData } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 
-import { requireUser, requireUserId } from "~/session.server";
+import { requireUser, requireUserId } from "~/services/session.server";
 import { updateUser } from "~/models/user.server";
 import type { User } from "~/models/user.server";
 import uploadHandler from "~/lib/upload-handler";

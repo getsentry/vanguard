@@ -4,7 +4,7 @@ import { comment } from "postcss";
 import invariant from "tiny-invariant";
 import { createComment } from "~/models/post-comments.server";
 
-import { requireUserId } from "~/session.server";
+import { requireUserId } from "~/services/session.server";
 
 export const action: ActionFunction = async ({ request, params }) => {
   if (request.method !== "POST") {
