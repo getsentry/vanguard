@@ -85,8 +85,6 @@ type LoaderData = {
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
-  // const session = await getSession(request);
-  // const cookie = await sessionStorage.commitSession(session);
   const user = await getUser(request);
 
   setUser(user);
@@ -124,15 +122,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     });
   }
 
-  return json<LoaderData>(
-    loaderData
-    // XXX(dcramer): is this the best way to ensure the session is persisted here?
-    // {
-    //   headers: {
-    //     "Set-Cookie": cookie,
-    //   },
-    // }
-  );
+  return json<LoaderData>(loaderData);
 };
 
 export function ErrorBoundary({ error }: any) {
