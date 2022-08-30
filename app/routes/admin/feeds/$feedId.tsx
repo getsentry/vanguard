@@ -3,7 +3,7 @@ import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 
-import { requireAdmin } from "~/services/session.server";
+import { requireAdmin } from "~/services/auth.server";
 import type { Feed } from "~/models/feed.server";
 import { getFeed } from "~/models/feed.server";
 import { prisma } from "~/services/db.server";

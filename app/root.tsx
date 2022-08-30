@@ -26,7 +26,7 @@ import GlobalStyles from "./styles/global";
 
 import fontsCss from "./styles/fonts.css";
 import { lightTheme, darkTheme } from "./styles/theme";
-import { getUser } from "./services/session.server";
+import { getUser } from "./services/auth.server";
 import Footer from "./components/footer";
 import Header from "./components/header";
 import Container from "./components/container";

@@ -2,7 +2,7 @@ import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 
-import { requireAdmin } from "~/services/session.server";
+import { requireAdmin } from "~/services/auth.server";
 import { prisma } from "~/services/db.server";
 import FormActions from "~/components/form-actions";
 import Button from "~/components/button";

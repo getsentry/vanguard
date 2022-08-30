@@ -28,9 +28,9 @@ import type { User } from "@prisma/client";
 import { Authenticator } from "remix-auth";
 
 import { buildUrl } from "~/lib/http";
-import { sessionStorage } from "~/services/session.server";
-import { upsertUser } from "~/models/user.server";
+import { getUserById, upsertUser } from "~/models/user.server";
 import { GoogleStrategy } from "~/lib/google-auth";
+import { sessionStorage } from "~/services/session.server";
 
 export const authenticator = new Authenticator<User>(sessionStorage);
 
@@ -51,4 +51,74 @@ const googleStrategy = new GoogleStrategy(
   }
 );
 
-authenticator.use(googleStrategy);
+authenticator.use(googleStrategy, "google");
+
+export async function getUserId(request: Request): Promise<string | undefined> {
+  const user = await authenticator.isAuthenticated(request);
+  if (!user) {
+    return undefined;
+  }
+  return user.id;
+
+  // const session = await getSession(request);
+  // if (!session) return undefined;
+  // const userId = session.get(USER_SESSION_KEY);
+  // return userId;
+}
+
+export async function getUser(request: Request) {
+  const userId = await getUserId(request);
+  if (userId === undefined) return null;
+
+  const user = await getUserById(userId);
+  if (user) return user;
+
+  throw await logout(request);
+}
+
+export async function requireUserId(
+  request: Request,
+  redirectTo: string = new URL(request.url).pathname
+) {
+  const userId = await getUserId(request);
+  if (!userId) {
+    const searchParams = new URLSearchParams([["redirectTo", redirectTo]]);
+    throw redirect(`/login?${searchParams}`);
+  }
+  return userId;
+}
+
+export async function requireUser(
+  request: Request,
+  redirectTo: string = new URL(request.url).pathname
+) {
+  const user = await authenticator.isAuthenticated(request);
+  if (!user) {
+    throw await logout(request);
+  }
+  return user;
+}
+
+export async function requireAdmin(request: Request) {
+  const userId = await requireUserId(request);
+
+  const user = await getUserById(userId);
+  if (!user) {
+    throw await logout(request);
+  }
+
+  if (!user.admin) {
+    throw redirect(`/403`);
+  }
+
+  return user;
+}
+
+export async function logout(request: Request, redirectTo: string = "/") {
+  const session = await getSession(request.headers.get("cookie"));
+  return redirect(redirectTo, {
+    headers: {
+      "Set-Cookie": await sessionStorage.destroySession(session),
+    },
+  });
+}

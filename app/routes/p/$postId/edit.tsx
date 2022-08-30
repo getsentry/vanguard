@@ -4,7 +4,7 @@ import { useActionData, useLoaderData } from "@remix-run/react";
 
 import { announcePost, getPost, updatePost } from "~/models/post.server";
 import type { Post } from "~/models/post.server";
-import { requireUser, requireUserId } from "~/services/session.server";
+import { requireUser, requireUserId } from "~/services/auth.server";
 import { getCategory, getCategoryList } from "~/models/category.server";
 import type { Category } from "~/models/category.server";
 import PostForm from "~/components/post-form";

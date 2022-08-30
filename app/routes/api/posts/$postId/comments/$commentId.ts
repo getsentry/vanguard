@@ -3,7 +3,7 @@ import { json } from "@remix-run/node";
 import invariant from "tiny-invariant";
 import { deleteComment } from "~/models/post-comments.server";
 
-import { requireUserId } from "~/services/session.server";
+import { requireUserId } from "~/services/auth.server";
 
 export const action: ActionFunction = async ({ request, params }) => {
   if (request.method !== "DELETE") {
