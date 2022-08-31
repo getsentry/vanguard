@@ -26,7 +26,7 @@ import GlobalStyles from "./styles/global";
 
 import fontsCss from "./styles/fonts.css";
 import { lightTheme, darkTheme } from "./styles/theme";
-import { getUser } from "./services/auth.server";
+import { authenticator, getUser } from "./services/auth.server";
 import Footer from "./components/footer";
 import Header from "./components/header";
 import Container from "./components/container";
@@ -87,7 +87,10 @@ type LoaderData = {
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await getUser(request);
 
-  setUser(user);
+  setUser({
+    id: user?.id,
+    email: user?.email,
+  });
 
   if (user) {
     // probably a cleaner way to build this, but we're here for the duct tape

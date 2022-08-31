@@ -28,9 +28,9 @@ import type { User } from "@prisma/client";
 import { Authenticator } from "remix-auth";
 
 import { buildUrl } from "~/lib/http";
-import { getUserById, upsertUser } from "~/models/user.server";
+import { upsertUser } from "~/models/user.server";
 import { GoogleStrategy } from "~/lib/google-auth";
-import { getSession, sessionStorage } from "~/services/session.server";
+import { sessionStorage } from "~/services/session.server";
 import { redirect } from "@remix-run/node";
 
 export const authenticator = new Authenticator<User>(sessionStorage);
@@ -44,6 +44,7 @@ authenticator.use(
       hd: process.env.GOOGLE_HD,
     },
     async ({ accessToken, refreshToken, extraParams, profile, ...params }) => {
+      console.log(`Persisting user ${profile.emails[0].value}`);
       return upsertUser({
         email: profile.emails[0].value,
         externalId: profile.id,
@@ -59,66 +60,43 @@ export async function getUserId(request: Request): Promise<string | undefined> {
     return undefined;
   }
   return user.id;
-
-  // const session = await getSession(request);
-  // if (!session) return undefined;
-  // const userId = session.get(USER_SESSION_KEY);
-  // return userId;
 }
 
 export async function getUser(request: Request) {
-  const userId = await getUserId(request);
-  if (userId === undefined) return null;
-
-  const user = await getUserById(userId);
-  if (user) return user;
-
-  throw await logout(request);
+  const user = await authenticator.isAuthenticated(request);
+  if (!user) {
+    return undefined;
+  }
+  return user;
 }
 
 export async function requireUserId(
   request: Request,
   redirectTo: string = new URL(request.url).pathname
 ) {
-  const userId = await getUserId(request);
-  if (!userId) {
-    const searchParams = new URLSearchParams([["redirectTo", redirectTo]]);
-    throw redirect(`/login?${searchParams}`);
-  }
-  return userId;
+  const searchParams = new URLSearchParams([["redirectTo", redirectTo]]);
+  const user = await authenticator.isAuthenticated(request, {
+    failureRedirect: `/login?${searchParams}`,
+  });
+  return user.id;
 }
 
 export async function requireUser(
   request: Request,
   redirectTo: string = new URL(request.url).pathname
 ) {
-  const user = await authenticator.isAuthenticated(request);
-  if (!user) {
-    throw await logout(request);
-  }
+  const searchParams = new URLSearchParams([["redirectTo", redirectTo]]);
+  const user = await authenticator.isAuthenticated(request, {
+    failureRedirect: `/login?${searchParams}`,
+  });
   return user;
 }
 
 export async function requireAdmin(request: Request) {
-  const userId = await requireUserId(request);
-
-  const user = await getUserById(userId);
-  if (!user) {
-    throw await logout(request);
-  }
-
+  const user = await requireUser(request);
   if (!user.admin) {
     throw redirect(`/403`);
   }
 
   return user;
-}
-
-export async function logout(request: Request, redirectTo: string = "/") {
-  const session = await getSession(request.headers.get("cookie"));
-  return redirect(redirectTo, {
-    headers: {
-      "Set-Cookie": await sessionStorage.destroySession(session),
-    },
-  });
 }

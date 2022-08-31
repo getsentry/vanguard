@@ -1,16 +1,18 @@
 import { expectRequiresAdmin } from "~/lib/test/expects";
-import { setDefaultTestIdentity } from "~/lib/__mocks__/iap";
+import { buildRequest } from "~/lib/test/request";
 import { loader } from ".";
 
 describe("GET /admin/feeds/", () => {
   it("requires admin", async () => {
-    setDefaultTestIdentity();
-
     await expectRequiresAdmin(
       loader({
-        request: new Request(`http://localhost/admin/feeds/`, {
-          method: "GET",
-        }),
+        request: await buildRequest(
+          `http://localhost/admin/feeds/`,
+          {
+            method: "GET",
+          },
+          { user: DefaultFixtures.DEFAULT_USER }
+        ),
         params: {},
         context: {},
       })

@@ -1,7 +1,7 @@
 import type { Post, User } from "@prisma/client";
-import { setDefaultTestIdentity, setTestIdentity } from "~/lib/__mocks__/iap";
 import { expectRequiresUser } from "~/lib/test/expects";
 import * as Fixtures from "~/lib/test/fixtures";
+import { buildRequest } from "~/lib/test/request";
 
 import { action } from "./reactions";
 
@@ -16,15 +16,10 @@ describe("POST /api/posts/$postId/subscription", () => {
     });
   });
 
-  beforeEach(() => {
-    setDefaultTestIdentity();
-  });
-
   it("requires user", async () => {
-    setTestIdentity(null);
     await expectRequiresUser(
       action({
-        request: new Request(
+        request: await buildRequest(
           `http://localhost/api/posts/${post.id}/subscription`,
           {
             method: "POST",

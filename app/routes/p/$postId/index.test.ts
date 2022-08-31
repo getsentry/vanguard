@@ -1,5 +1,6 @@
 import { expectRequiresUser } from "~/lib/test/expects";
 import * as Fixtures from "~/lib/test/fixtures";
+import { buildRequest } from "~/lib/test/request";
 import { loader, action } from ".";
 
 describe("GET /p/$postId", () => {
@@ -7,7 +8,7 @@ describe("GET /p/$postId", () => {
     const post = await Fixtures.Post();
     await expectRequiresUser(
       loader({
-        request: new Request(`http://localhost/p/${post.id}`, {
+        request: await buildRequest(`http://localhost/p/${post.id}`, {
           method: "GET",
         }),
         params: { postId: post.id },
@@ -22,7 +23,7 @@ describe("POST /p/$postId", () => {
     const post = await Fixtures.Post();
     await expectRequiresUser(
       action({
-        request: new Request(`http://localhost/p/${post.id}`, {
+        request: await buildRequest(`http://localhost/p/${post.id}`, {
           method: "POST",
         }),
         params: { postId: post.id },

@@ -1,19 +1,20 @@
 import { expectRequiresAdmin } from "~/lib/test/expects";
-import { setDefaultTestIdentity } from "~/lib/__mocks__/iap";
 import * as Fixtures from "~/lib/test/fixtures";
+import { buildRequest } from "~/lib/test/request";
 
 import { loader, action } from "./new";
 
 describe("GET /admin/categories/new", () => {
   it("requires admin", async () => {
-    const category = Fixtures.Category();
-    setDefaultTestIdentity();
-
     await expectRequiresAdmin(
       loader({
-        request: new Request(`http://localhost/admin/categories/new`, {
-          method: "GET",
-        }),
+        request: await buildRequest(
+          `http://localhost/admin/categories/new`,
+          {
+            method: "GET",
+          },
+          { user: DefaultFixtures.DEFAULT_USER }
+        ),
         params: {},
         context: {},
       })
@@ -23,14 +24,15 @@ describe("GET /admin/categories/new", () => {
 
 describe("POST /admin/categories/new", () => {
   it("requires admin", async () => {
-    const category = Fixtures.Category();
-    setDefaultTestIdentity();
-
     await expectRequiresAdmin(
       action({
-        request: new Request(`http://localhost/admin/categories/new`, {
-          method: "POST",
-        }),
+        request: await buildRequest(
+          `http://localhost/admin/categories/new`,
+          {
+            method: "POST",
+          },
+          { user: DefaultFixtures.DEFAULT_USER }
+        ),
         params: {},
         context: {},
       })

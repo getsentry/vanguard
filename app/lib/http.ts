@@ -11,6 +11,10 @@ export const buildUrl = (
     return path;
   }
 
+  if (!request) {
+    throw new Error("Missing request or node ENV");
+  }
+
   const host =
     request.headers.get("X-Forwarded-Host") ?? request.headers.get("host");
   if (!host) {
