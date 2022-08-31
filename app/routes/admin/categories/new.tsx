@@ -23,6 +23,8 @@ type ActionData = {
 
 export const loader: LoaderFunction = async ({ request }) => {
   await requireAdmin(request);
+
+  return null;
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
