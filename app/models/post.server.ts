@@ -9,7 +9,7 @@ import invariant from "tiny-invariant";
 
 import * as email from "../lib/email";
 import * as slack from "../lib/slack";
-import { prisma } from "~/db.server";
+import { prisma } from "~/services/db.server";
 
 export type {
   Category,

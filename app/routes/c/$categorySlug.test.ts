@@ -1,5 +1,6 @@
 import { expectRequiresUser } from "~/lib/test/expects";
 import * as Fixtures from "~/lib/test/fixtures";
+import { buildRequest } from "~/lib/test/request";
 import { loader } from "./$categorySlug";
 
 describe("GET /c/$categorySlug", () => {
@@ -7,7 +8,7 @@ describe("GET /c/$categorySlug", () => {
     const category = await Fixtures.Category();
     await expectRequiresUser(
       loader({
-        request: new Request(`http://localhost/c/${category.slug}`, {
+        request: await buildRequest(`http://localhost/c/${category.slug}`, {
           method: "GET",
         }),
         params: { categorySlug: category.slug },

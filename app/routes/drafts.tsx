@@ -2,7 +2,7 @@ import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 
-import { requireUserId } from "~/session.server";
+import { requireUserId } from "~/services/auth.server";
 import { getPostList } from "~/models/post.server";
 import Post from "~/components/post";
 

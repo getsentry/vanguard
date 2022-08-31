@@ -13,8 +13,8 @@ expect.extend({
 export const expectRequiresAdmin = async (cb, existingUser = true) => {
   await expect(cb).rejects.toThrowErrorMatching((err) => {
     expect(err.status).toBe(302);
-    expect(err.headers.get("location").split("?")[0]).toBe(
-      existingUser ? "/403" : "/401"
+    expect(err.headers?.get("location").split("?")[0]).toBe(
+      existingUser ? "/403" : "/login"
     );
     return true;
   });
@@ -23,7 +23,7 @@ export const expectRequiresAdmin = async (cb, existingUser = true) => {
 export const expectRequiresUser = async (cb) => {
   await expect(cb).rejects.toThrowErrorMatching((err) => {
     expect(err.status).toBe(302);
-    expect(err.headers.get("location").split("?")[0]).toBe("/401");
+    expect(err.headers?.get("location").split("?")[0]).toBe("/login");
     return true;
   });
 };

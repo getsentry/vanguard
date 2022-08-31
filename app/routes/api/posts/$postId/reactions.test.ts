@@ -1,10 +1,10 @@
 import type { Post, User } from "@prisma/client";
-import { prisma } from "~/db.server";
-import { setDefaultTestIdentity, setTestIdentity } from "~/lib/__mocks__/iap";
+import { prisma } from "~/services/db.server";
 import { expectRequiresUser } from "~/lib/test/expects";
 import * as Fixtures from "~/lib/test/fixtures";
 
 import { action } from "./reactions";
+import { buildRequest } from "~/lib/test/request";
 
 const THUMBSUP = "👍";
 const HEART = "❤️";
@@ -20,15 +20,10 @@ describe("POST /api/posts/$postId/reactions", () => {
     });
   });
 
-  beforeEach(() => {
-    setDefaultTestIdentity();
-  });
-
   it("requires user", async () => {
-    setTestIdentity(null);
     await expectRequiresUser(
       action({
-        request: new Request(
+        request: await buildRequest(
           `http://localhost/api/posts/${post.id}/reactions`,
           {
             method: "POST",
@@ -42,10 +37,14 @@ describe("POST /api/posts/$postId/reactions", () => {
 
   it("creates a new reaction", async () => {
     const response: Response = await action({
-      request: new Request(`http://localhost/api/posts/${post.id}/reactions`, {
-        method: "POST",
-        body: JSON.stringify({ emoji: HEART }),
-      }),
+      request: await buildRequest(
+        `http://localhost/api/posts/${post.id}/reactions`,
+        {
+          method: "POST",
+          body: JSON.stringify({ emoji: HEART }),
+        },
+        { user: DefaultFixtures.DEFAULT_USER }
+      ),
       params: { postId: post.id },
       context: {},
     });
@@ -60,7 +59,7 @@ describe("POST /api/posts/$postId/reactions", () => {
     const reaction = reactions[0];
     expect(reaction.postId).toBe(post.id);
     expect(reaction.emoji).toBe(HEART);
-    expect(reaction.authorId).toBe(DefaultFixtures.DUMMY_USER.id);
+    expect(reaction.authorId).toBe(DefaultFixtures.DEFAULT_USER.id);
   });
 
   it("deletes a new reaction that exists", async () => {
@@ -68,15 +67,19 @@ describe("POST /api/posts/$postId/reactions", () => {
       data: {
         emoji: HEART,
         postId: post.id,
-        authorId: DefaultFixtures.DUMMY_USER.id,
+        authorId: DefaultFixtures.DEFAULT_USER.id,
       },
     });
 
     const response: Response = await action({
-      request: new Request(`http://localhost/api/posts/${post.id}/reactions`, {
-        method: "POST",
-        body: JSON.stringify({ emoji: HEART }),
-      }),
+      request: await buildRequest(
+        `http://localhost/api/posts/${post.id}/reactions`,
+        {
+          method: "POST",
+          body: JSON.stringify({ emoji: HEART }),
+        },
+        { user: DefaultFixtures.DEFAULT_USER }
+      ),
       params: { postId: post.id },
       context: {},
     });
@@ -96,15 +99,19 @@ describe("POST /api/posts/$postId/reactions", () => {
       data: {
         emoji: HEART,
         postId: post.id,
-        authorId: DefaultFixtures.DUMMY_USER.id,
+        authorId: DefaultFixtures.DEFAULT_USER.id,
       },
     });
 
     const response: Response = await action({
-      request: new Request(`http://localhost/api/posts/${post.id}/reactions`, {
-        method: "POST",
-        body: JSON.stringify({ emoji: THUMBSUP }),
-      }),
+      request: await buildRequest(
+        `http://localhost/api/posts/${post.id}/reactions`,
+        {
+          method: "POST",
+          body: JSON.stringify({ emoji: THUMBSUP }),
+        },
+        { user: DefaultFixtures.DEFAULT_USER }
+      ),
       params: { postId: post.id },
       context: {},
     });

@@ -3,10 +3,10 @@ import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 
-import { requireAdmin } from "~/session.server";
+import { requireAdmin } from "~/services/auth.server";
 import type { Category } from "~/models/category.server";
 import { getCategory } from "~/models/category.server";
-import { prisma } from "~/db.server";
+import { prisma } from "~/services/db.server";
 import FormActions from "~/components/form-actions";
 import ButtonGroup from "~/components/button-group";
 import Button from "~/components/button";

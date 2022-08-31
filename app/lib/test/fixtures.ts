@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
 
-import { prisma } from "~/db.server";
+import { prisma } from "~/services/db.server";
 
 export const User = async ({ ...data } = {}) => {
   return await prisma.user.create({

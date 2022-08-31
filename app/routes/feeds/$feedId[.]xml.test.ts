@@ -1,11 +1,12 @@
 import * as Fixtures from "~/lib/test/fixtures";
+import { buildRequest } from "~/lib/test/request";
 import { loader } from "./$feedId[.]xml";
 
 describe("GET /feeds/$feedId.xml", () => {
   it("renders xml", async () => {
     const feed = await Fixtures.Feed();
     const response = await loader({
-      request: new Request(`http://localhost/feeds/${feed.id}.xml`, {
+      request: await buildRequest(`http://localhost/feeds/${feed.id}.xml`, {
         method: "GET",
         headers: {
           host: "localhost",

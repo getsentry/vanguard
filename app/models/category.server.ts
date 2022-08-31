@@ -1,6 +1,6 @@
 import type { User, Category } from "@prisma/client";
 
-import { prisma } from "~/db.server";
+import { prisma } from "~/services/db.server";
 
 export type { Category } from "@prisma/client";
 

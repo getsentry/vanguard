@@ -26,7 +26,7 @@ import GlobalStyles from "./styles/global";
 
 import fontsCss from "./styles/fonts.css";
 import { lightTheme, darkTheme } from "./styles/theme";
-import { getSession, getUser, sessionStorage } from "./session.server";
+import { authenticator, getUser } from "./services/auth.server";
 import Footer from "./components/footer";
 import Header from "./components/header";
 import Container from "./components/container";
@@ -85,11 +85,12 @@ type LoaderData = {
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const session = await getSession(request);
-  const cookie = await sessionStorage.commitSession(session);
   const user = await getUser(request);
 
-  setUser(user);
+  setUser({
+    id: user?.id,
+    email: user?.email,
+  });
 
   if (user) {
     // probably a cleaner way to build this, but we're here for the duct tape
@@ -124,15 +125,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     });
   }
 
-  return json<LoaderData>(
-    loaderData,
-    // XXX(dcramer): is this the best way to ensure the session is persisted here?
-    {
-      headers: {
-        "Set-Cookie": cookie,
-      },
-    }
-  );
+  return json<LoaderData>(loaderData);
 };
 
 export function ErrorBoundary({ error }: any) {

@@ -8,7 +8,7 @@ import { getReactionsForPosts } from "~/models/post-reactions.server";
 import type { PostQueryType } from "~/models/post.server";
 import { getCommentList } from "~/models/post-comments.server";
 import type { User } from "~/models/user.server";
-import { requireUser, requireUserId } from "~/session.server";
+import { requireUser, requireUserId } from "~/services/auth.server";
 import { default as PostTemplate } from "~/components/post";
 import PostReactions from "~/components/post-reactions";
 import PostComments from "~/components/post-comments";

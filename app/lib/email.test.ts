@@ -4,7 +4,7 @@ import type Mail from "nodemailer/lib/mailer";
 import type SMTPTransport from "nodemailer/lib/smtp-transport";
 
 import * as Fixtures from "~/lib/test/fixtures";
-import { prisma } from "~/db.server";
+import { prisma } from "~/services/db.server";
 
 import { notify, notifyComment } from "./email";
 

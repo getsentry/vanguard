@@ -2,7 +2,7 @@ import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 
-import { requireAdmin } from "~/session.server";
+import { requireAdmin } from "~/services/auth.server";
 import { getUserList } from "~/models/user.server";
 import { paginate } from "~/lib/paginator";
 import type { PaginatedResult } from "~/lib/paginator";

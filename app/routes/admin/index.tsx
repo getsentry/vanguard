@@ -1,7 +1,7 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { Link, Outlet, useLoaderData } from "@remix-run/react";
 
-import { requireAdmin } from "~/session.server";
+import { requireAdmin } from "~/services/auth.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
   await requireAdmin(request);

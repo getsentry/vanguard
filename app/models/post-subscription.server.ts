@@ -1,5 +1,5 @@
 import type { PostSubsription, User } from "@prisma/client";
-import { prisma } from "~/db.server";
+import { prisma } from "~/services/db.server";
 
 export type { PostSubsription } from "@prisma/client";
 
