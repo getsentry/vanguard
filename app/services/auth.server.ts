@@ -30,28 +30,28 @@ import { Authenticator } from "remix-auth";
 import { buildUrl } from "~/lib/http";
 import { getUserById, upsertUser } from "~/models/user.server";
 import { GoogleStrategy } from "~/lib/google-auth";
-import { sessionStorage } from "~/services/session.server";
+import { getSession, sessionStorage } from "~/services/session.server";
+import { redirect } from "@remix-run/node";
 
 export const authenticator = new Authenticator<User>(sessionStorage);
 
-const googleStrategy = new GoogleStrategy(
-  {
-    clientID: process.env.GOOGLE_CLIENT_ID || "",
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-    callbackURL: buildUrl("/auth/google/callback"),
-    hd: process.env.GOOGLE_HD,
-  },
-  async ({ accessToken, refreshToken, extraParams, profile, ...params }) => {
-    console.log(params, profile);
-
-    return upsertUser({
-      email: profile.emails[0].value,
-      externalId: profile.id,
-    });
-  }
+authenticator.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      callbackURL: buildUrl("/auth/google/callback"),
+      hd: process.env.GOOGLE_HD,
+    },
+    async ({ accessToken, refreshToken, extraParams, profile, ...params }) => {
+      return upsertUser({
+        email: profile.emails[0].value,
+        externalId: profile.id,
+      });
+    }
+  ),
+  "google"
 );
-
-authenticator.use(googleStrategy, "google");
 
 export async function getUserId(request: Request): Promise<string | undefined> {
   const user = await authenticator.isAuthenticated(request);
