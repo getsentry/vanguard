@@ -17,7 +17,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     published: true,
     feedId: params.feedId,
   });
-  const baseUrl = buildUrl(request);
+  const baseUrl = buildUrl("/", request);
 
   const rssString = `
     <rss xmlns:blogChannel="${baseUrl}" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">>
@@ -38,7 +38,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
               )}]]></content:encoded>
               <author>${escapeHtml(post.author.name)}</author>
               <pubDate>${post.publishedAt.toUTCString()}</pubDate>
-              <link>${buildUrl(request, getPostLink(post))}</link>
+              <link>${buildUrl(getPostLink(post), request)}</link>
               <guid>${post.id}</guid>
             </item>
           `.trim()

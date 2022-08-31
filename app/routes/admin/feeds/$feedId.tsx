@@ -24,7 +24,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const feed = await getFeed({ id: feedId });
   if (!feed) throw new Response("Not Found", { status: 404 });
 
-  const feedUrl = buildUrl(request, `/feeds/${feed.id}.xml`);
+  const feedUrl = buildUrl(`/feeds/${feed.id}.xml`, request);
 
   return json<LoaderData>({ feed, feedUrl });
 };
