@@ -96,6 +96,7 @@ const GlobalStyles = createGlobalStyle`
     border-bottom: 3px solid ${(p) => p.theme.bgLayer100};
   }
 
+  hr,
   p,
   ul,
   ol,
@@ -106,6 +107,13 @@ const GlobalStyles = createGlobalStyle`
     font-size: 1.8rem;
     margin-bottom: 3rem;
     line-height: 1.6;
+  }
+
+  ul ul,
+  ul ol,
+  ol ul
+  ol ol {
+    margin-bottom: 0;
   }
 
   ol, ul {
