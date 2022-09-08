@@ -132,12 +132,12 @@ export async function updateUser({
   if (user.admin) {
     if (admin !== undefined) data.admin = !!admin;
     if (canPostRestricted !== undefined)
-      data.canPostRestricted = canPostRestricted;
+      data.canPostRestricted = !!canPostRestricted;
   }
 
   if (name !== undefined) data.name = name;
   if (picture !== undefined) data.picture = picture;
-  if (notifyReplies !== undefined) data.notifyReplies = notifyReplies;
+  if (notifyReplies !== undefined) data.notifyReplies = !!notifyReplies;
 
   return await prisma.user.update({
     where: {
