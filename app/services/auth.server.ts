@@ -28,7 +28,7 @@ import type { User } from "@prisma/client";
 import { Authenticator } from "remix-auth";
 
 import { buildUrl } from "~/lib/http";
-import { upsertUser } from "~/models/user.server";
+import { getUserById, upsertUser } from "~/models/user.server";
 import { GoogleStrategy } from "~/lib/google-auth";
 import { sessionStorage } from "~/services/session.server";
 import { redirect } from "@remix-run/node";
@@ -67,7 +67,8 @@ export async function getUser(request: Request) {
   if (!user) {
     return undefined;
   }
-  return user;
+
+  return await getUserById(user.id);
 }
 
 export async function requireUserId(
