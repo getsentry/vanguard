@@ -86,10 +86,11 @@ export async function requireUser(
   request: Request,
   redirectTo: string = new URL(request.url).pathname
 ) {
-  const searchParams = new URLSearchParams([["redirectTo", redirectTo]]);
-  const user = await authenticator.isAuthenticated(request, {
-    failureRedirect: `/login?${searchParams}`,
-  });
+  const user = getUser(request);
+  if (!user) {
+    const searchParams = new URLSearchParams([["redirectTo", redirectTo]]);
+    throw redirect(`/login?${searchParams}`);
+  }
   return user;
 }
 
