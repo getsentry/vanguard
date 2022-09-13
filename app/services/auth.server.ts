@@ -93,8 +93,15 @@ export async function requireUser(
   return user;
 }
 
-export async function requireAdmin(request: Request) {
-  const user = await requireUser(request);
+export async function requireAdmin(
+  request: Request,
+  redirectTo: string = new URL(request.url).pathname
+) {
+  const user = await getUser(request);
+  if (!user) {
+    const searchParams = new URLSearchParams([["redirectTo", redirectTo]]);
+    throw redirect(`/login?${searchParams}`);
+  }
   if (!user.admin) {
     throw redirect(`/403`);
   }
