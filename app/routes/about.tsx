@@ -27,7 +27,7 @@ export default function About() {
         </li>
         <li>
           Integration with notification services, such as Slack and Email, to
-          broadcasts new posts
+          broadcast new posts
         </li>
       </ul>
       <p>
