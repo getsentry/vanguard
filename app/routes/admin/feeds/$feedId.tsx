@@ -52,6 +52,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   const formData = await request.formData();
   const name = formData.get("name");
+  const url = formData.get("url");
   const restricted = !!formData.get("restricted");
   const deleted = !!formData.get("deleted");
 
@@ -67,6 +68,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       where: { id: feedId },
       data: {
         name,
+        url,
         restricted,
         deleted,
       },
@@ -121,6 +123,27 @@ export default function Details() {
         {errors?.name && (
           <div className="pt-1 text-red-700" id="name-error">
             {errors.name}
+          </div>
+        )}
+      </div>
+
+      <div>
+        <label className="field-required">
+          <span>External URL</span>
+          <input
+            type="text"
+            name="url"
+            required
+            placeholder="e.g. https://blog.sentry.io"
+            autoFocus
+            defaultValue={feed.url || ""}
+            aria-invalid={errors?.url ? true : undefined}
+            aria-errormessage={errors?.name ? "url-error" : undefined}
+          />
+        </label>
+        {errors?.url && (
+          <div className="pt-1 text-red-700" id="url-error">
+            {errors.url}
           </div>
         )}
       </div>

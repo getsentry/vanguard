@@ -75,6 +75,7 @@ model Feed {
   name       String  @unique
   restricted Boolean @default(false)
   deleted    Boolean @default(false)
+  url        String?
 
   posts Post[]
 }

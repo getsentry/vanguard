@@ -11,7 +11,7 @@ import { CategoryTagWrapper, CategoryTag } from "./category-tag";
 import type { Post as PostType } from "~/models/post.server";
 import Middot from "./middot";
 import DefinitionList from "./definition-list";
-import { Fragment } from "react";
+import { Children, Fragment } from "react";
 import ButtonDropdown, { ButtonDropdownItem } from "./button-dropdown";
 import HelpText from "./help-text";
 import { ChatBubbleIcon, HeartIcon } from "@radix-ui/react-icons";
@@ -249,12 +249,42 @@ export default function Post({
       )}
       {post.published && !summary && !!post.feeds.length && (
         <SyndicationNote>
-          Syndicated to {post.feeds.map((f) => f.name).join(", ")}
+          Syndicated to{" "}
+          <CommaSeparated>
+            {post.feeds.map((f) =>
+              f.url ? (
+                <a href={f.url} key={f.id}>
+                  {f.name}
+                </a>
+              ) : (
+                f.name
+              )
+            )}
+          </CommaSeparated>
         </SyndicationNote>
       )}
     </PostWrapper>
   );
 }
+
+const CommaSeparated = ({ children }) => {
+  const numChild = children.length;
+  if (numChild > 1) {
+    return (
+      <>
+        {children.map((c, idx) => {
+          return (
+            <>
+              {c}
+              {numChild - 1 !== idx ? ", " : ""}
+            </>
+          );
+        })}
+      </>
+    );
+  }
+  return children;
+};
 
 const readingTime = (content: string, plural: boolean = true): string => {
   const time = Math.ceil(content.length / 2000);

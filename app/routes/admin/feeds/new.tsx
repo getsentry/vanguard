@@ -92,6 +92,27 @@ export default function Index() {
       </div>
 
       <div>
+        <label className="field-required">
+          <span>External URL</span>
+          <input
+            type="text"
+            name="url"
+            required
+            placeholder="e.g. https://blog.sentry.io"
+            autoFocus
+            defaultValue={feed.url || ""}
+            aria-invalid={errors?.url ? true : undefined}
+            aria-errormessage={errors?.name ? "url-error" : undefined}
+          />
+        </label>
+        {errors?.url && (
+          <div className="pt-1 text-red-700" id="url-error">
+            {errors.url}
+          </div>
+        )}
+      </div>
+
+      <div>
         <label className="field-inline">
           <input type="checkbox" name="restricted" />
           Restrict syndication to this feed
