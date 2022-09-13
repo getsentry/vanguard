@@ -20,7 +20,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const baseUrl = buildUrl("/", request);
 
   const rssString = `
-    <rss xmlns:blogChannel="${baseUrl}" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">>
+    <rss xmlns:blogChannel="${baseUrl}" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
       <channel>
         <title>${feed.name}</title>
         <link>${baseUrl}</link>
@@ -31,15 +31,18 @@ export const loader: LoaderFunction = async ({ request, params }) => {
           .map((post) =>
             `
             <item>
+              <guid>${post.id}</guid>
               <title><![CDATA[${escapeCdata(post.title)}]]></title>
               <description>${escapeHtml(summarize(post.content))}</description>
+              <category>${escapeHtml(post.category.name)}</category>
               <content:encoded><![CDATA[${escapeCdata(
                 marked.parse(post.content as string, { breaks: true })
               )}]]></content:encoded>
               <author>${escapeHtml(post.author.name)}</author>
               <pubDate>${post.publishedAt.toUTCString()}</pubDate>
               <link>${buildUrl(getPostLink(post), request)}</link>
-              <guid>${post.id}</guid>
+
+              <vg:avatar>{${escapeHtml(post.author.picture || "")}}
             </item>
           `.trim()
           )
