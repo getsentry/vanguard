@@ -42,7 +42,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
               <pubDate>${post.publishedAt.toUTCString()}</pubDate>
               <link>${buildUrl(getPostLink(post), request)}</link>
 
-              <vg:avatar>{${escapeHtml(post.author.picture || "")}}
+              <vg:avatar>{${escapeHtml(post.author.picture || "")}}</vg:avatar>
             </item>
           `.trim()
           )
