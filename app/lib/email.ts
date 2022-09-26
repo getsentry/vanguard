@@ -92,7 +92,10 @@ export const notify = async ({
 
 const buildPostEmail = (post: PostQueryType): string => {
   const postUrl = `${process.env.BASE_URL}/p/${post.id}`;
-  const html = marked.parse(post.content as string, { breaks: true });
+  const html = marked.parse(post.content as string, {
+    breaks: true,
+    baseUrl: process.env.BASE_URL,
+  });
 
   return `
     <h2 style="margin-top:0;margin-bottom:15px;color:${
@@ -100,10 +103,9 @@ const buildPostEmail = (post: PostQueryType): string => {
     };">${escapeHtml(post.title)}</h2>
     <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td style="vertical-align:top"><img src="${
-            post.author.picture ||
-            `${process.env.BASE_URL}/img/placeholder-avatar.png`
-          }" width="36" height="36" style="border-radius:36px;display:block;" /></td>
+          <td style="vertical-align:top"><img src="${process.env.BASE_URL}${
+    post.author.picture || `/img/placeholder-avatar.png`
+  }" width="36" height="36" style="border-radius:36px;display:block;" /></td>
         <td style="padding-left:15px">
         <table cellpadding="0" cellspacing="0" border="0">
           <tr>
@@ -221,10 +223,9 @@ const buildCommentHtml = (
       }
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td style="vertical-align:top"><img src="${
-            comment.author.picture ||
-            `${process.env.BASE_URL}/img/placeholder-avatar.png`
-          }" width="36" height="36" style="border-radius:36px;display:block;" /></td>
+          <td style="vertical-align:top"><img src="${process.env.BASE_URL}${
+    post.author.picture || `/img/placeholder-avatar.png`
+  }" width="36" height="36" style="border-radius:36px;display:block;" /></td>
           <td style="padding-left:15px">
             <table cellpadding="0" cellspacing="0" border="0">
               <tr>

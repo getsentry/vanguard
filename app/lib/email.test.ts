@@ -70,7 +70,8 @@ describe("notify", () => {
     });
     post = await Fixtures.Post({
       title: "An Essay",
-      content: "**An Essay** on _life_",
+      content:
+        "**An Essay** on _life_\n\n[Hello World](/foo/bar)\n\n![An Image](/foo.jpg)",
       authorId: author.id,
     });
   });
@@ -99,6 +100,30 @@ describe("notify", () => {
     expect(outbox.length).toBe(1);
     const message = outbox[0];
     expect(message.subject).toBe("[test] An Essay");
+  });
+
+  test("uses absolute urls", async () => {
+    await notify({
+      post,
+      config: {
+        ...mailConfig,
+        subjectPrefix: "[test]",
+      },
+      transport,
+    });
+    expect(outbox.length).toBe(1);
+    const message = outbox[0];
+
+    const pictureUrl = message.html.match(
+      /http\:\/\/localhost\/img\/placeholder-avatar.png/
+    );
+    expect(pictureUrl[0]).toBeDefined();
+
+    const linkUrl = message.html.match(/http\:\/\/localhost\/foo\/bar/);
+    expect(linkUrl[0]).toBeDefined();
+
+    const imgUrl = message.html.match(/http\:\/\/localhost\/foo.jpg/);
+    expect(imgUrl[0]).toBeDefined();
   });
 });
 
