@@ -11,7 +11,7 @@ import { CategoryTagWrapper, CategoryTag } from "./category-tag";
 import type { Post as PostType } from "~/models/post.server";
 import Middot from "./middot";
 import DefinitionList from "./definition-list";
-import { Children, Fragment } from "react";
+import { Fragment } from "react";
 import ButtonDropdown, { ButtonDropdownItem } from "./button-dropdown";
 import HelpText from "./help-text";
 import { ChatBubbleIcon, HeartIcon } from "@radix-ui/react-icons";
@@ -19,7 +19,7 @@ import { ChatBubbleIcon, HeartIcon } from "@radix-ui/react-icons";
 const PostWrapper = styled.article`
   position: relative;
   margin-bottom: 3.2rem;
-  h2 {
+  h1 {
     font-size: 4.4rem;
     font-family: "Gazpacho-Heavy", serif;
 
@@ -173,9 +173,9 @@ export default function Post({
   return (
     <PostWrapper>
       <CategoryTag category={post.category} />
-      <h2>
+      <h1>
         <PostLink post={post}>{post.title}</PostLink>
-      </h2>
+      </h1>
       <Credits>
         <Avatar user={post.author} />
         <Byline>
