@@ -16,17 +16,18 @@ import ButtonDropdown, { ButtonDropdownItem } from "./button-dropdown";
 import HelpText from "./help-text";
 import { ChatBubbleIcon, HeartIcon } from "@radix-ui/react-icons";
 
+const PostTitle = styled.h1`
+  font-size: 4.4rem;
+  font-family: "Gazpacho-Heavy", serif;
+
+  a {
+    color: inherit;
+  }
+`;
+
 const PostWrapper = styled.article`
   position: relative;
   margin-bottom: 3.2rem;
-  h1 {
-    font-size: 4.4rem;
-    font-family: "Gazpacho-Heavy", serif;
-
-    a {
-      color: inherit;
-    }
-  }
 
   ${breakpoint("desktop")`
     ${CategoryTagWrapper} {
@@ -173,9 +174,9 @@ export default function Post({
   return (
     <PostWrapper>
       <CategoryTag category={post.category} />
-      <h1>
+      <PostTitle>
         <PostLink post={post}>{post.title}</PostLink>
-      </h1>
+      </PostTitle>
       <Credits>
         <Avatar user={post.author} />
         <Byline>
