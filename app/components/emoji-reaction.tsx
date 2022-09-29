@@ -22,6 +22,7 @@ const EmojiButton = styled.button`
 
   span {
     font-size: "IBM Plex Mono", "monospace";
+    margin-left: 5px;
   }
 
   &:hover {
@@ -44,7 +45,7 @@ const EmojiReaction = ({
   return (
     <EmojiButton selected={selected} onClick={onClick}>
       {emoji}
-      <span>{count ? ` ${count}` : null}</span>
+      {count && <span>{count}</span>}
     </EmojiButton>
   );
 };
