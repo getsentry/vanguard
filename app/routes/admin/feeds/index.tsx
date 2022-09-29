@@ -37,7 +37,9 @@ export default function Index() {
     <div>
       <PageHeader>
         <h1>Syndication Feeds</h1>
-        <ButtonLink to="new">New Feed</ButtonLink>
+        <ButtonLink to="new" mode="primary">
+          New Feed
+        </ButtonLink>
       </PageHeader>
       <Paginated
         data={feedListPaginated}
