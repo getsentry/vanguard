@@ -26,7 +26,7 @@ import GlobalStyles from "./styles/global";
 
 import fontsCss from "./styles/fonts.css";
 import { lightTheme, darkTheme } from "./styles/theme";
-import { authenticator, getUser } from "./services/auth.server";
+import { getUser } from "./services/auth.server";
 import Footer from "./components/footer";
 import Header from "./components/header";
 import Container from "./components/container";
@@ -157,6 +157,18 @@ export function ErrorBoundary({ error }: any) {
   );
 }
 
+const DevNotice = styled((props) => {
+  return <div {...props}>Vanguard is running in development mode.</div>;
+})`
+  background: red;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  width: 100%;
+  padding: 10px;
+  z-index: 100;
+`;
+
 function App() {
   const { user, categoryList, recentPostList, ENV } = useLoaderData();
   const [theme, setTheme] = useState("light");
@@ -194,62 +206,65 @@ function App() {
           <div>
             <Toaster />
           </div>
-          <Primary>
-            <Container>
-              <Header
-                showSidebar={showSidebar}
-                handleSidebar={handleSidebar}
-                user={user}
-              />
-              <Outlet />
-              <Footer version={ENV.VERSION} admin={user?.admin} />
-            </Container>
-          </Primary>
-          <Sidebar showSidebar={showSidebar}>
-            {!!user && (
-              <>
+          {process.env.NODE_ENV !== "production" && <DevNotice />}
+          <MainContainer>
+            <Primary>
+              <Container>
+                <Header
+                  showSidebar={showSidebar}
+                  handleSidebar={handleSidebar}
+                  user={user}
+                />
+                <Outlet />
+                <Footer version={ENV.VERSION} admin={user?.admin} />
+              </Container>
+            </Primary>
+            <Sidebar showSidebar={showSidebar}>
+              {!!user && (
+                <>
+                  <SidebarSection>
+                    <UserMenu>
+                      <Link to="/settings">
+                        <Avatar user={user} size="3.4rem" />
+                      </Link>
+                      <Link to="/settings" className="btn secondary">
+                        Settings
+                      </Link>
+                      <UserMenuDivider />
+                      <Link to="/drafts" className="btn">
+                        Drafts
+                      </Link>
+                    </UserMenu>
+                  </SidebarSection>
+                  <SidebarSection>
+                    <Form method="get" action="/search">
+                      <Input
+                        variant="search"
+                        name="q"
+                        placeholder="Search posts..."
+                      />
+                    </Form>
+                  </SidebarSection>
+                </>
+              )}
+              {categoryList && categoryList.length > 0 && (
                 <SidebarSection>
-                  <UserMenu>
-                    <Link to="/settings">
-                      <Avatar user={user} size="3.4rem" />
-                    </Link>
-                    <Link to="/settings" className="btn secondary">
-                      Settings
-                    </Link>
-                    <UserMenuDivider />
-                    <Link to="/drafts" className="btn">
-                      Drafts
-                    </Link>
-                  </UserMenu>
+                  <h6>Divisions</h6>
+                  <CategoryTags>
+                    {categoryList.map((category: any) => (
+                      <CategoryTag key={category.id} category={category} />
+                    ))}
+                  </CategoryTags>
                 </SidebarSection>
+              )}
+              {recentPostList && recentPostList.length > 0 && (
                 <SidebarSection>
-                  <Form method="get" action="/search">
-                    <Input
-                      variant="search"
-                      name="q"
-                      placeholder="Search posts..."
-                    />
-                  </Form>
+                  <h6>Recent Posts</h6>
+                  <PostList postList={recentPostList} />
                 </SidebarSection>
-              </>
-            )}
-            {categoryList && categoryList.length > 0 && (
-              <SidebarSection>
-                <h6>Divisions</h6>
-                <CategoryTags>
-                  {categoryList.map((category: any) => (
-                    <CategoryTag key={category.id} category={category} />
-                  ))}
-                </CategoryTags>
-              </SidebarSection>
-            )}
-            {recentPostList && recentPostList.length > 0 && (
-              <SidebarSection>
-                <h6>Recent Posts</h6>
-                <PostList postList={recentPostList} />
-              </SidebarSection>
-            )}
-          </Sidebar>
+              )}
+            </Sidebar>
+          </MainContainer>
           <ScrollRestoration />
           <script
             dangerouslySetInnerHTML={{
@@ -263,6 +278,10 @@ function App() {
     </html>
   );
 }
+
+const MainContainer = styled.div`
+  position: relative;
+`;
 
 const Primary = styled.div`
   padding-bottom: 6rem;
