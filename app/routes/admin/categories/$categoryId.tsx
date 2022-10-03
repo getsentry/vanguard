@@ -330,7 +330,7 @@ export default function Index() {
       <div>
         <label style={{ marginBottom: 10 }}>
           <span style={{ marginBottom: 0 }}>Default Reactions</span>
-          <HelpText> A default list of emojis to show for reactions.</HelpText>
+          <HelpText>A default list of emojis to show for reactions.</HelpText>
         </label>
         <div
           style={{
@@ -362,7 +362,6 @@ export default function Index() {
             setCurrentEmojiList([...currentEmojiList, emoji]);
           }}
         />
-        <HelpText> A default list of emojis to show for reactions.</HelpText>
       </div>
 
       <h2>Post Notifications</h2>
