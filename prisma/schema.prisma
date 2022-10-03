@@ -40,6 +40,7 @@ model Category {
   metaConfig    CategoryMeta[]
   colorHex      String?         @db.VarChar(7)
   allowComments Boolean         @default(true)
+  defaultEmojis String[]
 }
 
 model CategorySlack {

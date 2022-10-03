@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-const EmojiButton = styled.button`
+export const EmojiButton = styled.button`
   background: ${(p) =>
     p.selected
       ? p.theme.emoji.selectedBackgroundColor
@@ -45,7 +45,7 @@ const EmojiReaction = ({
   return (
     <EmojiButton selected={selected} onClick={onClick}>
       {emoji}
-      {count && <span>{count}</span>}
+      {count > 0 && <span>{count}</span>}
     </EmojiButton>
   );
 };

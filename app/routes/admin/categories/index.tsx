@@ -37,7 +37,9 @@ export default function Index() {
     <div>
       <PageHeader>
         <h1>Categories</h1>
-        <ButtonLink to="new">New Category</ButtonLink>
+        <ButtonLink to="new" mode="primary">
+          New Category
+        </ButtonLink>
       </PageHeader>
       <Paginated
         data={categoryListPaginated}

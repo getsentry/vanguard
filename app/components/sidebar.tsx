@@ -15,6 +15,7 @@ const SidebarWrapper = styled.div`
   top: 0;
   bottom: 0;
   transition: all 0.2s ease-in-out;
+  z-index: 0;
 
   &:after {
     content: "";

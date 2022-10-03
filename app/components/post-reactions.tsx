@@ -51,8 +51,11 @@ export default ({
   if (!post.published) return null;
 
   const [pickerVisible, setPickerVisible] = useState(false);
+  const defaultEmojis = post.category.defaultEmojis.length
+    ? post.category.defaultEmojis
+    : ["❤️"];
 
-  const defaults = ["❤️", "🎉", "🚀"].filter(
+  const defaults = defaultEmojis.filter(
     (d) => !reactions.find((r) => r.emoji === d)
   );
   const initialEmojiList = [
@@ -67,7 +70,7 @@ export default ({
   const [emojiList, setEmojiList] = useState(initialEmojiList);
 
   useEffect(() => {
-    const defaults = ["❤️", "🎉", "🚀"].filter(
+    const defaults = defaultEmojis.filter(
       (d) => !reactions.find((r) => r.emoji === d)
     );
     const initialEmojiList = [

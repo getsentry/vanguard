@@ -6,12 +6,20 @@ import { requireAdmin } from "~/services/auth.server";
 import { prisma } from "~/services/db.server";
 import FormActions from "~/components/form-actions";
 import Button from "~/components/button";
+import { useState } from "react";
+import { EmojiButton } from "~/components/emoji-reaction";
+import EmojiPicker from "~/components/emoji-picker";
+import HelpText from "~/components/help-text";
+import { isEmoji } from "~/lib/emoji";
+
+const DEFAULT_EMOJIS = ["❤️"];
 
 type ActionData = {
   errors?: {
     name?: string;
     slug?: string;
     colorHex?: string;
+    defaultEmojis?: string;
     slackConfig?: {
       webhookUrl?: string;
     };
@@ -34,19 +42,21 @@ export const action: ActionFunction = async ({ request, params }) => {
   const slug = formData.get("slug");
   const colorHex = formData.get("colorHex");
   const restricted = !!formData.get("restricted");
+  const allowComments = !!formData.get("allowComments");
+  const defaultEmojis = formData.getAll("defaultEmojis");
   const slackWebhookUrl = formData.get("slack.webhookUrl");
   const emailTo = formData.get("email.to");
 
   if (typeof name !== "string" || name.length === 0) {
     return json<ActionData>(
-      { errors: { title: "Name is required" } },
+      { errors: { name: "Name is required" } },
       { status: 400 }
     );
   }
 
   if (typeof slug !== "string" || slug.length === 0) {
     return json<ActionData>(
-      { errors: { title: "Slug is required" } },
+      { errors: { slug: "Slug is required" } },
       { status: 400 }
     );
   }
@@ -54,7 +64,19 @@ export const action: ActionFunction = async ({ request, params }) => {
   // TODO: validate
   if (typeof colorHex !== "string" || colorHex.length === 0) {
     return json<ActionData>(
-      { errors: { title: "Color is required" } },
+      { errors: { colorHex: "Color is required" } },
+      { status: 400 }
+    );
+  }
+
+  if (defaultEmojis.find((v) => !isEmoji(v))) {
+    return json<ActionData>(
+      {
+        errors: {
+          defaultEmojis:
+            "An invalid reaction was provided. All values must be emoji",
+        },
+      },
       { status: 400 }
     );
   }
@@ -66,6 +88,8 @@ export const action: ActionFunction = async ({ request, params }) => {
         slug,
         colorHex,
         restricted,
+        allowComments,
+        defaultEmojis,
         slackConfig: slackWebhookUrl
           ? {
               create: [
@@ -96,6 +120,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 export default function Index() {
   const actionData = useActionData() as ActionData;
   const errors = actionData?.errors;
+  const [currentEmojiList, setCurrentEmojiList] = useState(DEFAULT_EMOJIS);
 
   return (
     <Form
@@ -172,6 +197,51 @@ export default function Index() {
           <input type="checkbox" name="restricted" />
           Restrict posting to this category
         </label>
+      </div>
+
+      <div>
+        <label className="field-inline">
+          <input type="checkbox" name="allowComments" defaultChecked />
+          Allow comments on posts in this category
+        </label>
+      </div>
+
+      <div>
+        <label style={{ marginBottom: 10 }}>
+          <span style={{ marginBottom: 0 }}>Default Reactions</span>
+          <HelpText> A default list of emojis to show for reactions.</HelpText>
+        </label>
+
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "5px",
+            marginBottom: 10,
+          }}
+        >
+          {currentEmojiList.map((emoji) => {
+            return (
+              <EmojiButton
+                key={emoji}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCurrentEmojiList(
+                    currentEmojiList.filter((v) => v !== emoji)
+                  );
+                }}
+              >
+                <input type="hidden" name="defaultEmojis" value={emoji} />
+                {emoji}
+              </EmojiButton>
+            );
+          })}
+        </div>
+        <EmojiPicker
+          onEmojiSelect={(e, emoji) => {
+            setCurrentEmojiList([...currentEmojiList, emoji]);
+          }}
+        />
       </div>
 
       <h2>Post Notifications</h2>
