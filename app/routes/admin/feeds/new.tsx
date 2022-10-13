@@ -10,14 +10,8 @@ import Button from "~/components/button";
 type ActionData = {
   errors?: {
     name?: string;
-    slug?: string;
-    colorHex?: string;
-    slackConfig?: {
-      webhookUrl?: string;
-    };
-    emailConfig?: {
-      to?: string;
-    };
+    webhookUrl?: string;
+    url?: string;
   };
 };
 
@@ -31,6 +25,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   await requireAdmin(request);
   const formData = await request.formData();
   const name = formData.get("name");
+  const webhookUrl = formData.get("webhookUrl");
   const restricted = !!formData.get("restricted");
 
   if (typeof name !== "string" || name.length === 0) {
@@ -44,6 +39,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     prisma.feed.create({
       data: {
         name,
+        webhookUrl,
         restricted,
       },
     }),
@@ -72,7 +68,7 @@ export default function Index() {
     >
       <h1>Create Feed</h1>
       <div>
-        <label>
+        <label className="field-required">
           <span>Name</span>
           <input
             type="text"
@@ -100,14 +96,35 @@ export default function Index() {
             required
             placeholder="e.g. https://blog.sentry.io"
             autoFocus
-            defaultValue={feed.url || ""}
             aria-invalid={errors?.url ? true : undefined}
-            aria-errormessage={errors?.name ? "url-error" : undefined}
+            aria-errormessage={errors?.url ? "url-error" : undefined}
           />
         </label>
         {errors?.url && (
           <div className="pt-1 text-red-700" id="url-error">
             {errors.url}
+          </div>
+        )}
+      </div>
+
+      <div>
+        <label>
+          <span>Webhook URL</span>
+          <input
+            type="text"
+            name="webhookUrl"
+            required
+            placeholder="e.g. https://blog.sentry.io/notify"
+            autoFocus
+            aria-invalid={errors?.webhookUrl ? true : undefined}
+            aria-errormessage={
+              errors?.webhookUrl ? "webhookUrl-error" : undefined
+            }
+          />
+        </label>
+        {errors?.webhookUrl && (
+          <div className="pt-1 text-red-700" id="webhookUrl-error">
+            {errors.webhookUrl}
           </div>
         )}
       </div>

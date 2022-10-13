@@ -2,7 +2,12 @@ import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useActionData, useLoaderData } from "@remix-run/react";
 
-import { announcePost, getPost, updatePost } from "~/models/post.server";
+import {
+  announcePost,
+  getPost,
+  syndicatePost,
+  updatePost,
+} from "~/models/post.server";
 import type { Post } from "~/models/post.server";
 import { requireUser, requireUserId } from "~/services/auth.server";
 import { getCategory, getCategoryList } from "~/models/category.server";
@@ -151,8 +156,10 @@ export const action: ActionFunction = async ({ request, params }) => {
   });
 
   if (!post.deleted && announce) {
-    announcePost(post);
+    await announcePost(post);
   }
+
+  await syndicatePost(post);
 
   if (post.deleted) {
     return redirect("/");
