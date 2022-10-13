@@ -1,9 +1,10 @@
-import type { Category, Post, User } from "@prisma/client";
+import type { Category, Feed, Post, User } from "@prisma/client";
 import { prisma } from "~/services/db.server";
 import {
   createPost,
   getPost,
   getPostList,
+  syndicatePost,
   updatePost,
 } from "~/models/post.server";
 import * as Fixtures from "~/lib/test/fixtures";
@@ -358,5 +359,38 @@ describe("updatePost", () => {
       where: { id: feed.id },
     });
     expect(newFeed).toBeDefined();
+  });
+});
+
+describe("syndicatePost", () => {
+  let author: User;
+  let category: Category;
+  let feed: Feed;
+
+  beforeEach(async () => {
+    author = await Fixtures.User();
+    category = await Fixtures.Category();
+    feed = await Fixtures.Feed({
+      webhookUrl: "https://example.com/notify",
+    });
+  });
+
+  it("POSTs to webhookUrl", async () => {
+    let post = await createPost({
+      userId: author.id,
+      categoryId: category.id,
+      content: "test content",
+      title: "test",
+      feedIds: [feed.id],
+    });
+
+    const fetchSpy = vi.spyOn(global, "fetch");
+
+    await syndicatePost(post);
+
+    expect(fetchSpy).toHaveBeenCalledOnce();
+    expect(fetchSpy).toBeCalledWith("https://example.com/notify", {
+      method: "POST",
+    });
   });
 });
