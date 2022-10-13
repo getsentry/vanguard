@@ -10,7 +10,6 @@ import invariant from "tiny-invariant";
 import * as email from "../lib/email";
 import * as slack from "../lib/slack";
 import { prisma } from "~/services/db.server";
-import { fetch } from "@remix-run/node";
 import { error } from "~/lib/logging";
 
 export type {
