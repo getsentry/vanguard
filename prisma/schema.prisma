@@ -78,6 +78,8 @@ model Feed {
   deleted    Boolean @default(false)
   url        String?
 
+  webhookUrl String?
+
   posts Post[]
 }
 

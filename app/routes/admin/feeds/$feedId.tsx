@@ -32,14 +32,8 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 type ActionData = {
   errors?: {
     name?: string;
-    slug?: string;
-    colorHex?: string;
-    slackConfig?: {
-      webhookUrl?: string;
-    };
-    emailConfig?: {
-      to?: string;
-    };
+    url?: string;
+    webhookUrl?: string;
   };
 };
 
@@ -53,6 +47,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   const formData = await request.formData();
   const name = formData.get("name");
   const url = formData.get("url");
+  const webhookUrl = formData.get("webhookUrl");
   const restricted = !!formData.get("restricted");
   const deleted = !!formData.get("deleted");
 
@@ -138,12 +133,35 @@ export default function Details() {
             autoFocus
             defaultValue={feed.url || ""}
             aria-invalid={errors?.url ? true : undefined}
-            aria-errormessage={errors?.name ? "url-error" : undefined}
+            aria-errormessage={errors?.url ? "url-error" : undefined}
           />
         </label>
         {errors?.url && (
           <div className="pt-1 text-red-700" id="url-error">
             {errors.url}
+          </div>
+        )}
+      </div>
+
+      <div>
+        <label>
+          <span>Webhook URL</span>
+          <input
+            type="text"
+            name="webhookUrl"
+            required
+            placeholder="e.g. https://blog.sentry.io/notify"
+            autoFocus
+            defaultValue={feed.webhookUrl || ""}
+            aria-invalid={errors?.webhookUrl ? true : undefined}
+            aria-errormessage={
+              errors?.webhookUrl ? "webhookUrl-error" : undefined
+            }
+          />
+        </label>
+        {errors?.webhookUrl && (
+          <div className="pt-1 text-red-700" id="webhookUrl-error">
+            {errors.webhookUrl}
           </div>
         )}
       </div>

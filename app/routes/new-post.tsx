@@ -2,7 +2,7 @@ import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useActionData, useLoaderData } from "@remix-run/react";
 
-import { announcePost, createPost } from "~/models/post.server";
+import { announcePost, createPost, syndicatePost } from "~/models/post.server";
 import { requireUser, requireUserId } from "~/services/auth.server";
 import { getCategory, getCategoryList } from "~/models/category.server";
 import type { Category } from "~/models/category.server";
@@ -117,8 +117,10 @@ export const action: ActionFunction = async ({ request }) => {
   });
 
   if (announce) {
-    announcePost(post);
+    await announcePost(post);
   }
+
+  await syndicatePost(post);
 
   return redirect(getPostLink(post));
 };

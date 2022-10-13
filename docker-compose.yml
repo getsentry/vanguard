@@ -1,6 +1,7 @@
 version: "3.7"
 services:
   postgres:
+    container_name: vanguard_postgres_1
     image: postgres:latest
     restart: always
     environment:

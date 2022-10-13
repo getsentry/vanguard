@@ -10,6 +10,8 @@ import invariant from "tiny-invariant";
 import * as email from "../lib/email";
 import * as slack from "../lib/slack";
 import { prisma } from "~/services/db.server";
+import { fetch } from "@remix-run/node";
+import { error } from "~/lib/logging";
 
 export type {
   Category,
@@ -59,6 +61,29 @@ export async function announcePost(post: PostQueryType) {
       post,
       config: config as slack.SlackConfig,
     });
+  });
+}
+
+export async function syndicatePost(post) {
+  post.feeds.forEach(async (feed) => {
+    if (feed.webhookUrl) {
+      const res = await fetch(feed.webhookUrl, {
+        method: "POST",
+      });
+
+      if (res.status !== 200) {
+        let data: any;
+        try {
+          data = await res.json();
+        } catch (err) {
+          data = res.body;
+        }
+        error("feed webhook failed", {
+          context: { webhook: data },
+          tags: { statusCode: res.status },
+        });
+      }
+    }
   });
 }
 
