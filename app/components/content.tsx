@@ -26,5 +26,23 @@ const Content = styled.div`
     border-radius: 4px;
     box-shadow: 0px 25px 25px 0px rgba(0, 0, 0, 0.06);
   }
+
+  figure {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    margin-bottom: 3rem;
+
+    > img {
+      margin-bottom: 0;
+    }
+
+    > figcaption {
+      font-size: 0.9em;
+      margin-top: 0;
+      text-align: center;
+      color: ${(p) => p.theme.textColorSecondary};
+    }
+  }
 `;
 export default Content;

@@ -16,6 +16,18 @@ renderer.code = function (code, lang, escaped) {
   return `<pre class="code-block ${langClass}"><code class="${langClass}">${code}</code></pre>`;
 };
 
+// add captions to images
+renderer.image = function (href, title, text) {
+  const html = `<figure><img src="${href}" title="${title}" alt="${text}" /></figure>`;
+  if (title) {
+    return `<figure>
+      ${html}
+      <figcaption>${title}</figcaption>
+      </figure>`;
+  }
+  return html;
+};
+
 marked.setOptions({
   renderer,
   highlight: function (code, lang) {
