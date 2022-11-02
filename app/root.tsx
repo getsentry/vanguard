@@ -52,10 +52,12 @@ export const links: LinksFunction = () => {
   ];
 };
 
-export const meta: MetaFunction = () => ({
+export const meta: MetaFunction = ({ data }) => ({
   charset: "utf-8",
   title: "Vanguard",
   viewport: "width=device-width,initial-scale=1",
+  "sentry-trace": data.sentryTrace,
+  baggage: data.baggage,
 });
 
 moment.locale("en", {
@@ -170,7 +172,7 @@ const DevNotice = styled((props) => {
 `;
 
 function App() {
-  const { user, categoryList, recentPostList, ENV } = useLoaderData();
+  const { user, categoryList, recentPostList, ENV = {} } = useLoaderData();
   const [theme, setTheme] = useState("light");
   const [showSidebar, setShowSidebar] = useState(false);
 
@@ -309,32 +311,4 @@ const UserMenuDivider = styled.div`
   }
 `;
 
-const Fallback = () => (
-  <html lang="en">
-    <head>
-      <title>Oh no!</title>
-      <Meta />
-      <Links />
-      {typeof document === "undefined" ? "__STYLES__" : null}
-    </head>
-    <ThemeProvider theme={lightTheme}>
-      <GlobalStyles />
-      <body>
-        <Primary>
-          <Container>
-            <Header />
-            <h1>
-              Something bad happened. Don't worry, we've sent the error to
-              Sentry and we are on the case!
-            </h1>
-          </Container>
-        </Primary>
-        <Scripts />
-      </body>
-    </ThemeProvider>
-  </html>
-);
-
-export default withSentry(App, {
-  errorBoundaryOptions: { fallback: <Fallback /> },
-});
+export default withSentry(App, { wrapWithErrorBoundary: false });
