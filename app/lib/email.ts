@@ -8,13 +8,15 @@ import type { PostComment } from "~/models/post-comments.server";
 import { getSubscriptions } from "~/models/post-subscription.server";
 import summarize from "./summarize";
 import { lightTheme } from "~/styles/theme";
-import { User } from "@sentry/remix";
+import type { User } from "@sentry/remix";
 import { escapeHtml } from "./html";
 
 export type EmailConfig = {
   to: string;
   subjectPrefix?: string;
 };
+
+const renderer = new marked.Renderer();
 
 let mailTransport: Transporter<SMTPTransport.SentMessageInfo>;
 
@@ -93,6 +95,7 @@ export const notify = async ({
 const buildPostEmail = (post: PostQueryType): string => {
   const postUrl = `${process.env.BASE_URL}/p/${post.id}`;
   const html = marked.parse(post.content as string, {
+    renderer,
     breaks: true,
     baseUrl: process.env.BASE_URL,
   });

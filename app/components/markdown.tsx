@@ -28,16 +28,20 @@ renderer.image = function (href, title, text) {
   return html;
 };
 
-marked.setOptions({
-  renderer,
-  highlight: function (code, lang) {
-    if (prismjs.languages[lang]) {
-      return prismjs.highlight(code, prismjs.languages[lang], lang);
-    } else {
-      return code;
-    }
-  },
-});
+const parseMarkdown = (content: string, options = {}): string => {
+  return marked.parse(content, {
+    renderer,
+    highlight: function (code, lang) {
+      if (prismjs.languages[lang]) {
+        return prismjs.highlight(code, prismjs.languages[lang], lang);
+      } else {
+        return code;
+      }
+    },
+    breaks: true,
+    ...options,
+  });
+};
 
 export default function Markdown({
   content,
@@ -47,23 +51,25 @@ export default function Markdown({
   content: string;
   summarize?: boolean;
 }) {
-  const markdownContent = marked.parse(content, { breaks: true });
+  const markdownContent = parseMarkdown(content);
 
   let html = sanitize(
     summarize
-      ? sanitize(marked.parse(content, { breaks: true }), {
-          ALLOWED_TAGS: [
-            "p",
-            "blockquote",
-            "#text",
-            "strong",
-            "em",
-            "i",
-            "b",
-            "a",
-          ],
-          KEEP_CONTENT: false,
-        }).split("</p>")[0] + "</p>"
+      ? sanitize(
+          parseMarkdown(content, {
+            ALLOWED_TAGS: [
+              "p",
+              "blockquote",
+              "#text",
+              "strong",
+              "em",
+              "i",
+              "b",
+              "a",
+            ],
+            KEEP_CONTENT: false,
+          })
+        ).split("</p>")[0] + "</p>"
       : markdownContent
   );
   return <div dangerouslySetInnerHTML={{ __html: html }} {...props} />;
