@@ -25,7 +25,7 @@ import * as Tabs from "./editor-tabs";
 import Markdown from "./markdown";
 
 function replaceText(cursor: Cursor, text: string, replaceWith: string) {
-  cursor.setText(cursor.getText().replace(text, replaceWith));
+  cursor.setValue(cursor.value.replace(text, replaceWith));
 }
 
 async function uploadImage(file: File) {
@@ -42,14 +42,11 @@ async function uploadImage(file: File) {
 
 function handleUploadImages(textareaEl: HTMLTextAreaElement, fileList: File[]) {
   const cursor = new Cursor(textareaEl);
-  const currentLineNumber = cursor.getCurrentPosition().lineNumber;
 
   fileList.forEach(async (file, idx) => {
     const loadingText = `![Uploading ${file.name}...]()`;
 
-    cursor.spliceContent(Cursor.raw`${loadingText}${Cursor.$}`, {
-      startLineNumber: currentLineNumber + idx,
-    });
+    cursor.insert(`${loadingText}${Cursor.MARKER}`);
 
     try {
       const uploadedImage = await uploadImage(file);
@@ -262,10 +259,6 @@ function Editor({
       <TextareaMarkdown.Wrapper
         ref={ref}
         commands={[
-          {
-            name: "indent",
-            enable: false,
-          },
           {
             name: "vg-quote-block",
             handler: quoteCommandHandler,
