@@ -1,11 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ClipboardEvent, DragEvent, ChangeEvent } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import TextareaMarkdown, { Cursor } from "textarea-markdown-editor";
-import type {
-  CommandHandler,
-  TextareaMarkdownRef,
-} from "textarea-markdown-editor";
+import type { TextareaMarkdownRef } from "textarea-markdown-editor";
 import styled from "styled-components";
 import toast from "react-hot-toast";
 import {
@@ -91,73 +88,6 @@ const onUploadFiles = (
   handleUploadImages(textareaEl, imageFiles);
 };
 
-// TODO(dcramer): could we use cursor.wrapMultiLineSelected() for some of this
-const prefixEachLine = (element: HTMLTextAreaElement, prefix: string) => {
-  const cursor = new Cursor(element);
-  const position = cursor.getCurrentPosition();
-
-  const addPrefix = cursor.getLine().indexOf(prefix) !== 0;
-
-  const removePrefix = (line: string) => {
-    if (line.indexOf(`${prefix} `) === 0) return line.slice(prefix.length + 1);
-    if (line.indexOf(prefix) === 0) return line.slice(prefix.length);
-    return line;
-  };
-
-  const output = [];
-  let line: string;
-  for (var i = position.lineNumber; i <= position.lineNumberEnd; i++) {
-    line = cursor.getLine(i);
-    output.push(addPrefix ? `${prefix} ${line}` : removePrefix(line));
-  }
-
-  const modified = output.join("\n");
-
-  cursor.spliceContent(Cursor.raw`${modified}`, {
-    startLineNumber: position.lineNumber,
-    replaceCount: output.length,
-  });
-};
-
-// XXX(dcramer): the built-in 'unordered-list' command is not implemented well
-const unorderedListCommandHandler: CommandHandler = ({ element }) => {
-  return prefixEachLine(element, "-");
-};
-
-// XXX(dcramer): the built-in 'block-quotes' command is not implemented well
-const quoteCommandHandler: CommandHandler = ({ element }) => {
-  return prefixEachLine(element, ">");
-};
-
-// XXX(dcramer): the built-in 'code-block' command is not implemented well
-const codeCommandHandler: CommandHandler = ({ element }) => {
-  const cursor = new Cursor(element);
-  const selected =
-    cursor.getSelected() || cursor.getLine() || "function helloWorld() { }";
-  const prefix = "```";
-  const removeBlock =
-    selected.indexOf(prefix) === 0 &&
-    selected.indexOf(prefix, prefix.length) === selected.length - prefix.length;
-
-  const removePrefix = (text: string) => {
-    if (text.indexOf(prefix) === 0) text = text.slice(prefix.length);
-    if (text.indexOf(prefix) === text.length - prefix.length)
-      text = text.slice(0, -prefix.length);
-    return text;
-  };
-
-  const lines = selected.split("\n");
-  const modified = !removeBlock
-    ? `${prefix}\n${selected}\n${prefix}`
-    : removePrefix(selected);
-
-  const position = cursor.getCurrentPosition();
-  cursor.spliceContent(Cursor.raw`${modified}`, {
-    startLineNumber: position.lineNumber,
-    replaceCount: lines.length,
-  });
-};
-
 const EditorWrapper = styled.div`
   textarea {
     width: 100%;
@@ -215,21 +145,21 @@ function Editor({
         <Toolbar.Button
           value="unordered-list"
           aria-label="Unordered List"
-          onClick={() => ref.current?.trigger("vg-unordered-list")}
+          onClick={() => ref.current?.trigger("unordered-list")}
         >
           <ListBulletIcon />
         </Toolbar.Button>
         <Toolbar.Button
           value="code-block"
           aria-label="code-block"
-          onClick={() => ref.current?.trigger("vg-code-block")}
+          onClick={() => ref.current?.trigger("code-block")}
         >
           <CodeIcon />
         </Toolbar.Button>
         <Toolbar.Button
           value="quote-block"
           aria-label="quote-block"
-          onClick={() => ref.current?.trigger("vg-quote-block")}
+          onClick={() => ref.current?.trigger("quote-block")}
         >
           <QuoteIcon />
         </Toolbar.Button>
@@ -258,20 +188,6 @@ function Editor({
 
       <TextareaMarkdown.Wrapper
         ref={ref}
-        commands={[
-          {
-            name: "vg-quote-block",
-            handler: quoteCommandHandler,
-          },
-          {
-            name: "vg-unordered-list",
-            handler: unorderedListCommandHandler,
-          },
-          {
-            name: "vg-code-block",
-            handler: codeCommandHandler,
-          },
-        ]}
         options={{
           codeBlockPlaceholder: "```\nfunction helloWorld() { }\n```",
           blockQuotesPlaceholder: "> quote",
