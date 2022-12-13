@@ -36,7 +36,10 @@ export const loader: LoaderFunction = async ({ request, params }) => {
               <description>${escapeHtml(summarize(post.content))}</description>
               <category>${escapeHtml(post.category.name)}</category>
               <content:encoded><![CDATA[${escapeCdata(
-                marked.parse(post.content as string, { breaks: true })
+                marked.parse(post.content as string, {
+                  breaks: true,
+                  baseUrl: process.env.BASE_URL,
+                })
               )}]]></content:encoded>
               <author>${escapeHtml(post.author.name)}</author>
               <pubDate>${post.publishedAt.toUTCString()}</pubDate>
