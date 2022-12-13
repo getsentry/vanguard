@@ -66,6 +66,7 @@ export const action: ActionFunction = async ({ request, params }) => {
         url,
         restricted,
         deleted,
+        webhookUrl,
       },
     }),
   ];
