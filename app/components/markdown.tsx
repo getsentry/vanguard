@@ -1,7 +1,7 @@
 import { marked } from "marked";
 import { sanitize } from "isomorphic-dompurify";
 import prismjs from "prismjs";
-import { summarize as summarizeFn } from "../lib/summarize";
+import { default as summarizeFn } from "../lib/summarize";
 
 import "prism-sentry/index.css";
 
