@@ -1,6 +1,7 @@
 import { marked } from "marked";
 import { sanitize } from "isomorphic-dompurify";
 import prismjs from "prismjs";
+import { summarize as summarizeFn } from "../lib/summarize";
 
 import "prism-sentry/index.css";
 
@@ -51,26 +52,8 @@ export default function Markdown({
   content: string;
   summarize?: boolean;
 }) {
-  const markdownContent = parseMarkdown(content);
-
   let html = sanitize(
-    summarize
-      ? sanitize(
-          parseMarkdown(content, {
-            ALLOWED_TAGS: [
-              "p",
-              "blockquote",
-              "#text",
-              "strong",
-              "em",
-              "i",
-              "b",
-              "a",
-            ],
-            KEEP_CONTENT: false,
-          })
-        ).split("</p>")[0] + "</p>"
-      : markdownContent
+    summarize ? summarizeFn(content) : parseMarkdown(content)
   );
   return <div dangerouslySetInnerHTML={{ __html: html }} {...props} />;
 }
