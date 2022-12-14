@@ -227,7 +227,7 @@ const buildCommentHtml = (
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td style="vertical-align:top"><img src="${process.env.BASE_URL}${
-    post.author.picture || `/img/placeholder-avatar.png`
+    comment.author.picture || `/img/placeholder-avatar.png`
   }" width="36" height="36" style="border-radius:36px;display:block;" /></td>
           <td style="padding-left:15px">
             <table cellpadding="0" cellspacing="0" border="0">
