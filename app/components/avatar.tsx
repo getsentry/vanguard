@@ -16,4 +16,5 @@ export default styled(
   width: ${(p) => (p.size ? p.size : "4.8rem")};
   height: ${(p) => (p.size ? p.size : "4.8rem")};
   border-radius: 4.8rem;
+  object-fit: cover;
 `;
