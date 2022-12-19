@@ -113,6 +113,7 @@ const ClusterWrapper = styled.article`
     font-size: 2.6rem;
     font-family: "Gazpacho-Heavy", serif;
     margin-bottom: .4rem;
+    overflow-wrap: break-word;
     a {
       color: inherit;
     }

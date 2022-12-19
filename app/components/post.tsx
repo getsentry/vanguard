@@ -19,6 +19,7 @@ import { ChatBubbleIcon, HeartIcon } from "@radix-ui/react-icons";
 const PostTitle = styled.h1`
   font-size: 4.4rem;
   font-family: "Gazpacho-Heavy", serif;
+  overflow-wrap: break-word;
 
   a {
     color: inherit;
