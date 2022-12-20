@@ -26,6 +26,7 @@ const PostTitle = styled.h4`
   grid-area: title;
   margin: 0;
   font-size: 1.6rem;
+  overflow-wrap: break-word;
 `;
 
 const PostCredits = styled.div`

@@ -139,6 +139,7 @@ const PostList = styled.div`
 
 const PostCardTitle = styled.h2`
   font-family: "Gazpacho-Heavy", serif;
+  overflow-wrap: break-word;
 `;
 
 const PostCard = styled.div`
