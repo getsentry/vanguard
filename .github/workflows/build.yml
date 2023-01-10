@@ -13,7 +13,7 @@ on:
 
 jobs:
   lint:
-    name: ⬣ ESLint
+    name: ⬣ Lint
     runs-on: ubuntu-latest
     steps:
       - name: 🛑 Cancel Previous Runs
@@ -54,8 +54,8 @@ jobs:
   #     - name: 🔎 Type check
   #       run: npm run typecheck --if-present
 
-  vitest:
-    name: ⚡ Vitest
+  test:
+    name: ⚡ Test
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -97,6 +97,16 @@ jobs:
         if: always() # always run even if the previous step fails
         with:
           report_paths: "**/junit.xml"
+
+      - uses: codecov/codecov-action@v3
+        name: Publish Codecov Report
+        if: always() # always run even if the previous step fails
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage/coverage-final.json
+          # directory: coverage
+          fail_ci_if_error: true
+          verbose: true
 
   # build:
   #   name: 🐳 Build
