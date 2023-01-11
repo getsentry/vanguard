@@ -46,7 +46,7 @@ const createDefaultUser = async () => {
 
 // global.beforeAll(async () => {});
 
-global.beforeEach(async () => {
+beforeEach(async () => {
   await clearDatabase();
 
   global.DefaultFixtures = {};
@@ -54,10 +54,10 @@ global.beforeEach(async () => {
   global.DefaultFixtures.DEFAULT_USER = await createDefaultUser();
 });
 
-global.afterEach(async () => {
+afterEach(async () => {
   vi.clearAllMocks();
 });
 
-global.afterAll(async () => {
+afterAll(async () => {
   await prisma.$disconnect();
 });
