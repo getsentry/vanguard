@@ -18,6 +18,12 @@ export type EmailConfig = {
 
 const renderer = new marked.Renderer();
 
+renderer.image = function (href, title, text) {
+  return `<img src="${
+    this.options.baseUrl + href
+  }" title="${title}" alt="${text}" style="max-width:100%;"/>`;
+};
+
 let mailTransport: Transporter<SMTPTransport.SentMessageInfo>;
 
 // XXX(dcramer): futuer proof for optional email support
