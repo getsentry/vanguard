@@ -84,7 +84,7 @@ export const notify = async ({
 
   try {
     await transport.sendMail({
-      from: `"Vanguard" <${process.env.SMTP_FROM}>`,
+      from: `"Sentry Vanguard" <${process.env.SMTP_FROM}>`,
       to: config.to,
       subject,
       replyTo: config.to,
