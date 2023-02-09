@@ -70,7 +70,9 @@ export default function PostList({ postList }) {
           </PostAvatar>
           <PostCredits>
             <PostAuthor>
-              <Link to={`/u/${post.author.email}`}>{post.author.name}</Link>
+              <Link to={`/u/${post.author.email}`}>
+                {post.author.name || post.author.email}
+              </Link>
             </PostAuthor>
             <PostDate>{moment(post.publishedAt).fromNow()}</PostDate>
           </PostCredits>

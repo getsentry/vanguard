@@ -174,7 +174,7 @@ const Comment = ({
             <Avatar user={comment.author} size="24px" />
             <Name>
               <Link to={`/u/${comment.author.email}`}>
-                {comment.author.name}
+                {comment.author.name || comment.author.email}
               </Link>
             </Name>
             <Middot />

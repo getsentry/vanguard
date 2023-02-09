@@ -181,7 +181,9 @@ export default function Post({
         <Avatar user={post.author} />
         <Byline>
           <Name>
-            <Link to={`/u/${post.author.email}`}>{post.author.name}</Link>
+            <Link to={`/u/${post.author.email}`}>
+              {post.author.name || post.authorId.email}
+            </Link>
           </Name>
           <Meta>
             <Date>{moment(post.publishedAt || post.createdAt).fromNow()}</Date>

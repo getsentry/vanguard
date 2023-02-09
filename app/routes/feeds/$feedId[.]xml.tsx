@@ -38,7 +38,9 @@ export const loader: LoaderFunction = async ({ request, params }) => {
               <content:encoded><![CDATA[${escapeCdata(
                 marked.parse(post.content as string, { breaks: true })
               )}]]></content:encoded>
-              <author>${escapeHtml(post.author.name)}</author>
+              <author>${escapeHtml(
+                post.author.name || post.author.email
+              )}</author>
               <pubDate>${post.publishedAt.toUTCString()}</pubDate>
               <link>${buildUrl(getPostLink(post), request)}</link>
 
