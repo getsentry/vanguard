@@ -45,7 +45,10 @@ const ParentComment = ({
     <ParentCommentContainer>
       <input type="hidden" name="parentId" value={comment.id} />
       <p>
-        Replying to <a href={`#c_${comment.id}`}>{comment.author.name}</a>
+        Replying to{" "}
+        <a href={`#c_${comment.id}`}>
+          {comment.author.name || comment.author.email}
+        </a>
       </p>
       <Button size="xs" baseStyle="link" onClick={() => onClear()}>
         <Cross1Icon />

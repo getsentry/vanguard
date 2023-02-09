@@ -142,7 +142,9 @@ export default ({ category, posts, reactions, commentCounts }) => {
                 <Avatar size="24px" user={post.author} />
 
                 <Name>
-                  <Link to={`/u/${post.author.email}`}>{post.author.name}</Link>
+                  <Link to={`/u/${post.author.email}`}>
+                    {post.author.name || post.author.email}
+                  </Link>
                 </Name>
                 <Meta>
                   <Middot />

@@ -77,7 +77,9 @@ export const notify = async ({
   }
 
   const postUrl = `${process.env.BASE_URL}/p/${post.id}`;
-  const sender = `"${post.author.name}" <${post.author.email}>`;
+  const sender = `"${post.author.name || post.author.email}" <${
+    post.author.email
+  }>`;
   const subject = config.subjectPrefix
     ? `${config.subjectPrefix} ${post.title}`
     : post.title;
@@ -120,7 +122,7 @@ const buildPostEmail = (post: PostQueryType): string => {
           <tr>
             <td>
               <b style="color:${lightTheme.textColor};">${escapeHtml(
-    post.author.name
+    post.author.name || post.author.email
   )}</b>
             </td>
           </tr>
@@ -157,7 +159,9 @@ export const notifyComment = async ({
   }
 
   const commentUrl = `${process.env.BASE_URL}/p/${post.id}#c_${comment.id}`;
-  const sender = `"${comment.author.name}" <${comment.author.email}>`;
+  const sender = `"${comment.author.name || comment.author.email}" <${
+    comment.author.email
+  }>`;
   const subject = `Re: ${post.title}`;
 
   const subscriptions: User[] = await getSubscriptions({ postId: post.id });
@@ -206,8 +210,12 @@ const buildCommentHtml = (
 
   const isInReplyTo = parent && parent.authorId === toUser.id;
   const titleLine = isInReplyTo
-    ? `${escapeHtml(comment.author.name)} just replied to your comment`
-    : `${escapeHtml(comment.author.name)} left a new comment`;
+    ? `${escapeHtml(
+        comment.author.name || comment.author.email
+      )} just replied to your comment`
+    : `${escapeHtml(
+        comment.author.name || comment.author.email
+      )} left a new comment`;
   const reasonLine = isInReplyTo
     ? `You are being notified because you have notification replies enabled. <a href="${settingsUrl}">Account Settings</a>`
     : `You are being notified because you are subscribed to this post. <a href="${postUrl}">Post Settings</a>`;

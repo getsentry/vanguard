@@ -41,7 +41,9 @@ export const loader: LoaderFunction = async ({ request, params }) => {
                   baseUrl: process.env.BASE_URL,
                 })
               )}]]></content:encoded>
-              <author>${escapeHtml(post.author.name)}</author>
+              <author>${escapeHtml(
+                post.author.name || post.author.email
+              )}</author>
               <pubDate>${post.publishedAt.toUTCString()}</pubDate>
               <link>${buildUrl(getPostLink(post), request)}</link>
 
