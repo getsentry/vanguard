@@ -89,10 +89,14 @@ type LoaderData = {
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await getUser(request);
 
-  setUser({
-    id: user?.id,
-    email: user?.email,
-  });
+  setUser(
+    user
+      ? {
+          id: user.id,
+          email: user.email,
+        }
+      : null
+  );
 
   if (user) {
     // probably a cleaner way to build this, but we're here for the duct tape
