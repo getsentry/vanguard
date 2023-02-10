@@ -263,7 +263,7 @@ export default function PostForm({
                         initialData?.feedIds?.indexOf(feed.id) !== -1
                       }
                     />
-                    Publish to{" "}
+                    Publish to public facing engineering blog at{" "}
                     {feed.url ? <a href={feed.url}>{feed.name}</a> : feed.name}
                   </label>
                 </div>
