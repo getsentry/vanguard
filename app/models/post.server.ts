@@ -174,7 +174,6 @@ export async function getPostList({
       },
     ];
   }
-  console.log(query);
   if (query !== undefined) {
     where.AND = [
       ...(where.AND || []),
