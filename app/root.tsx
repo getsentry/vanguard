@@ -57,7 +57,7 @@ export const meta: MetaFunction = ({ data }) => ({
   title: "Vanguard",
   viewport: "width=device-width,initial-scale=1",
   "sentry-trace": data?.sentryTrace || "",
-  baggage: data.baggage,
+  baggage: data?.baggage || "",
 });
 
 moment.locale("en", {
