@@ -56,7 +56,7 @@ export const meta: MetaFunction = ({ data }) => ({
   charset: "utf-8",
   title: "Vanguard",
   viewport: "width=device-width,initial-scale=1",
-  "sentry-trace": data.sentryTrace,
+  "sentry-trace": data?.sentryTrace || "",
   baggage: data.baggage,
 });
 
