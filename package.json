@@ -40,7 +40,7 @@
   ],
   "dependencies": {
     "@google-cloud/storage": "^5.19.1",
-    "@prisma/client": "^4.5.0",
+    "@prisma/client": "^4.11.0",
     "@radix-ui/colors": "^0.1.8",
     "@radix-ui/react-icons": "^1.1.1",
     "@radix-ui/react-tabs": "^1.0.1",
@@ -62,7 +62,7 @@
     "moment": "^2.29.2",
     "morgan": "^1.10.0",
     "nodemailer": "^6.9.1",
-    "prisma": "^4.7.0",
+    "prisma": "^4.11.0",
     "prism-sentry": "^1.0.2",
     "prismjs": "^1.27.0",
     "react": "^18.2.0",
