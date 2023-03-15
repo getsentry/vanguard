@@ -174,17 +174,22 @@ export async function getPostList({
       },
     ];
   }
-
   if (query !== undefined) {
     where.AND = [
       ...(where.AND || []),
       {
         OR: [
           {
-            title: { search: query, mode: "insensitive" },
+            title: {
+              search: query.split(" ").join(" & "),
+              mode: "insensitive",
+            },
           },
           {
-            content: { search: query, mode: "insensitive" },
+            content: {
+              search: query.split(" ").join(" & "),
+              mode: "insensitive",
+            },
           },
         ],
       },
