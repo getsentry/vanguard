@@ -1,4 +1,8 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type {
+  ActionFunction,
+  LoaderFunction,
+  MetaFunction,
+} from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
@@ -20,6 +24,12 @@ type LoaderData = {
   reactions: any[];
   user: User;
   hasSubscription: boolean;
+};
+
+export const meta: MetaFunction = ({ data }) => {
+  return {
+    title: `${data.post.title} | Vanguard`,
+  };
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
