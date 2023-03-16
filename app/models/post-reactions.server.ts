@@ -1,5 +1,5 @@
 import type { User, Post, PostReaction } from "@prisma/client";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
+import { Prisma } from "@prisma/client";
 import { prisma } from "~/services/db.server";
 
 export type { PostReaction } from "@prisma/client";
@@ -94,7 +94,7 @@ export async function togglePostReaction({
     });
     return 1;
   } catch (e) {
-    if (e instanceof PrismaClientKnownRequestError) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
       // The .code property can be accessed in a type-safe manner
       if (e.code === "P2002") {
         await prisma.postReaction.deleteMany({
