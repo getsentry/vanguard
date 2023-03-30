@@ -157,9 +157,9 @@ function Editor({
           <CodeIcon />
         </Toolbar.Button>
         <Toolbar.Button
-          value="quote-block"
-          aria-label="quote-block"
-          onClick={() => ref.current?.trigger("quote-block")}
+          value="block-quotes"
+          aria-label="block-quotes"
+          onClick={() => ref.current?.trigger("block-quotes")}
         >
           <QuoteIcon />
         </Toolbar.Button>
