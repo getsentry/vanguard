@@ -16,6 +16,8 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useLocation,
+  useNavigate,
 } from "@remix-run/react";
 import styled, { ThemeProvider } from "styled-components";
 import breakpoint from "styled-components-breakpoint";
@@ -98,16 +100,16 @@ export const loader: LoaderFunction = async ({ request }) => {
       : null
   );
 
-  if (user) {
-    // probably a cleaner way to build this, but we're here for the duct tape
-    const pathname = new URL(request.url).pathname;
-    if (!user.name && pathname.indexOf("/welcome") !== 0) {
-      // send em to onboarding
-      const redirectTo = new URL(request.url).pathname;
-      const searchParams = new URLSearchParams([["redirectTo", redirectTo]]);
-      return redirect(`/welcome?${searchParams}`);
-    }
-  }
+  // TODO(dcramer): remix is currently not respecting a root loader redirect
+  // if (user) {
+  //   // probably a cleaner way to build this, but we're here for the duct tape
+  //   const pathname = new URL(request.url).pathname;
+  //   if (!user.name && pathname.indexOf("/welcome") !== 0) {
+  //     // send em to onboarding
+  //     const searchParams = new URLSearchParams([["redirectTo", pathname]]);
+  //     return redirect(`/welcome?${searchParams}`);
+  //   }
+  // }
 
   const loaderData: LoaderData = {
     user,
@@ -179,6 +181,20 @@ function App() {
   const { user, categoryList, recentPostList, ENV = {} } = useLoaderData();
   const [theme, setTheme] = useState("light");
   const [showSidebar, setShowSidebar] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // XXX: fix an issue w/ root loader not respecting redirect
+  useEffect(() => {
+    // probably a cleaner way to build this, but we're here for the duct tape
+    if (user && !user.name && location.pathname.indexOf("/welcome") !== 0) {
+      // send em to onboarding
+      const searchParams = new URLSearchParams([
+        ["redirectTo", location.pathname],
+      ]);
+      return navigate(`/welcome?${searchParams}`);
+    }
+  }, [user, navigate, location.pathname]);
 
   setUser(user);
 
