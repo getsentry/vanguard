@@ -43,6 +43,7 @@ type ActionData = {
   errors?: {
     name?: string;
     slug?: string;
+    description?: string;
     colorHex?: string;
     defaultEmojis?: string;
     slackConfig?: {
@@ -64,6 +65,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   const formData = await request.formData();
   const name = formData.get("name");
   const slug = formData.get("slug");
+  const description = formData.get("description");
   const colorHex = formData.get("colorHex");
   const restricted = !!formData.get("restricted");
   const allowComments = !!formData.get("allowComments");
@@ -133,6 +135,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       data: {
         name,
         slug,
+        description,
         colorHex,
         restricted,
         deleted,
@@ -286,6 +289,27 @@ export default function Index() {
         )}
       </div>
       <div>
+        <label>
+          <span>Description</span>
+          <input
+            type="text"
+            name="description"
+            placeholder="e.g. Clever and quirky updates about things we've delivered."
+            autoFocus
+            defaultValue={category.description || ""}
+            aria-invalid={errors?.description ? true : undefined}
+            aria-errormessage={
+              errors?.description ? "description-error" : undefined
+            }
+          />
+        </label>
+        {errors?.description && (
+          <div className="pt-1 text-red-700" id="description-error">
+            {errors.description}
+          </div>
+        )}
+      </div>
+      <div>
         <label className="field-required">
           <span>Color</span>
           <input
@@ -327,7 +351,7 @@ export default function Index() {
         </label>
       </div>
 
-      <div>
+      <div style={{ marginBottom: 20 }}>
         <label style={{ marginBottom: 10 }}>
           <span style={{ marginBottom: 0 }}>Default Reactions</span>
           <HelpText>A default list of emojis to show for reactions.</HelpText>

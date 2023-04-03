@@ -224,6 +224,13 @@ export default function PostForm({
             {errors.categoryId}
           </div>
         )}
+        {selectedCategory?.description && (
+          <HelpText
+            style={{ fontSize: "0.9em", marginTop: -10, marginBottom: 10 }}
+          >
+            {selectedCategory.description}
+          </HelpText>
+        )}
       </div>
       {selectedCategory?.metaConfig.map((meta) => (
         <MetaConfigField
