@@ -1,5 +1,5 @@
 import type { User } from "@prisma/client";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import invariant from "tiny-invariant";
 
 import { prisma } from "~/services/db.server";
