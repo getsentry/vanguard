@@ -19,15 +19,15 @@ async function main() {
   });
 
   await prisma.category.upsert({
-    where: { name: "Strategy" },
+    where: { name: "Sentry" },
     update: {
       restricted: true,
-      slug: "strategy",
+      slug: "sentry",
       colorHex: "#ffca00",
     },
     create: {
-      name: "Strategy",
-      slug: "strategy",
+      name: "Sentry",
+      slug: "sentry",
       restricted: true,
       colorHex: "#ffca00",
     },

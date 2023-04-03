@@ -6,10 +6,11 @@ import IconShip from "~/icons/IconShip";
 import IconEye from "~/icons/IconEye";
 
 const CategoryIcon = ({ category, ...props }: { category: Category }) => {
+  // TODO: move into category config
   switch (category.slug) {
     case "shipped":
       return <IconShip {...props} />;
-    case "strategy":
+    case "sentry":
       return <IconEye {...props} />;
     default:
       return null;
@@ -56,7 +57,7 @@ export const categoryTagStyles = ({ colorHex }: { colorHex?: string }) => {
   return css`
     background: ${colorHex || "#eee"};
     color: ${contrastColor(colorHex || "#eeeeee")};
-    border-color: ${colorHex || "#eee"}; ;
+    border-color: ${colorHex || "#eee"};
   `;
 };
 

@@ -8,7 +8,7 @@ export default function About() {
         blog, it's intending to continuously enable the culture of sharing what
         we're building at Sentry. Additionally we have recognized the need to
         create more long lasting moments out of things that are top of mind,
-        which we're dubbing as 'Strategy' in this context. You'll see several
+        which we're dubbing as 'Sentry' in this context. You'll see several
         historical posts by myself of this nature.
       </p>
       <p>

@@ -51,7 +51,7 @@ const lightTheme = {
       bgColor: colors.purple,
       textColor: colors.white,
     },
-    strategy: {
+    sentry: {
       bgColor: colors.yellow,
       textColor: colors.black,
     },
