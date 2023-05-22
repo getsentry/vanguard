@@ -109,6 +109,11 @@ const GlobalStyles = createGlobalStyle`
     line-height: 1.6;
   }
 
+  blockquote {
+    padding-left: 1rem;
+    border-left: 1px solid ${(p) => p.theme.borderColor};
+  }
+
   ul ul,
   ul ol,
   ol ul
