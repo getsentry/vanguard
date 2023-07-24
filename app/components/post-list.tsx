@@ -1,9 +1,9 @@
 import { Link } from "@remix-run/react";
-import moment from "moment";
 import styled from "styled-components";
 
 import PostLink from "~/components/post-link";
 import Avatar from "~/components/avatar";
+import TimeSince from "./timeSince";
 
 const PostListContainer = styled.ul`
   list-style: none;
@@ -75,7 +75,9 @@ export default function PostList({ postList }) {
                 {post.author.name || post.author.email}
               </Link>
             </PostAuthor>
-            <PostDate>{moment(post.publishedAt).fromNow()}</PostDate>
+            <PostDate>
+              <TimeSince date={post.publishedAt} />
+            </PostDate>
           </PostCredits>
         </PostListItem>
       ))}

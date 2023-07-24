@@ -1,7 +1,8 @@
 import { error } from "./logging";
 import type { PostQueryType } from "~/models/post.server";
-import moment from "moment";
 import summarize from "./summarize";
+
+import dayjs from "dayjs";
 
 export type SlackConfig = {
   webhookUrl: string;
@@ -61,7 +62,7 @@ export const notify = async ({
             },
             {
               type: "mrkdwn",
-              text: `*Published*\n${moment(post.publishedAt).format("MMM Do")}`,
+              text: `*Published*\n${dayjs(post.publishedAt).format("MMM Do")}`,
             },
           ],
         },

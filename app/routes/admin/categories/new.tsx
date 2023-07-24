@@ -118,7 +118,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 };
 
 export default function Index() {
-  const actionData = useActionData() as ActionData;
+  const actionData = useActionData<typeof action>();
   const errors = actionData?.errors;
   const [currentEmojiList, setCurrentEmojiList] = useState(DEFAULT_EMOJIS);
 

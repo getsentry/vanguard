@@ -8,10 +8,10 @@ import type { PaginatedResult } from "~/lib/paginator";
 import Paginated from "~/components/paginated";
 import Table from "~/components/table";
 import { getPostList } from "~/models/post.server";
-import moment from "moment";
 import BooleanIcon from "~/components/boolean-icon";
 import PostLink from "~/components/post-link";
 import PageHeader from "~/components/page-header";
+import TimeSince from "~/components/timeSince";
 
 type LoaderData = {
   postListPaginated: Awaited<
@@ -32,7 +32,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 };
 
 export default function Index() {
-  const { postListPaginated } = useLoaderData() as LoaderData;
+  const { postListPaginated } = useLoaderData<typeof loader>();
 
   return (
     <div>
@@ -67,7 +67,7 @@ export default function Index() {
                       <BooleanIcon value={post.published} />
                     </td>
                     <td>
-                      {moment(post.publishedAt || post.createdAt).fromNow()}
+                      <TimeSince date={post.publishedAt || post.createdAt} />
                     </td>
                   </tr>
                 ))}

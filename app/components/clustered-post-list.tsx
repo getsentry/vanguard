@@ -5,10 +5,10 @@ import { Link } from "@remix-run/react";
 import Avatar from "./avatar";
 import PostLink from "./post-link";
 import { CategoryTagWrapper, CategoryTag } from "./category-tag";
-import moment from "moment";
 import Middot from "./middot";
 import IconCollapsedPost from "~/icons/IconCollapsedPost";
 import { ChatBubbleIcon, HeartIcon } from "@radix-ui/react-icons";
+import TimeSince from "./timeSince";
 
 const Byline = styled.div`
   display: flex;
@@ -120,7 +120,12 @@ const ClusterWrapper = styled.article`
   }
 `;
 
-export default ({ category, posts, reactions, commentCounts }) => {
+export default function ClusteredPostList({
+  category,
+  posts,
+  reactions,
+  commentCounts,
+}) {
   return (
     <ClusterWrapper category={category}>
       <CategoryTag category={category} />
@@ -149,7 +154,7 @@ export default ({ category, posts, reactions, commentCounts }) => {
                 <Meta>
                   <Middot />
                   <Date>
-                    {moment(post.publishedAt || post.createdAt).fromNow()}
+                    <TimeSince date={post.publishedAt || post.createdAt} />
                   </Date>
                   <Middot />
                   <ReactionCount>
@@ -172,4 +177,4 @@ export default ({ category, posts, reactions, commentCounts }) => {
       </ul>
     </ClusterWrapper>
   );
-};
+}

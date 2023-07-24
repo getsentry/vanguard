@@ -77,8 +77,8 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export default function WelcomePage() {
-  const { user } = useLoaderData() as LoaderData;
-  const actionData = useActionData() as ActionData;
+  const { user } = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
   const errors = actionData?.errors;
 
   const nameRef = useRef<HTMLInputElement>(null);

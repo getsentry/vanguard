@@ -27,7 +27,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export default function Search() {
-  const { postListPaginated, query } = useLoaderData() as LoaderData;
+  const { postListPaginated, query } = useLoaderData<typeof loader>();
 
   return (
     <div>

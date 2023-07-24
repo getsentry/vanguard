@@ -7,10 +7,10 @@ import { paginate } from "~/lib/paginator";
 import type { PaginatedResult } from "~/lib/paginator";
 import Paginated from "~/components/paginated";
 import Table from "~/components/table";
-import moment from "moment";
 import PostLink from "~/components/post-link";
 import PageHeader from "~/components/page-header";
 import { getCommentList } from "~/models/post-comments.server";
+import TimeSince from "~/components/timeSince";
 
 type LoaderData = {
   commentListPaginated: Awaited<
@@ -31,7 +31,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 };
 
 export default function Comments() {
-  const { commentListPaginated } = useLoaderData() as LoaderData;
+  const { commentListPaginated } = useLoaderData<typeof loader>();
 
   return (
     <div>
@@ -63,7 +63,9 @@ export default function Comments() {
                         {comment.author.email}
                       </Link>
                     </td>
-                    <td>{moment(comment.createdAt).fromNow()}</td>
+                    <td>
+                      <TimeSince date={comment.createdAt} />
+                    </td>
                   </tr>
                 ))}
               </tbody>

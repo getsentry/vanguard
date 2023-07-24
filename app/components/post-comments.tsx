@@ -1,5 +1,4 @@
 import { Link } from "@remix-run/react";
-import moment from "moment";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { ResetIcon } from "@radix-ui/react-icons";
@@ -14,6 +13,7 @@ import type { User } from "~/models/user.server";
 import { PostQueryType } from "~/models/post.server";
 import IconCollapsedPost from "~/icons/IconCollapsedPost";
 import { PostComment } from "@prisma/client";
+import TimeSince from "./timeSince";
 
 const Byline = styled.div`
   display: flex;
@@ -178,7 +178,9 @@ const Comment = ({
               </Link>
             </Name>
             <Middot />
-            <Date>{moment(comment.createdAt).fromNow()}</Date>
+            <Date>
+              <TimeSince date={comment.createdAt} />
+            </Date>
             {canDelete && (
               <>
                 <Middot />

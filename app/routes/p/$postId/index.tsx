@@ -89,7 +89,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 
 export default function PostDetailsPage() {
   let { post, user, reactions, comments, hasSubscription } =
-    useLoaderData() as LoaderData;
+    useLoaderData<typeof loader>();
 
   const canEdit = post.authorId === user.id || user.admin;
 

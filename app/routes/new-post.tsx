@@ -126,8 +126,8 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export default function NewPostPage() {
-  const loaderData = useLoaderData() as LoaderData;
-  const actionData = useActionData() as ActionData;
+  const loaderData = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
 
   return (
     <PostForm

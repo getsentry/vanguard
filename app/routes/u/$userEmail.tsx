@@ -158,7 +158,7 @@ const PostCard = styled.div`
 `;
 
 export default function UserDetailsPage() {
-  const { currentUser, user, postList } = useLoaderData() as LoaderData;
+  const { currentUser, user, postList } = useLoaderData<typeof loader>();
 
   return (
     <div>
