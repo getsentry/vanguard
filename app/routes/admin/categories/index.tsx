@@ -31,7 +31,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 };
 
 export default function Index() {
-  const { categoryListPaginated } = useLoaderData() as LoaderData;
+  const { categoryListPaginated } = useLoaderData<typeof loader>();
 
   return (
     <div>

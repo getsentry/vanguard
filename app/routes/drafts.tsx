@@ -21,7 +21,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export default function Drafts() {
-  const { postList } = useLoaderData() as LoaderData;
+  const { postList } = useLoaderData<typeof loader>();
 
   return (
     <div>

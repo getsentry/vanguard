@@ -122,7 +122,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export default function Index() {
   const { postListPaginated, reactions, commentCounts } =
-    useLoaderData() as LoaderData;
+    useLoaderData<typeof loader>();
 
   return (
     <>

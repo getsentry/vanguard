@@ -41,7 +41,6 @@ import { getCategoryList } from "./models/category.server";
 import Avatar from "./components/avatar";
 import { getPostList } from "./models/post.server";
 import PostList from "./components/post-list";
-import moment from "moment";
 
 import { withSentry, setUser, captureException } from "@sentry/remix";
 import LoadingIndicator from "./components/loading-indicator";
@@ -60,25 +59,6 @@ export const meta: MetaFunction = ({ data }) => ({
   viewport: "width=device-width,initial-scale=1",
   "sentry-trace": data?.sentryTrace || "",
   baggage: data?.baggage || "",
-});
-
-moment.locale("en", {
-  relativeTime: {
-    future: "in %s",
-    past: "%s ago",
-    s: "1s",
-    ss: "%ss",
-    m: "1m",
-    mm: "%dm",
-    h: "1h",
-    hh: "%dh",
-    d: "1d",
-    dd: "%dd",
-    M: "1M",
-    MM: "%dM",
-    y: "1Y",
-    yy: "%dY",
-  },
 });
 
 type LoaderData = {

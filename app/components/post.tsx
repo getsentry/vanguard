@@ -1,5 +1,4 @@
 import { Form, Link } from "@remix-run/react";
-import moment from "moment";
 import styled from "styled-components";
 import breakpoint from "styled-components-breakpoint";
 
@@ -15,6 +14,7 @@ import { Fragment } from "react";
 import ButtonDropdown, { ButtonDropdownItem } from "./button-dropdown";
 import HelpText from "./help-text";
 import { ChatBubbleIcon, HeartIcon } from "@radix-ui/react-icons";
+import TimeSince from "./timeSince";
 
 const PostTitle = styled.h1`
   font-size: 4.4rem;
@@ -187,7 +187,9 @@ export default function Post({
             </Link>
           </Name>
           <Meta>
-            <Date>{moment(post.publishedAt || post.createdAt).fromNow()}</Date>
+            <Date>
+              <TimeSince date={post.publishedAt || post.createdAt} />
+            </Date>
             {summary && totalComments !== undefined && (
               <>
                 <Middot />

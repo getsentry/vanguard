@@ -169,8 +169,8 @@ export const action: ActionFunction = async ({ request, params }) => {
 };
 
 export default function EditPostPage() {
-  const { categoryList, feedList, post } = useLoaderData() as LoaderData;
-  const actionData = useActionData() as ActionData;
+  const { categoryList, feedList, post } = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
 
   const meta: { [name: string]: string } = {};
   post.meta.forEach((m) => {

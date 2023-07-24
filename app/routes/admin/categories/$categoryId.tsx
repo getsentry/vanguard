@@ -223,8 +223,8 @@ const MetaContainer = styled.div`
 `;
 
 export default function Index() {
-  const { category } = useLoaderData() as LoaderData;
-  const actionData = useActionData() as ActionData;
+  const { category } = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
   const errors = actionData?.errors;
 
   const [currentEmojiList, setCurrentEmojiList] = useState(
