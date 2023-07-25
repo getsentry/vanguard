@@ -3,7 +3,7 @@
  */
 module.exports = {
   future: {
-    // v2_errorBoundary: true,
+    v2_errorBoundary: true,
     v2_headers: true,
     // v2_meta: true,
     v2_normalizeFormMethod: true,
@@ -14,4 +14,6 @@ module.exports = {
   ignoredRouteFiles: [".*", "**/*.css", "**/*.test.{js,jsx,ts,tsx}"],
   serverDependenciesToBundle: ["marked"],
   serverModuleFormat: "cjs",
+  postcss: true,
+  tailwind: true,
 };
