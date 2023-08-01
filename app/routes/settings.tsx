@@ -1,7 +1,10 @@
 import { useEffect, useRef } from "react";
-import { unstable_parseMultipartFormData } from "@remix-run/node";
+import {
+  unstable_parseMultipartFormData,
+  json,
+  redirect,
+} from "@remix-run/node";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 
 import { requireUser, requireUserId } from "~/services/auth.server";
@@ -44,7 +47,7 @@ export const action: ActionFunction = async ({ request }) => {
       filter,
       namespace: userId,
       urlPrefix: "/image-uploads",
-    })
+    }),
   );
   const name = formData.get("name");
   const notifyReplies = !!formData.get("notifyReplies");
@@ -56,7 +59,7 @@ export const action: ActionFunction = async ({ request }) => {
   if (typeof name !== "string" || name.length === 0) {
     return json<ActionData>(
       { errors: { name: "Name is required" } },
-      { status: 400 }
+      { status: 400 },
     );
   }
 

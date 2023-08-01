@@ -1,5 +1,5 @@
 import { createGlobalStyle } from "styled-components";
-import breakpoint from "styled-components-breakpoint";
+import { breakpoint } from "~/lib/breakpoints";
 
 const GlobalStyles = createGlobalStyle`
   *,
@@ -9,7 +9,6 @@ const GlobalStyles = createGlobalStyle`
   }
 
   html {
-
     min-height: 100vh;
 
     ${breakpoint("mobile", "desktop")`
@@ -22,16 +21,16 @@ const GlobalStyles = createGlobalStyle`
   }
 
   body {
-    background: ${(p) => p.theme.bgColor};
     font-size: 1.6rem;
     font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    background: ${(p) => p.theme.bgColor};
     color: ${(p) => p.theme.textColor};
     min-height: 100vh;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     font-smooth: always;
 
-    &.showSidebar {
+    .showSidebar {
       overflow: hidden;
     }
   }

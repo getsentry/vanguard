@@ -42,13 +42,13 @@ It is built on top of [Remix](https://github.com/remix-run/remix), and intended 
 - Run the first build:
 
   ```sh
-  npm run build
+  pnpm build
   ```
 
 - Start dev server:
 
   ```sh
-  npm run dev
+  pnpm dev
   ```
 
 ### Authentication

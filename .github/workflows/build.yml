@@ -16,43 +16,25 @@ jobs:
     name: ⬣ Lint
     runs-on: ubuntu-latest
     steps:
-      - name: 🛑 Cancel Previous Runs
+      - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.9.1
 
-      - name: ⬇️ Checkout repo
+      - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: ⎔ Setup node
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+
+      - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
 
-      - name: 📥 Download deps
-        uses: bahmutov/npm-install@v1
+      - name: Install deps
+        run: pnpm install
 
-      - name: 🔬 Lint
+      - name: Lint
         run: npm run lint
-
-  # typecheck:
-  #   name: ʦ TypeScript
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: 🛑 Cancel Previous Runs
-  #       uses: styfle/cancel-workflow-action@0.9.1
-
-  #     - name: ⬇️ Checkout repo
-  #       uses: actions/checkout@v3
-
-  #     - name: ⎔ Setup node
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 16
-
-  #     - name: 📥 Download deps
-  #       uses: bahmutov/npm-install@v1
-
-  #     - name: 🔎 Type check
-  #       run: npm run typecheck --if-present
 
   test:
     name: ⚡ Test
@@ -72,24 +54,27 @@ jobs:
         ports:
           - 5432:5432
     steps:
-      - name: 🛑 Cancel Previous Runs
+      - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.9.1
 
-      - name: ⬇️ Checkout repo
+      - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: ⎔ Setup node
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+
+      - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
 
-      - name: 📥 Download deps
-        uses: bahmutov/npm-install@v1
+      - name: Install deps
+        run: pnpm install
 
-      - name: 📜 Setup env
+      - name: Setup env
         run: npm run db:migrate:test
 
-      - name: ⚡ Run vitest
+      - name: Run vitest
         run: npm run test:ci
 
       - name: Publish Test Report

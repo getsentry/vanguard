@@ -1,6 +1,5 @@
 import type { ActionFunction } from "@remix-run/server-runtime";
-import { json } from "@remix-run/node";
-import { unstable_parseMultipartFormData } from "@remix-run/node";
+import { json, unstable_parseMultipartFormData } from "@remix-run/node";
 import { requireUserId } from "~/services/auth.server";
 import uploadHandler from "~/lib/upload-handler";
 import type { FileUploadHandlerOptions } from "@remix-run/node/dist/upload/fileUploadHandler";
@@ -20,7 +19,7 @@ export const action: ActionFunction = async ({ request }) => {
       namespace: userId,
       filter,
       urlPrefix: "/image-uploads",
-    })
+    }),
   );
 
   const imageUrl = formData.get("file");

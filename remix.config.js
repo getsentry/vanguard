@@ -11,9 +11,7 @@ module.exports = {
     v2_dev: true,
   },
   cacheDirectory: "./node_modules/.cache/remix",
-  ignoredRouteFiles: [".*", "**/*.css", "**/*.test.{js,jsx,ts,tsx}"],
+  ignoredRouteFiles: ["**/.*", "**/*.test.{js,jsx,ts,tsx}"],
   serverDependenciesToBundle: ["marked"],
   serverModuleFormat: "cjs",
-  postcss: true,
-  tailwind: true,
 };

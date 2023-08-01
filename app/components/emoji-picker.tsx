@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 const Picker = styled.div`
   .emoji-search {
-    font-size: ;
+    font-size:;
     line-height: normal;
   }
 

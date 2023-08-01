@@ -2,7 +2,7 @@ import { Link } from "@remix-run/react";
 import styled from "styled-components";
 import Logo from "app/icons/Logo";
 import IconHamburger from "app/icons/IconHamburger";
-import breakpoint from "styled-components-breakpoint";
+import { breakpoint } from "~/lib/breakpoints";
 
 const Header = ({ user, showSidebar, handleSidebar }) => {
   return (
