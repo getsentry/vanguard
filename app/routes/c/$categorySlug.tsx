@@ -30,14 +30,14 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const postListPaginated = await paginate(
     getPostList,
     { userId, categoryId: category.id, published: true },
-    cursor
+    cursor,
   );
 
   return json<LoaderData>({ category, postListPaginated });
 };
 
 export default function Index() {
-  const { category, postListPaginated } = useLoaderData<typeof loader>();
+  const { postListPaginated } = useLoaderData<typeof loader>();
 
   return (
     <Paginated

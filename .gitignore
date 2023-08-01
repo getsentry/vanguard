@@ -9,8 +9,6 @@ node_modules
 /cypress/videos
 /postgres-data
 
-/app/styles/tailwind.css
-
 # Sentry
 .sentryclirc
 
@@ -18,3 +16,5 @@ node_modules
 
 junit.xml
 /coverage
+
+.eslintcache

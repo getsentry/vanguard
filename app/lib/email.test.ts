@@ -1,5 +1,6 @@
-import { User, Post, PostComment } from "@prisma/client";
-import { createTransport, Transporter } from "nodemailer";
+import type { User, Post, PostComment } from "@prisma/client";
+import type { Transporter } from "nodemailer";
+import { createTransport } from "nodemailer";
 import type Mail from "nodemailer/lib/mailer";
 import type SMTPTransport from "nodemailer/lib/smtp-transport";
 
@@ -115,7 +116,7 @@ describe("notify", () => {
     const message = outbox[0];
 
     const pictureUrl = message.html.match(
-      /http\:\/\/localhost\/img\/placeholder-avatar.png/
+      /http\:\/\/localhost\/img\/placeholder-avatar.png/,
     );
     expect(pictureUrl[0]).toBeDefined();
 

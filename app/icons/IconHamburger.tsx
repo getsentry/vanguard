@@ -1,8 +1,12 @@
 import type { SVGProps } from "react";
 import styled, { css } from "styled-components";
-import breakpoint from "styled-components-breakpoint";
+import { breakpoint } from "~/lib/breakpoints";
 
-const IconHamburger = (props: SVGProps<SVGSVGElement>) => (
+const IconHamburger = (
+  props: SVGProps<SVGSVGElement> & {
+    showSidebar?: boolean;
+  }
+) => (
   <StyledSvg fill="none" viewBox="0 0 32 32" {...props}>
     <path
       className="hamburger-top"
@@ -49,7 +53,7 @@ const StyledSvg = styled.svg`
     transform-origin: center;
   }
 
-  ${(p) =>
+  ${(p: any) =>
     p.showSidebar &&
     css`
       .hamburger-top,

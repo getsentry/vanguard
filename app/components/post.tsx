@@ -1,6 +1,6 @@
 import { Form, Link } from "@remix-run/react";
 import styled from "styled-components";
-import breakpoint from "styled-components-breakpoint";
+import { breakpoint } from "~/lib/breakpoints";
 
 import Avatar from "./avatar";
 import Content from "./content";

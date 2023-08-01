@@ -1,11 +1,11 @@
 import { Form } from "@remix-run/react";
-import { PostComment } from "@prisma/client";
+import type { PostComment } from "@prisma/client";
 
 import Editor from "./editor";
 import useLocalStorage from "~/lib/useLocalStorage";
 import Button from "./button";
 import HelpText from "./help-text";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import styled from "styled-components";
 import { Cross1Icon } from "@radix-ui/react-icons";
 

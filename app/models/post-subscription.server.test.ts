@@ -95,7 +95,7 @@ describe("deleteSubscription", () => {
   });
 
   test("with existing subscription", async () => {
-    const sub = await prisma.postSubscription.create({
+    await prisma.postSubscription.create({
       data: {
         userId: user.id,
         postId: post.id,

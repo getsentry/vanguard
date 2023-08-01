@@ -1,18 +1,17 @@
-# base node image
-FROM node:lts as base
-
-RUN npm install -g npm
+FROM node:18-alpine as base
 
 # set for base and all layer that inherit from it
 ENV NODE_ENV production
+
+RUN npm install -g pnpm
 
 # Install all node_modules, including dev dependencies
 FROM base as deps
 
 WORKDIR /app
 
-ADD package.json package-lock.json ./
-RUN npm install --production=false
+ADD package.json pnpm-lock.yaml .
+RUN pnpm install
 
 # Setup production node_modules
 FROM base as production-deps
@@ -48,7 +47,7 @@ ADD prisma .
 RUN npx prisma generate
 
 ADD . .
-RUN npm run build
+RUN pnpm run build
 
 # Finally, build the production image with minimal footprint
 FROM base
@@ -68,4 +67,4 @@ ENV PORT 3000
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["pnpm", "start"]

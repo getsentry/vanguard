@@ -1,6 +1,8 @@
 import type { EntryContext } from "@remix-run/node";
+import { Response } from "@remix-run/node";
 import { RemixServer } from "@remix-run/react";
 import { renderToString } from "react-dom/server";
+
 import { ServerStyleSheet } from "styled-components";
 
 // import { prisma } from "~/services/db.server";
@@ -16,7 +18,7 @@ Sentry.init({
   // integrations: [new Sentry.Integrations.Prisma({ client: prisma })],
 });
 
-function handleRequest(
+export default function handleRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
@@ -40,5 +42,3 @@ function handleRequest(
     headers: responseHeaders,
   });
 }
-
-export default handleRequest;

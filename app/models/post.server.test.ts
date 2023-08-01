@@ -14,7 +14,6 @@ describe("getPost", () => {
   let otherAuthor: User;
   let admin: User;
   let category: Category;
-  let post: Post;
   let otherUnpublishedPost: Post;
   let deletedPost: Post;
 
@@ -22,7 +21,7 @@ describe("getPost", () => {
     author = await Fixtures.User();
     otherAuthor = await Fixtures.User();
     category = await Fixtures.Category();
-    post = await prisma.post.create({
+    await prisma.post.create({
       data: {
         title: "Test",
         content: "**Content**",

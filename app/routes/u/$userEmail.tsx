@@ -3,7 +3,7 @@ import { json } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import styled from "styled-components";
-import breakpoint from "styled-components-breakpoint";
+import { breakpoint } from "~/lib/breakpoints";
 
 import { getPostList } from "~/models/post.server";
 import type { Post } from "~/models/post.server";

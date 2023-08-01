@@ -10,9 +10,9 @@ import CommentForm from "./comment-form";
 import Markdown from "./markdown";
 import Middot from "./middot";
 import type { User } from "~/models/user.server";
-import { PostQueryType } from "~/models/post.server";
+import type { PostQueryType } from "~/models/post.server";
 import IconCollapsedPost from "~/icons/IconCollapsedPost";
-import { PostComment } from "@prisma/client";
+import type { PostComment } from "@prisma/client";
 import TimeSince from "./timeSince";
 
 const Byline = styled.div`
@@ -92,7 +92,7 @@ const CommentsFormBlock = styled.div`
 
 const deleteComment = async (
   postId: string,
-  commentId: string
+  commentId: string,
 ): Promise<string | undefined> => {
   const res = await fetch(`/api/posts/${postId}/comments/${commentId}`, {
     method: "DELETE",
@@ -106,7 +106,7 @@ const deleteComment = async (
 
 const toggleSubscription = async (
   postId: string,
-  active: boolean
+  active: boolean,
 ): Promise<boolean | undefined> => {
   const res = await fetch(`/api/posts/${postId}/subscription`, {
     method: active ? "POST" : "DELETE",

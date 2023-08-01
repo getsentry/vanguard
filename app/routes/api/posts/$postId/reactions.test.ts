@@ -27,11 +27,11 @@ describe("POST /api/posts/$postId/reactions", () => {
           `http://localhost/api/posts/${post.id}/reactions`,
           {
             method: "POST",
-          }
+          },
         ),
         params: { postId: post.id },
         context: {},
-      })
+      }),
     );
   });
 
@@ -43,7 +43,7 @@ describe("POST /api/posts/$postId/reactions", () => {
           method: "POST",
           body: JSON.stringify({ emoji: HEART }),
         },
-        { user: DefaultFixtures.DEFAULT_USER }
+        { user: DefaultFixtures.DEFAULT_USER },
       ),
       params: { postId: post.id },
       context: {},
@@ -78,7 +78,7 @@ describe("POST /api/posts/$postId/reactions", () => {
           method: "POST",
           body: JSON.stringify({ emoji: HEART }),
         },
-        { user: DefaultFixtures.DEFAULT_USER }
+        { user: DefaultFixtures.DEFAULT_USER },
       ),
       params: { postId: post.id },
       context: {},
@@ -91,7 +91,6 @@ describe("POST /api/posts/$postId/reactions", () => {
 
     const reactions = await prisma.postReaction.findMany();
     expect(reactions.length).toEqual(0);
-    const reaction = reactions[0];
   });
 
   it("does not delete differing emojis", async () => {
@@ -110,7 +109,7 @@ describe("POST /api/posts/$postId/reactions", () => {
           method: "POST",
           body: JSON.stringify({ emoji: THUMBSUP }),
         },
-        { user: DefaultFixtures.DEFAULT_USER }
+        { user: DefaultFixtures.DEFAULT_USER },
       ),
       params: { postId: post.id },
       context: {},

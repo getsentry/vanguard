@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import breakpoint from "styled-components-breakpoint";
+import { breakpoint } from "~/lib/breakpoints";
 import { Link } from "@remix-run/react";
 
 import Avatar from "./avatar";

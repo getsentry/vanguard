@@ -1,7 +1,7 @@
-import type { PostSubsription, User } from "@prisma/client";
+import type { PostSubscription, User } from "@prisma/client";
 import { prisma } from "~/services/db.server";
 
-export type { PostSubsription } from "@prisma/client";
+export type { PostSubscription } from "@prisma/client";
 
 export async function hasSubscription({
   userId,
@@ -45,7 +45,7 @@ export async function createSubscription({
 }: {
   userId: PostSubscription["userId"];
   postId: PostSubscription["postId"];
-}): Promise<PostSubsription> {
+}): Promise<PostSubscription> {
   return await prisma.postSubscription.upsert({
     where: {
       // lol what is this syntax?

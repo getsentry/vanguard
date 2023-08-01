@@ -1,5 +1,5 @@
 import styled, { css } from "styled-components";
-import breakpoint from "styled-components-breakpoint";
+import { breakpoint } from "~/lib/breakpoints";
 
 const Sidebar = (props) => (
   <SidebarWrapper showSidebar={props.showSidebar}>
