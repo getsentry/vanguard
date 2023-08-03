@@ -21,7 +21,9 @@
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint .",
     "lint:fix": "eslint --fix --cache --cache-location ./node_modules/.cache/eslint .",
     "preinstall": "npx only-allow pnpm",
-    "postinstall": "simple-git-hooks",
+    "postinstall": "run-p postinstall:*",
+    "postinstall:git-hooks": "simple-git-hooks",
+    "postinstall:prisma": "pnpx prisma generate",
     "start": "cross-env NODE_ENV=production node ./build/server.js",
     "start:mocks": "cross-env NODE_ENV=production node --require dotenv/config ./build/server.js",
     "test": "run-s db:migrate:test test:vitest",
@@ -70,6 +72,7 @@
     "cross-env": "^7.0.3",
     "cuid": "^2.1.8",
     "dayjs": "^1.11.9",
+    "dotenv": "^16.3.1",
     "dotenv-cli": "^6.0.0",
     "emoji-picker-react": "^3.6.1",
     "esbuild": "^0.18.17",
@@ -113,13 +116,13 @@
   "engines": {
     "node": ">=18"
   },
-  "packageManager": "pnpm@8.6.0",
+  "packageManager": "pnpm@8.6.11",
   "prisma": {
     "seed": "ts-node --require tsconfig-paths/register prisma/seed.ts"
   },
   "volta": {
     "node": "18.17.0",
-    "pnpm": "8.6.0"
+    "pnpm": "8.6.11"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm exec lint-staged --concurrent false"
