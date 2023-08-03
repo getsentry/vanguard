@@ -25,7 +25,7 @@ ADD package.json package-lock.json ./
 # RUN npm prune --production
 
 # Build the app
-FROM base as build
+FROM base
 
 WORKDIR /app
 
@@ -43,25 +43,9 @@ ENV SENTRY_PROJECT $SENTRY_ORG
 ARG SENTRY_PROJECT
 ENV SENTRY_PROJECT $SENTRY_PROJECT
 
-ADD prisma .
-RUN npx prisma generate
-
 ADD . .
-RUN pnpm run build
-
-# Finally, build the production image with minimal footprint
-FROM base
-FROM build as runner
-
-WORKDIR /app
-
-COPY --from=production-deps /app/node_modules ./node_modules
-# COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
-
-COPY --from=build /app/build ./build
-COPY --from=build /app/public ./public
-ADD . .
+RUN pnpm build
+RUN pnpm exec prisma generate
 
 ENV PORT 3000
 

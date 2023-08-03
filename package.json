@@ -8,7 +8,7 @@
     "build": "run-s build:*",
     "build:remix": "remix build --sourcemap",
     "build:server": "esbuild --platform=node --bundle --format=cjs ./server.ts --outdir=build --sourcemap=external",
-    "build:sourcemaps": "sentry-upload-sourcemaps",
+    "zbuild:sourcemaps": "sentry-upload-sourcemaps",
     "db:migrate": "run-p db:migrate:*",
     "db:migrate:dev": "npx prisma migrate dev && npx prisma db seed",
     "db:migrate:test": "dotenv -e .env.test -- npx prisma db push --accept-data-loss",

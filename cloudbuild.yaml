@@ -53,7 +53,7 @@ steps:
       - |
         /cloudsql/cloud_sql_proxy -instances=${_INSTANCE_CONNECTION_NAME} -dir=/cloudsql & sleep 2
 
-        npx prisma migrate deploy
+        pnpx prisma migrate deploy
         # npx prisma db seed
   - id: Deploy
     name: "gcr.io/google.com/cloudsdktool/cloud-sdk:slim"
