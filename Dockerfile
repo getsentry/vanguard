@@ -10,7 +10,7 @@ FROM base as deps
 
 WORKDIR /app
 
-ADD package.json pnpm-lock.yaml .
+ADD package.json pnpm-lock.yaml ./
 RUN pnpm install
 
 # Setup production node_modules
