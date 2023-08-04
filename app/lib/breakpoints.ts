@@ -1,13 +1,18 @@
 import { css } from "styled-components";
 import type { Styles } from "styled-components/dist/types";
 
-const BreakpointMap = {
+export const breakpoints = {
   mobile: 0,
   tablet: 737,
   desktop: 1195,
 };
 
-type Breakpoint = keyof typeof BreakpointMap;
+export const mediaQueries = {
+  mobile: `(max-width: ${breakpoints.desktop - 1}px)`,
+  desktop: `(min-width: ${breakpoints.desktop}px)`,
+};
+
+type Breakpoint = keyof typeof breakpoints;
 
 function convertPxToEm(pixels: number): number {
   // @media is always calculated off 16px regardless of whether the root font size is the default or not
@@ -18,8 +23,8 @@ function _between(gte: Breakpoint, lt: Breakpoint) {
   return function (strings: Styles<object>, ...interpolations: string[]) {
     return css`
       @media (min-width: ${convertPxToEm(
-          BreakpointMap[gte]
-        )}em) and (max-width: ${convertPxToEm(BreakpointMap[lt] - 1)}em) {
+          breakpoints[gte],
+        )}em) and (max-width: ${convertPxToEm(breakpoints[lt] - 1)}em) {
         ${css(strings, ...interpolations)}
       }
     `;
@@ -29,7 +34,7 @@ function _between(gte: Breakpoint, lt: Breakpoint) {
 function _gte(gte: Breakpoint) {
   return function (strings: Styles<object>, ...interpolations: string[]) {
     return css`
-      @media (min-width: ${convertPxToEm(BreakpointMap[gte])}em) {
+      @media (min-width: ${convertPxToEm(breakpoints[gte])}em) {
         ${css(strings, ...interpolations)}
       }
     `;

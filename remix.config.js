@@ -9,6 +9,7 @@ module.exports = {
     v2_normalizeFormMethod: true,
     // v2_routeConvention: true,
     v2_dev: true,
+    unstable_vanillaExtract: true,
   },
   cacheDirectory: "./node_modules/.cache/remix",
   ignoredRouteFiles: ["**/.*", "**/*.test.{js,jsx,ts,tsx}"],

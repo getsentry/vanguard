@@ -1,20 +1,24 @@
 import type { User } from "@prisma/client";
-import styled from "styled-components";
-
-export default styled(
-  ({ user, size, ...props }: { size?: string; user: User }) => {
-    return (
-      <img
-        src={user.picture || "/img/placeholder-avatar.png"}
-        alt="avatar"
-        {...props}
-      />
-    );
-  }
-)`
-  display: block;
-  width: ${(p) => (p.size ? p.size : "4.8rem")};
-  height: ${(p) => (p.size ? p.size : "4.8rem")};
-  border-radius: 4.8rem;
-  object-fit: cover;
-`;
+export default function Avatar({
+  user,
+  size = "4.8rem",
+  ...props
+}: {
+  size?: string;
+  user: User;
+}) {
+  return (
+    <img
+      src={user.picture || "/img/placeholder-avatar.png"}
+      alt="avatar"
+      style={{
+        display: "block",
+        width: size,
+        height: size,
+        borderRadius: "4.8rem",
+        objectFit: "cover",
+      }}
+      {...props}
+    />
+  );
+}

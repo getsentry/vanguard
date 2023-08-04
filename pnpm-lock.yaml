@@ -26,6 +26,9 @@ dependencies:
   "@radix-ui/react-toolbar":
     specifier: ^1.0.4
     version: 1.0.4(@types/react-dom@18.2.7)(@types/react@18.2.18)(react-dom@18.2.0)(react@18.2.0)
+  "@remix-run/css-bundle":
+    specifier: ^1.19.2
+    version: 1.19.2
   "@remix-run/dev":
     specifier: ^1.19.2
     version: 1.19.2(@types/node@18.17.2)(ts-node@10.9.1)
@@ -95,6 +98,9 @@ dependencies:
   "@types/styled-components":
     specifier: ^5.1.26
     version: 5.1.26
+  "@vanilla-extract/css":
+    specifier: ^1.12.0
+    version: 1.12.0
   "@vitejs/plugin-react":
     specifier: ^4.0.4
     version: 4.0.4(vite@4.4.8)
@@ -3399,6 +3405,14 @@ packages:
       "@babel/runtime": 7.22.6
       "@types/react": 18.2.18
       react: 18.2.0
+    dev: false
+
+  /@remix-run/css-bundle@1.19.2:
+    resolution:
+      {
+        integrity: sha512-+gmGzKXwo13vnCMjjfXXSIxJlrN1VVtUvvX4o803ifIyFIJr8/Hp9cuiZDlimcjmKyEKjFiyiVmdKvK7qeOBEA==,
+      }
+    engines: { node: ">=14.0.0" }
     dev: false
 
   /@remix-run/dev@1.19.2(@types/node@18.17.2)(ts-node@10.9.1):
