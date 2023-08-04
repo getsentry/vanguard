@@ -135,7 +135,7 @@ export function ErrorBoundary() {
 function Document({
   children,
   title = "Vanguard",
-  ENV,
+  ENV = {},
   data,
 }: PropsWithChildren<{
   title?: string;
