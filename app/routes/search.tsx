@@ -21,7 +21,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const postListPaginated = await paginate(
     getPostList,
     { userId, published: true, query },
-    cursor
+    cursor,
   );
   return json<LoaderData>({ postListPaginated, query });
 };

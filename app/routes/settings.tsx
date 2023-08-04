@@ -5,14 +5,13 @@ import {
   redirect,
 } from "@remix-run/node";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { Form, useActionData, useLoaderData } from "@remix-run/react";
+import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 
 import { requireUser, requireUserId } from "~/services/auth.server";
 import { updateUser } from "~/models/user.server";
 import type { User } from "~/models/user.server";
 import uploadHandler from "~/lib/upload-handler";
 import AvatarInput from "~/components/avatar-input";
-import ButtonLink from "~/components/button-link";
 import FormActions from "~/components/form-actions";
 import Button from "~/components/button";
 import PageHeader from "~/components/page-header";
@@ -102,9 +101,10 @@ export default function NewPostPage() {
       }}
       className="p-4"
     >
-      <PageHeader>
-        <h1>Edit Profile</h1>
-        <ButtonLink to={`/u/${user.email}`}>View Your Profile</ButtonLink>
+      <PageHeader title="Edit Profile">
+        <Button as={Link} to={`/u/${user.email}`}>
+          View Your Profile
+        </Button>
       </PageHeader>
       <div>
         <label>

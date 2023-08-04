@@ -1,42 +1,41 @@
 import { Link } from "@remix-run/react";
-import styled from "styled-components";
 import Logo from "app/icons/Logo";
 import IconHamburger from "app/icons/IconHamburger";
-import { breakpoint } from "~/lib/breakpoints";
+import Button from "./button";
 
-const Header = ({ user, showSidebar, handleSidebar }) => {
+export default function Header({
+  user,
+  showSidebar = false,
+  handleSidebar,
+}: {
+  user?: any;
+  showSidebar?: boolean;
+  handleSidebar?: () => void;
+}) {
   return (
-    <HeaderWrapper>
+    <div className="flex relative py-12 xl:py-18 justify-between items-center pr-20 xl:pr-0">
       <div>
         <Link to="/">
-          <Logo height={32} className="logo" />
+          <Logo
+            height={32}
+            className="text-primary-light dark:text-primary-dark"
+          />
         </Link>
       </div>
       {!!user && (
         <div>
-          <Link to="/new-post" className="btn btn-primary">
+          <Button as={Link} to="/new-post" mode="primary" size="sm">
             + New Post
-          </Link>
+          </Button>
         </div>
       )}
-      <IconHamburger
-        height={32}
-        onClick={() => handleSidebar()}
-        showSidebar={showSidebar}
-      />
-    </HeaderWrapper>
+      {!!handleSidebar && (
+        <IconHamburger
+          height={32}
+          onClick={() => handleSidebar()}
+          showSidebar={showSidebar}
+        />
+      )}
+    </div>
   );
-};
-
-const HeaderWrapper = styled.div`
-  display: flex;
-  padding: 6rem 0;
-  justify-content: space-between;
-  align-items: center;
-
-  ${breakpoint("mobile", "desktop")`
-    padding-right: 5rem;
-  `}
-`;
-
-export default Header;
+}

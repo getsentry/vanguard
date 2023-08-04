@@ -115,21 +115,21 @@ const buildPostEmail = (post: PostQueryType): string => {
     <table cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td style="vertical-align:top"><img src="${process.env.BASE_URL}${
-    post.author.picture || `/img/placeholder-avatar.png`
-  }" width="36" height="36" style="border-radius:36px;display:block;" /></td>
+            post.author.picture || `/img/placeholder-avatar.png`
+          }" width="36" height="36" style="border-radius:36px;display:block;" /></td>
         <td style="padding-left:15px">
         <table cellpadding="0" cellspacing="0" border="0">
           <tr>
             <td>
               <b style="color:${lightTheme.textColor};">${escapeHtml(
-    post.author.name || post.author.email
-  )}</b>
+                post.author.name || post.author.email,
+              )}</b>
             </td>
           </tr>
           <tr>
             <td><a href="${postUrl}" style="color:${
-    lightTheme.linkColor
-  };">View this Post</a></td>
+              lightTheme.linkColor
+            };">View this Post</a></td>
           </tr>
         </td>
       </tr>
@@ -177,7 +177,7 @@ export const notifyComment = async ({
     .filter((user) => user.id !== comment.authorId)
     .forEach(async (user) => {
       console.log(
-        `Sending email notification for comment ${comment.id} to ${user.email}`
+        `Sending email notification for comment ${comment.id} to ${user.email}`,
       );
 
       const html = buildCommentHtml(user, post, comment, parent);
@@ -202,7 +202,7 @@ const buildCommentHtml = (
   toUser: User,
   post: PostQueryType,
   comment: PostComment,
-  parent?: PostComment
+  parent?: PostComment,
 ): string => {
   const postUrl = `${process.env.BASE_URL}/p/${post.id}`;
   const commentUrl = `${process.env.BASE_URL}/p/${post.id}#c_${comment.id}`;
@@ -211,10 +211,10 @@ const buildCommentHtml = (
   const isInReplyTo = parent && parent.authorId === toUser.id;
   const titleLine = isInReplyTo
     ? `${escapeHtml(
-        comment.author.name || comment.author.email
+        comment.author.name || comment.author.email,
       )} just replied to your comment`
     : `${escapeHtml(
-        comment.author.name || comment.author.email
+        comment.author.name || comment.author.email,
       )} left a new comment`;
   const reasonLine = isInReplyTo
     ? `You are being notified because you have notification replies enabled. <a href="${settingsUrl}">Account Settings</a>`
@@ -241,24 +241,24 @@ const buildCommentHtml = (
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td style="vertical-align:top"><img src="${process.env.BASE_URL}${
-    comment.author.picture || `/img/placeholder-avatar.png`
-  }" width="36" height="36" style="border-radius:36px;display:block;" /></td>
+            comment.author.picture || `/img/placeholder-avatar.png`
+          }" width="36" height="36" style="border-radius:36px;display:block;" /></td>
           <td style="padding-left:15px">
             <table cellpadding="0" cellspacing="0" border="0">
               <tr>
                 <td><b style="color:${lightTheme.textColor};">${escapeHtml(
-    comment.author.name
-  )}</b></td>
+                  comment.author.name,
+                )}</b></td>
               </tr>
               <tr>
               <td style="color:${lightTheme.textColorSecondary};">${escapeHtml(
-    summarize(comment.content)
-  )}</td>
+                summarize(comment.content),
+              )}</td>
             </tr>
             <tr>
               <td style="padding-top:15px;"><a href="${commentUrl}" style="color:${
-    lightTheme.linkColor
-  };">View this Comment</a></td>
+                lightTheme.linkColor
+              };">View this Comment</a></td>
             </tr>
             </table>
         </tr>

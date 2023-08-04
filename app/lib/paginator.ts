@@ -11,7 +11,7 @@ export async function paginate<T>(
   queryFn: Function,
   params: { [key: string]: any },
   cursor?: string | null,
-  perPage: number = 50
+  perPage: number = 50,
 ): Promise<PaginatedResult<T>> {
   let [offset, limit] = cursor
     ? cursor.split(":", 2).map((s) => parseInt(s, 10))

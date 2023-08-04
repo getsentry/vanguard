@@ -2,6 +2,7 @@ import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
+import type { ComponentPropsWithoutRef } from "react";
 
 import { requireAdmin } from "~/services/auth.server";
 import type { Category } from "~/models/category.server";
@@ -10,7 +11,6 @@ import { prisma } from "~/services/db.server";
 import FormActions from "~/components/form-actions";
 import ButtonGroup from "~/components/button-group";
 import Button from "~/components/button";
-import styled from "styled-components";
 import { createRef, useState } from "react";
 import HelpText from "~/components/help-text";
 import { isEmoji } from "~/lib/emoji";
@@ -98,14 +98,14 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (typeof name !== "string" || name.length === 0) {
     return json<ActionData>(
       { errors: { name: "Name is required" } },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   if (typeof slug !== "string" || slug.length === 0) {
     return json<ActionData>(
       { errors: { slug: "Slug is required" } },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -113,7 +113,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (typeof colorHex !== "string" || colorHex.length === 0) {
     return json<ActionData>(
       { errors: { colorHex: "Color is required" } },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -125,7 +125,7 @@ export const action: ActionFunction = async ({ request, params }) => {
             "An invalid reaction was provided. All values must be emoji",
         },
       },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -162,7 +162,7 @@ export const action: ActionFunction = async ({ request, params }) => {
             },
           },
         },
-      })
+      }),
     );
   }
 
@@ -173,7 +173,7 @@ export const action: ActionFunction = async ({ request, params }) => {
           categoryId,
           webhookUrl: slackWebhookUrl,
         },
-      })
+      }),
     );
   }
 
@@ -185,7 +185,7 @@ export const action: ActionFunction = async ({ request, params }) => {
           to: emailTo,
           subjectPrefix: emailSubjectPrefix || null,
         },
-      })
+      }),
     );
   }
 
@@ -197,7 +197,7 @@ export const action: ActionFunction = async ({ request, params }) => {
         prisma.categoryMeta.update({
           where: { id },
           data,
-        })
+        }),
       );
     } else {
       queries.push(
@@ -206,7 +206,7 @@ export const action: ActionFunction = async ({ request, params }) => {
             ...data,
             categoryId,
           },
-        })
+        }),
       );
     }
   });
@@ -216,11 +216,14 @@ export const action: ActionFunction = async ({ request, params }) => {
   return redirect("/admin/categories");
 };
 
-const MetaContainer = styled.div`
-  border: 1px solid ${(p) => p.theme.borderColor};
-  padding: 1.6em;
-  margin-bottom: 2.4rem;
-`;
+function MetaContainer(props: ComponentPropsWithoutRef<"div">) {
+  return (
+    <div
+      className="border border-border-light dark:border-border-dark p-4 mb-6"
+      {...props}
+    />
+  );
+}
 
 export default function Index() {
   const { category } = useLoaderData<typeof loader>();
@@ -228,7 +231,7 @@ export default function Index() {
   const errors = actionData?.errors;
 
   const [currentEmojiList, setCurrentEmojiList] = useState(
-    category.defaultEmojis || DEFAULT_EMOJIS
+    category.defaultEmojis || DEFAULT_EMOJIS,
   );
 
   const slackConfig = category.slackConfig.find(() => true);
@@ -371,7 +374,7 @@ export default function Index() {
                 onClick={(e) => {
                   e.preventDefault();
                   setCurrentEmojiList(
-                    currentEmojiList.filter((v) => v !== emoji)
+                    currentEmojiList.filter((v) => v !== emoji),
                   );
                 }}
               >

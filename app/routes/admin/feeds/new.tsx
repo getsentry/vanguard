@@ -31,7 +31,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (typeof name !== "string" || name.length === 0) {
     return json<ActionData>(
       { errors: { title: "Name is required" } },
-      { status: 400 }
+      { status: 400 },
     );
   }
 

@@ -23,11 +23,11 @@ describe("POST /api/posts/$postId/subscription", () => {
           `http://localhost/api/posts/${post.id}/subscription`,
           {
             method: "POST",
-          }
+          },
         ),
         params: { postId: post.id },
         context: {},
-      })
+      }),
     );
   });
 });

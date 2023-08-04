@@ -1,15 +1,14 @@
-import styled from "styled-components";
 import { PlusIcon } from "@radix-ui/react-icons";
 
 import type { PostQueryType } from "~/models/post.server";
 import Block from "~/components/block";
 import EmojiReaction from "~/components/emoji-reaction";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Picker from "~/components/emoji-picker";
 
 const toggleReaction = async (
   postId: string,
-  emoji: string
+  emoji: string,
 ): Promise<number | undefined> => {
   const res = await fetch(`/api/posts/${postId}/reactions`, {
     method: "POST",
@@ -34,29 +33,22 @@ export type EmojiData = {
   selected: boolean;
 };
 
-const PickerContainer = styled.div`
-  position: relative;
-  display: block;
-  z-index: 100;
-`;
-
-export default ({
+export default function PostReactions({
   post,
   reactions,
 }: {
   post: PostQueryType;
   reactions: any[];
-}) => {
-  // dont show reactions if unpublished
-  if (!post.published) return null;
-
+}) {
   const [pickerVisible, setPickerVisible] = useState(false);
-  const defaultEmojis = post.category.defaultEmojis.length
-    ? post.category.defaultEmojis
-    : ["❤️"];
+  const defaultEmojis = useMemo(
+    () =>
+      post.category.defaultEmojis.length ? post.category.defaultEmojis : ["❤️"],
+    [post.category.defaultEmojis],
+  );
 
   const defaults = defaultEmojis.filter(
-    (d) => !reactions.find((r) => r.emoji === d)
+    (d) => !reactions.find((r) => r.emoji === d),
   );
   const initialEmojiList = [
     ...defaults.map((d) => ({ selected: false, count: 0, value: d })),
@@ -71,7 +63,7 @@ export default ({
 
   useEffect(() => {
     const defaults = defaultEmojis.filter(
-      (d) => !reactions.find((r) => r.emoji === d)
+      (d) => !reactions.find((r) => r.emoji === d),
     );
     const initialEmojiList = [
       ...defaults.map((d) => ({ selected: false, count: 0, value: d })),
@@ -85,7 +77,10 @@ export default ({
     initialEmojiList.sort((a, b) => b.count - a.count);
 
     setEmojiList(initialEmojiList);
-  }, [reactions]);
+  }, [reactions, defaultEmojis]);
+
+  // dont show reactions if unpublished
+  if (!post.published) return null;
 
   const onEmojiClick = async (_event: any, value: string) => {
     const delta = await toggleReaction(post.id, value);
@@ -113,7 +108,7 @@ export default ({
 
   return (
     <Block>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "5px" }}>
+      <div className="flex flex-wrap gap-1">
         {emojiList.map((emoji) => {
           return (
             <EmojiReaction
@@ -125,7 +120,7 @@ export default ({
             />
           );
         })}
-        <PickerContainer>
+        <div className="relative z-50">
           <EmojiReaction
             emoji={<PlusIcon />}
             onClick={(e) => setPickerVisible(!pickerVisible)}
@@ -141,8 +136,8 @@ export default ({
               position: "absolute",
             }}
           />
-        </PickerContainer>
+        </div>
       </div>
     </Block>
   );
-};
+}

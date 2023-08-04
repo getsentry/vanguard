@@ -2,8 +2,6 @@ import type { LoaderFunction, ActionFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
-import styled from "styled-components";
-import { breakpoint } from "~/lib/breakpoints";
 
 import { getPostList } from "~/models/post.server";
 import type { Post } from "~/models/post.server";
@@ -14,6 +12,7 @@ import Avatar from "~/components/avatar";
 import * as Panel from "~/components/panel";
 import PostLink from "~/components/post-link";
 import Markdown from "~/components/markdown";
+import Button from "~/components/button";
 
 type LoaderData = {
   postList: Post[];
@@ -80,24 +79,34 @@ const UserAdmin: React.FC<{ user: User }> = ({ user }) => {
         <ul>
           <li>
             {!user.admin ? (
-              <button name="admin" value="true" type="submit">
+              <Button baseStyle="link" name="admin" value="true" type="submit">
                 Make Admin
-              </button>
+              </Button>
             ) : (
-              <button name="admin" value="false" type="submit">
+              <Button baseStyle="link" name="admin" value="false" type="submit">
                 Remove Admin
-              </button>
+              </Button>
             )}
           </li>
           <li>
             {!user.canPostRestricted ? (
-              <button name="canPostRestricted" value="true" type="submit">
+              <Button
+                baseStyle="link"
+                name="canPostRestricted"
+                value="true"
+                type="submit"
+              >
                 Allow posting in restricted categories
-              </button>
+              </Button>
             ) : (
-              <button name="canPostRestricted" value="false" type="submit">
+              <Button
+                baseStyle="link"
+                name="canPostRestricted"
+                value="false"
+                type="submit"
+              >
                 Restrict posting in restricted categories
-              </button>
+              </Button>
             )}
           </li>
         </ul>
@@ -106,81 +115,35 @@ const UserAdmin: React.FC<{ user: User }> = ({ user }) => {
   );
 };
 
-const ProfileHeader = styled.div`
-  display: flex;
-  margin-bottom: 3rem;
-  align-items: center;
-
-  ${Avatar} {
-    width: 96px;
-    height: 96px;
-    margin-right: 1.6rem;
-  }
-`;
-
-const Name = styled.h1`
-  margin: 0;
-`;
-
-const ContactInfo = styled.div`
-  color: ${(p) => p.theme.textMuted};
-  font-size: 1em;
-`;
-
-const PostList = styled.div`
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 3rem;
-
-  ${breakpoint("desktop")`
-    grid-template-columns: 1fr 1fr;
-  `}
-`;
-
-const PostCardTitle = styled.h2`
-  font-family: "Gazpacho-Heavy", serif;
-  overflow-wrap: break-word;
-`;
-
-const PostCard = styled.div`
-  background: ${(p) => p.theme.bgColor};
-  border: 1px solid ${(p) => p.theme.borderColor};
-  border-radius: 6px;
-  padding: 2.4rem;
-
-  ${PostCardTitle} {
-    margin-bottom: 1rem;
-  }
-
-  p {
-    margin-bottom: 0;
-  }
-`;
-
 export default function UserDetailsPage() {
   const { currentUser, user, postList } = useLoaderData<typeof loader>();
 
   return (
     <div>
-      <ProfileHeader>
-        <Avatar user={user} />
+      <div className="mb-6 gap-x-6 flex items-center">
+        <Avatar user={user} size="96px" />
         <div>
-          <Name>{user.name}</Name>
-          <ContactInfo>{user.email}</ContactInfo>
+          <h1 className="text-4xl font-serif">{user.name}</h1>
+          <div className="text-muted-light dark:text-muted-dark">
+            {user.email}
+          </div>
         </div>
-      </ProfileHeader>
+      </div>
 
       {!!postList.length && (
-        <PostList>
+        <div className="grid gap-6 grid-cols-1 xl:grid-cols-2 mb-6">
           {postList.map((post) => (
-            <PostCard key={post.id}>
-              <PostCardTitle>
+            <div
+              className="bg-bg-light dark:bg-bg-dark border border-border-light dark:border-border-dark rounded p-4"
+              key={post.id}
+            >
+              <h2 className="font-serif break-words mb-2 text-lg">
                 <PostLink post={post}>{post.title}</PostLink>
-              </PostCardTitle>
+              </h2>
               <Markdown content={post.content || ""} summarize />
-            </PostCard>
+            </div>
           ))}
-        </PostList>
+        </div>
       )}
 
       {currentUser.admin && <UserAdmin user={user} />}

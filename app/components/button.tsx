@@ -1,5 +1,5 @@
-import type { ButtonHTMLAttributes } from "react";
-import React from "react";
+import type { ElementType } from "react";
+import type { PolymorphicProps } from "~/types";
 
 export type ButtonMode = "default" | "primary" | "danger";
 
@@ -7,19 +7,25 @@ export type ButtonSize = "xs" | "sm" | "md";
 
 export type ButtonStyle = "button" | "link";
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+export type Props<E extends ElementType> = PolymorphicProps<E> & {
   mode?: ButtonMode;
   size?: ButtonSize;
   baseStyle?: ButtonStyle;
-}
+};
 
-export function getButtonClassName({
+const defaultElement = "button";
+
+export default function Button<E extends ElementType = typeof defaultElement>({
+  as,
   disabled,
   className,
   mode = "default",
   baseStyle = "button",
   size = "md",
-}: ButtonProps) {
+  ...props
+}: Props<E>) {
+  const Component = as ?? defaultElement;
+
   className = `${className || ""} btn-${size}`;
 
   switch (baseStyle) {
@@ -44,37 +50,5 @@ export function getButtonClassName({
 
   if (disabled) className = `${className} opacity-50 cursor-not-allowed`;
 
-  return className;
+  return <Component disabled={disabled} className={className} {...props} />;
 }
-
-interface OurButtonProps extends ButtonProps {
-  size?: ButtonSize;
-  baseStyle?: ButtonStyle;
-  mode?: ButtonMode;
-}
-
-const Button: React.FC<OurButtonProps> = function Button({
-  children,
-  disabled,
-  className,
-  mode = "default",
-  size = "md",
-  baseStyle = "button",
-  ...props
-}) {
-  className = getButtonClassName({
-    className,
-    mode,
-    size,
-    disabled,
-    baseStyle,
-  });
-
-  return (
-    <button disabled={disabled} className={className} {...props}>
-      {children}
-    </button>
-  );
-};
-
-export default Button;

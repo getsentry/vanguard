@@ -14,7 +14,7 @@ setup-git:
 	git config branch.autosetuprebase always
 
 install-requirements:
-	npm install
+	pnpm install
 
 test:
 	npm run test

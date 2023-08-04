@@ -50,14 +50,14 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (typeof name !== "string" || name.length === 0) {
     return json<ActionData>(
       { errors: { name: "Name is required" } },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   if (typeof slug !== "string" || slug.length === 0) {
     return json<ActionData>(
       { errors: { slug: "Slug is required" } },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -65,7 +65,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (typeof colorHex !== "string" || colorHex.length === 0) {
     return json<ActionData>(
       { errors: { colorHex: "Color is required" } },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -77,7 +77,7 @@ export const action: ActionFunction = async ({ request, params }) => {
             "An invalid reaction was provided. All values must be emoji",
         },
       },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -227,7 +227,7 @@ export default function Index() {
                 onClick={(e) => {
                   e.preventDefault();
                   setCurrentEmojiList(
-                    currentEmojiList.filter((v) => v !== emoji)
+                    currentEmojiList.filter((v) => v !== emoji),
                   );
                 }}
               >

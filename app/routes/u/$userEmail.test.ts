@@ -13,7 +13,7 @@ describe("GET /u/$userEmail", () => {
         }),
         params: { userEmail: user.email },
         context: {},
-      })
+      }),
     );
   });
 });

@@ -1,8 +1,19 @@
-import styled from "styled-components";
+import type { ComponentPropsWithoutRef } from "react";
+import classNames from "~/lib/classNames";
 
-export default styled.div`
-  display: flex;
-  gap: 5px;
-  justify-content: ${(props) =>
-    props.align === "center" ? "center" : "flex-end"};
-`;
+export default function ButtonGroup({
+  align = "end",
+  ...props
+}: ComponentPropsWithoutRef<"div"> & {
+  align?: "center" | "end";
+}) {
+  return (
+    <div
+      className={classNames(
+        "flex gap-2",
+        align === "center" ? "justify-center" : "justify-end",
+      )}
+      {...props}
+    />
+  );
+}

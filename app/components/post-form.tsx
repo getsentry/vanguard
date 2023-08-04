@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Form } from "@remix-run/react";
-import styled from "styled-components";
 
 import type { Category } from "../models/category.server";
 import type { Feed } from "../models/feed.server";
@@ -31,29 +30,6 @@ export type PostFormInitialData = {
   meta?: { [name: string]: string };
 };
 
-const CategoryOptionLabel = styled.label`
-  font-family: "IBM Flex Mono", monospace;
-  display: inline-flex;
-  flex-direction: row;
-  font-size: 0.9em;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 1.2rem;
-  border-radius: 3rem;
-  text-transform: uppercase;
-  border: 1px solid #ccc;
-  cursor: pointer;
-  margin: 0;
-
-  ${(props) => props.active && categoryTagStyles({ colorHex: props.colorHex })};
-`;
-
-export const CategoryOptionWrapper = styled.div`
-  display: flex;
-  gap: 0.8rem;
-  flex-wrap: wrap;
-`;
-
 const CategorySelector = ({
   name,
   categoryList,
@@ -75,12 +51,16 @@ const CategorySelector = ({
 
   return (
     <>
-      <CategoryOptionWrapper>
+      <div className="flex flex-wrap gap-2">
         {categoryList.map((category) => (
-          <CategoryOptionLabel
+          <label
+            className="font-mono cursor-pointer flex flex-row text-sm items-center gap-2 px-4 py-2 rounded-full uppercase border border-border-light dark:border-border-dark"
             key={category.id}
-            colorHex={category.colorHex}
-            active={category.id === categoryId}
+            style={
+              category.id === categoryId
+                ? categoryTagStyles(category.colorHex)
+                : undefined
+            }
           >
             <input
               type="radio"
@@ -93,9 +73,9 @@ const CategorySelector = ({
               }}
             />
             {category.name}
-          </CategoryOptionLabel>
+          </label>
         ))}
-      </CategoryOptionWrapper>
+      </div>
     </>
   );
 };
@@ -158,7 +138,7 @@ export default function PostForm({
   }
 
   const [categoryId, setCategoryId] = useState<string | null>(
-    initialData?.categoryId || categoryList.find(() => true)?.id || null
+    initialData?.categoryId || categoryList.find(() => true)?.id || null,
   );
 
   const selectedCategory = categoryList.find((c) => c.id === categoryId);

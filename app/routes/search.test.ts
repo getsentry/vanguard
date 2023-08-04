@@ -11,7 +11,7 @@ describe("GET /search", () => {
         }),
         params: {},
         context: {},
-      })
+      }),
     );
   });
 });

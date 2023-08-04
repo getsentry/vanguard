@@ -11,7 +11,7 @@ describe("GET /", () => {
         }),
         params: {},
         context: {},
-      })
+      }),
     );
   });
 });

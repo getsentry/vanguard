@@ -1,5 +1,4 @@
 import { Link } from "@remix-run/react";
-import styled from "styled-components";
 import Middot from "./middot";
 
 export type Props = {
@@ -7,33 +6,40 @@ export type Props = {
   admin?: boolean;
 };
 
-const Footer = ({ version, admin }: Props) => {
+export default function Footer({ version, admin }: Props) {
   return (
-    <FooterWrapper>
+    <div className="flex justify-between text-xs text-secondary-light dark:text-secondary-dark">
       <div>
         <span>Vanguard {version ? version.substring(0, 7) : ""}</span>{" "}
-        <Middot /> <Link to="/about">About</Link>
+        <Middot />{" "}
+        <Link
+          to="/about"
+          className="text-link-light dark:text-link-dark hover:underline"
+        >
+          About
+        </Link>
       </div>
       <div>
         {admin && (
           <>
-            <Link to="/admin">Admin</Link> <Middot />{" "}
+            <Link
+              className="text-link-light dark:text-link-dark hover:underline"
+              to="/admin"
+            >
+              Admin
+            </Link>{" "}
+            <Middot />{" "}
           </>
         )}
         <span>
-          <a href="https://github.com/getsentry/vanguard">GitHub</a>
+          <a
+            href="https://github.com/getsentry/vanguard"
+            className="text-link-light dark:text-link-dark hover:underline"
+          >
+            GitHub
+          </a>
         </span>
       </div>
-    </FooterWrapper>
+    </div>
   );
-};
-
-const FooterWrapper = styled.div`
-  display: flex;
-  margin: 6rem 0;
-  font-size: 1.2rem;
-  justify-content: space-between;
-  color: ${(p) => p.theme.textColorSecondary};
-`;
-
-export default Footer;
+}

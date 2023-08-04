@@ -13,7 +13,7 @@ describe("GET /p/$postId", () => {
         }),
         params: { postId: post.id },
         context: {},
-      })
+      }),
     );
   });
 });
@@ -28,7 +28,7 @@ describe("POST /p/$postId", () => {
         }),
         params: { postId: post.id },
         context: {},
-      })
+      }),
     );
   });
 });

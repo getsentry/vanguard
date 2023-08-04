@@ -1,24 +1,13 @@
-import styled from "styled-components";
+import type { ComponentPropsWithoutRef } from "react";
 
-export const DefinitionList = styled.dl`
-  display: flex;
-  flex-flow: row wrap;
+export default function DefinitionList(props: ComponentPropsWithoutRef<"dl">) {
+  return <dl className="flex flex-wrap" {...props} />;
+}
 
-  dt,
-  dd {
-    margin: 5px 0;
-  }
+DefinitionList.Term = function Term(props: ComponentPropsWithoutRef<"dt">) {
+  return <dt className="my-1 basis-[20%] pr-1 bold" {...props} />;
+};
 
-  dt {
-    flex-basis: 20%;
-    padding-right: 5px;
-    font-weight: bold;
-  }
-
-  dd {
-    flex-basis: 70%;
-    flex-grow: 1;
-  }
-`;
-
-export default DefinitionList;
+DefinitionList.Desc = function Desc(props: ComponentPropsWithoutRef<"dd">) {
+  return <dt className="my-1 basis-[70%] flex-grow" {...props} />;
+};

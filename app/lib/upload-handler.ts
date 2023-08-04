@@ -60,7 +60,7 @@ export default function uploadHandler({
 
   return unstable_composeUploadHandlers(
     handler,
-    unstable_createMemoryUploadHandler()
+    unstable_createMemoryUploadHandler(),
   );
 }
 

@@ -7,7 +7,6 @@ import { getUserList } from "~/models/user.server";
 import { paginate } from "~/lib/paginator";
 import type { PaginatedResult } from "~/lib/paginator";
 import Paginated from "~/components/paginated";
-import Table from "~/components/table";
 import BooleanIcon from "~/components/boolean-icon";
 import PageHeader from "~/components/page-header";
 
@@ -30,14 +29,12 @@ export default function Index() {
 
   return (
     <div>
-      <PageHeader>
-        <h1>Users</h1>
-      </PageHeader>
+      <PageHeader title="Users" />
       <Paginated
         data={userListPaginated}
         render={(result) => {
           return (
-            <Table className="table-auto">
+            <table className="table table-auto">
               <thead>
                 <tr>
                   <th>Email</th>
@@ -58,7 +55,7 @@ export default function Index() {
                   </tr>
                 ))}
               </tbody>
-            </Table>
+            </table>
           );
         }}
       />

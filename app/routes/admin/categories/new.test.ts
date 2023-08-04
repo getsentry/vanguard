@@ -16,11 +16,11 @@ describe("GET /admin/categories/new", () => {
           {
             method: "GET",
           },
-          { user: DefaultFixtures.DEFAULT_USER }
+          { user: DefaultFixtures.DEFAULT_USER },
         ),
         params: {},
         context: {},
-      })
+      }),
     );
   });
 });
@@ -34,11 +34,11 @@ describe("POST /admin/categories/new", () => {
           {
             method: "POST",
           },
-          { user: DefaultFixtures.DEFAULT_USER }
+          { user: DefaultFixtures.DEFAULT_USER },
         ),
         params: {},
         context: {},
-      })
+      }),
     );
   });
 
@@ -58,7 +58,7 @@ describe("POST /admin/categories/new", () => {
           method: "POST",
           body: formData,
         },
-        { user }
+        { user },
       ),
       params: {},
       context: {},
@@ -85,7 +85,7 @@ describe("POST /admin/categories/new", () => {
           method: "POST",
           body: formData,
         },
-        { user }
+        { user },
       ),
       params: {},
       context: {},

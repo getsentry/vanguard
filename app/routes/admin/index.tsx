@@ -13,23 +13,33 @@ export default function Index() {
   useLoaderData();
 
   return (
-    <div>
+    <div className="mb-6">
       <h1>Admin</h1>
-      <ul>
+      <ul className="list-disc ml-6">
         <li>
-          <Link to="./categories">Categories</Link>
+          <Link to="./categories" className="hover:underline">
+            Categories
+          </Link>
         </li>
         <li>
-          <Link to="./comments">Comments</Link>
+          <Link to="./comments" className="hover:underline">
+            Comments
+          </Link>
         </li>
         <li>
-          <Link to="./posts">Posts</Link>
+          <Link to="./posts" className="hover:underline">
+            Posts
+          </Link>
         </li>
         <li>
-          <Link to="./feeds">Syndication Feeds</Link>
+          <Link to="./feeds" className="hover:underline">
+            Syndication Feeds
+          </Link>
         </li>
         <li>
-          <Link to="./users">Users</Link>
+          <Link to="./users" className="hover:underline">
+            Users
+          </Link>
         </li>
       </ul>
       <Outlet />

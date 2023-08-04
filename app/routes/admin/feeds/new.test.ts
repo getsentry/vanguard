@@ -12,11 +12,11 @@ describe("GET /admin/feeds/$feedId", () => {
           {
             method: "GET",
           },
-          { user: DefaultFixtures.DEFAULT_USER }
+          { user: DefaultFixtures.DEFAULT_USER },
         ),
         params: {},
         context: {},
-      })
+      }),
     );
   });
 });
@@ -30,11 +30,11 @@ describe("POST /admin/feeds/$feedId", () => {
           {
             method: "POST",
           },
-          { user: DefaultFixtures.DEFAULT_USER }
+          { user: DefaultFixtures.DEFAULT_USER },
         ),
         params: {},
         context: {},
-      })
+      }),
     );
   });
 });

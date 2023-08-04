@@ -302,7 +302,7 @@ export async function updatePost({
       },
       data,
       include: { author: true, category: true, meta: true, feeds: true },
-    })
+    }),
   );
 
   const result = await prisma.$transaction(queries);

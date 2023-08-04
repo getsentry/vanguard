@@ -1,7 +1,5 @@
-import styled from "styled-components";
+import type { ComponentPropsWithoutRef } from "react";
 
-export const Block = styled.section`
-  margin: 30px 0;
-`;
-
-export default Block;
+export default function Block(props: ComponentPropsWithoutRef<"section">) {
+  return <section style={{ margin: "30px 0" }} {...props} />;
+}

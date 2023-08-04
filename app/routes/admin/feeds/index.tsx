@@ -6,11 +6,10 @@ import { requireAdmin } from "~/services/auth.server";
 import { paginate } from "~/lib/paginator";
 import type { PaginatedResult } from "~/lib/paginator";
 import Paginated from "~/components/paginated";
-import Table from "~/components/table";
 import BooleanIcon from "~/components/boolean-icon";
 import { getFeedList } from "~/models/feed.server";
-import ButtonLink from "~/components/button-link";
 import PageHeader from "~/components/page-header";
+import Button from "~/components/button";
 
 type LoaderData = {
   feedListPaginated: Awaited<
@@ -25,7 +24,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const feedListPaginated = await paginate(
     getFeedList,
     { userId: user.id },
-    cursor
+    cursor,
   );
   return json<LoaderData>({ feedListPaginated });
 };
@@ -35,17 +34,16 @@ export default function Index() {
 
   return (
     <div>
-      <PageHeader>
-        <h1>Syndication Feeds</h1>
-        <ButtonLink to="new" mode="primary">
+      <PageHeader title="Syndication Feeds">
+        <Button as={Link} to="new" mode="primary">
           New Feed
-        </ButtonLink>
+        </Button>
       </PageHeader>
       <Paginated
         data={feedListPaginated}
         render={(result) => {
           return (
-            <Table className="table-auto">
+            <table className="table table-auto">
               <thead>
                 <tr>
                   <th>Name</th>
@@ -64,7 +62,7 @@ export default function Index() {
                   </tr>
                 ))}
               </tbody>
-            </Table>
+            </table>
           );
         }}
       />

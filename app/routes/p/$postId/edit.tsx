@@ -74,14 +74,14 @@ export const action: ActionFunction = async ({ request, params }) => {
   ) {
     return json<ActionData>(
       { errors: { categoryId: "Category is required" } },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   if (title !== null && (typeof title !== "string" || title.length === 0)) {
     return json<ActionData>(
       { errors: { title: "Title is required" } },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -91,7 +91,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   ) {
     return json<ActionData>(
       { errors: { content: "Content is required" } },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -114,7 +114,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     if (invalid) {
       return json<ActionData>(
         { errors: { feedId: "Invalid feed" } },
-        { status: 400 }
+        { status: 400 },
       );
     }
     data.feedIds = feedIds;
@@ -125,7 +125,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     if (!category || (category.restricted && !user.canPostRestricted)) {
       return json<ActionData>(
         { errors: { categoryId: "Invalid category" } },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -138,7 +138,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       if (required && !content) {
         return json<ActionData>(
           { errors: { meta: { name: `${name} is required` } } },
-          { status: 400 }
+          { status: 400 },
         );
       }
       meta.push({
