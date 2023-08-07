@@ -15,7 +15,7 @@ Sentry.init({
       routingInstrumentation: Sentry.remixRouterInstrumentation(
         useEffect,
         useLocation,
-        useMatches
+        useMatches,
       ),
     }),
   ],
@@ -26,6 +26,6 @@ startTransition(() => {
     document,
     <StrictMode>
       <RemixBrowser />
-    </StrictMode>
+    </StrictMode>,
   );
 });

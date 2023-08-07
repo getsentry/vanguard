@@ -65,7 +65,7 @@ describe("updateUser", () => {
     });
     expect(newUser).toBeDefined();
     expect(newUser.picture).toBe(
-      "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+      "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
     );
   });
 

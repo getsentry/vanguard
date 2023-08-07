@@ -1,38 +1,29 @@
-import styled from "styled-components";
+import type { ComponentPropsWithoutRef } from "react";
+import classNames from "~/lib/classNames";
 
-export const EmojiButton = styled.button`
-  background: ${(p) =>
-    p.selected
-      ? p.theme.emoji.selectedBackgroundColor
-      : p.theme.emoji.defaultBackgroundColor};
-  color: ${(p) =>
-    p.selected
-      ? p.theme.emoji.selectedTextColor
-      : p.theme.emoji.defaultTextColor};
+export function EmojiButton({
+  selected,
+  ...props
+}: ComponentPropsWithoutRef<"button"> & {
+  selected?: boolean;
+}) {
+  return (
+    <button
+      className={classNames(
+        selected
+          ? "bg-emoji-selected-bg-light dark:bg-emoji-selected-bg-dark"
+          : "text-emoji-default-text-light dark:text-emoji-default-text-dark",
+        "hover:text-emoji-highlight-text-light dark:hover:text-emoji-highlight-text-dark",
+        "hover:bg-emoji-highlight-bg-light dark:hover:bg-emoji-highlight-bg-dark",
+        "rounded-md px-3 py-2 inline-flex items-center font-serif gap-1",
+      )}
+      {...props}
+    />
+  );
+}
 
-  border-radius: 3rem;
-  display: block;
-  padding: 0.6rem 0.8rem;
-  border-radius: 0.4rem;
-  line-height: 1;
-  display: inline-flex;
-  align-items: center;
-  font-family: "Lucida Sans Unicode", "Lucida Grande", "Arial Unicode MS",
-    sans-serif;
-
-  span {
-    font-size: "IBM Plex Mono", "monospace";
-    margin-left: 5px;
-  }
-
-  &:hover {
-    background: ${(p) => p.theme.emoji.highlightBackgroundColor};
-    color: ${(p) => p.theme.emoji.highlightTextColor};
-  }
-`;
-
-const EmojiReaction = ({
-  count,
+export default function EmojiReaction({
+  count = 0,
   emoji,
   selected,
   onClick,
@@ -40,14 +31,12 @@ const EmojiReaction = ({
   count?: number;
   emoji: string;
   selected?: boolean;
-  onClick: Function;
-}) => {
+  onClick: any;
+}) {
   return (
     <EmojiButton selected={selected} onClick={onClick}>
       {emoji}
-      {count > 0 && <span>{count}</span>}
+      {count > 0 && <span className="font-mono">{count}</span>}
     </EmojiButton>
   );
-};
-
-export default EmojiReaction;
+}

@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from "react";
-import { useState, useEffect } from "react";
-
+import { useState } from "react";
+import InterStyles from "@fontsource/inter/index.css";
 import type { LinksFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
@@ -20,14 +20,13 @@ import { withSentry, setUser } from "@sentry/remix";
 import { Toaster } from "react-hot-toast";
 
 import fontsCss from "./styles/fonts.css";
-import tailwindCss from "./styles/tailwind.css";
-import GlobalStyles from "./styles/global";
+import indexCss from "./styles/index.css";
 import { getUser } from "./services/auth.server";
 import Footer from "./components/footer";
 import Header from "./components/header";
 import Container from "./components/container";
 import { Sidebar, SidebarSection } from "./components/sidebar";
-import { CategoryTag, CategoryTags } from "./components/category-tag";
+import CategoryTag, { CategoryTags } from "./components/category-tag";
 import Input from "./components/input";
 import { getCategoryList } from "./models/category.server";
 import Avatar from "./components/avatar";
@@ -35,18 +34,15 @@ import { getPostList } from "./models/post.server";
 import PostList from "./components/post-list";
 import LoadingIndicator from "./components/loading-indicator";
 import DevNotice from "./components/dev-notice";
-import { ThemeProvider, styled } from "styled-components";
-import { darkTheme, lightTheme } from "./styles/theme";
-import { breakpoint } from "./lib/breakpoints";
+import classNames from "./lib/classNames";
+import Button from "./components/button";
 
 export const links: LinksFunction = () => {
   return [
-    // TODO: this isnt really tailwind, and the processors werent ever really running
-    // so we should either gut styled-components (which is a lot of work) or remove this
-    // and implement our own base styles
-    { rel: "stylesheet", href: tailwindCss },
+    { rel: "stylesheet", href: indexCss },
     { rel: "stylesheet", href: fontsCss },
     { rel: "stylesheet", href: prismCss },
+    { rel: "stylesheet", href: InterStyles },
   ];
 };
 
@@ -113,7 +109,7 @@ export function ErrorBoundary() {
   return (
     <Document title="Internal Server Error">
       <div
-        className="pb-24 xl:w-[80%] px-20 mr-[40rem] relative z-10"
+        className="xl:pb-24 px-20 mr-[30rem] relative z-10"
         style={{
           transition: "margin-right 0.2s ease-in-out",
         }}
@@ -135,27 +131,15 @@ export function ErrorBoundary() {
 function Document({
   children,
   title = "Vanguard",
+  showSidebar = false,
   ENV = {},
   data,
 }: PropsWithChildren<{
   title?: string;
+  showSidebar?: boolean;
   ENV?: Record<string, any>;
   data?: Record<string, any>;
 }>) {
-  const [theme, setTheme] = useState("light");
-
-  useEffect(() => {
-    window
-      .matchMedia("(prefers-color-scheme: dark)")
-      .addEventListener("change", (event) => {
-        if (event.matches) {
-          setTheme("dark");
-        } else {
-          setTheme("light");
-        }
-      });
-  }, []);
-
   return (
     <html lang="en">
       <head>
@@ -170,23 +154,23 @@ function Document({
         )}
         {title ? <title>{title}</title> : null}
         <Links />
-        {typeof document === "undefined" ? "__STYLES__" : null}
       </head>
-      <ThemeProvider theme={theme === "light" ? lightTheme : darkTheme}>
-        <GlobalStyles />
-        <body className="text-black bg-white dark:bg-black dark:text-white">
-          {children}
-
-          <ScrollRestoration />
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `window.ENV = ${JSON.stringify(ENV)}`,
-            }}
-          />
-          <Scripts />
-          <LiveReload />
-        </body>
-      </ThemeProvider>
+      <body
+        className={classNames(
+          showSidebar ? "overflow-hidden" : "",
+          "text-primary-light bg-bg-light dark:bg-bg-dark dark:text-primary-dark min-h-screen overflow-x-hidden",
+        )}
+      >
+        {children}
+        <ScrollRestoration />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.ENV = ${JSON.stringify(ENV)}`,
+          }}
+        />
+        <Scripts />
+        <LiveReload />
+      </body>
     </html>
   );
 }
@@ -208,104 +192,79 @@ function App() {
   };
 
   return (
-    <Document ENV={ENV} data={data}>
-      <div className={showSidebar ? "showSidebar" : ""}>
-        <LoadingIndicator />
-        <div>
-          <Toaster />
+    <Document ENV={ENV} data={data} showSidebar={showSidebar}>
+      <LoadingIndicator />
+      <div>
+        <Toaster />
+      </div>
+      {process.env.NODE_ENV !== "production" && <DevNotice />}
+      <div className="relative">
+        <div className="xl:pb-24 xl:px-20 xl:mr-[30rem] relative">
+          <Container>
+            <Header
+              showSidebar={showSidebar}
+              handleSidebar={handleSidebar}
+              user={user}
+            />
+            <Outlet />
+            <Footer version={ENV.VERSION} admin={user?.admin} />
+          </Container>
         </div>
-        {process.env.NODE_ENV !== "production" && <DevNotice />}
-        <MainContainer>
-          <Primary>
-            <Container>
-              <Header
-                showSidebar={showSidebar}
-                handleSidebar={handleSidebar}
-                user={user}
-              />
-              <Outlet />
-              <Footer version={ENV.VERSION} admin={user?.admin} />
-            </Container>
-          </Primary>
-          <Sidebar showSidebar={showSidebar}>
-            {!!user && (
-              <>
-                <SidebarSection>
-                  <UserMenu>
-                    <Link to="/settings">
-                      <Avatar user={user} size="3.4rem" />
-                    </Link>
-                    <Link to="/settings" className="btn secondary">
-                      Settings
-                    </Link>
-                    <UserMenuDivider />
-                    <Link to="/drafts" className="btn">
-                      Drafts
-                    </Link>
-                  </UserMenu>
-                </SidebarSection>
-                <SidebarSection>
-                  <Form method="get" action="/search">
-                    <Input
-                      variant="search"
-                      name="q"
-                      placeholder="Search posts..."
-                    />
-                  </Form>
-                </SidebarSection>
-              </>
-            )}
-            {categoryList && categoryList.length > 0 && (
+        <Sidebar showSidebar={showSidebar}>
+          {!!user && (
+            <>
               <SidebarSection>
-                <h6>Divisions</h6>
-                <CategoryTags>
-                  {categoryList.map((category: any) => (
-                    <CategoryTag key={category.id} category={category} />
-                  ))}
-                </CategoryTags>
+                <div className="flex items-center gap-4">
+                  <Link to="/settings">
+                    <Avatar user={user} size="2rem" />
+                  </Link>
+                  <Button as={Link} baseStyle="link" to="/settings">
+                    Settings
+                  </Button>
+                  <div className="text-border-light dark:text-border-dark font-mono">
+                    /{" "}
+                  </div>
+                  <Button as={Link} baseStyle="link" to="/drafts">
+                    Drafts
+                  </Button>
+                </div>
               </SidebarSection>
-            )}
-            {recentPostList && recentPostList.length > 0 && (
               <SidebarSection>
-                <h6>Recent Posts</h6>
-                <PostList postList={recentPostList} />
+                <Form method="get" action="/search">
+                  <Input
+                    variant="search"
+                    name="q"
+                    placeholder="Search posts..."
+                  />
+                </Form>
               </SidebarSection>
-            )}
-          </Sidebar>
-        </MainContainer>
+            </>
+          )}
+
+          {categoryList && categoryList.length > 0 && (
+            <SidebarSection>
+              <h6 className="font-semibold text-sm uppercase mb-4 text-muted-light dark:text-muted-dark">
+                Divisions
+              </h6>
+              <CategoryTags>
+                {categoryList.map((category: any) => (
+                  <CategoryTag key={category.id} category={category} />
+                ))}
+              </CategoryTags>
+            </SidebarSection>
+          )}
+          {recentPostList && recentPostList.length > 0 && (
+            <SidebarSection>
+              <h6 className="font-semibold text-sm uppercase mb-4 text-muted-light dark:text-muted-dark">
+                Recent Posts
+              </h6>
+              <PostList postList={recentPostList} />
+            </SidebarSection>
+          )}
+        </Sidebar>
       </div>
     </Document>
   );
 }
-
-const MainContainer = styled.div`
-  position: relative;
-`;
-
-const Primary = styled.div`
-  padding-bottom: 6rem;
-  transition: margin-right 0.2s ease-in-out;
-
-  ${breakpoint("desktop")`
-    width: 80%;
-    padding: 0 5rem;
-    margin-right: 40rem;
-    position: relative;
-    z-index: 1;
-  `}
-`;
-
-const UserMenu = styled.div`
-  align-items: center;
-  display: flex;
-`;
-
-const UserMenuDivider = styled.div`
-  color: ${(p) => p.theme.borderColor};
-  font-family: "IBM Plex Mono", monospaced;
-  &:before {
-    content: "/";
-  }
-`;
 
 export default withSentry(App, { wrapWithErrorBoundary: false });

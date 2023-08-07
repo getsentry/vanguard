@@ -25,7 +25,7 @@ const clusteredCategories = ["shipped"];
 const FragmentedPostList = ({ posts, reactions, commentCounts }) => {
   // pull out the first unclustered post
   let firstUnclusteredPost = posts.find(
-    (p) => clusteredCategories.indexOf(p.category.slug) === -1
+    (p) => clusteredCategories.indexOf(p.category.slug) === -1,
   );
 
   // remaining posts
@@ -40,7 +40,7 @@ const FragmentedPostList = ({ posts, reactions, commentCounts }) => {
         reactions={reactions[firstUnclusteredPost.id]}
         totalComments={commentCounts[firstUnclusteredPost.id]}
         summary
-      />
+      />,
     );
   }
 
@@ -59,7 +59,7 @@ const FragmentedPostList = ({ posts, reactions, commentCounts }) => {
           reactions={reactions}
           commentCounts={commentCounts}
           key={buffer[0].id}
-        />
+        />,
       );
     }
 
@@ -72,7 +72,7 @@ const FragmentedPostList = ({ posts, reactions, commentCounts }) => {
           reactions={reactions[post.id]}
           totalComments={commentCounts[post.id]}
           summary
-        />
+        />,
       );
     }
 
@@ -89,7 +89,7 @@ const FragmentedPostList = ({ posts, reactions, commentCounts }) => {
         reactions={reactions}
         commentCounts={commentCounts}
         key={buffer[0].id}
-      />
+      />,
     );
   }
 
@@ -104,7 +104,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const postListPaginated = await paginate(
     getPostList,
     { userId, published: true },
-    cursor
+    cursor,
   );
 
   const reactions = await getReactionsForPosts({

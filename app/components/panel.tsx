@@ -1,23 +1,21 @@
-import styled from "styled-components";
+import type { ComponentPropsWithoutRef } from "react";
 
-export const Panel = styled.section`
-  margin: 3rem 0;
-  border: 1px solid ${(p) => p.theme.borderColor};
-  padding: 1.5rem 1.5rem 0;
-  border-radius: 4px;
+export function Panel({ ...props }: ComponentPropsWithoutRef<"section">) {
+  return (
+    <section
+      className="my-12 border border-border-light dark:border-border-dark py-6 px-6 rounded"
+      {...props}
+    />
+  );
+}
 
-  form,
-  ul {
-    margin-bottom: 1.5rem;
-  }
-`;
-
-export const Title = styled.h6`
-  border-bottom: 1px solid ${(p) => p.theme.borderColor};
-  background: ${(p) => p.theme.bgLayer100};
-  padding: 1.5rem;
-  margin: -1.5rem -1.5rem 1.5rem;
-  border-radius: 3px 3px 0 0;
-`;
+export function Title({ ...props }: ComponentPropsWithoutRef<"h6">) {
+  return (
+    <h6
+      className="border-b border-border-light dark:border-border-dark bg-layer100-light dark:bg-layer100-dark p-6 -mt-6 -mx-6 mb-6 rounded-t"
+      {...props}
+    />
+  );
+}
 
 export default Panel;

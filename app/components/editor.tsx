@@ -3,7 +3,6 @@ import type { ClipboardEvent, DragEvent, ChangeEvent } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import TextareaMarkdown, { Cursor } from "textarea-markdown-editor";
 import type { TextareaMarkdownRef } from "textarea-markdown-editor";
-import styled from "styled-components";
 import toast from "react-hot-toast";
 import {
   StrikethroughIcon,
@@ -15,10 +14,10 @@ import {
   QuoteIcon,
   ListBulletIcon,
 } from "@radix-ui/react-icons";
+import * as Toolbar from "@radix-ui/react-toolbar";
+import * as Tabs from "@radix-ui/react-tabs";
 
 import Content from "./content";
-import * as Toolbar from "./editor-toolbar";
-import * as Tabs from "./editor-tabs";
 import Markdown from "./markdown";
 
 function replaceText(cursor: Cursor, text: string, replaceWith: string) {
@@ -51,7 +50,7 @@ function handleUploadImages(textareaEl: HTMLTextAreaElement, fileList: File[]) {
       replaceText(
         cursor,
         loadingText,
-        `![${uploadedImage.originalFilename}](${uploadedImage.url})`
+        `![${uploadedImage.originalFilename}](${uploadedImage.url})`,
       );
     } catch (err: any) {
       console.error(err);
@@ -68,7 +67,7 @@ const onUploadFiles = (
     | DragEvent<HTMLTextAreaElement>
     | ClipboardEvent<HTMLTextAreaElement>
     | ChangeEvent<HTMLInputElement>,
-  fileList: FileList | null
+  fileList: FileList | null,
 ) => {
   if (!fileList) return;
 
@@ -87,15 +86,6 @@ const onUploadFiles = (
 
   handleUploadImages(textareaEl, imageFiles);
 };
-
-const EditorWrapper = styled.div`
-  textarea {
-    width: 100%;
-    border-radius: 0 0 6px 6px;
-    padding: 5px;
-    border: 1px solid ${(p) => p.theme.borderColor};
-  }
-`;
 
 function Editor({
   name,
@@ -119,7 +109,10 @@ function Editor({
 
   const editorBlock = (
     <>
-      <Toolbar.Toolbar aria-label="Formatting options">
+      <Toolbar.Toolbar
+        className="editor-toolbar"
+        aria-label="Formatting options"
+      >
         <Toolbar.Button
           value="bold"
           aria-label="Bold"
@@ -180,10 +173,6 @@ function Editor({
         >
           <ImageIcon />
         </Toolbar.Button>
-        {/* <Toolbar.Separator />
-  <Toolbar.Link href="#" target="_blank" style={{ marginRight: 10 }}>
-    Edited 2 hours ago
-  </Toolbar.Link> */}
       </Toolbar.Toolbar>
 
       <TextareaMarkdown.Wrapper
@@ -215,11 +204,11 @@ function Editor({
   );
 
   return (
-    <EditorWrapper>
+    <div className="editor">
       {noPreview ? (
         editorBlock
       ) : (
-        <Tabs.Tabs defaultValue="edit">
+        <Tabs.Tabs defaultValue="edit" className="editor-tabs">
           <Tabs.List>
             <Tabs.Trigger value="edit">Edit</Tabs.Trigger>
             <Tabs.Trigger value="preview">Preview</Tabs.Trigger>
@@ -245,7 +234,7 @@ function Editor({
         }}
         style={{ display: "none", position: "absolute", left: -100000 }}
       />
-    </EditorWrapper>
+    </div>
   );
 }
 

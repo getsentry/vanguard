@@ -6,7 +6,6 @@ import { requireAdmin } from "~/services/auth.server";
 import { paginate } from "~/lib/paginator";
 import type { PaginatedResult } from "~/lib/paginator";
 import Paginated from "~/components/paginated";
-import Table from "~/components/table";
 import PostLink from "~/components/post-link";
 import PageHeader from "~/components/page-header";
 import { getCommentList } from "~/models/post-comments.server";
@@ -25,7 +24,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const commentListPaginated = await paginate(
     getCommentList,
     { userId: user.id },
-    cursor
+    cursor,
   );
   return json<LoaderData>({ commentListPaginated });
 };
@@ -35,14 +34,12 @@ export default function Comments() {
 
   return (
     <div>
-      <PageHeader>
-        <h1>Comments</h1>
-      </PageHeader>
+      <PageHeader title="Comments" />
       <Paginated
         data={commentListPaginated}
         render={(result) => {
           return (
-            <Table className="table-auto">
+            <table className="table table-auto">
               <thead>
                 <tr>
                   <th>Post</th>
@@ -69,7 +66,7 @@ export default function Comments() {
                   </tr>
                 ))}
               </tbody>
-            </Table>
+            </table>
           );
         }}
       />

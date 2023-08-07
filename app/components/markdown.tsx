@@ -53,7 +53,7 @@ export default function Markdown({
   summarize?: boolean;
 }) {
   let html = sanitize(
-    summarize ? summarizeFn(content) : parseMarkdown(content)
+    summarize ? summarizeFn(content) : parseMarkdown(content),
   );
   return <div dangerouslySetInnerHTML={{ __html: html }} {...props} />;
 }

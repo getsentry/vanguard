@@ -1,86 +1,53 @@
 import { Link } from "@remix-run/react";
-import styled from "styled-components";
-
 import PostLink from "~/components/post-link";
 import Avatar from "~/components/avatar";
 import TimeSince from "./timeSince";
 
-const PostListContainer = styled.ul`
-  list-style: none;
-  margin-left: 0;
-  padding: 0;
-`;
-
-const PostListItem = styled.li`
-  display: grid;
-  grid-template-columns: 4.8rem auto;
-  grid-template-areas:
-    "avatar title"
-    "avatar credits";
-  grid-column-gap: 0.8rem;
-  margin-bottom: 1rem;
-  padding: 0;
-`;
-
-const PostTitle = styled.h4`
-  grid-area: title;
-  margin: 0;
-  font-size: 1.6rem;
-  overflow-wrap: break-word;
-`;
-
-const PostCredits = styled.div`
-  grid-area: credits;
-  display: flex;
-  flex-direction: row;
-  gap: 0.8rem;
-  align-items: center;
-
-  font-family: "IBM Plex Mono", monospace;
-  color: ${(p) => p.theme.textColorSecondary};
-`;
-
-const PostAvatar = styled.div`
-  grid-area: avatar;
-`;
-
-const PostAuthor = styled.strong`
-  font-size: 1.4rem;
-  font-weight: 500;
-
-  a {
-    color: inherit;
-  }
-`;
-
-const PostDate = styled.time`
-  margin-left: 5px;
-  font-size: 1.2rem;
-`;
-
 export default function PostList({ postList }) {
   return (
-    <PostListContainer>
+    <div>
       {postList.map((post) => (
-        <PostListItem key={post.id}>
-          <PostTitle>
-            <PostLink post={post}>{post.title}</PostLink>
-          </PostTitle>
-          <PostAvatar>
+        <li
+          className="grid mb-4"
+          style={{
+            gridTemplateColumns: "4rem auto",
+            gridTemplateAreas: `
+            "avatar title"
+            "avatar credits"
+          `,
+          }}
+          key={post.id}
+        >
+          <div
+            className="break-words"
+            style={{
+              gridArea: "title",
+            }}
+          >
+            <PostLink className="hover:underline" post={post}>
+              {post.title}
+            </PostLink>
+          </div>
+          <div style={{ gridArea: "avatar" }}>
             <Avatar user={post.author} />
-          </PostAvatar>
-          <PostCredits>
-            <PostAuthor>
-              <Link to={`/u/${post.author.email}`}>
+          </div>
+          <div
+            className="flex gap-3 items-center font-mono text-secondary-light dark:text-secondary-dark"
+            style={{
+              gridArea: "credits",
+            }}
+          >
+            <div className="font-medium text-sm">
+              <Link to={`/u/${post.author.email}`} className="hover:underline">
                 {post.author.name || post.author.email}
               </Link>
-            </PostAuthor>
-            <PostDate>
+            </div>
+            <div className="text-xs">
               <TimeSince date={post.publishedAt} />
-            </PostDate>
-          </PostCredits>
-        </PostListItem>
+            </div>
+          </div>
+        </li>
       ))}
-    </PostListContainer>
+    </div>
   );
 }

@@ -2,6 +2,7 @@
 
 @font-face {
   font-family: "Gazpacho-Heavy";
-  src: url("/fonts/gazpacho-heavy.woff2") format("woff2"),
+  src:
+    url("/fonts/gazpacho-heavy.woff2") format("woff2"),
     url("/fonts/gazpacho-heavy.woff") format("woff");
 }

@@ -1,16 +1,5 @@
-import styled from "styled-components";
-import { breakpoint } from "~/lib/breakpoints";
+import type { ComponentPropsWithoutRef } from "react";
 
-export default styled.div`
-  max-width: 120rem;
-  margin: 0 auto;
-
-  ${breakpoint("mobile", "desktop")`
-    padding: 0 2rem;
-  `}
-
-  ${breakpoint("desktop")`
-    width: 80%;
-    padding: 0 5rem;
-  `}
-`;
+export default function Container(props: ComponentPropsWithoutRef<"div">) {
+  return <div className="mx-auto xl:px-20 px-8 max-w-[120rem]" {...props} />;
+}

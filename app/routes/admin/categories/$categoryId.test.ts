@@ -18,11 +18,11 @@ describe("GET /admin/categories/$categoryId", () => {
           {
             method: "GET",
           },
-          { user: DefaultFixtures.DEFAULT_USER }
+          { user: DefaultFixtures.DEFAULT_USER },
         ),
         params: { categoryId: category.id },
         context: {},
-      })
+      }),
     );
   });
 });
@@ -38,11 +38,11 @@ describe("POST /admin/categories/$categoryId", () => {
           {
             method: "POST",
           },
-          { user: DefaultFixtures.DEFAULT_USER }
+          { user: DefaultFixtures.DEFAULT_USER },
         ),
         params: { categoryId: category.id },
         context: {},
-      })
+      }),
     );
   });
 
@@ -63,7 +63,7 @@ describe("POST /admin/categories/$categoryId", () => {
           method: "POST",
           body: formData,
         },
-        { user }
+        { user },
       ),
       params: { categoryId: category.id },
       context: {},
@@ -91,7 +91,7 @@ describe("POST /admin/categories/$categoryId", () => {
           method: "POST",
           body: formData,
         },
-        { user }
+        { user },
       ),
       params: { categoryId: category.id },
       context: {},

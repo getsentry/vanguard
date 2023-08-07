@@ -1,6 +1,5 @@
-import styled from "styled-components";
+import type { ComponentPropsWithoutRef } from "react";
 
-export default styled.div`
-  font-size: 0.7em;
-  color: #999;
-`;
+export default function HelpText(props: ComponentPropsWithoutRef<"div">) {
+  return <div className="text-gray-800 text-xs" {...props} />;
+}

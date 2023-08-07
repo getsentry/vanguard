@@ -1,56 +1,31 @@
-import styled, { css } from "styled-components";
-import { breakpoint } from "~/lib/breakpoints";
+import type { ComponentPropsWithoutRef } from "react";
+import classNames from "~/lib/classNames";
 
-const Sidebar = (props) => (
-  <SidebarWrapper showSidebar={props.showSidebar}>
-    {props.children}
-  </SidebarWrapper>
-);
+export function Sidebar({
+  showSidebar = false,
+  children,
+  ...props
+}: ComponentPropsWithoutRef<"div"> & {
+  showSidebar?: boolean;
+}) {
+  return (
+    <>
+      <div
+        className={classNames(
+          "fixed xl:right-0 xl:left-auto xl:w-[30rem] top-0 bottom-0 px-20 py-24 z-0",
+          showSidebar
+            ? "inset-0 z-20 bg-layer100-light dark:bg-layer100-dark"
+            : "hidden xl:block",
+        )}
+        {...props}
+      >
+        {children}
+        <div className="block absolute top-0 left-0 bottom-0 skew-x-6 -right-40 bg-layer100-light dark:bg-layer100-dark -z-10" />
+      </div>
+    </>
+  );
+}
 
-const SidebarWrapper = styled.div`
-  position: fixed;
-  width: 40rem;
-  padding: 6rem 5rem;
-  padding-bottom: 6rem;
-  top: 0;
-  bottom: 0;
-  transition: all 0.2s ease-in-out;
-  z-index: 0;
-
-  &:after {
-    content: "";
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: -10rem;
-    background: ${(p) => p.theme.bgLayer100};
-    transform: skewx(4deg);
-    z-index: -1;
-  }
-
-  ${breakpoint("mobile", "desktop")`
-    right: -100%;
-    &:after {
-      box-shadow: 0 5px 40px rgba(0, 0, 0, .08), 0 5px 20px rgba(0, 0, 0, .05);
-    }
-
-    ${(p) =>
-      p.showSidebar &&
-      css`
-        right: 0;
-      `}
-  `}
-
-  ${breakpoint("desktop")`
-    // Always show sidebar on desktop
-    right: 0;
-  `}
-`;
-
-const SidebarSection = styled.div`
-  margin-bottom: 3.2rem;
-`;
-
-export { Sidebar, SidebarSection };
+export function SidebarSection(props: ComponentPropsWithoutRef<"div">) {
+  return <div className="mb-10" {...props} />;
+}

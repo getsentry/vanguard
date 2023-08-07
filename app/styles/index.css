@@ -1,0 +1,239 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  @apply min-h-screen;
+}
+
+.btn {
+  @apply bg-button-default-bg-light dark:bg-button-default-bg-dark text-button-default-text-light dark:text-button-default-text-dark font-mono inline-flex items-center whitespace-nowrap px-3 py-2 rounded;
+}
+
+.btn.btn-primary {
+  @apply bg-button-primary-bg-light dark:bg-button-primary-bg-dark text-button-primary-text-light dark:text-button-primary-text-dark;
+}
+
+.btn.btn-danger {
+  background: red;
+  color: white;
+}
+
+.btn.btn-sm {
+  @apply text-sm px-3 py-2;
+}
+.btn.btn-xs {
+  @apply text-xs px-2 py-1;
+}
+
+.btn-link {
+  @apply inline border-0 bg-inherit text-link-light dark:text-link-dark hover:underline;
+}
+
+.btn-link.btn-sm {
+  @apply text-sm px-3 py-2;
+}
+
+.btn-link.btn-xs {
+  @apply text-xs px-2 py-1;
+}
+
+.emoji-search {
+  line-height: normal;
+}
+
+.emoji-picker-react {
+  @apply border-border-light dark:border-border-dark;
+}
+
+.category-tag {
+  @apply font-mono inline-flex gap-3 justify-end items-center py-3 px-4 rounded-full mb-2 h-10 uppercase;
+}
+
+@media (min-width: 1280px) {
+  .post .category-tag,
+  .clustered-post-list .category-tag {
+    @apply absolute;
+    right: calc(100% + 2rem);
+    top: -0.2rem;
+    width: 100rem;
+  }
+  .post .category-tag span,
+  .clustered-post-list .category-tag span {
+    @apply hidden;
+  }
+}
+
+.clustered-post-list .collapsed-post-icon {
+  @apply hidden xl:block absolute -mt-2;
+
+  left: calc(-19px + -2rem);
+  top: 0.2rem;
+}
+
+.clustered-post {
+  @apply mb-8 relative last:mb-0;
+}
+
+.clustered-post:first-child .collapsed-post-icon {
+  @apply hidden;
+}
+
+.post {
+  @apply relative mb-12;
+}
+
+.btn-dropdown button:first-child {
+  @apply rounded-r-none;
+}
+
+.btn-dropdown button:last-child {
+  @apply rounded-l-none;
+}
+
+/* Forms */
+
+label {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 2.4rem;
+}
+
+label span {
+  margin-bottom: 1.2rem;
+  font-weight: 500;
+  font-family: "IBM Plex Mono", monospace;
+  position: relative;
+}
+
+label.field-inline {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.8em;
+  cursor: pointer;
+}
+
+label.field-required span:before {
+  content: "* ";
+  position: absolute;
+  left: -1.5ch;
+}
+
+label input,
+label textarea,
+label select {
+  @apply bg-bg-light dark:bg-bg-dark border text-primary-light dark:text-primary-dark border-border-light dark:border-border-dark;
+  @apply py-2 px-3 rounded block;
+  @apply focus:border-borderfocus-light focus:dark:border-borderfocus-dark;
+  @apply focus-visible:border-borderfocus-light focus-visible:dark:border-borderfocus-dark;
+}
+
+.editor textarea {
+  @apply w-full p-1 border bg-bg-light dark:bg-bg-dark border-border-light dark:border-border-dark rounded;
+  border-radius: 0 0 6px 6px;
+}
+
+.editor-toolbar {
+  @apply flex p-2 w-full rounded-t bg-bg-light dark:bg-bg-dark border border-b-0 border-border-light dark:border-border-dark;
+
+  min-width: max-content;
+}
+
+.editor-toolbar button,
+.editor-toolbar a {
+  @apply text-primary-light dark:text-primary-dark text-sm inline-flex items-center justify-center w-6 h-6;
+  @apply hover:bg-violet-300 hover:text-violet-800 focus:relative focus:shadow-sm focus:shadow-violet-500;
+}
+
+.editor-toolbar button {
+  @apply bg-bg-light dark:bg-bg-dark;
+}
+
+.editor-toolbar a {
+  @apply bg-transparent text-muted-light dark:text-muted-dark;
+}
+
+.editor-toolbar div[role="separator"] {
+  @apply w-[1px] bg-border-light dark:bg-border-dark mx-2;
+}
+
+.editor-tabs {
+  @apply flex flex-col;
+
+  div[role="tablist"] {
+    @apply flex flex-shrink-0 border-b border-border-light dark:border-border-dark;
+  }
+
+  button[role="tab"] {
+    @apply text-muted-light dark:text-muted-dark bg-bg-light dark:bg-bg-dark;
+
+    padding: 0 20px;
+    height: 45px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    line-height: 1;
+    user-select: none;
+
+    &:first-child {
+      border-top-left-radius: 6px;
+    }
+
+    &:last-child {
+      border-top-right-radius: 6px;
+    }
+
+    &:hover {
+      @apply text-primary-light dark:text-primary-dark;
+    }
+
+    &[data-state="active"] {
+      @apply text-tabs-active-light dark:text-tabs-active-dark;
+      box-shadow:
+        inset 0 -1px 0 0 currentColor,
+        0 1px 0 0 currentColor;
+    }
+
+    &:focus {
+      position: relative;
+    }
+  }
+
+  div[role="tabpanel"] {
+    @apply flex-grow bg-bg-light dark:bg-bg-dark;
+
+    padding-top: 20px;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    outline: none;
+
+    &:focus {
+      box-shadow: 0 0 0 2px black;
+    }
+  }
+}
+
+.table {
+  @apply w-full m-6 text-muted-light dark:text-muted-dark;
+
+  thead th {
+    @apply text-primary-light dark:text-primary-dark border-b-2 border-border-light dark:border-border-dark font-semibold;
+  }
+
+  th,
+  td {
+    @apply p-1 text-left;
+  }
+
+  th:first-child,
+  td:first-child {
+    @apply text-left pl-0;
+  }
+
+  th:last-child,
+  td:last-child {
+    @apply pr-0;
+  }
+}

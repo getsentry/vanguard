@@ -11,7 +11,7 @@ describe("POST /upload-image", () => {
         }),
         params: {},
         context: {},
-      })
+      }),
     );
   });
 });

@@ -14,7 +14,7 @@ export const expectRequiresAdmin = async (cb, existingUser = true) => {
   await expect(cb).rejects.toThrowErrorMatching((err) => {
     expect(err.status).toBe(302);
     expect(err.headers?.get("location").split("?")[0]).toBe(
-      existingUser ? "/403" : "/login"
+      existingUser ? "/403" : "/login",
     );
     return true;
   });

@@ -1,51 +1,29 @@
-import styled from "styled-components";
+import type { ComponentPropsWithoutRef } from "react";
 import IconSearch from "~/icons/IconSearch";
+import classNames from "~/lib/classNames";
 
-const Input = ({ variant, ...rest }) => (
-  <InputWrapper variant={variant}>
-    {variant === "search" && (
-      <InputIcon>
-        <IconSearch height={18} />
-      </InputIcon>
-    )}
-    <StyledInput {...rest} />
-  </InputWrapper>
-);
-
-const InputWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  background: ${(p) => p.theme.bgColor};
-  border: 1px solid ${(p) => p.theme.borderColor};
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  font-family: "Inter", sans-serif;
-
-  &:focus-within {
-    border: 1px solid ${(p) => p.theme.borderFocusColor};
-    outline - color: ${(p) => p.theme.borderFocusColor};
-  }
-
-  ${(p) => p.variant === "search" && `border-radius: 20rem;`}
-`;
-
-const StyledInput = styled.input`
-  width: 100%;
-  background: transparent;
-  &::placeholder {
-    color: ${(p) => p.theme.textMuted};
-  }
-  &:focus,
-  &:focus-visible,
-  &:active {
-    border: 0;
-    outline: 0;
-  }
-`;
-
-const InputIcon = styled.div`
-  color: ${(p) => p.theme.textMuted};
-`;
-
-export default Input;
+export default function Input({
+  variant,
+  ...props
+}: ComponentPropsWithoutRef<"input"> & {
+  variant?: "search";
+}) {
+  return (
+    <div
+      className={classNames(
+        "flex gap-x-2 focus-within:border-borderfocus-light dark:focus-within:border-borderfocus-dark outline:border-borderfocus-light dark:outline:border-borderfocus-dark items-center bg-bg-light dark:bg-bg-dark border border-border-light dark:border-border-dark py-2 px-3",
+        variant === "search" ? "rounded-full" : "rounded-md",
+      )}
+    >
+      {variant === "search" && (
+        <div className="text-muted-light dark:text-muted-dark">
+          <IconSearch height={20} />
+        </div>
+      )}
+      <input
+        className="flex-1 w-full bg-transparent placeholder:text-muted-light dark:placeholder:text-muted-dark outline-0 border-0 focus:ring-0"
+        {...props}
+      />
+    </div>
+  );
+}

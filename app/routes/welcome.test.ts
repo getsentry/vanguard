@@ -11,7 +11,7 @@ describe("GET /welcome", () => {
         }),
         params: {},
         context: {},
-      })
+      }),
     );
   });
 });
@@ -25,7 +25,7 @@ describe("POST /welcome", () => {
         }),
         params: {},
         context: {},
-      })
+      }),
     );
   });
 });

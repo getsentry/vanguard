@@ -24,11 +24,11 @@ describe("DELETE /api/posts/$postId/subscription", () => {
           `http://localhost/api/posts/${post.id}/comments/${comment.id}`,
           {
             method: "DELETE",
-          }
+          },
         ),
         params: { postId: post.id, commentId: comment.id },
         context: {},
-      })
+      }),
     );
   });
 });

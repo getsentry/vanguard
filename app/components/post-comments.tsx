@@ -1,6 +1,5 @@
 import { Link } from "@remix-run/react";
 import { useEffect, useState } from "react";
-import styled from "styled-components";
 import { ResetIcon } from "@radix-ui/react-icons";
 
 import Block from "~/components/block";
@@ -14,81 +13,6 @@ import type { PostQueryType } from "~/models/post.server";
 import IconCollapsedPost from "~/icons/IconCollapsedPost";
 import type { PostComment } from "@prisma/client";
 import TimeSince from "./timeSince";
-
-const Byline = styled.div`
-  display: flex;
-  flex: 1;
-  flex-direction: row;
-  justify-items: space-between;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.8rem;
-  width: 100%;
-`;
-
-const Date = styled.div`
-  color: ${(p) => p.theme.textColorSecondary};
-`;
-
-const Name = styled.div``;
-
-const Controls = styled.div`
-  flex: 1;
-  text-align: right;
-`;
-
-const Content = styled.div`
-  overflow: auto;
-`;
-
-const CommentWrapper = styled.div``;
-
-const StyledIconCollapsedPost = styled(IconCollapsedPost)`
-  color: ${(p) => p.theme.borderColor};
-`;
-
-const CommentContainer = styled.div`
-  display: flex;
-  gap: 15px;
-  flex-direction: row;
-`;
-
-const CommentBody = styled.div`
-  flex: 1;
-  border-radius: 1rem;
-  padding: 1.6rem 1.6rem 0;
-  margin-bottom: 1.6rem;
-  background: ${(p) => p.theme.bgLayer100};
-
-  p,
-  ul,
-  ol,
-  table,
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    margin-bottom: 1.6rem;
-  }
-`;
-
-const CommentsHeader = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  margin-bottom: 1.6rem;
-  gap: 1.6rem;
-
-  h3 {
-    margin: 0;
-  }
-`;
-
-const CommentsFormBlock = styled.div`
-  marign-bottom: 1.6rem;
-`;
 
 const deleteComment = async (
   postId: string,
@@ -166,21 +90,21 @@ const Comment = ({
 }) => {
   const canDelete = user.admin || comment.authorId === user.id;
   return (
-    <CommentWrapper id={`c_${comment.id}`}>
-      <CommentContainer>
-        {asChild && <StyledIconCollapsedPost />}
-        <CommentBody>
-          <Byline>
+    <div id={`c_${comment.id}`}>
+      <div className="flex gap-4">
+        {asChild && (
+          <IconCollapsedPost className="text-border-light dark:text-border-dark" />
+        )}
+        <div className="flex-1 rounded pt-4 px-4 mb-4 bg-layer100-light dark:bg-layer100-dark">
+          <div className="flex flex-1 justify-between items-center gap-1 mb-2 w-full">
             <Avatar user={comment.author} size="24px" />
-            <Name>
-              <Link to={`/u/${comment.author.email}`}>
-                {comment.author.name || comment.author.email}
-              </Link>
-            </Name>
+            <Link to={`/u/${comment.author.email}`}>
+              {comment.author.name || comment.author.email}
+            </Link>
             <Middot />
-            <Date>
+            <div className="text-secondary-light dark:text-secondary-dark">
               <TimeSince date={comment.createdAt} />
-            </Date>
+            </div>
             {canDelete && (
               <>
                 <Middot />
@@ -189,7 +113,7 @@ const Comment = ({
                 </Button>
               </>
             )}
-            <Controls>
+            <div className="flex-1 text-right">
               {!comment.parentId && (
                 <Button
                   size="xs"
@@ -199,13 +123,13 @@ const Comment = ({
                   <ResetIcon />
                 </Button>
               )}
-            </Controls>
-          </Byline>
-          <Content>
+            </div>
+          </div>
+          <div className="overflow-auto prose">
             <Markdown content={comment.content} />
-          </Content>
-        </CommentBody>
-      </CommentContainer>
+          </div>
+        </div>
+      </div>
       {childList.map((childComment) => {
         return (
           <Comment
@@ -218,11 +142,11 @@ const Comment = ({
           />
         );
       })}
-    </CommentWrapper>
+    </div>
   );
 };
 
-export default ({
+export default function PostComments({
   post,
   comments,
   user,
@@ -234,7 +158,7 @@ export default ({
   user: User;
   allowComments: boolean;
   hasSubscription: boolean;
-}) => {
+}) {
   const [commentList, setCommentList] = useState(comments);
 
   useEffect(() => {
@@ -269,11 +193,11 @@ export default ({
   // small and im lazy
   return (
     <Block>
-      <CommentsHeader>
-        <h3>Comments</h3>
+      <div className="flex items-center mb-6 gap-6">
+        <h3 className="text-2xl font-bold">Comments</h3>
         <SubscribeButton postId={post.id} initialValue={hasSubscription} />
-      </CommentsHeader>
-      <CommentsFormBlock>
+      </div>
+      <div className="mb-6">
         {allowComments ? (
           <CommentForm
             post={post}
@@ -284,7 +208,7 @@ export default ({
         ) : (
           <p>Comments are disabled for this post.</p>
         )}
-      </CommentsFormBlock>
+      </div>
       <div>
         {sortedCommentList.map((comment) => {
           return (
@@ -301,4 +225,4 @@ export default ({
       </div>
     </Block>
   );
-};
+}

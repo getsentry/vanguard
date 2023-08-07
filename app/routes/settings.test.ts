@@ -11,7 +11,7 @@ describe("GET /settings", () => {
         }),
         params: {},
         context: {},
-      })
+      }),
     );
   });
 });
@@ -25,7 +25,7 @@ describe("POST /settings", () => {
         }),
         params: {},
         context: {},
-      })
+      }),
     );
   });
 });

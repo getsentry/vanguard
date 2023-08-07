@@ -11,7 +11,7 @@ describe("GET /new-post", () => {
         }),
         params: {},
         context: {},
-      })
+      }),
     );
   });
 });
@@ -25,7 +25,7 @@ describe("POST /new-post", () => {
         }),
         params: {},
         context: {},
-      })
+      }),
     );
   });
 });

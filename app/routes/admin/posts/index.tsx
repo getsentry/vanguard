@@ -6,7 +6,6 @@ import { requireAdmin } from "~/services/auth.server";
 import { paginate } from "~/lib/paginator";
 import type { PaginatedResult } from "~/lib/paginator";
 import Paginated from "~/components/paginated";
-import Table from "~/components/table";
 import { getPostList } from "~/models/post.server";
 import BooleanIcon from "~/components/boolean-icon";
 import PostLink from "~/components/post-link";
@@ -26,7 +25,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const postListPaginated = await paginate(
     getPostList,
     { userId: user.id },
-    cursor
+    cursor,
   );
   return json<LoaderData>({ postListPaginated });
 };
@@ -36,14 +35,12 @@ export default function Index() {
 
   return (
     <div>
-      <PageHeader>
-        <h1>Posts</h1>
-      </PageHeader>
+      <PageHeader title="Posts" />
       <Paginated
         data={postListPaginated}
         render={(result) => {
           return (
-            <Table className="table-auto">
+            <table className="table table-auto">
               <thead>
                 <tr>
                   <th>Title</th>
@@ -72,7 +69,7 @@ export default function Index() {
                   </tr>
                 ))}
               </tbody>
-            </Table>
+            </table>
           );
         }}
       />

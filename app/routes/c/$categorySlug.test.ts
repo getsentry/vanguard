@@ -13,7 +13,7 @@ describe("GET /c/$categorySlug", () => {
         }),
         params: { categorySlug: category.slug },
         context: {},
-      })
+      }),
     );
   });
 });

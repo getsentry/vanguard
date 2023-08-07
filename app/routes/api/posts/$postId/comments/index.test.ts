@@ -12,11 +12,11 @@ describe("POST /api/posts/$postId/comments", () => {
           `http://localhost/api/posts/${post.id}/comments`,
           {
             method: "POST",
-          }
+          },
         ),
         params: { postId: post.id },
         context: {},
-      })
+      }),
     );
   });
 });

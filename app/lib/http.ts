@@ -2,7 +2,7 @@ import type { Request } from "@remix-run/node";
 
 export const buildUrl = (
   path: string = "/",
-  request: Request | null = null
+  request: Request | null = null,
 ): string => {
   if (!request) {
     if (process?.env?.BASE_URL) {

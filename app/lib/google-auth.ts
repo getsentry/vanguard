@@ -108,7 +108,7 @@ export class GoogleStrategy<User> extends OAuth2Strategy<
     verify: StrategyVerifyCallback<
       User,
       OAuth2StrategyVerifyParams<GoogleProfile, GoogleExtraParams>
-    >
+    >,
   ) {
     super(
       {
@@ -118,7 +118,7 @@ export class GoogleStrategy<User> extends OAuth2Strategy<
         authorizationURL: "https://accounts.google.com/o/oauth2/v2/auth",
         tokenURL: "https://oauth2.googleapis.com/token",
       },
-      verify
+      verify,
     );
     this.scope = scope ?? "openid profile email";
     this.accessType = accessType ?? "online";

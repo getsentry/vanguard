@@ -1,15 +1,16 @@
 import { Link } from "@remix-run/react";
-import React from "react";
+import type { ComponentPropsWithRef } from "react";
 import type { Post } from "~/models/post.server";
 
 export const getPostLink = (post: Post): string => {
   return `/p/${post.id}`;
 };
 
-const PostLink: React.FC<{
+export default function PostLink({
+  post,
+  ...props
+}: Omit<ComponentPropsWithRef<typeof Link>, "to"> & {
   post: Post;
-}> = function PostLink({ post, children }) {
-  return <Link to={getPostLink(post)}>{children}</Link>;
-};
-
-export default PostLink;
+}) {
+  return <Link to={getPostLink(post)} className="hover:underline" {...props} />;
+}

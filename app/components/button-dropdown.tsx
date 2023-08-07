@@ -1,89 +1,34 @@
-import type { MouseEventHandler } from "react";
-import React, { useEffect, useRef, useState } from "react";
-import styled from "styled-components";
-import type { ButtonProps } from "./button";
-import Button, { getButtonClassName } from "./button";
+import { useEffect, useRef, useState } from "react";
+import type { Props as ButtonProps } from "./button";
+import Button from "./button";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
+import classNames from "~/lib/classNames";
+import type { ComponentPropsWithoutRef, MouseEventHandler } from "react";
 
-const DropdownContent = styled.div`
-  white-space: nowrap;
-  color: ${(p) => p.theme.button.defaultTextColor};
-  background-color: ${(p) => p.theme.button.defaultBackgroundColor};
-  box-shadow: 0px 10px 38px -10px rgba(22, 23, 24, 0.35),
-    0px 10px 20px -15px rgba(22, 23, 24, 0.2);
-  border-radius: 4px;
-  position: absolute;
-  bottom: 0;
-  flex-direction: column;
+export function ButtonDropdownItem(props: ComponentPropsWithoutRef<"button">) {
+  return (
+    <button
+      className="flex flex-col text-left px-4 py-2 cursor-pointer relative rounded-md text-button-default-text-light dark:text-button-default-text-dark bg-button-default-bg-light dark:bg-button-default-bg-dark first:rounded-b-none last:rounded-t-none hover:text-button-primary-text-light dark:hover:text-button-primary-text-dark hover:bg-button-primary-bg-light dark:hover:bg-button-primary-bg-dark"
+      {...props}
+    />
+  );
+}
 
-  display: ${(props) => (props.open ? "flex" : "none")};
-`;
-
-const Dropdown = styled.div`
-  position: relative;
-`;
-
-const ButtonCluster = styled.div`
-  display: flex;
-
-  button:first-child {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-  }
-  button:last-child {
-    border-left: 1px solid #ccc;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-  }
-`;
-
-const DropdownTrigger = styled.button``;
-
-export const ButtonDropdownItem = styled.button`
-  all: unset;
-  display: flex;
-  flex-direction: column;
-  text-align: left;
-  padding: 0.5em 1em;
-  position: relative;
-  cursor: pointer;
-  border-radius: 4px;
-
-  color: ${(p) => p.theme.button.defaultTextColor};
-  background-color: ${(p) => p.theme.button.defaultBackgroundColor};
-
-  &:first-child {
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-  }
-
-  &:last-child {
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-  }
-
-  &:focus,
-  &:hover {
-    color: ${(p) => p.theme.button.primaryTextColor};
-    background-color: ${(p) => p.theme.button.primaryBackgroundColor};
-  }
-`;
-
-const ButtonDropdown: React.FC<ButtonProps> = function ButtonDropdown({
+export default function ButtonDropdown({
   children,
-  className,
   label,
-  items,
   ...props
+}: ButtonProps<"button"> & {
+  label: string;
 }) {
   const [isOpen, setOpen] = useState<boolean>(false);
 
-  const toggleDropdown = (e: MouseEventHandler<HTMLElement>) => {
+  const toggleDropdown = (e: MouseEventHandler<HTMLButtonElement>) => {
     e.preventDefault && e.preventDefault();
     setOpen(!isOpen);
   };
 
-  const dropdownRef = useRef<HTMLElement>();
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClick = (e: Event) => {
@@ -100,22 +45,22 @@ const ButtonDropdown: React.FC<ButtonProps> = function ButtonDropdown({
   });
 
   return (
-    <Dropdown ref={dropdownRef} open={isOpen}>
-      <ButtonCluster>
-        <Button className={className} {...props}>
-          {label}
-        </Button>
-        <DropdownTrigger
-          className={getButtonClassName({ className, ...props })}
-          onClick={toggleDropdown}
-        >
+    <div className="relative" ref={dropdownRef}>
+      <div className="flex btn-dropdown">
+        <Button {...props}>{label}</Button>
+        <Button {...props} onClick={toggleDropdown}>
           <ChevronDownIcon width="16" height="16" />
-        </DropdownTrigger>
-      </ButtonCluster>
+        </Button>
+      </div>
 
-      <DropdownContent open={isOpen}>{children}</DropdownContent>
-    </Dropdown>
+      <div
+        className={classNames(
+          "whitespace-nowrap text-primary-light dark:text-primary-dark bg-bg-light dark:bg-bg-dark shadow-lg rounded absolute bottom-0 flex-col",
+          isOpen ? "flex" : "hidden",
+        )}
+      >
+        {children}
+      </div>
+    </div>
   );
-};
-
-export default ButtonDropdown;
+}

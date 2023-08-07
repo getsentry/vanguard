@@ -39,17 +39,17 @@ export const loader: LoaderFunction = async ({ request, params }) => {
                 marked.parse(post.content as string, {
                   breaks: true,
                   baseUrl: process.env.BASE_URL,
-                })
+                }),
               )}]]></content:encoded>
               <author>${escapeHtml(
-                post.author.name || post.author.email
+                post.author.name || post.author.email,
               )}</author>
               <pubDate>${post.publishedAt.toUTCString()}</pubDate>
               <link>${buildUrl(getPostLink(post), request)}</link>
 
               <vg:avatar>{${escapeHtml(post.author.picture || "")}}</vg:avatar>
             </item>
-          `.trim()
+          `.trim(),
           )
           .join("\n")}
       </channel>

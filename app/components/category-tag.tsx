@@ -1,9 +1,9 @@
 import { Link } from "@remix-run/react";
-import styled, { css } from "styled-components";
 
 import type { Category } from "~/models/category.server";
 import IconShip from "~/icons/IconShip";
 import IconEye from "~/icons/IconEye";
+import type { ComponentPropsWithoutRef } from "react";
 
 const CategoryIcon = ({ category, ...props }: { category: Category }) => {
   // TODO: move into category config
@@ -17,14 +17,22 @@ const CategoryIcon = ({ category, ...props }: { category: Category }) => {
   }
 };
 
-export const CategoryTag = ({ category }: { category: Category }) => {
+export default function CategoryTag({
+  category,
+  ...props
+}: Omit<ComponentPropsWithoutRef<typeof Link>, "to"> & { category: Category }) {
   return (
-    <CategoryTagWrapper to={`/c/${category.slug}`} colorHex={category.colorHex}>
+    <Link
+      className="category-tag"
+      {...props}
+      to={`/c/${category.slug}`}
+      style={categoryTagStyles(category.colorHex)}
+    >
       <CategoryIcon category={category} height={20} />
       <span>{category.slug}</span>
-    </CategoryTagWrapper>
+    </Link>
   );
-};
+}
 
 function hexToRgb(colorHex: string) {
   // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
@@ -48,37 +56,20 @@ function contrastColor(colorHex: string) {
   if (!rgb) return "black";
 
   const brightness = Math.round(
-    (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000
+    (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000,
   );
   return brightness > 125 ? "black" : "#eeeeee";
 }
 
-export const categoryTagStyles = ({ colorHex }: { colorHex?: string }) => {
-  return css`
-    background: ${colorHex || "#eee"};
-    color: ${contrastColor(colorHex || "#eeeeee")};
-    border-color: ${colorHex || "#eee"};
-  `;
+export const categoryTagStyles = (colorHex?: string | null) => {
+  if (!colorHex) colorHex = "#eeeeee";
+  return {
+    background: colorHex,
+    color: contrastColor(colorHex),
+    borderColor: colorHex,
+  };
 };
 
-export const CategoryTagWrapper = styled(Link)`
-  font-family: "IBM Flex Mono", monospace;
-  display: inline-flex;
-  gap: 0.8rem;
-  justify-content: flex-end;
-  align-items: center;
-  padding: 0.8rem 1.6rem;
-  border-radius: 3rem;
-  margin-bottom: 1.6rem;
-  height: 4rem;
-  text-transform: uppercase;
-
-  ${(props) => categoryTagStyles({ colorHex: props.colorHex })};
-`;
-
-export const CategoryTags = styled.div`
-  display: flex;
-  gap: 0.8rem;
-  flex-wrap: wrap;
-  margin-bottom: 2.4rem;
-`;
+export function CategoryTags(props: ComponentPropsWithoutRef<"div">) {
+  return <div className="flex gap-3 flex-wrap mb-12" {...props} />;
+}

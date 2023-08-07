@@ -1,180 +1,77 @@
-import styled from "styled-components";
-import { breakpoint } from "~/lib/breakpoints";
 import { Link } from "@remix-run/react";
 
 import Avatar from "./avatar";
 import PostLink from "./post-link";
-import { CategoryTagWrapper, CategoryTag } from "./category-tag";
+import CategoryTag from "./category-tag";
 import Middot from "./middot";
 import IconCollapsedPost from "~/icons/IconCollapsedPost";
 import { ChatBubbleIcon, HeartIcon } from "@radix-ui/react-icons";
 import TimeSince from "./timeSince";
-
-const Byline = styled.div`
-  display: flex;
-  flex: 1;
-  flex-direction: row;
-  justify-items: space-between;
-  align-items: center;
-  gap: 5px;
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 0.9em;
-`;
-
-const Name = styled.div`
-  font-size: 1em;
-  font-weight: 500;
-`;
-
-const Meta = styled.div`
-  color: ${(p) => p.theme.textColorSecondary};
-  flex-direction: row;
-  display: flex;
-  flex-grow: 1;
-`;
-
-// make icon eligible for interpolation
-const StyledIconCollapsedPost = styled(IconCollapsedPost)``;
-
-const Date = styled.div``;
-
-const Reactions = styled.div``;
-
-const ReactionCount = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 5px;
-`;
-
-const CommentCount = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 5px;
-`;
-
-const ClusterWrapper = styled.article`
-  position: relative;
-  margin-bottom: 3.2rem;
-
-  ${breakpoint("desktop")`
-    ${CategoryTagWrapper} {
-      position: absolute;
-      right: calc(100% + 4rem);
-      top: 0.2rem;
-      width: 100rem;
-
-      span {
-        display: none;
-      }
-    }
-  `}
-
-    margin-top: 4.8rem;
-
-  > ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-
-    > li {
-      margin-bottom: 2.4rem;
-      padding: 0;
-      position: relative;
-
-      &:first-child {
-        ${StyledIconCollapsedPost} {
-          display: none;
-        }
-      }
-
-      &:last-child {
-        margin-bottom: 0;
-      }
-
-      ${StyledIconCollapsedPost} {
-        /* Hide on mobile */
-        display: none;
-
-        ${breakpoint("desktop")`
-          color: ${(p) => p.theme.borderColor};
-          display: block;
-          position: absolute;
-
-          /* Icon size + gutter size */
-          left: calc(-19px + -4rem);
-          top: -.4rem;
-        `}
-    }
-  }
-
-  h3 {
-    font-size: 2.6rem;
-    font-family: "Gazpacho-Heavy", serif;
-    margin-bottom: .4rem;
-    overflow-wrap: break-word;
-    a {
-      color: inherit;
-    }
-  }
-`;
+import type { Category, Post } from "@prisma/client";
 
 export default function ClusteredPostList({
   category,
   posts,
   reactions,
   commentCounts,
+}: {
+  category: Category;
+  posts: Post[];
+  reactions: any;
+  commentCounts: any;
 }) {
   return (
-    <ClusterWrapper category={category}>
+    <div className="relative mb-12 mt-16 clustered-post-list">
       <CategoryTag category={category} />
       <ul>
         {posts.map((post) => {
           const postReactions = reactions[post.id];
           const totalReactions = postReactions.reduce(
             (value, r) => value + r.total,
-            0
+            0,
           );
           const totalComments = commentCounts[post.id];
           return (
-            <li key={post.id}>
-              <StyledIconCollapsedPost />
-              <h3>
+            <li key={post.id} className="clustered-post">
+              <IconCollapsedPost className="collapsed-post-icon" />
+              <h3 className="text-4xl font-serif mb-2 break-words">
                 <PostLink post={post}>{post.title}</PostLink>
               </h3>
-              <Byline>
+              <div className="flex flex-1 justify-between items-center gap-2 font-mono text-sm">
                 <Avatar size="24px" user={post.author} />
 
-                <Name>
-                  <Link to={`/u/${post.author.email}`}>
+                <div className="font-medium text-base">
+                  <Link
+                    to={`/u/${post.author.email}`}
+                    className="text-link-light dark:text-link-dark hover:underline"
+                  >
                     {post.author.name || post.author.email}
                   </Link>
-                </Name>
-                <Meta>
+                </div>
+                <div className="text-gray-500 dark:text-gray-300 flex flex-grow gap-x-2">
                   <Middot />
-                  <Date>
+                  <div>
                     <TimeSince date={post.publishedAt || post.createdAt} />
-                  </Date>
+                  </div>
                   <Middot />
-                  <ReactionCount>
+                  <div className="flex items-center gap-2">
                     <HeartIcon /> {totalReactions.toLocaleString()}
-                  </ReactionCount>
+                  </div>
                   <Middot />
-                  <CommentCount>
+                  <div className="flex items-center gap-2">
                     <ChatBubbleIcon /> {totalComments.toLocaleString()}
-                  </CommentCount>
-                </Meta>
-                <Reactions>
+                  </div>
+                </div>
+                <div>
                   {postReactions.map((r) => (
                     <span key={r.emoji}>{r.emoji}</span>
                   ))}
-                </Reactions>
-              </Byline>
+                </div>
+              </div>
             </li>
           );
         })}
       </ul>
-    </ClusterWrapper>
+    </div>
   );
 }

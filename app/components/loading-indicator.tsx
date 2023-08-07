@@ -1,11 +1,10 @@
 import { useTransition } from "@remix-run/react";
-import type { MutableRefObject, ReactElement } from "react";
+import type { ReactElement } from "react";
 import { useEffect, useRef } from "react";
-import styled from "styled-components";
 
 // https://edmund.dev/articles/setting-up-a-global-loading-indicator-in-remix
-function useProgress(): MutableRefObject<HTMLElement> {
-  const el = useRef<HTMLElement>();
+function useProgress() {
+  const el = useRef<HTMLDivElement>(null);
   const timeout = useRef<NodeJS.Timeout>();
   const { location } = useTransition();
 
@@ -53,26 +52,15 @@ function useProgress(): MutableRefObject<HTMLElement> {
   return el;
 }
 
-const Container = styled.div`
-  z-index: 2147483647;
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  display: flex;
-`;
-
-const Indicator = styled.div`
-  background: ${(p) => p.theme.loadingIndicator};
-  height: 1rem;
-`;
-
 export default function LoadingIndicator(): ReactElement {
   const progress = useProgress();
 
   return (
-    <Container>
-      <Indicator ref={progress} />
-    </Container>
+    <div className="fixed left-0 right-0 top-0 flex z-[2147483647]">
+      <div
+        className="h-4 bg-loading-light dark:bg-loading-dark"
+        ref={progress}
+      />
+    </div>
   );
 }

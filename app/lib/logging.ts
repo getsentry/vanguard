@@ -14,7 +14,7 @@ type CaptureContext = {
 
 export function error(
   value: string | Error,
-  captureContext?: CaptureContext
+  captureContext?: CaptureContext,
 ): void {
   Sentry.withScope((scope) => {
     if (captureContext?.context)

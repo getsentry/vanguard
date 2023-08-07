@@ -49,9 +49,9 @@ authenticator.use(
         email: profile.emails[0].value,
         externalId: profile.id,
       });
-    }
+    },
   ),
-  "google"
+  "google",
 );
 
 export async function getUserId(request: Request): Promise<string | undefined> {
@@ -73,7 +73,7 @@ export async function getUser(request: Request) {
 
 export async function requireUserId(
   request: Request,
-  redirectTo: string = new URL(request.url).pathname
+  redirectTo: string = new URL(request.url).pathname,
 ) {
   const searchParams = new URLSearchParams([["redirectTo", redirectTo]]);
   const user = await authenticator.isAuthenticated(request, {
@@ -84,7 +84,7 @@ export async function requireUserId(
 
 export async function requireUser(
   request: Request,
-  redirectTo: string = new URL(request.url).pathname
+  redirectTo: string = new URL(request.url).pathname,
 ) {
   const user = await getUser(request);
   if (!user) {
@@ -97,7 +97,7 @@ export async function requireUser(
 
 export async function requireAdmin(
   request: Request,
-  redirectTo: string = new URL(request.url).pathname
+  redirectTo: string = new URL(request.url).pathname,
 ) {
   const user = await getUser(request);
   if (!user) {

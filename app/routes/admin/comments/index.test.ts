@@ -11,11 +11,11 @@ describe("GET /admin/comments/", () => {
           {
             method: "GET",
           },
-          { user: DefaultFixtures.DEFAULT_USER }
+          { user: DefaultFixtures.DEFAULT_USER },
         ),
         params: {},
         context: {},
-      })
+      }),
     );
   });
 });

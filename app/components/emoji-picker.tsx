@@ -1,25 +1,13 @@
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
 
-const Picker = styled.div`
-  .emoji-search {
-    font-size:;
-    line-height: normal;
-  }
-
-  .emoji-picker-react {
-    border-color: ${(p) => p.theme.borderColor};
-  }
-`;
-
-export default ({
+export default function EmojiPicker({
   onEmojiSelect,
   style,
   ...props
 }: {
   onEmojiSelect: (event: Event, emoji: string) => void;
   style?: any;
-}) => {
+}) {
   const [Component, setComponent] = useState<React.ReactNode | null>(null);
 
   useEffect(() => {
@@ -35,12 +23,10 @@ export default ({
   if (!Component) return null;
 
   return (
-    <Picker>
-      <Component.default
-        {...props}
-        onEmojiClick={(e, obj) => onEmojiSelect(e, obj.emoji)}
-        pickerStyle={style}
-      />
-    </Picker>
+    <Component.default
+      {...props}
+      onEmojiClick={(e, obj) => onEmojiSelect(e, obj.emoji)}
+      pickerStyle={style}
+    />
   );
-};
+}

@@ -1,6 +1,7 @@
-import ButtonLink from "~/components/button-link";
 import type { PaginatedResult } from "~/lib/paginator";
 import ButtonGroup from "./button-group";
+import Button from "./button";
+import { Link } from "@remix-run/react";
 
 interface PaginatedProps<T> {
   data: PaginatedResult<T>;
@@ -17,18 +18,20 @@ const Paginated: React.FC<PaginatedProps<any>> = function Paginated({
 }) {
   const pagination = (
     <ButtonGroup align="center">
-      <ButtonLink
+      <Button
+        as={Link}
         to={prevCursor ? `?cursor=${prevCursor}` : undefined}
         disabled={!prevCursor}
       >
         Prev Page
-      </ButtonLink>
-      <ButtonLink
+      </Button>
+      <Button
+        as={Link}
         to={nextCursor ? `?cursor=${nextCursor}` : undefined}
         disabled={!nextCursor}
       >
         Next Page
-      </ButtonLink>
+      </Button>
     </ButtonGroup>
   );
 

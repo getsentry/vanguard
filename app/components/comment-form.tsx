@@ -1,12 +1,11 @@
 import { Form } from "@remix-run/react";
-import type { PostComment } from "@prisma/client";
+import type { Post, PostComment } from "@prisma/client";
 
 import Editor from "./editor";
 import useLocalStorage from "~/lib/useLocalStorage";
 import Button from "./button";
 import HelpText from "./help-text";
 import { useState } from "react";
-import styled from "styled-components";
 import { Cross1Icon } from "@radix-ui/react-icons";
 
 export type CommentFormErrors = {
@@ -16,21 +15,6 @@ export type CommentFormErrors = {
 export type CommentFormInitialData = {
   comment?: string;
 };
-
-const ParentCommentContainer = styled.div`
-  background: ${(p) => p.theme.bgLayer100};
-  display: flex;
-  padding: 0.8rem 1.6rem;
-  font-size: 0.8em;
-  border-radius: 5px;
-  font-weight: bold;
-
-  p {
-    flex-grow: 1;
-    margin: 0;
-    font-size: inherit;
-  }
-`;
 
 const ParentComment = ({
   comment,
@@ -42,9 +26,9 @@ const ParentComment = ({
   if (!comment) return null;
 
   return (
-    <ParentCommentContainer>
+    <div className="bg-layer100-light dark:bg-layer100-dark flex px-6 py-3 text-sm rounded-md bold">
       <input type="hidden" name="parentId" value={comment.id} />
-      <p>
+      <p className="flex-grow">
         Replying to{" "}
         <a href={`#c_${comment.id}`}>
           {comment.author.name || comment.author.email}
@@ -53,7 +37,7 @@ const ParentComment = ({
       <Button size="xs" baseStyle="link" onClick={() => onClear()}>
         <Cross1Icon />
       </Button>
-    </ParentCommentContainer>
+    </div>
   );
 };
 

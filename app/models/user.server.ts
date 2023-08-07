@@ -30,7 +30,7 @@ export async function getUserList(
   } = {
     offset: 0,
     limit: 50,
-  }
+  },
 ) {
   const where: { [key: string]: any } = {};
   if (query !== undefined) {
