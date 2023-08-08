@@ -8,12 +8,11 @@ export default function PageHeader({
   title?: string;
 }) {
   return (
-    <div className="mb-12 text-right" {...props}>
+    <div className="mb-12 flex items-right flex-nowrap" {...props}>
       {!!title && (
-        <h1 className="float-left text-4xl font-serif font-medium">{title}</h1>
+        <h1 className="text-4xl flex-1 font-serif font-medium">{title}</h1>
       )}
       {children}
-      <div className="table clear-both" />
     </div>
   );
 }

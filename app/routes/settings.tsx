@@ -102,7 +102,7 @@ export default function NewPostPage() {
       className="p-4"
     >
       <PageHeader title="Edit Profile">
-        <Button as={Link} to={`/u/${user.email}`}>
+        <Button as={Link} to={`/u/${user.email}`} size="sm">
           View Your Profile
         </Button>
       </PageHeader>
