@@ -6,15 +6,11 @@ describe("GET /admin/", () => {
   it("requires admin", async () => {
     await expectRequiresAdmin(
       loader({
-        request: await buildRequest(
-          `http://localhost/admin/`,
-          {
-            method: "GET",
-          },
-          { user: DefaultFixtures.DEFAULT_USER },
-        ),
+        request: await buildRequest(`http://localhost/admin/`, {
+          method: "GET",
+        }),
         params: {},
-        context: {},
+        context: { user: DefaultFixtures.DEFAULT_USER },
       }),
     );
   });

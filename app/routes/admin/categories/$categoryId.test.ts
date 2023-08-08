@@ -18,10 +18,9 @@ describe("GET /admin/categories/$categoryId", () => {
           {
             method: "GET",
           },
-          { user: DefaultFixtures.DEFAULT_USER },
         ),
         params: { categoryId: category.id },
-        context: {},
+        context: { user: DefaultFixtures.DEFAULT_USER },
       }),
     );
   });
@@ -38,10 +37,9 @@ describe("POST /admin/categories/$categoryId", () => {
           {
             method: "POST",
           },
-          { user: DefaultFixtures.DEFAULT_USER },
         ),
         params: { categoryId: category.id },
-        context: {},
+        context: { user: DefaultFixtures.DEFAULT_USER },
       }),
     );
   });
@@ -63,10 +61,9 @@ describe("POST /admin/categories/$categoryId", () => {
           method: "POST",
           body: formData,
         },
-        { user },
       ),
       params: { categoryId: category.id },
-      context: {},
+      context: { user },
     });
 
     expect(response.status).toBe(400);
@@ -91,10 +88,9 @@ describe("POST /admin/categories/$categoryId", () => {
           method: "POST",
           body: formData,
         },
-        { user },
       ),
       params: { categoryId: category.id },
-      context: {},
+      context: { user },
     });
 
     expect(response.status).toBe(302);

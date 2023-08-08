@@ -10,15 +10,11 @@ describe("GET /admin/feeds/$feedId", () => {
 
     await expectRequiresAdmin(
       loader({
-        request: await buildRequest(
-          `http://localhost/admin/feeds/${feed.id}`,
-          {
-            method: "GET",
-          },
-          { user: DefaultFixtures.DEFAULT_USER },
-        ),
+        request: await buildRequest(`http://localhost/admin/feeds/${feed.id}`, {
+          method: "GET",
+        }),
         params: { feedId: feed.id },
-        context: {},
+        context: { user: DefaultFixtures.DEFAULT_USER },
       }),
     );
   });
@@ -30,15 +26,11 @@ describe("POST /admin/feeds/$feedId", () => {
 
     await expectRequiresAdmin(
       action({
-        request: await buildRequest(
-          `http://localhost/admin/feeds/${feed.id}`,
-          {
-            method: "POST",
-          },
-          { user: DefaultFixtures.DEFAULT_USER },
-        ),
+        request: await buildRequest(`http://localhost/admin/feeds/${feed.id}`, {
+          method: "POST",
+        }),
         params: { feedId: feed.id },
-        context: {},
+        context: { user: DefaultFixtures.DEFAULT_USER },
       }),
     );
   });

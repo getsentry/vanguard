@@ -96,8 +96,8 @@ const FragmentedPostList = ({ posts, reactions, commentCounts }) => {
   return <>{output}</>;
 };
 
-export const loader: LoaderFunction = async ({ request }) => {
-  const userId = await requireUserId(request);
+export const loader: LoaderFunction = async ({ request, context }) => {
+  const userId = await requireUserId(request, context);
   const url = new URL(request.url);
   const cursor = url.searchParams.get("cursor");
 

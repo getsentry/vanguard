@@ -43,10 +43,9 @@ describe("POST /api/posts/$postId/reactions", () => {
           method: "POST",
           body: JSON.stringify({ emoji: HEART }),
         },
-        { user: DefaultFixtures.DEFAULT_USER },
       ),
       params: { postId: post.id },
-      context: {},
+      context: { user: DefaultFixtures.DEFAULT_USER },
     });
 
     expect(response.status).toBe(200);
@@ -78,10 +77,9 @@ describe("POST /api/posts/$postId/reactions", () => {
           method: "POST",
           body: JSON.stringify({ emoji: HEART }),
         },
-        { user: DefaultFixtures.DEFAULT_USER },
       ),
       params: { postId: post.id },
-      context: {},
+      context: { user: DefaultFixtures.DEFAULT_USER },
     });
 
     expect(response.status).toBe(200);
@@ -109,10 +107,9 @@ describe("POST /api/posts/$postId/reactions", () => {
           method: "POST",
           body: JSON.stringify({ emoji: THUMBSUP }),
         },
-        { user: DefaultFixtures.DEFAULT_USER },
       ),
       params: { postId: post.id },
-      context: {},
+      context: { user: DefaultFixtures.DEFAULT_USER },
     });
 
     expect(response.status).toBe(200);

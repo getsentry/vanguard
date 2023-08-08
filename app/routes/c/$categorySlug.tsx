@@ -17,8 +17,8 @@ type LoaderData = {
   commentCounts: any[];
 };
 
-export const loader: LoaderFunction = async ({ request, params }) => {
-  const userId = await requireUserId(request);
+export const loader: LoaderFunction = async ({ request, context, params }) => {
+  const userId = await requireUserId(request, context);
   invariant(params.categorySlug, "categorySlug not found");
   const category = await getCategory({ slug: params.categorySlug });
   invariant(category, "invalid category");

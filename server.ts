@@ -4,6 +4,21 @@ import compression from "compression";
 import morgan from "morgan";
 import { createRequestHandler } from "@remix-run/express";
 import { wrapExpressCreateRequestHandler } from "@sentry/remix";
+import { getSession, getUser } from "~/services/session.server";
+import type { Request } from "express";
+
+import * as Sentry from "@sentry/remix";
+
+// import { prisma } from "~/services/db.server";
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  environment: process.env.NODE_ENV,
+  release: process.env.VERSION,
+  tracesSampleRate: 1.0,
+  // currently breaking
+  // integrations: [new Sentry.Integrations.Prisma({ client: prisma })],
+});
 
 function loadBuild() {
   return require(BUILD_DIR);
@@ -43,6 +58,26 @@ app.use(express.static("public", { maxAge: "1h" }));
 
 app.use(morgan("tiny"));
 
+app.all("*", async (req, res, next) => {
+  const session = await getSession(req);
+  const user = await getUser(session);
+
+  Sentry.setUser({
+    id: `${user?.id}`,
+    email: user?.email,
+  });
+
+  req.user = user || null;
+
+  next();
+});
+
+function getLoadContext(req: Request) {
+  return {
+    user: req.user,
+  };
+}
+
 const MODE = process.env.NODE_ENV;
 const BUILD_DIR = path.join(process.cwd(), "build");
 
@@ -52,12 +87,13 @@ const createSentryRequestHandler =
 app.all(
   "*",
   MODE === "production"
-    ? createSentryRequestHandler({ build: require(BUILD_DIR) })
+    ? createSentryRequestHandler({ build: require(BUILD_DIR), getLoadContext })
     : (...args) => {
         purgeRequireCache();
         const requestHandler = createSentryRequestHandler({
           build: loadBuild(),
           mode: MODE,
+          getLoadContext,
         });
         return requestHandler(...args);
       },

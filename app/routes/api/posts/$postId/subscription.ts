@@ -8,13 +8,13 @@ import {
 } from "~/models/post-subscription.server";
 import { requireUserId } from "~/services/auth.server";
 
-export const action: ActionFunction = async ({ request, params }) => {
+export const action: ActionFunction = async ({ request, context, params }) => {
   if (request.method !== "DELETE" && request.method !== "POST") {
     return json({ message: "Method not allowed" }, 405);
   }
   invariant(params.postId, "postId not found");
 
-  const userId = await requireUserId(request);
+  const userId = await requireUserId(request, context);
 
   if (request.method === "DELETE") {
     await deleteSubscription({ userId, postId: params.postId });

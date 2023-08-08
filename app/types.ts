@@ -1,3 +1,4 @@
+import type { User } from "@prisma/client";
 import type {
   ComponentPropsWithoutRef,
   ElementType,
@@ -11,3 +12,7 @@ export type PolymorphicAsProp<E extends ElementType> = {
 export type PolymorphicProps<E extends ElementType> = PropsWithChildren<
   ComponentPropsWithoutRef<E> & PolymorphicAsProp<E>
 >;
+
+export type SessionPayload = {
+  user: User;
+};

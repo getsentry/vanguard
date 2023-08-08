@@ -5,20 +5,8 @@ import { Response } from "@remix-run/node";
 import { RemixServer } from "@remix-run/react";
 import isbot from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
-import * as Sentry from "@sentry/remix";
 
 const ABORT_DELAY = 5_000;
-
-// import { prisma } from "~/services/db.server";
-
-Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  environment: process.env.NODE_ENV,
-  release: process.env.VERSION,
-  tracesSampleRate: 1.0,
-  // currently breaking
-  // integrations: [new Sentry.Integrations.Prisma({ client: prisma })],
-});
 
 export default function handleRequest(
   request: Request,

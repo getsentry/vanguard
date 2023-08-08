@@ -20,8 +20,8 @@ type LoaderData = {
   currentUser: User;
 };
 
-export const loader: LoaderFunction = async ({ request, params }) => {
-  const currentUser = await requireUser(request);
+export const loader: LoaderFunction = async ({ request, context, params }) => {
+  const currentUser = await requireUser(request, context);
   invariant(params.userEmail, "userEmail not found");
 
   const user = await getUserByEmail(params.userEmail);
@@ -38,8 +38,8 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   return json<LoaderData>({ currentUser, user, postList });
 };
 
-export const action: ActionFunction = async ({ request, params }) => {
-  const currentUser = await requireAdmin(request);
+export const action: ActionFunction = async ({ request, context, params }) => {
+  const currentUser = await requireAdmin(request, context);
   invariant(params.userEmail, "userEmail not found");
 
   const user = await getUserByEmail(params.userEmail);

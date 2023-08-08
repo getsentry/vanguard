@@ -16,8 +16,8 @@ type LoaderData = {
   >;
 };
 
-export const loader: LoaderFunction = async ({ request, params }) => {
-  await requireAdmin(request);
+export const loader: LoaderFunction = async ({ request, context }) => {
+  await requireAdmin(request, context);
   const url = new URL(request.url);
   const cursor = url.searchParams.get("cursor");
   const userListPaginated = await paginate(getUserList, {}, cursor);

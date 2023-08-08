@@ -7,15 +7,11 @@ describe("GET /admin/feeds/$feedId", () => {
   it("requires admin", async () => {
     await expectRequiresAdmin(
       loader({
-        request: await buildRequest(
-          `http://localhost/admin/feeds/new`,
-          {
-            method: "GET",
-          },
-          { user: DefaultFixtures.DEFAULT_USER },
-        ),
+        request: await buildRequest(`http://localhost/admin/feeds/new`, {
+          method: "GET",
+        }),
         params: {},
-        context: {},
+        context: { user: DefaultFixtures.DEFAULT_USER },
       }),
     );
   });
@@ -25,15 +21,11 @@ describe("POST /admin/feeds/$feedId", () => {
   it("requires admin", async () => {
     await expectRequiresAdmin(
       action({
-        request: await buildRequest(
-          `http://localhost/admin/feeds/new`,
-          {
-            method: "POST",
-          },
-          { user: DefaultFixtures.DEFAULT_USER },
-        ),
+        request: await buildRequest(`http://localhost/admin/feeds/new`, {
+          method: "POST",
+        }),
         params: {},
-        context: {},
+        context: { user: DefaultFixtures.DEFAULT_USER },
       }),
     );
   });

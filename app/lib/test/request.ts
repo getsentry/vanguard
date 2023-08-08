@@ -1,6 +1,6 @@
 import type { Session } from "@remix-run/node";
 
-import { commitSession, getSession } from "~/services/session.server";
+import { sessionStorage } from "~/services/session.server";
 import { authenticator } from "~/services/auth.server";
 import type { User } from "@prisma/client";
 
@@ -10,7 +10,7 @@ export const buildRequest = async (
   { user } = { user: null },
 ): Promise<Request> => {
   const session = await getMockUserSession(user);
-  const cookie = await commitSession(session);
+  const cookie = await sessionStorage.commitSession(session);
   const request = new Request(url, {
     headers: new Headers({
       Cookie: cookie,
@@ -22,7 +22,7 @@ export const buildRequest = async (
 };
 
 const getMockUserSession = async (user: User | null): Promise<Session> => {
-  const session = await getSession();
+  const session = await sessionStorage.getSession();
 
   if (user) {
     session.set(authenticator.sessionKey, user);

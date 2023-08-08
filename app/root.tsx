@@ -1,4 +1,3 @@
-import type { PropsWithChildren } from "react";
 import { useState } from "react";
 import InterStyles from "@fontsource/inter/index.css";
 import type { LinksFunction, LoaderFunction } from "@remix-run/node";
@@ -6,12 +5,7 @@ import { json } from "@remix-run/node";
 import {
   Form,
   Link,
-  Links,
-  LiveReload,
-  Meta,
   Outlet,
-  Scripts,
-  ScrollRestoration,
   useLoaderData,
   useRouteError,
 } from "@remix-run/react";
@@ -21,7 +15,6 @@ import { Toaster } from "react-hot-toast";
 
 import fontsCss from "./styles/fonts.css";
 import indexCss from "./styles/index.css";
-import { getUser } from "./services/auth.server";
 import Footer from "./components/footer";
 import Header from "./components/header";
 import Container from "./components/container";
@@ -30,12 +23,14 @@ import CategoryTag, { CategoryTags } from "./components/category-tag";
 import Input from "./components/input";
 import { getCategoryList } from "./models/category.server";
 import Avatar from "./components/avatar";
+import type { User} from "./models/post.server";
 import { getPostList } from "./models/post.server";
 import PostList from "./components/post-list";
 import LoadingIndicator from "./components/loading-indicator";
 import DevNotice from "./components/dev-notice";
-import classNames from "./lib/classNames";
 import Button from "./components/button";
+import Document from "./components/document";
+import config from "./config";
 
 export const links: LinksFunction = () => {
   return [
@@ -47,26 +42,15 @@ export const links: LinksFunction = () => {
 };
 
 type LoaderData = {
-  user: Awaited<ReturnType<typeof getUser>>;
+  user: User | null;
   categoryList?: Awaited<ReturnType<typeof getCategoryList>> | null;
   recentPostList?: Awaited<ReturnType<typeof getPostList>> | null;
-  ENV: { [key: string]: any };
+  config: typeof config;
   sentryTrace?: string;
   sentryBaggage?: string;
 };
 
-export const loader: LoaderFunction = async ({ request }) => {
-  const user = await getUser(request);
-
-  setUser(
-    user
-      ? {
-          id: user.id,
-          email: user.email,
-        }
-      : null,
-  );
-
+export const loader: LoaderFunction = async ({ context: { user } }) => {
   // TODO(dcramer): remix is currently not respecting a root loader redirect
   // if (user) {
   //   // probably a cleaner way to build this, but we're here for the duct tape
@@ -80,11 +64,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   const loaderData: LoaderData = {
     user,
-    ENV: {
-      SENTRY_DSN: process.env.SENTRY_DSN,
-      NODE_ENV: process.env.NODE_ENV || "development",
-      VERSION: process.env.VERSION,
-    },
+    config,
   };
 
   if (user) {
@@ -128,59 +108,12 @@ export function ErrorBoundary() {
   );
 }
 
-function Document({
-  children,
-  title = "Vanguard",
-  showSidebar = false,
-  ENV = {},
-  data,
-}: PropsWithChildren<{
-  title?: string;
-  showSidebar?: boolean;
-  ENV?: Record<string, any>;
-  data?: Record<string, any>;
-}>) {
-  return (
-    <html lang="en">
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <Meta />
-        {data?.sentryTrace && (
-          <meta name="sentry-trace" content={data.sentryTrace} />
-        )}
-        {data?.sentryBaggage && (
-          <meta name="baggage" content={data.sentryBaggage} />
-        )}
-        {title ? <title>{title}</title> : null}
-        <Links />
-      </head>
-      <body
-        className={classNames(
-          showSidebar ? "overflow-hidden" : "",
-          "text-primary-light bg-bg-light dark:bg-bg-dark dark:text-primary-dark min-h-screen overflow-x-hidden",
-        )}
-      >
-        {children}
-        <ScrollRestoration />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.ENV = ${JSON.stringify(ENV)}`,
-          }}
-        />
-        <Scripts />
-        <LiveReload />
-      </body>
-    </html>
-  );
-}
-
 function App() {
   const {
     user,
     categoryList,
     recentPostList,
-    ENV = {},
+    config = {},
     ...data
   } = useLoaderData<typeof loader>();
   const [showSidebar, setShowSidebar] = useState(false);
@@ -192,12 +125,12 @@ function App() {
   };
 
   return (
-    <Document ENV={ENV} data={data} showSidebar={showSidebar}>
+    <Document config={config} data={data} showSidebar={showSidebar}>
       <LoadingIndicator />
       <div>
         <Toaster />
       </div>
-      {process.env.NODE_ENV !== "production" && <DevNotice />}
+      {config.ENV !== "production" && <DevNotice />}
       <div className="relative">
         <div className="xl:pb-24 xl:px-20 xl:mr-[30rem] relative">
           <Container>
@@ -207,7 +140,7 @@ function App() {
               user={user}
             />
             <Outlet />
-            <Footer version={ENV.VERSION} admin={user?.admin} />
+            <Footer version={config.VERSION} admin={user?.admin} />
           </Container>
         </div>
         <Sidebar showSidebar={showSidebar}>

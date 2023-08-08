@@ -32,8 +32,8 @@ export const meta: MetaFunction = ({ data }) => {
   };
 };
 
-export const loader: LoaderFunction = async ({ request, params }) => {
-  const user = await requireUser(request);
+export const loader: LoaderFunction = async ({ request, context, params }) => {
+  const user = await requireUser(request, context);
 
   const post = await getPost({ userId: user.id, id: params.postId });
   if (!post) {
@@ -62,8 +62,8 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   });
 };
 
-export const action: ActionFunction = async ({ request, params }) => {
-  const userId = await requireUserId(request);
+export const action: ActionFunction = async ({ request, context, params }) => {
+  const userId = await requireUserId(request, context);
   invariant(params.postId, "postId not found");
 
   const formData = await request.formData();

@@ -17,8 +17,8 @@ type LoaderData = {
   feedUrl: string;
 };
 
-export const loader: LoaderFunction = async ({ request, params }) => {
-  await requireAdmin(request);
+export const loader: LoaderFunction = async ({ request, context, params }) => {
+  await requireAdmin(request, context);
   invariant(params.feedId, "feedId not found");
   const { feedId } = params;
   const feed = await getFeed({ id: feedId });
@@ -37,8 +37,8 @@ type ActionData = {
   };
 };
 
-export const action: ActionFunction = async ({ request, params }) => {
-  await requireAdmin(request);
+export const action: ActionFunction = async ({ request, context, params }) => {
+  await requireAdmin(request, context);
   invariant(params.feedId, "feedId not found");
   const { feedId } = params;
   const feed = await getFeed({ id: feedId });

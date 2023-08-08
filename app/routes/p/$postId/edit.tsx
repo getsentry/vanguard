@@ -25,8 +25,8 @@ type LoaderData = {
   post: Post;
 };
 
-export const loader: LoaderFunction = async ({ request, params }) => {
-  const userId = await requireUserId(request);
+export const loader: LoaderFunction = async ({ request, context, params }) => {
+  const userId = await requireUserId(request, context);
   invariant(params.postId, "postId not found");
   const post = await getPost({ userId, id: params.postId });
   if (!post) {
@@ -47,8 +47,8 @@ type ActionData = {
   errors?: PostFormErrors;
 };
 
-export const action: ActionFunction = async ({ request, params }) => {
-  const user = await requireUser(request);
+export const action: ActionFunction = async ({ request, context, params }) => {
+  const user = await requireUser(request, context);
   invariant(params.postId, "postId not found");
 
   const formData = await request.formData();

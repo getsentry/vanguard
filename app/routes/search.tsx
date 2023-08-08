@@ -13,8 +13,8 @@ type LoaderData = {
   query: string;
 };
 
-export const loader: LoaderFunction = async ({ request }) => {
-  const userId = await requireUserId(request);
+export const loader: LoaderFunction = async ({ request, context }) => {
+  const userId = await requireUserId(request, context);
   const url = new URL(request.url);
   const cursor = url.searchParams.get("cursor");
   const query = url.searchParams.get("q") || "";

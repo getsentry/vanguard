@@ -11,15 +11,11 @@ describe("GET /admin/categories/new", () => {
   it("requires admin", async () => {
     await expectRequiresAdmin(
       loader({
-        request: await buildRequest(
-          `http://localhost/admin/categories/new`,
-          {
-            method: "GET",
-          },
-          { user: DefaultFixtures.DEFAULT_USER },
-        ),
+        request: await buildRequest(`http://localhost/admin/categories/new`, {
+          method: "GET",
+        }),
         params: {},
-        context: {},
+        context: { user: DefaultFixtures.DEFAULT_USER },
       }),
     );
   });
@@ -29,15 +25,11 @@ describe("POST /admin/categories/new", () => {
   it("requires admin", async () => {
     await expectRequiresAdmin(
       action({
-        request: await buildRequest(
-          `http://localhost/admin/categories/new`,
-          {
-            method: "POST",
-          },
-          { user: DefaultFixtures.DEFAULT_USER },
-        ),
+        request: await buildRequest(`http://localhost/admin/categories/new`, {
+          method: "POST",
+        }),
         params: {},
-        context: {},
+        context: { user: DefaultFixtures.DEFAULT_USER },
       }),
     );
   });
@@ -52,16 +44,12 @@ describe("POST /admin/categories/new", () => {
     formData.append("defaultEmojis", "abc");
 
     const response: Response = await action({
-      request: await buildRequest(
-        `http://localhost/admin/categories/new`,
-        {
-          method: "POST",
-          body: formData,
-        },
-        { user },
-      ),
+      request: await buildRequest(`http://localhost/admin/categories/new`, {
+        method: "POST",
+        body: formData,
+      }),
       params: {},
-      context: {},
+      context: { user },
     });
 
     expect(response.status).toBe(400);
@@ -79,16 +67,12 @@ describe("POST /admin/categories/new", () => {
     formData.append("defaultEmojis", EMOJI);
 
     const response: Response = await action({
-      request: await buildRequest(
-        `http://localhost/admin/categories/new`,
-        {
-          method: "POST",
-          body: formData,
-        },
-        { user },
-      ),
+      request: await buildRequest(`http://localhost/admin/categories/new`, {
+        method: "POST",
+        body: formData,
+      }),
       params: {},
-      context: {},
+      context: { user },
     });
 
     expect(response.status).toBe(302);
