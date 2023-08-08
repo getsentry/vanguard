@@ -1,5 +1,6 @@
 import type { User } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { compareSync, hashSync } from "bcrypt";
 import invariant from "tiny-invariant";
 
 import { prisma } from "~/services/db.server";
@@ -61,6 +62,70 @@ export async function getUserList(
 
 export async function deleteUserByEmail(email: User["email"]) {
   return prisma.user.delete({ where: { email } });
+}
+
+export async function createUser({
+  email,
+  name,
+  password,
+  admin,
+}: {
+  email: User["email"];
+  password?: string;
+  name?: User["name"];
+  admin?: User["admin"];
+}) {
+  const passwordHash = password ? hashSync(password, 8) : null;
+
+  return await prisma.user.create({
+    data: {
+      email,
+      passwordHash,
+      name,
+      admin,
+    },
+  });
+}
+
+export function verifyPassword({
+  user,
+  password,
+}: {
+  user: User;
+  password: string;
+}) {
+  if (!user.passwordHash) {
+    return false;
+  }
+
+  if (!compareSync(password, user.passwordHash)) {
+    return false;
+  }
+
+  return true;
+}
+
+export async function changePassword({
+  user,
+  newPassword,
+}: {
+  user: User;
+  newPassword: string;
+}) {
+  const passwordHash = hashSync(newPassword, 8);
+
+  await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      passwordHash,
+    },
+  });
+
+  user.passwordHash = passwordHash;
+
+  return user;
 }
 
 export async function upsertUser({

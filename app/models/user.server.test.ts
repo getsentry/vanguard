@@ -1,6 +1,12 @@
 import type { User } from "@prisma/client";
 import { prisma } from "~/services/db.server";
-import { getUserList, updateUser } from "~/models/user.server";
+import {
+  changePassword,
+  createUser,
+  getUserList,
+  updateUser,
+  verifyPassword,
+} from "~/models/user.server";
 import * as Fixtures from "~/lib/test/fixtures";
 
 describe("getUserList", () => {
@@ -47,7 +53,7 @@ describe("updateUser", () => {
   });
 
   it("can change name on self", async () => {
-    let newUser = await updateUser({
+    const newUser = await updateUser({
       id: user.id,
       userId: user.id,
       name: "Fancy",
@@ -57,7 +63,7 @@ describe("updateUser", () => {
   });
 
   it("can change picture on self", async () => {
-    let newUser = await updateUser({
+    const newUser = await updateUser({
       id: user.id,
       userId: user.id,
       picture:
@@ -70,7 +76,7 @@ describe("updateUser", () => {
   });
 
   it("can change notifyReplies on self", async () => {
-    let newUser = await updateUser({
+    const newUser = await updateUser({
       id: user.id,
       userId: user.id,
       notifyReplies: false,
@@ -80,7 +86,7 @@ describe("updateUser", () => {
   });
 
   it("cannot change admin on self", async () => {
-    let newUser = await updateUser({
+    const newUser = await updateUser({
       id: user.id,
       userId: user.id,
       admin: true,
@@ -90,12 +96,38 @@ describe("updateUser", () => {
   });
 
   it("cannot change canPostRestricted on self", async () => {
-    let newUser = await updateUser({
+    const newUser = await updateUser({
       id: user.id,
       userId: user.id,
       canPostRestricted: true,
     });
     expect(newUser).toBeDefined();
     expect(newUser.canPostRestricted).toBe(false);
+  });
+});
+
+describe("createUser", () => {
+  it("creates a new user", async () => {
+    const newUser = await createUser({
+      email: "foo@example.com",
+      name: "Fancy",
+    });
+    expect(newUser).toBeDefined();
+    expect(newUser.id).toBeDefined();
+    expect(newUser.name).toBe("Fancy");
+    expect(newUser.email).toBe("foo@example.com");
+    expect(newUser.admin).toBe(false);
+    expect(newUser.canPostRestricted).toBe(false);
+    expect(newUser.passwordHash).toBeNull();
+  });
+});
+
+describe("changePassword", () => {
+  it("updates password", async () => {
+    const user = await Fixtures.User();
+
+    await changePassword({ user, newPassword: "fizzle" });
+
+    expect(verifyPassword({ user, password: "fizzle" })).toBe(true);
   });
 });

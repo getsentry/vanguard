@@ -24,7 +24,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import { compareSync } from "bcrypt";
 import type { User } from "@prisma/client";
 import { Authenticator } from "remix-auth";
 import { FormStrategy } from "remix-auth-form";
@@ -32,7 +31,12 @@ import type { AppLoadContext } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 
 import { buildUrl } from "~/lib/http";
-import { getUserByEmail, getUserById, upsertUser } from "~/models/user.server";
+import {
+  getUserByEmail,
+  getUserById,
+  upsertUser,
+  verifyPassword,
+} from "~/models/user.server";
 import { GoogleStrategy } from "~/lib/google-auth";
 import { sessionStorage } from "~/services/session.server";
 import invariant from "tiny-invariant";
@@ -56,11 +60,7 @@ authenticator.use(
       return null;
     }
 
-    if (!user.passwordHash) {
-      return null;
-    }
-
-    if (!compareSync(password, user.passwordHash)) {
+    if (!verifyPassword({ user, password })) {
       return null;
     }
 
