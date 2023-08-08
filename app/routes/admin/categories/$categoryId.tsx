@@ -23,8 +23,8 @@ type LoaderData = {
   category: Category;
 };
 
-export const loader: LoaderFunction = async ({ request, params }) => {
-  await requireAdmin(request);
+export const loader: LoaderFunction = async ({ request, context, params }) => {
+  await requireAdmin(request, context);
   invariant(params.categoryId, "categoryId not found");
   const category = await prisma.category.findFirst({
     where: { id: params.categoryId },
@@ -55,8 +55,8 @@ type ActionData = {
   };
 };
 
-export const action: ActionFunction = async ({ request, params }) => {
-  await requireAdmin(request);
+export const action: ActionFunction = async ({ request, context, params }) => {
+  await requireAdmin(request, context);
   invariant(params.categoryId, "categoryId not found");
   const { categoryId } = params;
   const category = await getCategory({ id: categoryId });

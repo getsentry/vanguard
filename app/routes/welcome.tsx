@@ -18,8 +18,8 @@ type LoaderData = {
   user: User;
 };
 
-export const loader: LoaderFunction = async ({ request, params }) => {
-  const user = await requireUser(request);
+export const loader: LoaderFunction = async ({ request, context }) => {
+  const user = await requireUser(request, context);
   return json<LoaderData>({ user });
 };
 
@@ -30,8 +30,8 @@ type ActionData = {
   };
 };
 
-export const action: ActionFunction = async ({ request }) => {
-  const userId = await requireUserId(request);
+export const action: ActionFunction = async ({ request, context }) => {
+  const userId = await requireUserId(request, context);
 
   const filter = ({ contentType }: { contentType: string }) => {
     return /image/i.test(contentType);

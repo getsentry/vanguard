@@ -24,24 +24,58 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+import { compareSync } from "bcrypt";
 import type { User } from "@prisma/client";
 import { Authenticator } from "remix-auth";
+import { FormStrategy } from "remix-auth-form";
+import type { AppLoadContext } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 
 import { buildUrl } from "~/lib/http";
-import { getUserById, upsertUser } from "~/models/user.server";
+import { getUserByEmail, getUserById, upsertUser } from "~/models/user.server";
 import { GoogleStrategy } from "~/lib/google-auth";
 import { sessionStorage } from "~/services/session.server";
-import { redirect } from "@remix-run/node";
+import invariant from "tiny-invariant";
+import config from "~/config";
 
 export const authenticator = new Authenticator<User>(sessionStorage);
 
 authenticator.use(
+  new FormStrategy(async ({ form }) => {
+    const email = form.get("email");
+    const password = form.get("password");
+
+    invariant(typeof email === "string", "email must be a string");
+    invariant(email.length > 0, "email must not be empty");
+
+    invariant(typeof password === "string", "password must be a string");
+    invariant(password.length > 0, "password must not be empty");
+
+    const user = await getUserByEmail(email);
+    if (!user) {
+      return null;
+    }
+
+    if (!user.passwordHash) {
+      return null;
+    }
+
+    if (!compareSync(password, user.passwordHash)) {
+      return null;
+    }
+
+    return user;
+  }),
+  "user-pass",
+);
+
+authenticator.use(
   new GoogleStrategy(
     {
-      clientID: process.env.GOOGLE_CLIENT_ID || "",
+      clientID: config.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
       callbackURL: buildUrl("/auth/google/callback"),
-      hd: process.env.GOOGLE_HD,
+      hd: config.GOOGLE_HD,
     },
     async ({ accessToken, refreshToken, extraParams, profile, ...params }) => {
       console.log(`Persisting user ${profile.emails[0].value}`);
@@ -71,42 +105,33 @@ export async function getUser(request: Request) {
   return await getUserById(user.id);
 }
 
-export async function requireUserId(
-  request: Request,
-  redirectTo: string = new URL(request.url).pathname,
-) {
-  const searchParams = new URLSearchParams([["redirectTo", redirectTo]]);
-  const user = await authenticator.isAuthenticated(request, {
-    failureRedirect: `/login?${searchParams}`,
-  });
-  return user.id;
+export async function requireUserId(request: Request, context: AppLoadContext) {
+  if (context.user) return context.user.id;
+
+  throw redirectToAuth({ request });
 }
 
-export async function requireUser(
-  request: Request,
-  redirectTo: string = new URL(request.url).pathname,
-) {
-  const user = await getUser(request);
-  if (!user) {
-    const searchParams = new URLSearchParams([["redirectTo", redirectTo]]);
-    throw redirect(`/login?${searchParams}`);
-  }
+export async function requireUser(request: Request, context: AppLoadContext) {
+  if (context.user) return context.user;
 
-  return user;
+  throw redirectToAuth({ request });
 }
 
-export async function requireAdmin(
-  request: Request,
-  redirectTo: string = new URL(request.url).pathname,
-) {
-  const user = await getUser(request);
+export async function requireAdmin(request: Request, context: AppLoadContext) {
+  const user = context.user;
   if (!user) {
-    const searchParams = new URLSearchParams([["redirectTo", redirectTo]]);
-    throw redirect(`/login?${searchParams}`);
+    throw redirectToAuth({ request });
   }
   if (!user.admin) {
     throw redirect(`/403`);
   }
-
   return user;
+}
+
+export function redirectToAuth({ request }: { request: Request }) {
+  const location = new URL(request.url);
+
+  const redirectTo = location.pathname;
+
+  return redirect(`/login?redirectTo=${encodeURIComponent(redirectTo)}`);
 }

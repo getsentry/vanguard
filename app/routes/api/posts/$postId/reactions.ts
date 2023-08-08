@@ -12,13 +12,13 @@ type ActionData = {
   };
 };
 
-export const action: ActionFunction = async ({ request, params }) => {
+export const action: ActionFunction = async ({ request, context, params }) => {
   if (request.method !== "POST") {
     return json({ message: "Method not allowed" }, 405);
   }
   invariant(params.postId, "postId not found");
 
-  const userId = await requireUserId(request);
+  const userId = await requireUserId(request, context);
 
   const { emoji } = await request.json();
 

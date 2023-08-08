@@ -17,8 +17,8 @@ type LoaderData = {
   feedList: Feed[];
 };
 
-export const loader: LoaderFunction = async ({ request, params }) => {
-  const userId = await requireUserId(request);
+export const loader: LoaderFunction = async ({ request, context }) => {
+  const userId = await requireUserId(request, context);
   const categoryList = await getCategoryList({
     userId,
     includeRestricted: false,
@@ -34,8 +34,8 @@ type ActionData = {
   errors?: PostFormErrors;
 };
 
-export const action: ActionFunction = async ({ request }) => {
-  const user = await requireUser(request);
+export const action: ActionFunction = async ({ request, context }) => {
+  const user = await requireUser(request, context);
 
   const formData = await request.formData();
   const title = formData.get("title");

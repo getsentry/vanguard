@@ -11,8 +11,8 @@ type LoaderData = {
   postList: Awaited<ReturnType<typeof getPostList>>;
 };
 
-export const loader: LoaderFunction = async ({ request }) => {
-  const userId = await requireUserId(request);
+export const loader: LoaderFunction = async ({ request, context }) => {
+  const userId = await requireUserId(request, context);
   const postList = await getPostList({
     userId,
     authorId: userId,

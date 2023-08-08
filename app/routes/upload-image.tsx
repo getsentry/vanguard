@@ -4,9 +4,9 @@ import { requireUserId } from "~/services/auth.server";
 import uploadHandler from "~/lib/upload-handler";
 import type { FileUploadHandlerOptions } from "@remix-run/node/dist/upload/fileUploadHandler";
 
-export const action: ActionFunction = async ({ request }) => {
+export const action: ActionFunction = async ({ request, context }) => {
   if (request.method !== "POST") return json({}, 405);
-  const userId = await requireUserId(request);
+  const userId = await requireUserId(request, context);
 
   const filter: FileUploadHandlerOptions["filter"] = ({ contentType }) => {
     return /image/i.test(contentType);

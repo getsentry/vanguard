@@ -3,8 +3,8 @@ import { Link, Outlet, useLoaderData } from "@remix-run/react";
 
 import { requireAdmin } from "~/services/auth.server";
 
-export const loader: LoaderFunction = async ({ request }) => {
-  await requireAdmin(request);
+export const loader: LoaderFunction = async ({ request, context }) => {
+  await requireAdmin(request, context);
 
   return null;
 };
