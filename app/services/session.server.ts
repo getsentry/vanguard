@@ -69,7 +69,7 @@ export async function logout(request: Request | ExpressRequest) {
   });
 }
 
-function getSafeRedirect(value: string | null) {
+export function getSafeRedirect(value: string | null) {
   if (!value || value?.indexOf("/") !== 0 || value?.indexOf("//") === 0)
     return "/";
   return value;

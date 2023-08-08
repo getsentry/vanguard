@@ -102,6 +102,11 @@ export default function NewPostPage() {
       className="p-4"
     >
       <PageHeader title="Edit Profile">
+        <Form action="/logout" method="post">
+          <Button type="submit" size="sm">
+            Logout
+          </Button>
+        </Form>
         <Button as={Link} to={`/u/${user.email}`} size="sm">
           View Your Profile
         </Button>

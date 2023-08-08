@@ -8,7 +8,7 @@ export default function PageHeader({
   title?: string;
 }) {
   return (
-    <div className="mb-12 flex items-right flex-nowrap" {...props}>
+    <div className="mb-12 flex items-right flex-nowrap gap-4" {...props}>
       {!!title && (
         <h1 className="text-4xl flex-1 font-serif font-medium">{title}</h1>
       )}
