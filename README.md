@@ -39,6 +39,12 @@ It is built on top of [Remix](https://github.com/remix-run/remix), and intended 
   make
   ```
 
+- Create a user (assuming you've not setup Google Auth):
+
+  ```sh
+  pnpm user create <email> <password> --admin
+  ```
+
 - Run the first build:
 
   ```sh
