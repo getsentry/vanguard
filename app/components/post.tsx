@@ -13,25 +13,6 @@ import { ChatBubbleIcon, HeartIcon } from "@radix-ui/react-icons";
 import TimeSince from "./timeSince";
 import DraftNote from "./draft-note";
 
-// const PostWrapper = styled.article`
-//   ${breakpoint("desktop")`
-//     ${CategoryTagWrapper} {
-//       position: absolute;
-//       right: calc(100% + 4rem);
-//       top: 0.2rem;
-//       width: 100rem;
-
-//       span {
-//         display: none;
-//       }
-//     }
-//   `}
-
-//   & + & {
-//     margin-top: 4.8rem;
-//   }
-// `;
-
 const URL_REGEXP = new RegExp(
   /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)/g,
 );
@@ -57,7 +38,7 @@ export default function Post({
   return (
     <div className="post">
       <CategoryTag category={post.category} />
-      <h1 className="font-serif break-words text-5xl mb-12">
+      <h1 className="font-serif break-words text-3xl mb-12">
         <PostLink post={post}>{post.title}</PostLink>
       </h1>
       <div className="flex font-mono gap-5 mb-12">
