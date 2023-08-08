@@ -205,11 +205,9 @@ export default function PostForm({
           </div>
         )}
         {selectedCategory?.description && (
-          <HelpText
-            style={{ fontSize: "0.9em", marginTop: -10, marginBottom: 10 }}
-          >
-            {selectedCategory.description}
-          </HelpText>
+          <div className="-mt-6 mb-6">
+            <HelpText>{selectedCategory.description}</HelpText>
+          </div>
         )}
       </div>
       {selectedCategory?.metaConfig.map((meta) => (

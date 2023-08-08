@@ -38,7 +38,7 @@ export default function Post({
   return (
     <div className="post">
       <CategoryTag category={post.category} />
-      <h1 className="font-serif break-words text-3xl mb-6">
+      <h1 className="font-serif break-words text-4xl mb-6">
         <PostLink post={post}>{post.title}</PostLink>
       </h1>
       <div className="flex font-mono gap-5 mb-6">

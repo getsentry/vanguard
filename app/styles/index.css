@@ -94,9 +94,7 @@ html {
 /* Forms */
 
 label {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 2.4rem;
+  @apply mb-6 flex flex-col;
 }
 
 label span {
