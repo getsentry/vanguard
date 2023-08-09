@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import Link from "./link";
 import Middot from "./middot";
 
 export type Props = {
@@ -11,24 +11,12 @@ export default function Footer({ version, admin }: Props) {
     <div className="flex justify-between text-xs text-secondary-light dark:text-secondary-dark">
       <div>
         <span>Vanguard {version ? version.substring(0, 7) : ""}</span>{" "}
-        <Middot />{" "}
-        <Link
-          to="/about"
-          className="text-link-light dark:text-link-dark hover:underline"
-        >
-          About
-        </Link>
+        <Middot /> <Link to="/about">About</Link>
       </div>
       <div>
         {admin && (
           <>
-            <Link
-              className="text-link-light dark:text-link-dark hover:underline"
-              to="/admin"
-            >
-              Admin
-            </Link>{" "}
-            <Middot />{" "}
+            <Link to="/admin">Admin</Link> <Middot />{" "}
           </>
         )}
         <span>

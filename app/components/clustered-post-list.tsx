@@ -1,5 +1,3 @@
-import { Link } from "@remix-run/react";
-
 import Avatar from "./avatar";
 import PostLink from "./post-link";
 import CategoryTag from "./category-tag";
@@ -8,6 +6,7 @@ import IconCollapsedPost from "~/icons/IconCollapsedPost";
 import { ChatBubbleIcon, HeartIcon } from "@radix-ui/react-icons";
 import TimeSince from "./timeSince";
 import type { Category, Post } from "@prisma/client";
+import Link from "./link";
 
 export default function ClusteredPostList({
   category,
@@ -41,10 +40,7 @@ export default function ClusteredPostList({
                 <Avatar size="24px" user={post.author} />
 
                 <div className="font-medium text-base">
-                  <Link
-                    to={`/u/${post.author.email}`}
-                    className="text-link-light dark:text-link-dark hover:underline"
-                  >
+                  <Link to={`/u/${post.author.email}`}>
                     {post.author.name || post.author.email}
                   </Link>
                 </div>

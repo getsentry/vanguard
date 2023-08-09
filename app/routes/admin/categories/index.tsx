@@ -1,6 +1,6 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 
 import { requireAdmin } from "~/services/auth.server";
 import { paginate } from "~/lib/paginator";
@@ -10,6 +10,7 @@ import BooleanIcon from "~/components/boolean-icon";
 import { getCategoryList } from "~/models/category.server";
 import PageHeader from "~/components/page-header";
 import Button from "~/components/button";
+import Link from "~/components/link";
 
 type LoaderData = {
   categoryListPaginated: Awaited<

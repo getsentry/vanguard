@@ -1,5 +1,3 @@
-import { Link } from "@remix-run/react";
-
 import Avatar from "./avatar";
 import Content from "./content";
 import PostLink from "./post-link";
@@ -12,6 +10,7 @@ import { Fragment } from "react";
 import { ChatBubbleIcon, HeartIcon } from "@radix-ui/react-icons";
 import TimeSince from "./timeSince";
 import DraftNote from "./draft-note";
+import Link from "./link";
 
 const URL_REGEXP = new RegExp(
   /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)/g,
@@ -45,10 +44,7 @@ export default function Post({
         <Avatar user={post.author} />
         <div className="flex flex-1 flex-col justify-between">
           <div className="font-medium">
-            <Link
-              to={`/u/${post.author.email}`}
-              className="text-link-light dark:text-link-dark"
-            >
+            <Link to={`/u/${post.author.email}`}>
               {post.author.name || post.authorId.email}
             </Link>
           </div>
@@ -93,7 +89,7 @@ export default function Post({
         <Markdown content={post.content || ""} summarize={summary} />
       </Content>
       {!!summary && (
-        <PostLink post={post} className="text-link-light dark:text-link-dark">
+        <PostLink post={post}>
           Read more ({readingTime(post.content || "")})
         </PostLink>
       )}
@@ -124,7 +120,7 @@ export default function Post({
                 <a
                   href={f.url}
                   key={f.id}
-                  className="text-link-light dark:text-link-dark"
+                  className="text-link-light dark:text-link-dark hover:underline"
                 >
                   {f.name}
                 </a>

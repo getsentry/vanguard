@@ -1,4 +1,3 @@
-import { Link } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import { ResetIcon } from "@radix-ui/react-icons";
 
@@ -13,6 +12,7 @@ import type { PostQueryType } from "~/models/post.server";
 import IconCollapsedPost from "~/icons/IconCollapsedPost";
 import type { PostComment } from "@prisma/client";
 import TimeSince from "./timeSince";
+import Link from "./link";
 
 const deleteComment = async (
   postId: string,

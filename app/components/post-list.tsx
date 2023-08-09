@@ -1,7 +1,7 @@
-import { Link } from "@remix-run/react";
 import PostLink from "~/components/post-link";
 import Avatar from "~/components/avatar";
 import TimeSince from "./timeSince";
+import Link from "./link";
 
 export default function PostList({ postList }) {
   return (
@@ -38,7 +38,7 @@ export default function PostList({ postList }) {
             }}
           >
             <div className="font-medium text-sm">
-              <Link to={`/u/${post.author.email}`} className="hover:underline">
+              <Link to={`/u/${post.author.email}`}>
                 {post.author.name || post.author.email}
               </Link>
             </div>

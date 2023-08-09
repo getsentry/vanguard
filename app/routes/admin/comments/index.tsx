@@ -1,6 +1,6 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 
 import { requireAdmin } from "~/services/auth.server";
 import { paginate } from "~/lib/paginator";
@@ -10,6 +10,7 @@ import PostLink from "~/components/post-link";
 import PageHeader from "~/components/page-header";
 import { getCommentList } from "~/models/post-comments.server";
 import TimeSince from "~/components/timeSince";
+import Link from "~/components/link";
 
 type LoaderData = {
   commentListPaginated: Awaited<

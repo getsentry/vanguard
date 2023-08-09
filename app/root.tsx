@@ -2,13 +2,7 @@ import { useState } from "react";
 import InterStyles from "@fontsource/inter/index.css";
 import type { LinksFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import {
-  Form,
-  Link,
-  Outlet,
-  useLoaderData,
-  useRouteError,
-} from "@remix-run/react";
+import { Form, Outlet, useLoaderData, useRouteError } from "@remix-run/react";
 import prismCss from "prism-sentry/index.css";
 import { withSentry, setUser } from "@sentry/remix";
 import { Toaster } from "react-hot-toast";
@@ -23,7 +17,7 @@ import CategoryTag, { CategoryTags } from "./components/category-tag";
 import Input from "./components/input";
 import { getCategoryList } from "./models/category.server";
 import Avatar from "./components/avatar";
-import type { User} from "./models/post.server";
+import type { User } from "./models/post.server";
 import { getPostList } from "./models/post.server";
 import PostList from "./components/post-list";
 import LoadingIndicator from "./components/loading-indicator";
@@ -31,6 +25,7 @@ import DevNotice from "./components/dev-notice";
 import Button from "./components/button";
 import Document from "./components/document";
 import config from "./config";
+import Link from "./components/link";
 
 export const links: LinksFunction = () => {
   return [
@@ -155,7 +150,7 @@ function App() {
                     Settings
                   </Button>
                   <div className="text-border-light dark:text-border-dark font-mono">
-                    /{" "}
+                    /
                   </div>
                   <Button as={Link} baseStyle="link" to="/drafts">
                     Drafts

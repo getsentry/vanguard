@@ -1,6 +1,6 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 
 import { requireAdmin } from "~/services/auth.server";
 import { getUserList } from "~/models/user.server";
@@ -9,6 +9,7 @@ import type { PaginatedResult } from "~/lib/paginator";
 import Paginated from "~/components/paginated";
 import BooleanIcon from "~/components/boolean-icon";
 import PageHeader from "~/components/page-header";
+import Link from "~/components/link";
 
 type LoaderData = {
   userListPaginated: Awaited<

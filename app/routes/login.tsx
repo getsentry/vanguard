@@ -1,9 +1,10 @@
 import { json } from "@remix-run/node";
 import type { LoaderFunction } from "@remix-run/node";
-import { Form, Link, useLoaderData } from "@remix-run/react";
+import { Form, useLoaderData } from "@remix-run/react";
 
 import Button from "~/components/button";
 import Input from "~/components/input";
+import Link from "~/components/link";
 import config from "~/config";
 
 type LoaderData = {
@@ -112,9 +113,7 @@ export default function Login() {
         <BasicLogin redirectTo={redirectTo} />
       </div>
       <div className="mt-6 text-center text-xs">
-        <Link to="/about" className="text-highlight underline">
-          About Vanguard
-        </Link>
+        <Link to="/about">About Vanguard</Link>
       </div>
     </div>
   );
