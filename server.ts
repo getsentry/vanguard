@@ -12,15 +12,14 @@ import sourceMapSupport from "source-map-support";
 
 import * as Sentry from "@sentry/remix";
 
-// import { prisma } from "~/services/db.server";
+import { prisma } from "~/services/db.server";
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
   environment: process.env.NODE_ENV,
   release: process.env.VERSION,
   tracesSampleRate: 1.0,
-  // currently breaking
-  // integrations: [new Sentry.Integrations.Prisma({ client: prisma })],
+  integrations: [new Sentry.Integrations.Prisma({ client: prisma })],
 });
 
 sourceMapSupport.install();
