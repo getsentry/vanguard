@@ -6,6 +6,9 @@ import { createRequestHandler } from "@remix-run/express";
 import { wrapExpressCreateRequestHandler } from "@sentry/remix";
 import { getSession, getUser } from "~/services/session.server";
 import type { Request } from "express";
+import prom from "@isaacs/express-prometheus-middleware";
+import { installGlobals } from "@remix-run/node";
+import sourceMapSupport from "source-map-support";
 
 import * as Sentry from "@sentry/remix";
 
@@ -20,15 +23,24 @@ Sentry.init({
   // integrations: [new Sentry.Integrations.Prisma({ client: prisma })],
 });
 
-function loadBuild() {
-  return require(BUILD_DIR);
-}
+sourceMapSupport.install();
+installGlobals();
 
 const app = express();
+
+const metricsApp = express();
+app.use(
+  prom({
+    metricsPath: "/metrics",
+    collectDefaultMetrics: true,
+    metricsApp,
+  }),
+);
 
 // app.use(Sentry.Handlers.requestHandler());
 
 app.use((req, res, next) => {
+  res.set("x-fly-region", process.env.FLY_REGION ?? "unknown");
   res.set("Strict-Transport-Security", `max-age=${60 * 60 * 24 * 365 * 100}`);
 
   // /clean-urls/ -> /clean-urls
@@ -39,6 +51,33 @@ app.use((req, res, next) => {
     return;
   }
   next();
+});
+
+// if we're not in the primary region, then we need to make sure all
+// non-GET/HEAD/OPTIONS requests hit the primary region rather than read-only
+// Postgres DBs.
+// learn more: https://fly.io/docs/getting-started/multi-region-databases/#replay-the-request
+app.all("*", function getReplayResponse(req, res, next) {
+  const { method, path: pathname } = req;
+  const { PRIMARY_REGION, FLY_REGION } = process.env;
+
+  const isMethodReplayable = !["GET", "OPTIONS", "HEAD"].includes(method);
+  const isReadOnlyRegion =
+    FLY_REGION && PRIMARY_REGION && FLY_REGION !== PRIMARY_REGION;
+
+  const shouldReplay = isMethodReplayable && isReadOnlyRegion;
+
+  if (!shouldReplay) return next();
+
+  const logInfo = {
+    pathname,
+    method,
+    PRIMARY_REGION,
+    FLY_REGION,
+  };
+  console.info(`Replaying:`, logInfo);
+  res.set("fly-replay", `region=${PRIMARY_REGION}`);
+  return res.sendStatus(409);
 });
 
 app.use(compression());
@@ -84,6 +123,10 @@ const BUILD_DIR = path.join(process.cwd(), "build");
 const createSentryRequestHandler =
   wrapExpressCreateRequestHandler(createRequestHandler);
 
+function loadBuild() {
+  return require(BUILD_DIR);
+}
+
 app.all(
   "*",
   MODE === "production"
@@ -105,6 +148,12 @@ app.listen(port, () => {
   // require the built app so we're ready when the first request comes in
   require(BUILD_DIR);
   console.log(`✅ app ready: http://localhost:${port}`);
+});
+
+const metricsPort = process.env.METRICS_PORT || 3001;
+
+metricsApp.listen(metricsPort, () => {
+  console.log(`✅ metrics ready: http://localhost:${metricsPort}/metrics`);
 });
 
 function purgeRequireCache() {

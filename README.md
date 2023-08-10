@@ -18,6 +18,67 @@ It is built on top of [Remix](https://github.com/remix-run/remix), and intended 
 
 ![screenshot of vanguard](/screenshot.png?raw=true)
 
+## Deployment
+
+While we at Sentry deploy this to GCP (using a combination of Cloud Run, Cloud Storage, and SQL), we have included the stock [blues-stack Fly config](https://github.com/remix-run/blues-stack). You will still need to configure an image storage service.
+
+You will need to ensure a few key values are set in production:
+
+```sh
+# generate a random secret using `openssl rand -hex 32`
+SESSION_SECRET=
+DATABASE_URL=
+```
+
+### Google Auth
+
+Google Auth is the primary provider, although email/password is supported for local development. To configure Google, you will need to set the following value:
+
+```sh
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_IAP_AUDIENCE=
+# preferably restrict it to your domain
+GOOGLE_HD=your-google-workspace-domain.com
+```
+
+### Sentry
+
+For Sentry to work, you will also need the following defined:
+
+```sh
+SENTRY_DSN=
+SENTRY_ORG=
+SENTRY_PROJECT=
+SENTRY_AUTH_TOKEN=
+```
+
+For more details on deploying to Fly, we recommend taking a look at the guide in [blues-stack](https://github.com/remix-run/blues-stack#deployment).
+
+### Images Hosting
+
+To support avatars and image attachments on posts you will need to configure an image hosting service. This is done using environment variables:
+
+```sh
+USE_GCS_STORAGE=1
+GCS_BUCKET_NAME=your-bucket-name
+GCS_BUCKET_PATH=images
+```
+
+Currently we only support Google's Cloud Storage service, but would happily take contributions to enable other services such as S3.
+
+### Outbound Email
+
+You'll have to figure this one out. Outbound email is used for publishing new posts, as well as receiving notifications of new comments. We suggest something like Sendgrid to make it easy.
+
+```sh
+SMTP_FROM=vanguard@example.com
+SMTP_HOST=
+SMTP_PORT=
+SMTP_USER=
+SMTP_PASS=
+```
+
 ## Development
 
 - Bootstrap the environment:
