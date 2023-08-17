@@ -19,7 +19,10 @@ Sentry.init({
         useMatches,
       ),
     }),
+    new Sentry.Replay()
   ],
+  replaysSessionSampleRate: 1.0,
+  replaysOnErrorSampleRate: 1.0
 });
 
 startTransition(() => {
