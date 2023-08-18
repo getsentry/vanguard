@@ -125,7 +125,7 @@ const Comment = ({
               )}
             </div>
           </div>
-          <div className="overflow-auto prose">
+          <div className="overflow-auto prose dark:prose-invert prose-a:text-link-light dark:prose-a:text-link-dark max-w-none">
             <Markdown content={comment.content} />
           </div>
         </div>
