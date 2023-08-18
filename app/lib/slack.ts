@@ -3,6 +3,9 @@ import type { PostQueryType } from "~/models/post.server";
 import summarize from "./summarize";
 
 import dayjs from "dayjs";
+import advancedFormat from "dayjs/plugin/advancedFormat";
+
+dayjs.extend(advancedFormat);
 
 export type SlackConfig = {
   webhookUrl: string;
