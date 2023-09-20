@@ -89,7 +89,7 @@ export default function Post({
         <Markdown content={post.content || ""} summarize={summary} />
       </Content>
       {!!summary && (
-        <PostLink post={post}>
+        <PostLink post={post} color="default">
           Read more ({readingTime(post.content || "")})
         </PostLink>
       )}
