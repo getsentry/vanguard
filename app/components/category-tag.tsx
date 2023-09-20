@@ -23,7 +23,7 @@ export default function CategoryTag({
 }: Omit<ComponentPropsWithoutRef<typeof Link>, "to"> & { category: Category }) {
   return (
     <Link
-      className="category-tag"
+      className="category-tag print:hidden"
       {...props}
       to={`/c/${category.slug}`}
       style={categoryTagStyles(category.colorHex)}

@@ -107,7 +107,7 @@ export default function PostReactions({
   };
 
   return (
-    <Block>
+    <Block className="print:hidden">
       <div className="flex flex-wrap gap-1">
         {emojiList.map((emoji) => {
           return (

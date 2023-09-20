@@ -192,7 +192,7 @@ export default function PostComments({
   // TODO(dcramer): i've not bothered to optimize the loop mechanics on rendering because the dataset is
   // small and im lazy
   return (
-    <Block>
+    <Block className="print:hidden">
       <div className="flex items-center mb-6 gap-6">
         <h3 className="text-2xl font-bold">Comments</h3>
         <SubscribeButton postId={post.id} initialValue={hasSubscription} />
