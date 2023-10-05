@@ -67,3 +67,18 @@ export async function getCategoryList({
     },
   });
 }
+
+export async function createCategory({
+  slug,
+  name,
+}: {
+  slug: Category["slug"];
+  name: Category["name"];
+}) {
+  return await prisma.category.create({
+    data: {
+      slug,
+      name,
+    },
+  });
+}
