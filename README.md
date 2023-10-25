@@ -81,6 +81,11 @@ SMTP_PASS=
 
 ## Development
 
+- Make sure you have all required tooling:
+
+  - [pre-commit](https://pre-commit.com/)
+  - [pnpm](https://pnpm.io/)
+
 - Bootstrap the environment:
 
   ```sh
@@ -104,6 +109,12 @@ SMTP_PASS=
 
   ```sh
   pnpm user create <email> <password> --admin
+  ```
+
+  - Create at least one category
+
+  ```sh
+  pnpm category create <slug> <name>
   ```
 
 - Run the first build:
