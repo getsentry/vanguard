@@ -1,6 +1,7 @@
 import { Link } from "@remix-run/react";
 
 import type { Category } from "~/models/category.server";
+import IconMegaphone from "~/icons/IconMegaphone";
 import IconShip from "~/icons/IconShip";
 import IconEye from "~/icons/IconEye";
 import type { ComponentPropsWithoutRef } from "react";
@@ -12,6 +13,8 @@ const CategoryIcon = ({ category, ...props }: { category: Category }) => {
       return <IconShip {...props} />;
     case "sentry":
       return <IconEye {...props} />;
+    case "conference":
+      return <IconMegaphone {...props} />;
     default:
       return null;
   }
