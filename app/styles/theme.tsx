@@ -55,6 +55,10 @@ const lightTheme = {
       bgColor: colors.yellow,
       textColor: colors.black,
     },
+    conference: {
+      bgColor: colors.orange,
+      textColor: colors.black,
+    },
   },
 };
 
@@ -84,6 +88,10 @@ const darkTheme = {
     },
     strategy: {
       bgColor: colors.yellow,
+      textColor: colors.black,
+    },
+    conference: {
+      bgColor: colors.orange,
       textColor: colors.black,
     },
   },
