@@ -19,7 +19,7 @@ FROM base as production-deps
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
-ADD package.json package-lock.json ./
+ADD package.json pnpm-lock.yaml ./
 
 # XXX: some issues with using db seed which is considered dev, so give up on this optimization
 # RUN npm prune --production
