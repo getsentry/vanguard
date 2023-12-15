@@ -11,6 +11,7 @@ export default function TimeSince({
   return (
     <time
       dateTime={date instanceof Date ? date.toISOString() : date}
+      title={dayjs(date).format("MMMM D, YYYY h:mm A")}
       {...props}
     >
       {dayjs(date).fromNow()}
