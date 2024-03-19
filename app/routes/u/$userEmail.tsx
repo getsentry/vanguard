@@ -33,7 +33,7 @@ export const loader: LoaderFunction = async ({ request, context, params }) => {
     userId: currentUser.id,
     authorId: user.id,
     published: true,
-    limit: 5,
+    limit: 20,
   });
   return json<LoaderData>({ currentUser, user, postList });
 };
