@@ -1,6 +1,6 @@
 import { expectRequiresUser } from "~/lib/test/expects";
 import { buildRequest } from "~/lib/test/request";
-import { loader } from "./";
+import { loader } from "./_index";
 
 describe("GET /", () => {
   it("requires user", async () => {
