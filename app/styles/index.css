@@ -245,5 +245,5 @@ label select {
 }
 
 .prose figure.markdown-image > figcaption {
-  @apply text-secondary-light dark:text-secondary-dark text-xs mt-0 text-center;
+  @apply text-secondary-light dark:text-secondary-dark text-xs mt-2 text-center;
 }
