@@ -1,23 +1,15 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useActionData, useLoaderData } from "@remix-run/react";
 
 import { announcePost, createPost, syndicatePost } from "~/models/post.server";
 import { requireUser, requireUserId } from "~/services/auth.server";
 import { getCategory, getCategoryList } from "~/models/category.server";
-import type { Category } from "~/models/category.server";
 import PostForm from "~/components/post-form";
-import type { PostFormErrors } from "~/components/post-form";
 import { getPostLink } from "~/components/post-link";
 import { getFeedList } from "~/models/feed.server";
-import type { Feed } from "~/models/feed.server";
 
-type LoaderData = {
-  categoryList: Category[];
-  feedList: Feed[];
-};
-
-export const loader: LoaderFunction = async ({ request, context }) => {
+export async function loader({ request, context }: LoaderFunctionArgs) {
   const userId = await requireUserId(request, context);
   const categoryList = await getCategoryList({
     userId,
@@ -27,14 +19,10 @@ export const loader: LoaderFunction = async ({ request, context }) => {
     userId,
     includeRestricted: false,
   });
-  return json<LoaderData>({ categoryList, feedList });
-};
+  return json({ categoryList, feedList });
+}
 
-type ActionData = {
-  errors?: PostFormErrors;
-};
-
-export const action: ActionFunction = async ({ request, context }) => {
+export async function action({ request, context }: ActionFunctionArgs) {
   const user = await requireUser(request, context);
 
   const formData = await request.formData();
@@ -48,21 +36,18 @@ export const action: ActionFunction = async ({ request, context }) => {
   const feedIds = formData.get("feedId") ? formData.getAll("feedId") : null;
 
   if (typeof categoryId !== "string" || categoryId.length === 0) {
-    return json<ActionData>(
+    return json(
       { errors: { categoryId: "Category is required" } },
       { status: 400 },
     );
   }
 
   if (typeof title !== "string" || title.length === 0) {
-    return json<ActionData>(
-      { errors: { title: "Title is required" } },
-      { status: 400 },
-    );
+    return json({ errors: { title: "Title is required" } }, { status: 400 });
   }
 
   if (typeof content !== "string" || content.length === 0) {
-    return json<ActionData>(
+    return json(
       { errors: { content: "Content is required" } },
       { status: 400 },
     );
@@ -123,7 +108,7 @@ export const action: ActionFunction = async ({ request, context }) => {
   await syndicatePost(post);
 
   return redirect(getPostLink(post));
-};
+}
 
 export default function NewPostPage() {
   const loaderData = useLoaderData<typeof loader>();

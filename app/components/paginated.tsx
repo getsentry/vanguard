@@ -19,14 +19,14 @@ const Paginated: React.FC<PaginatedProps<any>> = function Paginated({
   const pagination = (
     <ButtonGroup align="center">
       <Button
-        as={Link}
+        as={prevCursor ? Link : "button"}
         to={prevCursor ? `?cursor=${prevCursor}` : undefined}
         disabled={!prevCursor}
       >
         Prev Page
       </Button>
       <Button
-        as={Link}
+        as={nextCursor ? Link : "button"}
         to={nextCursor ? `?cursor=${nextCursor}` : undefined}
         disabled={!nextCursor}
       >

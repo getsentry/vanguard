@@ -8,7 +8,7 @@ import { Storage } from "@google-cloud/storage";
 import type { FileUploadHandlerOptions } from "@remix-run/node/dist/upload/fileUploadHandler";
 import type { UploadHandler } from "@remix-run/node";
 import path from "path";
-import cuid from "cuid";
+import { createId as cuid } from "@paralleldrive/cuid2";
 
 type UploadHandlerOptions = {
   namespace: string;

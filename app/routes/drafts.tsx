@@ -1,4 +1,4 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
@@ -8,19 +8,15 @@ import Post from "~/components/post";
 import PageHeader from "~/components/page-header";
 import Link from "~/components/link";
 
-type LoaderData = {
-  postList: Awaited<ReturnType<typeof getPostList>>;
-};
-
-export const loader: LoaderFunction = async ({ request, context }) => {
+export async function loader({ request, context }: LoaderFunctionArgs) {
   const userId = await requireUserId(request, context);
   const postList = await getPostList({
     userId,
     authorId: userId,
     published: false,
   });
-  return json<LoaderData>({ postList });
-};
+  return json({ postList });
+}
 
 export default function Drafts() {
   const { postList } = useLoaderData<typeof loader>();

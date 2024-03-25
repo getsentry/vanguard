@@ -1,10 +1,13 @@
-import type { ActionFunction } from "@remix-run/server-runtime";
-import { json, unstable_parseMultipartFormData } from "@remix-run/node";
+import {
+  type ActionFunctionArgs,
+  json,
+  unstable_parseMultipartFormData,
+} from "@remix-run/node";
 import { requireUserId } from "~/services/auth.server";
 import uploadHandler from "~/lib/upload-handler";
 import type { FileUploadHandlerOptions } from "@remix-run/node/dist/upload/fileUploadHandler";
 
-export const action: ActionFunction = async ({ request, context }) => {
+export async function action({ request, context }: ActionFunctionArgs) {
   if (request.method !== "POST") return json({}, 405);
   const userId = await requireUserId(request, context);
 
@@ -28,4 +31,4 @@ export const action: ActionFunction = async ({ request, context }) => {
   const height = 0;
 
   return json({ originalFilename: "", url: imageUrl, width, height });
-};
+}

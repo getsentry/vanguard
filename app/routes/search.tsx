@@ -1,4 +1,4 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
@@ -8,12 +8,7 @@ import Post from "~/components/post";
 import { paginate } from "~/lib/paginator";
 import Paginated from "~/components/paginated";
 
-type LoaderData = {
-  postListPaginated: any;
-  query: string;
-};
-
-export const loader: LoaderFunction = async ({ request, context }) => {
+export async function loader({ request, context }: LoaderFunctionArgs) {
   const userId = await requireUserId(request, context);
   const url = new URL(request.url);
   const cursor = url.searchParams.get("cursor");
@@ -23,8 +18,8 @@ export const loader: LoaderFunction = async ({ request, context }) => {
     { userId, published: true, query },
     cursor,
   );
-  return json<LoaderData>({ postListPaginated, query });
-};
+  return json({ postListPaginated, query });
+}
 
 export default function Search() {
   const { postListPaginated, query } = useLoaderData<typeof loader>();

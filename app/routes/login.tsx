@@ -1,5 +1,5 @@
 import { json } from "@remix-run/node";
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
 
 import Button from "~/components/button";
@@ -7,17 +7,13 @@ import Input from "~/components/input";
 import Link from "~/components/link";
 import config from "~/config";
 
-type LoaderData = {
-  redirectTo?: string;
-};
-
-export const loader: LoaderFunction = ({ request }) => {
+export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   let redirectTo = url.searchParams.get("redirectTo");
   if (!redirectTo || redirectTo?.indexOf("/") !== 0) redirectTo = "/";
 
-  return json<LoaderData>({ redirectTo });
-};
+  return json({ redirectTo });
+}
 
 type SharedProps = {
   redirectTo: string;

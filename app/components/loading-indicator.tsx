@@ -1,4 +1,4 @@
-import { useTransition } from "@remix-run/react";
+import { useLocation } from "@remix-run/react";
 import type { ReactElement } from "react";
 import { useEffect, useRef } from "react";
 
@@ -6,7 +6,7 @@ import { useEffect, useRef } from "react";
 function useProgress() {
   const el = useRef<HTMLDivElement>(null);
   const timeout = useRef<NodeJS.Timeout>();
-  const { location } = useTransition();
+  const { location } = useLocation();
 
   useEffect(() => {
     if (!location || !el.current) {
