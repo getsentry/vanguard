@@ -19,14 +19,14 @@ renderer.code = function (code, lang, escaped) {
 
 // add captions to images
 renderer.image = function (href, title, text) {
-  const html = `<figure><img src="${href}" title="${title}" alt="${text}" /></figure>`;
+  const html = `<img src="${href}" title="${title}" alt="${text}" />`;
   if (title) {
-    return `<figure>
+    return `<figure class="not-prose markdown-image">
       ${html}
       <figcaption>${title}</figcaption>
       </figure>`;
   }
-  return html;
+  return `<figure class="not-prose markdown-image">${html}</figure>`;
 };
 
 const parseMarkdown = (content: string, options = {}): string => {

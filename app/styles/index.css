@@ -235,3 +235,15 @@ label select {
     @apply pr-0;
   }
 }
+
+.prose figure.markdown-image {
+  @apply flex items-center flex-col my-8;
+}
+
+.prose figure.markdown-image > img {
+  @apply mb-0;
+}
+
+.prose figure.markdown-image > figcaption {
+  @apply text-secondary-light dark:text-secondary-dark text-xs mt-0 text-center;
+}
