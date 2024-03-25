@@ -7,9 +7,9 @@ export default (content: string, maxLength = 256): string => {
     ALLOWED_TAGS: ["p", "blockquote", "#text", "strong", "b", "em", "i", "a"],
     KEEP_CONTENT: false,
   });
-  const sum = sanitize(contentBlocks, {
-    ALLOWED_TAGS: [],
-  }).replace(/^[\s\n]+|[\s\n]+$/g, "");
+
+  const doc = new DOMParser().parseFromString(contentBlocks, "text/html");
+  const sum = (doc.body.textContent || "").replace(/^[\s\n]+|[\s\n]+$/g, "");
   if (sum.length > maxLength)
     return sum.substring(0, maxLength - 3).split("\n")[0] + "...";
   return sum;

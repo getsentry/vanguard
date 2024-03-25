@@ -57,25 +57,23 @@ export const loader: LoaderFunction = async ({ context: { user } }) => {
   //   }
   // }
 
-  const loaderData: LoaderData = {
+  return json({
     user,
     config,
-  };
-
-  if (user) {
-    loaderData.categoryList = await getCategoryList({
-      userId: user?.id,
-      includeRestricted: true,
-    });
-
-    loaderData.recentPostList = await getPostList({
-      userId: user?.id,
-      published: true,
-      limit: 3,
-    });
-  }
-
-  return json<LoaderData>(loaderData);
+    categoryList: user
+      ? await getCategoryList({
+          userId: user.id,
+          includeRestricted: true,
+        })
+      : null,
+    recentPostList: user
+      ? await getPostList({
+          userId: user.id,
+          published: true,
+          limit: 3,
+        })
+      : null,
+  });
 };
 
 export function ErrorBoundary() {
@@ -110,10 +108,19 @@ function App() {
     recentPostList,
     config = {},
     ...data
-  } = useLoaderData<typeof loader>();
+  } = useLoaderData<LoaderData>();
+
   const [showSidebar, setShowSidebar] = useState(false);
 
-  setUser(user);
+  if (user) {
+    setUser({
+      id: `${user.id}`,
+      name: user.name,
+      email: user.email,
+    });
+  } else {
+    setUser(null);
+  }
 
   const handleSidebar = () => {
     setShowSidebar(!showSidebar);

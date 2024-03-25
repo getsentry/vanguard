@@ -19,10 +19,11 @@ Sentry.init({
         useMatches,
       ),
     }),
-    new Sentry.Replay()
+    new Sentry.Replay(),
   ],
+
   replaysSessionSampleRate: 1.0,
-  replaysOnErrorSampleRate: 1.0
+  replaysOnErrorSampleRate: 1.0,
 });
 
 startTransition(() => {
@@ -33,3 +34,9 @@ startTransition(() => {
     </StrictMode>,
   );
 });
+
+if (process.env.NODE_ENV === "development") {
+  import("@spotlightjs/spotlight").then((Spotlight) =>
+    Spotlight.init({ injectImmediately: true }),
+  );
+}

@@ -1,9 +1,8 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
 import { requireUserId } from "~/services/auth.server";
-
 import { getPostList } from "~/models/post.server";
 import Post from "~/components/post";
 import { paginate } from "~/lib/paginator";
@@ -12,12 +11,6 @@ import WelcomeBanner from "~/components/welcome-banner";
 import ClusteredPostList from "~/components/clustered-post-list";
 import { getReactionsForPosts } from "~/models/post-reactions.server";
 import { countCommentsForPosts } from "~/models/post-comments.server";
-
-type LoaderData = {
-  postListPaginated: any;
-  reactions: any[];
-  commentCounts: any[];
-};
 
 // TODO: make configurable
 const clusteredCategories = ["shipped"];
@@ -96,7 +89,7 @@ const FragmentedPostList = ({ posts, reactions, commentCounts }) => {
   return <>{output}</>;
 };
 
-export const loader: LoaderFunction = async ({ request, context }) => {
+export async function loader({ request, context }: LoaderFunctionArgs) {
   const userId = await requireUserId(request, context);
   const url = new URL(request.url);
   const cursor = url.searchParams.get("cursor");
@@ -117,8 +110,8 @@ export const loader: LoaderFunction = async ({ request, context }) => {
     postList: postListPaginated.result,
   });
 
-  return json<LoaderData>({ postListPaginated, reactions, commentCounts });
-};
+  return json({ postListPaginated, reactions, commentCounts });
+}
 
 export default function Index() {
   const { postListPaginated, reactions, commentCounts } =

@@ -195,14 +195,20 @@ export async function updateUser({
 
   // admin only fields
   if (user.admin) {
-    if (admin !== undefined) data.admin = !!admin;
-    if (canPostRestricted !== undefined)
+    if (admin !== undefined && admin !== user.admin) data.admin = !!admin;
+    if (
+      canPostRestricted !== undefined &&
+      canPostRestricted !== user.canPostRestricted
+    )
       data.canPostRestricted = !!canPostRestricted;
   }
 
-  if (name !== undefined) data.name = name;
+  if (name !== undefined && name !== user.name) data.name = name;
   if (picture !== undefined) data.picture = picture;
-  if (notifyReplies !== undefined) data.notifyReplies = !!notifyReplies;
+  if (notifyReplies !== undefined && notifyReplies !== user.notifyReplies)
+    data.notifyReplies = !!notifyReplies;
+
+  console.log({ data });
 
   return await prisma.user.update({
     where: {

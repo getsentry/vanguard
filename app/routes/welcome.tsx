@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import {
   unstable_parseMultipartFormData,
   json,
@@ -9,28 +9,16 @@ import { Form, useActionData, useLoaderData } from "@remix-run/react";
 
 import { requireUser, requireUserId } from "~/services/auth.server";
 import { updateUser } from "~/models/user.server";
-import type { User } from "~/models/user.server";
 import uploadHandler from "~/lib/upload-handler";
 import AvatarInput from "~/components/avatar-input";
 import Button from "~/components/button";
 
-type LoaderData = {
-  user: User;
-};
-
-export const loader: LoaderFunction = async ({ request, context }) => {
+export async function loader({ request, context }: LoaderFunctionArgs) {
   const user = await requireUser(request, context);
-  return json<LoaderData>({ user });
-};
+  return json({ user });
+}
 
-type ActionData = {
-  errors?: {
-    name?: string;
-    picture?: string;
-  };
-};
-
-export const action: ActionFunction = async ({ request, context }) => {
+export async function action({ request, context }: ActionFunctionArgs) {
   const userId = await requireUserId(request, context);
 
   const filter = ({ contentType }: { contentType: string }) => {
@@ -48,10 +36,7 @@ export const action: ActionFunction = async ({ request, context }) => {
   );
   const name = formData.get("name");
   if (typeof name !== "string" || name.length === 0) {
-    return json<ActionData>(
-      { errors: { name: "Name is required" } },
-      { status: 400 },
-    );
+    return json({ errors: { name: "Name is required" } }, { status: 400 });
   }
 
   let picture: any = formData.get("picture");
@@ -73,7 +58,7 @@ export const action: ActionFunction = async ({ request, context }) => {
   // dont redirect to self
   else if (redirectTo?.indexOf("/welcome") === 0) redirectTo = "/";
   return redirect(redirectTo);
-};
+}
 
 export default function WelcomePage() {
   const { user } = useLoaderData<typeof loader>();

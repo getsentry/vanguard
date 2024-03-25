@@ -4,35 +4,26 @@ import {
   json,
   redirect,
 } from "@remix-run/node";
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 
-import { requireUser, requireUserId } from "~/services/auth.server";
-import { updateUser } from "~/models/user.server";
-import type { User } from "~/models/user.server";
+import { requireUserId } from "~/services/auth.server";
+import { getUserById, updateUser } from "~/models/user.server";
 import uploadHandler from "~/lib/upload-handler";
 import AvatarInput from "~/components/avatar-input";
 import FormActions from "~/components/form-actions";
 import Button from "~/components/button";
 import PageHeader from "~/components/page-header";
 
-type LoaderData = {
-  user: User;
-};
+export async function loader({ request, context }: LoaderFunctionArgs) {
+  const userId = await requireUserId(request, context);
 
-export const loader: LoaderFunction = async ({ request, context }) => {
-  const user = await requireUser(request, context);
-  return json<LoaderData>({ user });
-};
+  const user = await getUserById(userId);
 
-type ActionData = {
-  errors?: {
-    name?: string;
-    picture?: string;
-  };
-};
+  return json({ user });
+}
 
-export const action: ActionFunction = async ({ request, context }) => {
+export async function action({ request, context }: ActionFunctionArgs) {
   const userId = await requireUserId(request, context);
 
   const filter = ({ contentType }: { contentType: string }) => {
@@ -56,12 +47,10 @@ export const action: ActionFunction = async ({ request, context }) => {
   if (picture === "") picture = undefined;
 
   if (typeof name !== "string" || name.length === 0) {
-    return json<ActionData>(
-      { errors: { name: "Name is required" } },
-      { status: 400 },
-    );
+    return json({ errors: { name: "Name is required" } }, { status: 400 });
   }
 
+  // TODO: update session
   await updateUser({
     userId,
     id: userId,
@@ -74,9 +63,9 @@ export const action: ActionFunction = async ({ request, context }) => {
   let redirectTo = url.searchParams.get("redirectTo");
   if (redirectTo?.indexOf("/") !== 0) redirectTo = "/";
   return redirect(redirectTo);
-};
+}
 
-export default function NewPostPage() {
+export default function Settings() {
   const { user } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const errors = actionData?.errors;

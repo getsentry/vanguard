@@ -14,11 +14,15 @@ import * as Sentry from "@sentry/remix";
 
 // import { prisma } from "~/services/db.server";
 
+const MODE = process.env.NODE_ENV;
+const BUILD_DIR = path.join(process.cwd(), "build");
+
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
   environment: process.env.NODE_ENV,
   release: process.env.VERSION,
   tracesSampleRate: 1.0,
+  spotlight: MODE === "development",
   // currently breaking
   // integrations: [new Sentry.Integrations.Prisma({ client: prisma })],
 });
@@ -27,8 +31,8 @@ sourceMapSupport.install();
 installGlobals();
 
 const app = express();
-
 const metricsApp = express();
+
 app.use(
   prom({
     metricsPath: "/metrics",
@@ -101,10 +105,15 @@ app.all("*", async (req, res, next) => {
   const session = await getSession(req);
   const user = await getUser(session);
 
-  Sentry.setUser({
-    id: `${user?.id}`,
-    email: user?.email,
-  });
+  Sentry.setUser(
+    user
+      ? {
+          id: `${user.id}`,
+          email: user.email,
+          name: user.name,
+        }
+      : null,
+  );
 
   req.user = user || null;
 
@@ -116,9 +125,6 @@ function getLoadContext(req: Request) {
     user: req.user,
   };
 }
-
-const MODE = process.env.NODE_ENV;
-const BUILD_DIR = path.join(process.cwd(), "build");
 
 const createSentryRequestHandler =
   wrapExpressCreateRequestHandler(createRequestHandler);
