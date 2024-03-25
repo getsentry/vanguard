@@ -8,8 +8,12 @@ export default (content: string, maxLength = 256): string => {
     KEEP_CONTENT: false,
   });
 
-  const doc = new DOMParser().parseFromString(contentBlocks, "text/html");
-  const sum = (doc.body.textContent || "").replace(/^[\s\n]+|[\s\n]+$/g, "");
+  const sum = sanitize(contentBlocks, {
+    ALLOWED_TAGS: [],
+    KEEP_CONTENT: false,
+  })
+    .replace(/^\s*<p>(.*)<\/p>\s*$/gi, "$1")
+    .replace(/^[\s\n]+|[\s\n]+$/g, "");
   if (sum.length > maxLength)
     return sum.substring(0, maxLength - 3).split("\n")[0] + "...";
   return sum;
