@@ -1,6 +1,8 @@
+import Content from "~/components/content";
+
 export default function About() {
   return (
-    <div>
+    <Content>
       <h1>About Vanguard</h1>
       <p>
         Vanguard has been designed to provide a way to create permanence around
@@ -45,6 +47,6 @@ export default function About() {
         server, but provide partial responsive UI updates).
       </p>
       <p>Enjoy!</p>
-    </div>
+    </Content>
   );
 }
