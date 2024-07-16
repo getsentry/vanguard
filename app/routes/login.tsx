@@ -106,7 +106,7 @@ export default function Login() {
             </div>
           </>
         )}
-        <BasicLogin redirectTo={redirectTo} />
+        {config.USE_BASIC_LOGIN && <BasicLogin redirectTo={redirectTo} />}
       </div>
       <div className="mt-6 text-center text-xs">
         <Link to="/about">About Vanguard</Link>
