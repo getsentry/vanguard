@@ -7,6 +7,7 @@ interface Config {
   GOOGLE_CLIENT_ID?: string;
   GOOGLE_HD?: string;
   SENTRY_DSN?: string;
+  USE_BASIC_LOGIN?: boolean | string;
   VERSION?: string;
   NODE_ENV: "development" | "production";
 }

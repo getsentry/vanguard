@@ -88,25 +88,23 @@ export default function Login() {
       </div>
 
       <div className="min-w-sm mt-8 flex-1">
-        {config.GOOGLE_CLIENT_ID && (
-          <>
-            <GoogleLogin redirectTo={redirectTo} />
-            <div className="relative my-8">
-              <div
-                className="absolute inset-0 flex items-center"
-                aria-hidden="true"
-              >
-                <div className="min-w-full border-t border-border-light dark:border-border-dark" />
-              </div>
-              <div className="relative flex justify-center">
-                <span className="bg-bg-light dark:bg-bg-dark text-border-light dark:text-border-dark px-2 text-sm">
-                  Or
-                </span>
-              </div>
+        {config.GOOGLE_CLIENT_ID && <GoogleLogin redirectTo={redirectTo} />}
+        {config.GOOGLE_CLIENT_ID && config.USE_BASIC_LOGIN && (
+          <div className="relative my-8">
+            <div
+              className="absolute inset-0 flex items-center"
+              aria-hidden="true"
+            >
+              <div className="min-w-full border-t border-border-light dark:border-border-dark" />
             </div>
-          </>
+            <div className="relative flex justify-center">
+              <span className="bg-bg-light dark:bg-bg-dark text-border-light dark:text-border-dark px-2 text-sm">
+                Or
+              </span>
+            </div>
+          </div>
         )}
-        <BasicLogin redirectTo={redirectTo} />
+        {config.USE_BASIC_LOGIN && <BasicLogin redirectTo={redirectTo} />}
       </div>
       <div className="mt-6 text-center text-xs">
         <Link to="/about">About Vanguard</Link>

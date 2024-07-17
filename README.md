@@ -42,6 +42,12 @@ GOOGLE_IAP_AUDIENCE=
 GOOGLE_HD=your-google-workspace-domain.com
 ```
 
+To disable email/password authentication, you can set this option:
+
+```sh
+USE_BASIC_LOGIN=false
+```
+
 ### Sentry
 
 For Sentry to work, you will also need the following defined:
