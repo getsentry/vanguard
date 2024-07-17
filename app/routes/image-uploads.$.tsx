@@ -6,7 +6,7 @@ import invariant from "tiny-invariant";
 
 import path from "path";
 
-const MAX_AGE = 60 * 60 ** 24;
+const MAX_AGE = 60 * 60 * 24;
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const fileParam = params["*"];
