@@ -1,14 +1,22 @@
 import os from "os";
 import fs from "fs/promises";
 import { redirect } from "@remix-run/node";
+import type { GetSignedUrlConfig} from "@google-cloud/storage";
+import { Storage } from "@google-cloud/storage";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import invariant from "tiny-invariant";
 
 import path from "path";
 
+import { requireUserId } from "~/services/auth.server";
+
 const MAX_AGE = 60 * 60 ** 24;
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function loader({ request, context, params }: LoaderFunctionArgs) {
+  if (process.env.GCS_EXPIRES_IN) {
+    await requireUserId(request, context);
+  }
+
   const fileParam = params["*"];
 
   invariant(fileParam, "filename is required");
@@ -24,14 +32,28 @@ export async function loader({ params }: LoaderFunctionArgs) {
       ? `${process.env.GCS_BUCKET_PATH}/`
       : "";
 
-    // const cloudStorage = new Storage();
+    const cloudStorage = new Storage();
 
-    // const file = cloudStorage
-    //   .bucket(bucketName)
-    //   .file(`${bucketPath}${params.filename}`);
-    // stream = file.createReadStream();
-    const url = `https://storage.googleapis.com/${bucketName}/${bucketPath}${fileParam}`;
-    return redirect(url);
+    if (process.env.GCS_EXPIRES_IN) {
+      const options: GetSignedUrlConfig = {
+        version: "v4",
+        action: "read",
+        expires: Date.now() + parseInt(process.env.GCS_EXPIRES_IN),
+      };
+
+      const [url] = await cloudStorage
+        .bucket(bucketName)
+        .file(`${bucketPath}${fileParam}`)
+        .getSignedUrl(options);
+      return redirect(url);
+    } else {
+      // const file = cloudStorage
+      //   .bucket(bucketName)
+      //   .file(`${bucketPath}${params.filename}`);
+      // stream = file.createReadStream();
+      const url = `https://storage.googleapis.com/${bucketName}/${bucketPath}${fileParam}`;
+      return redirect(url);
+    }
   } else {
     const filepath = path.format({
       dir: os.tmpdir(),
