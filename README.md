@@ -71,6 +71,13 @@ GCS_BUCKET_NAME=your-bucket-name
 GCS_BUCKET_PATH=images
 ```
 
+You can enable signed URLs for images by setting the expiration time in the `GCS_EXPIRES_IN` variable. In this case, you will have to provide a GCP service account, either with the Workload Identity (recommended), or with a static key (with the `GOOGLE_APPLICATION_CREDENTIALS` environment variable).
+
+```sh
+# 1 hour expiration time
+GCS_EXPIRES_IN=3600000
+```
+
 Currently we only support Google's Cloud Storage service, but would happily take contributions to enable other services such as S3.
 
 ### Outbound Email
