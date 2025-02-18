@@ -50,11 +50,15 @@ export default function uploadHandler({
         file: ({ filename }) => `${namespace}/${filename}`,
       });
       const file = await fileHandler(params);
-      if (file && file.name) return `${urlPrefix}/${namespace}/${file.name}`;
+
       // if you dont return a non-false value (aka null or undefined) it will
       // go to the next upload handler, which is in-memory, and return an object
       // with params we dont want
-      return "";
+      if (!file || !file.name) return "";
+
+      const newFilename = `${cuid()}-${file.name}`;
+
+      return `${urlPrefix}/${namespace}/${newFilename}`;
     };
   }
 
@@ -98,6 +102,7 @@ export function createCloudStorageUploadHandler({
       ? `${process.env.GCS_BUCKET_PATH}/`
       : "";
 
+    // generate a new filename that is "hard to guess"
     const newFilename = `${namespace}-${cuid()}${path.extname(filename)}`;
 
     const cloudStorage = new Storage();
