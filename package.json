@@ -136,6 +136,11 @@
   "simple-git-hooks": {
     "pre-commit": "pnpm exec lint-staged --concurrent false"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "bcrypt"
+    ]
+  },
   "lint-staged": {
     "*": [
       "prettier --write --cache --ignore-unknown"
