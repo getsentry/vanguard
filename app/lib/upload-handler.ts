@@ -7,7 +7,6 @@ import {
 import { Storage } from "@google-cloud/storage";
 import type { FileUploadHandlerOptions } from "@remix-run/node/dist/upload/fileUploadHandler";
 import type { UploadHandler } from "@remix-run/node";
-import path from "path";
 import { createId as cuid } from "@paralleldrive/cuid2";
 
 type UploadHandlerOptions = {
@@ -47,7 +46,8 @@ export default function uploadHandler({
 
       const fileHandler = unstable_createFileUploadHandler({
         filter,
-        file: ({ filename }) => `${namespace}/${filename}`,
+        file: ({ filename }) =>
+          `${namespace}/${cuid()}-${filename.replace(/\s+/g, "-")}`,
       });
       const file = await fileHandler(params);
 
@@ -56,9 +56,7 @@ export default function uploadHandler({
       // with params we dont want
       if (!file || !file.name) return "";
 
-      const newFilename = `${cuid()}-${file.name}`;
-
-      return `${urlPrefix}/${namespace}/${newFilename}`;
+      return `${urlPrefix}/${namespace}/${file.name}`;
     };
   }
 
@@ -103,7 +101,7 @@ export function createCloudStorageUploadHandler({
       : "";
 
     // generate a new filename that is "hard to guess"
-    const newFilename = `${namespace}-${cuid()}${path.extname(filename)}`;
+    const newFilename = `${cuid()}-${filename.replace(/\s+/g, "-")}`;
 
     const cloudStorage = new Storage();
     const file = cloudStorage
