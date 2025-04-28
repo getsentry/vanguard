@@ -1,7 +1,7 @@
 import os from "os";
 import fs from "fs/promises";
 import { redirect } from "@remix-run/node";
-import type { GetSignedUrlConfig} from "@google-cloud/storage";
+import type { GetSignedUrlConfig } from "@google-cloud/storage";
 import { Storage } from "@google-cloud/storage";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import invariant from "tiny-invariant";
@@ -20,8 +20,6 @@ export async function loader({ request, context, params }: LoaderFunctionArgs) {
   const fileParam = params["*"];
 
   invariant(fileParam, "filename is required");
-  
-  const normalizedFileParam = fileParam.normalize('NFC');
 
   const useGcs = !!process.env.USE_GCS_STORAGE;
 
@@ -45,7 +43,7 @@ export async function loader({ request, context, params }: LoaderFunctionArgs) {
 
       const [url] = await cloudStorage
         .bucket(bucketName)
-        .file(`${bucketPath}${normalizedFileParam}`)
+        .file(`${bucketPath}${fileParam}`)
         .getSignedUrl(options);
       return redirect(url);
     } else {
@@ -53,13 +51,14 @@ export async function loader({ request, context, params }: LoaderFunctionArgs) {
       //   .bucket(bucketName)
       //   .file(`${bucketPath}${params.filename}`);
       // stream = file.createReadStream();
+      const normalizedFileParam = fileParam.normalize("NFC");
       const url = `https://storage.googleapis.com/${bucketName}/${bucketPath}${normalizedFileParam}`;
       return redirect(url);
     }
   } else {
     const filepath = path.format({
       dir: os.tmpdir(),
-      base: normalizedFileParam,
+      base: fileParam,
     });
     const fd = await fs.open(filepath, "r");
     stream = fd.createReadStream();
