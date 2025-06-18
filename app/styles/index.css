@@ -247,3 +247,27 @@ label select {
 .prose figure.markdown-image > figcaption {
   @apply text-secondary-light dark:text-secondary-dark text-xs mt-2 text-center;
 }
+
+/* Markdown Image Enhancement Styles */
+.markdown-figure {
+  @apply text-center;
+}
+
+.markdown-image {
+  @apply mx-auto border border-gray-200 dark:border-gray-700;
+  max-height: 60vh; /* Prevent images from being too tall on initial display */
+}
+
+.markdown-image:hover {
+  @apply shadow-lg transform scale-[1.02];
+  transition: all 0.2s ease-in-out;
+}
+
+figcaption {
+  @apply select-none;
+}
+
+/* Code block improvements for better readability */
+.code-block {
+  @apply bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto;
+}
