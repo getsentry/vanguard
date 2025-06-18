@@ -11,6 +11,7 @@
     "db:migrate": "run-p db:migrate:*",
     "db:migrate:dev": "npx prisma migrate dev",
     "db:migrate:test": "dotenv -e .env.test -- npx prisma db push --accept-data-loss",
+    "db:seed": "npx prisma db seed",
     "dev": "run-p dev:*",
     "dev:server": "cross-env NODE_ENV=development nodemon --exec 'esbuild --platform=node --format=cjs ./server.ts --outdir=build --bundle && node --require dotenv/config ./build/server.js' --watch ./server.ts",
     "dev:remix": "cross-env NODE_ENV=development remix watch",
@@ -35,6 +36,9 @@
     "validate": "run-p \"test -- --run\" lint typecheck test:e2e:run"
   },
   "prettier": {},
+  "prisma": {
+    "seed": "ts-node -r esbuild-register -r dotenv/config ./prisma/seed.ts"
+  },
   "dependencies": {
     "@faker-js/faker": "^6.3.1",
     "@fontsource/inter": "^5.0.17",
