@@ -130,6 +130,20 @@ SMTP_PASS=
   pnpm category create <slug> <name>
   ```
 
+- **Optional**: Populate your database with sample data:
+
+  ```sh
+  pnpm run db:seed
+  ```
+
+  This will create:
+
+  - A demo user (if none exists): `demo@example.com` with password `password123`
+  - A sample category (if none exists): "General"
+  - Three sample posts with rich content and images
+
+  The seed script is safe to run multiple times - it won't create duplicates.
+
 - Run the first build:
 
   ```sh
