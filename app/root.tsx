@@ -26,6 +26,7 @@ import Button from "./components/button";
 import Document from "./components/document";
 import config from "./config";
 import Link from "./components/link";
+import { ThemeProvider } from "./lib/theme-context";
 
 export const links: LinksFunction = () => {
   return [
@@ -127,78 +128,80 @@ function App() {
   };
 
   return (
-    <Document config={config} data={data} showSidebar={showSidebar}>
-      <LoadingIndicator />
-      <div>
-        <Toaster />
-      </div>
-      {config.ENV !== "production" && <DevNotice />}
-      <div className="relative">
-        <div className="xl:pb-24 xl:px-20 xl:mr-[30rem] relative">
-          <Container>
-            <Header
-              showSidebar={showSidebar}
-              handleSidebar={handleSidebar}
-              user={user}
-            />
-            <Outlet />
-            <Footer version={config.VERSION} admin={user?.admin} />
-          </Container>
+    <ThemeProvider>
+      <Document config={config} data={data} showSidebar={showSidebar}>
+        <LoadingIndicator />
+        <div>
+          <Toaster />
         </div>
-        <Sidebar showSidebar={showSidebar}>
-          {!!user && (
-            <>
-              <SidebarSection>
-                <div className="flex items-center gap-4">
-                  <Link to="/settings">
-                    <Avatar user={user} size="2rem" />
-                  </Link>
-                  <Button as={Link} baseStyle="link" to="/settings">
-                    Settings
-                  </Button>
-                  <div className="text-border-light dark:text-border-dark font-mono">
-                    /
+        {config.ENV !== "production" && <DevNotice />}
+        <div className="relative">
+          <div className="xl:pb-24 xl:px-20 xl:mr-[30rem] relative">
+            <Container>
+              <Header
+                showSidebar={showSidebar}
+                handleSidebar={handleSidebar}
+                user={user}
+              />
+              <Outlet />
+              <Footer version={config.VERSION} admin={user?.admin} />
+            </Container>
+          </div>
+          <Sidebar showSidebar={showSidebar}>
+            {!!user && (
+              <>
+                <SidebarSection>
+                  <div className="flex items-center gap-4">
+                    <Link to="/settings">
+                      <Avatar user={user} size="2rem" />
+                    </Link>
+                    <Button as={Link} baseStyle="link" to="/settings">
+                      Settings
+                    </Button>
+                    <div className="text-border-light dark:text-border-dark font-mono">
+                      /
+                    </div>
+                    <Button as={Link} baseStyle="link" to="/drafts">
+                      Drafts
+                    </Button>
                   </div>
-                  <Button as={Link} baseStyle="link" to="/drafts">
-                    Drafts
-                  </Button>
-                </div>
-              </SidebarSection>
-              <SidebarSection>
-                <Form method="get" action="/search">
-                  <Input
-                    variant="search"
-                    name="q"
-                    placeholder="Search posts..."
-                  />
-                </Form>
-              </SidebarSection>
-            </>
-          )}
+                </SidebarSection>
+                <SidebarSection>
+                  <Form method="get" action="/search">
+                    <Input
+                      variant="search"
+                      name="q"
+                      placeholder="Search posts..."
+                    />
+                  </Form>
+                </SidebarSection>
+              </>
+            )}
 
-          {categoryList && categoryList.length > 0 && (
-            <SidebarSection>
-              <h6 className="font-semibold text-sm uppercase mb-4 text-muted-light dark:text-muted-dark">
-                Divisions
-              </h6>
-              <CategoryTags>
-                {categoryList.map((category: any) => (
-                  <CategoryTag key={category.id} category={category} />
-                ))}
-              </CategoryTags>
-            </SidebarSection>
-          )}
-          {recentPostList && recentPostList.length > 0 && (
-            <SidebarSection>
-              <h6 className="font-semibold text-sm uppercase mb-4 text-muted-light dark:text-muted-dark">
-                Recent Posts
-              </h6>
-              <PostList postList={recentPostList} />
-            </SidebarSection>
-          )}
-        </Sidebar>
-      </div>
-    </Document>
+            {categoryList && categoryList.length > 0 && (
+              <SidebarSection>
+                <h6 className="font-semibold text-sm uppercase mb-4 text-muted-light dark:text-muted-dark">
+                  Divisions
+                </h6>
+                <CategoryTags>
+                  {categoryList.map((category: any) => (
+                    <CategoryTag key={category.id} category={category} />
+                  ))}
+                </CategoryTags>
+              </SidebarSection>
+            )}
+            {recentPostList && recentPostList.length > 0 && (
+              <SidebarSection>
+                <h6 className="font-semibold text-sm uppercase mb-4 text-muted-light dark:text-muted-dark">
+                  Recent Posts
+                </h6>
+                <PostList postList={recentPostList} />
+              </SidebarSection>
+            )}
+          </Sidebar>
+        </div>
+      </Document>
+    </ThemeProvider>
   );
 }
 
