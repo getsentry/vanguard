@@ -1,9 +1,9 @@
-FROM node:20 as base
+FROM node:21 as base
 
 # set for base and all layer that inherit from it
 ENV NODE_ENV production
 
-RUN npm install -g pnpm
+RUN npm install -g pnpm@10.4.1
 
 # Install all node_modules, including dev dependencies
 FROM base as deps
@@ -11,6 +11,7 @@ FROM base as deps
 WORKDIR /app
 
 ADD package.json pnpm-lock.yaml ./
+ADD prisma ./prisma
 RUN pnpm install
 
 # Setup production node_modules
@@ -44,7 +45,7 @@ ARG SENTRY_PROJECT
 ENV SENTRY_PROJECT $SENTRY_PROJECT
 
 ADD . .
-RUN pnpm build
+RUN NODE_ENV=development pnpm build
 RUN pnpm exec prisma generate
 
 ENV PORT 3000
