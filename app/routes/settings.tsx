@@ -41,6 +41,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
   );
   const name = formData.get("name");
   const notifyReplies = !!formData.get("notifyReplies");
+  const autoSubscribeComments = !!formData.get("autoSubscribeComments");
   let picture: any = formData.get("picture");
   // empty values get returned as empty strings, which will unset
   // the picture rather than leave it unchanged
@@ -57,6 +58,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
     name,
     picture,
     notifyReplies,
+    autoSubscribeComments,
   });
 
   const url = new URL(request.url);
@@ -144,6 +146,16 @@ export default function Settings() {
             defaultChecked={user.notifyReplies}
           />
           Receive notifications about replies to your comments?
+        </label>
+      </div>
+      <div>
+        <label className="field-inline">
+          <input
+            type="checkbox"
+            name="autoSubscribeComments"
+            defaultChecked={user.autoSubscribeComments}
+          />
+          Automatically subscribe to comment updates for all posts?
         </label>
       </div>
       <FormActions>

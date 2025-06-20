@@ -99,12 +99,12 @@ export async function getPost({
 
   const where = onlyPublished
     ? {
-        OR: [
-          { id, authorId: userId, deleted: false },
-          { id, published: true, deleted: false },
-          ...(user.admin ? [{ id }] : []),
-        ],
-      }
+      OR: [
+        { id, authorId: userId, deleted: false },
+        { id, published: true, deleted: false },
+        ...(user.admin ? [{ id }] : []),
+      ],
+    }
     : { OR: [{ id, deleted: false }, ...(user.admin ? [{ id }] : [])] };
 
   return await prisma.post.findFirst({
@@ -325,6 +325,14 @@ export async function createPost({
   categoryId: Category["id"];
   meta?: Pick<PostMeta, "name" | "content">[];
 }): Promise<Post> {
+  // Check if user has auto-subscribe enabled (authors should always be subscribed to their own posts)
+  const user = await prisma.user.findFirst({
+    where: { id: userId },
+    select: { autoSubscribeComments: true },
+  });
+
+  const shouldAutoSubscribe = user?.autoSubscribeComments ?? true; // Default to true for authors
+
   return await prisma.post.create({
     data: {
       title,
@@ -354,13 +362,13 @@ export async function createPost({
       feeds: {
         connect: (feedIds || []).map((feedId) => ({ id: feedId })),
       },
-      subscriptions: {
+      subscriptions: shouldAutoSubscribe ? {
         create: [
           {
             userId,
           },
         ],
-      },
+      } : undefined,
       meta: {
         create: meta,
       },

@@ -4,6 +4,7 @@ import {
   createSubscription,
   deleteSubscription,
   hasSubscription,
+  autoSubscribeIfEnabled,
 } from "./post-subscription.server";
 
 import * as Fixtures from "~/lib/test/fixtures";
@@ -126,5 +127,88 @@ describe("deleteSubscription", () => {
       },
     });
     expect(newSub).toBeNull();
+  });
+});
+
+describe("autoSubscribeIfEnabled", () => {
+  let user: User;
+  let post: Post;
+
+  beforeEach(async () => {
+    const category = await Fixtures.Category();
+    user = await Fixtures.User();
+    post = await Fixtures.Post({
+      authorId: user.id,
+      categoryId: category.id,
+    });
+  });
+
+  test("subscribes user when autoSubscribeComments is enabled", async () => {
+    // Enable auto-subscribe for the user
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { autoSubscribeComments: true },
+    });
+
+    await autoSubscribeIfEnabled({
+      userId: user.id,
+      postId: post.id,
+    });
+
+    const subscription = await prisma.postSubscription.findFirst({
+      where: {
+        userId: user.id,
+        postId: post.id,
+      },
+    });
+    expect(subscription).toBeDefined();
+  });
+
+  test("does not subscribe user when autoSubscribeComments is disabled", async () => {
+    // Ensure auto-subscribe is disabled
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { autoSubscribeComments: false },
+    });
+
+    await autoSubscribeIfEnabled({
+      userId: user.id,
+      postId: post.id,
+    });
+
+    const subscription = await prisma.postSubscription.findFirst({
+      where: {
+        userId: user.id,
+        postId: post.id,
+      },
+    });
+    expect(subscription).toBeNull();
+  });
+
+  test("does not create duplicate subscriptions", async () => {
+    // Enable auto-subscribe for the user
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { autoSubscribeComments: true },
+    });
+
+    // Create an existing subscription
+    await createSubscription({
+      userId: user.id,
+      postId: post.id,
+    });
+
+    await autoSubscribeIfEnabled({
+      userId: user.id,
+      postId: post.id,
+    });
+
+    const subscriptions = await prisma.postSubscription.findMany({
+      where: {
+        userId: user.id,
+        postId: post.id,
+      },
+    });
+    expect(subscriptions.length).toBe(1);
   });
 });

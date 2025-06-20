@@ -12,20 +12,21 @@ datasource db {
 }
 
 model User {
-  id                String             @id @default(cuid())
-  passwordHash      String?            @db.VarChar(255)
-  externalId        String?            @unique
-  picture           String?
-  email             String             @unique
-  name              String?
-  posts             Post[]
-  canPostRestricted Boolean            @default(false)
-  admin             Boolean            @default(false)
-  notifyReplies     Boolean            @default(true)
-  PostComment       PostComment[]
-  PostRevision      PostRevision[]
-  PostReaction      PostReaction[]
-  PostSubscription  PostSubscription[]
+  id                   String             @id @default(cuid())
+  passwordHash         String?            @db.VarChar(255)
+  externalId           String?            @unique
+  picture              String?
+  email                String             @unique
+  name                 String?
+  posts                Post[]
+  canPostRestricted    Boolean            @default(false)
+  admin                Boolean            @default(false)
+  notifyReplies        Boolean            @default(true)
+  autoSubscribeComments Boolean           @default(false)
+  PostComment          PostComment[]
+  PostRevision         PostRevision[]
+  PostReaction         PostReaction[]
+  PostSubscription     PostSubscription[]
 }
 
 model Category {

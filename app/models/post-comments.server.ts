@@ -3,6 +3,7 @@ import invariant from "tiny-invariant";
 
 import { prisma } from "~/services/db.server";
 import { notifyComment } from "~/lib/email";
+import { autoSubscribeIfEnabled } from "~/models/post-subscription.server";
 
 export type { PostComment } from "@prisma/client";
 
@@ -106,9 +107,9 @@ export async function createComment({
   if (post.allowComments && post.category.allowComments) {
     const parent = parentId
       ? await prisma.postComment.findFirst({
-          where: { postId, id: parentId },
-          include: { author: true },
-        })
+        where: { postId, id: parentId },
+        include: { author: true },
+      })
       : null;
 
     const comment = await prisma.postComment.create({
@@ -121,6 +122,12 @@ export async function createComment({
       include: {
         author: true,
       },
+    });
+
+    // Auto-subscribe the comment author if they have the setting enabled
+    await autoSubscribeIfEnabled({
+      userId,
+      postId,
     });
 
     announceComment(post, comment, parent);

@@ -76,3 +76,28 @@ export async function deleteSubscription({
     },
   });
 }
+
+export async function autoSubscribeIfEnabled({
+  userId,
+  postId,
+}: {
+  userId: PostSubscription["userId"];
+  postId: PostSubscription["postId"];
+}): Promise<void> {
+  // Check if user has auto-subscribe enabled and isn't already subscribed
+  const user = await prisma.user.findFirst({
+    where: {
+      id: userId,
+    },
+    select: {
+      autoSubscribeComments: true,
+    },
+  });
+
+  if (user?.autoSubscribeComments) {
+    const existingSubscription = await hasSubscription({ userId, postId });
+    if (!existingSubscription) {
+      await createSubscription({ userId, postId });
+    }
+  }
+}

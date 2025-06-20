@@ -14,7 +14,7 @@ import { requireUser, requireUserId } from "~/services/auth.server";
 import { default as PostTemplate } from "~/components/post";
 import PostReactions from "~/components/post-reactions";
 import PostComments from "~/components/post-comments";
-import { hasSubscription } from "~/models/post-subscription.server";
+import { hasSubscription, autoSubscribeIfEnabled } from "~/models/post-subscription.server";
 
 export async function loader({ request, context, params }: LoaderFunctionArgs) {
   const user = await requireUser(request, context);
@@ -32,6 +32,12 @@ export async function loader({ request, context, params }: LoaderFunctionArgs) {
     userId: user.id,
     postId: post.id,
     limit: 1000,
+  });
+
+  // Auto-subscribe user if they have the setting enabled
+  await autoSubscribeIfEnabled({
+    userId: user.id,
+    postId: post.id,
   });
 
   return json({

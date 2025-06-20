@@ -29,9 +29,9 @@ export async function getUserList(
     limit?: number;
     query?: string | null;
   } = {
-    offset: 0,
-    limit: 50,
-  },
+      offset: 0,
+      limit: 50,
+    },
 ) {
   const where: { [key: string]: any } = {};
   if (query !== undefined) {
@@ -179,6 +179,7 @@ export async function updateUser({
   picture,
   canPostRestricted,
   notifyReplies,
+  autoSubscribeComments,
 }: {
   id: User["id"];
   userId: User["id"];
@@ -187,6 +188,7 @@ export async function updateUser({
   picture?: User["picture"] | null;
   canPostRestricted?: User["canPostRestricted"] | undefined;
   notifyReplies?: User["notifyReplies"] | undefined;
+  autoSubscribeComments?: User["autoSubscribeComments"] | undefined;
 }) {
   const user = await prisma.user.findFirst({ where: { id: userId } });
   invariant(user, "user not found");
@@ -207,6 +209,8 @@ export async function updateUser({
   if (picture !== undefined) data.picture = picture;
   if (notifyReplies !== undefined && notifyReplies !== user.notifyReplies)
     data.notifyReplies = !!notifyReplies;
+  if (autoSubscribeComments !== undefined && autoSubscribeComments !== user.autoSubscribeComments)
+    data.autoSubscribeComments = !!autoSubscribeComments;
 
   console.log({ data });
 
