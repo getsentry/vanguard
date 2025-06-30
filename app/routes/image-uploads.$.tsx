@@ -1,7 +1,7 @@
 import os from "os";
 import fs from "fs/promises";
 import { redirect } from "@remix-run/node";
-import type { GetSignedUrlConfig} from "@google-cloud/storage";
+import type { GetSignedUrlConfig } from "@google-cloud/storage";
 import { Storage } from "@google-cloud/storage";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import invariant from "tiny-invariant";
@@ -51,7 +51,8 @@ export async function loader({ request, context, params }: LoaderFunctionArgs) {
       //   .bucket(bucketName)
       //   .file(`${bucketPath}${params.filename}`);
       // stream = file.createReadStream();
-      const url = `https://storage.googleapis.com/${bucketName}/${bucketPath}${fileParam}`;
+      const normalizedFileParam = fileParam.normalize("NFC");
+      const url = `https://storage.googleapis.com/${bucketName}/${bucketPath}${normalizedFileParam}`;
       return redirect(url);
     }
   } else {
