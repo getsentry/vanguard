@@ -143,7 +143,10 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "bcrypt"
-    ]
+    ],
+    "overrides": {
+      "form-data": "4.0.4"
+    }
   },
   "lint-staged": {
     "*": [
