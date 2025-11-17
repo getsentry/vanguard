@@ -11,6 +11,7 @@
     "db:migrate": "run-p db:migrate:*",
     "db:migrate:dev": "npx prisma migrate dev",
     "db:migrate:test": "dotenv -e .env.test -- npx prisma db push --accept-data-loss",
+    "db:reset": "npx prisma migrate reset",
     "db:seed": "npx prisma db seed",
     "dev": "run-p dev:*",
     "dev:server": "cross-env NODE_ENV=development nodemon --exec 'esbuild --platform=node --format=cjs ./server.ts --outdir=build --bundle && node --require dotenv/config ./build/server.js' --watch ./server.ts",
