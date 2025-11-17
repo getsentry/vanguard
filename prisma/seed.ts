@@ -701,7 +701,7 @@ gh pr create --title "Fix code highlighting" --body "Loads Prism.js languages fo
 
 ## Markdown
 
-\`\`\`markdown
+\`\`\`\`markdown
 # Heading 1
 
 ## Heading 2
@@ -723,10 +723,10 @@ This is a paragraph with **bold** and *italic* text.
 
 \`inline code\`
 
-\`\`\`javascript
+‵‵‵javascript
 const code = "block";
-\`\`\`
-\`\`\`
+‵‵‵
+\`\`\`\`
 
 ## C/C++ (C-like)
 
