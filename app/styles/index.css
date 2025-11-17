@@ -269,5 +269,6 @@ figcaption {
 
 /* Code block improvements for better readability */
 .code-block {
-  @apply bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto;
+  /* Background color is copied from prism-sentry/index.css */
+  @apply bg-[#251f3d] p-4 rounded-lg overflow-x-auto;
 }
