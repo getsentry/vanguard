@@ -37,8 +37,7 @@ import "prismjs/components/prism-yaml";
 const renderer = new marked.Renderer();
 
 renderer.code = function (code, lang, escaped) {
-  // The highlight function will be called by marked.parse with the options
-  // We'll handle highlighting in the parseMarkdown function's highlight option
+  code = this.options.highlight(code, lang);
   if (!lang) {
     return `<pre class="code-block"><code>${code}</code></pre>`;
   }
