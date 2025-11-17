@@ -189,9 +189,7 @@ label select {
 
     &[data-state="active"] {
       @apply text-tabs-active-light dark:text-tabs-active-dark;
-      box-shadow:
-        inset 0 -1px 0 0 currentColor,
-        0 1px 0 0 currentColor;
+      box-shadow: inset 0 -1px 0 0 currentColor, 0 1px 0 0 currentColor;
     }
 
     &:focus {
@@ -269,5 +267,5 @@ figcaption {
 
 /* Code block improvements for better readability */
 .code-block {
-  @apply bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto;
+  @apply bg-gray-900 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto;
 }
