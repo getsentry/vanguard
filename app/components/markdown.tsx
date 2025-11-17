@@ -1,15 +1,44 @@
-import { marked } from "marked";
 import { sanitize } from "isomorphic-dompurify";
+import { marked } from "marked";
 import prismjs from "prismjs";
+import { useEffect, useRef, useState } from "react";
 import { default as summarizeFn } from "../lib/summarize";
-import { useState, useEffect, useRef } from "react";
 
 import "prism-sentry/index.css";
+
+// Load Prism.js languages
+// Note: Load dependencies first (clike, c) before languages that extend them
+// Order matters: clike -> c -> objectivec
+import "prismjs/components/prism-bash";
+import "prismjs/components/prism-c";
+import "prismjs/components/prism-clike";
+import "prismjs/components/prism-css";
+import "prismjs/components/prism-diff";
+import "prismjs/components/prism-git";
+import "prismjs/components/prism-go";
+import "prismjs/components/prism-java";
+import "prismjs/components/prism-javascript";
+import "prismjs/components/prism-json";
+import "prismjs/components/prism-jsx";
+import "prismjs/components/prism-markdown";
+import "prismjs/components/prism-markup";
+import "prismjs/components/prism-markup-templating";
+import "prismjs/components/prism-objectivec";
+import "prismjs/components/prism-python";
+import "prismjs/components/prism-ruby";
+import "prismjs/components/prism-rust";
+import "prismjs/components/prism-shell-session";
+import "prismjs/components/prism-sql";
+import "prismjs/components/prism-swift";
+import "prismjs/components/prism-tsx";
+import "prismjs/components/prism-typescript";
+import "prismjs/components/prism-yaml";
 
 const renderer = new marked.Renderer();
 
 renderer.code = function (code, lang, escaped) {
-  code = this.options.highlight(code, lang);
+  // The highlight function will be called by marked.parse with the options
+  // We'll handle highlighting in the parseMarkdown function's highlight option
   if (!lang) {
     return `<pre class="code-block"><code>${code}</code></pre>`;
   }
@@ -21,11 +50,11 @@ renderer.code = function (code, lang, escaped) {
 // add captions to images with enlargeable functionality
 renderer.image = function (href, title, text) {
   const imgId = `img-${Math.random().toString(36).substr(2, 9)}`;
-  const html = `<img 
+  const html = `<img
     id="${imgId}"
-    src="${href}" 
-    title="${title || ""}" 
-    alt="${text}" 
+    src="${href}"
+    title="${title || ""}"
+    alt="${text}"
     class="markdown-image cursor-pointer hover:opacity-80 transition-opacity max-w-full h-auto rounded-lg shadow-sm"
     data-enlarge-src="${href}"
     data-enlarge-alt="${title || text || ""}"
@@ -40,15 +69,65 @@ renderer.image = function (href, title, text) {
   return `<figure class="not-prose markdown-figure my-6">${html}</figure>`;
 };
 
+// Language aliases mapping
+const languageAliases: Record<string, string> = {
+  js: "javascript",
+  ts: "typescript",
+  py: "python",
+  rb: "ruby",
+  sh: "bash",
+  zsh: "bash",
+  yml: "yaml",
+  md: "markdown",
+  html: "markup",
+  xml: "markup",
+  svg: "markup",
+  mathml: "markup",
+  objc: "objectivec",
+};
+
 const parseMarkdown = (content: string, options = {}): string => {
   return marked.parse(content, {
     renderer,
     highlight: function (code, lang) {
-      if (prismjs.languages[lang]) {
-        return prismjs.highlight(code, prismjs.languages[lang], lang);
-      } else {
+      if (!lang) {
         return code;
       }
+
+      // Normalize language name (handle aliases and case)
+      const normalizedLang =
+        languageAliases[lang.toLowerCase()] || lang.toLowerCase();
+
+      // Check if language is loaded
+      if (prismjs.languages[normalizedLang]) {
+        try {
+          return prismjs.highlight(
+            code,
+            prismjs.languages[normalizedLang],
+            normalizedLang
+          );
+        } catch (error) {
+          console.warn(
+            `Prism.js highlighting failed for language "${normalizedLang}":`,
+            error
+          );
+          return code;
+        }
+      }
+
+      // Fallback: try original language name
+      if (lang !== normalizedLang && prismjs.languages[lang]) {
+        try {
+          return prismjs.highlight(code, prismjs.languages[lang], lang);
+        } catch (error) {
+          console.warn(
+            `Prism.js highlighting failed for language "${lang}":`,
+            error
+          );
+        }
+      }
+
+      return code;
     },
     breaks: true,
     ...options,
@@ -156,7 +235,7 @@ export default function Markdown({
   }, [content]); // Re-run when content changes
 
   let html = sanitize(
-    summarize ? summarizeFn(content) : parseMarkdown(content),
+    summarize ? summarizeFn(content) : parseMarkdown(content)
   );
 
   return (
