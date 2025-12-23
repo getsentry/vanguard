@@ -14,6 +14,7 @@ import AvatarInput from "~/components/avatar-input";
 import FormActions from "~/components/form-actions";
 import Button from "~/components/button";
 import PageHeader from "~/components/page-header";
+import ThemeSelector from "~/components/theme-selector";
 
 export async function loader({ request, context }: LoaderFunctionArgs) {
   const userId = await requireUserId(request, context);
@@ -135,6 +136,9 @@ export default function Settings() {
             {errors.picture}
           </div>
         )}
+      </div>
+      <div>
+        <ThemeSelector />
       </div>
       <div>
         <label className="field-inline">

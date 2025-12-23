@@ -7,6 +7,7 @@ import {
 } from "@remix-run/react";
 import type { PropsWithChildren } from "react";
 import classNames from "~/lib/classNames";
+import { ThemeScript } from "./theme-script";
 
 export default function Document({
   children,
@@ -34,6 +35,7 @@ export default function Document({
         )}
         {title ? <title>{title}</title> : null}
         <Links />
+        <ThemeScript />
       </head>
       <body
         className={classNames(
