@@ -17,16 +17,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.9.1
+        uses: styfle/cancel-workflow-action@a40b8845c0683271d9f53dfcb887a7e181d3918b # 0.9.1
 
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@eae0cfeb286e66ffb5155f1a79b90583a127a68b # v2
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 20
 
@@ -55,16 +55,16 @@ jobs:
           - 5432:5432
     steps:
       - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.9.1
+        uses: styfle/cancel-workflow-action@a40b8845c0683271d9f53dfcb887a7e181d3918b # 0.9.1
 
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@02f6c237bd2518259fed6c71566509edfb3f2b74 # v4
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 20
 
@@ -78,12 +78,12 @@ jobs:
         run: npm run test:ci
 
       - name: Publish Test Report
-        uses: mikepenz/action-junit-report@v3
+        uses: mikepenz/action-junit-report@150e2f992e4fad1379da2056d1d1c279f520e058 # v3
         if: always() # always run even if the previous step fails
         with:
           report_paths: "**/junit.xml"
 
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@ab904c41d6ece82784817410c45d8b8c02684457 # v3
         name: Publish Codecov Report
         if: always() # always run even if the previous step fails
         with:
@@ -100,25 +100,25 @@ jobs:
   #   runs-on: ubuntu-latest
   #   steps:
   #     - name: 🛑 Cancel Previous Runs
-  #       uses: styfle/cancel-workflow-action@0.9.1
+  #       uses: styfle/cancel-workflow-action@a40b8845c0683271d9f53dfcb887a7e181d3918b # 0.9.1
 
   #     - name: ⬇️ Checkout repo
-  #       uses: actions/checkout@v3
+  #       uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
 
   #     - name: ⎔ Setup node
-  #       uses: actions/setup-node@v3
+  #       uses: actions/setup-node@3235b876344d2a9aa001b8d1453c930bba69e610 # v3
   #       with:
   #         node-version: 16
 
   #     - name: 📥 Download deps
-  #       uses: bahmutov/npm-install@v1
+  #       uses: bahmutov/npm-install@20216767ca67f0f7b4d095dc5859c5700a6581cb # v1
 
   #     - name: ⚡️ Build Remix
   #       run: |
   #         npm run build
 
   #     - name: Archive Production Artifact
-  #       uses: actions/upload-artifact@v3
+  #       uses: actions/upload-artifact@ff15f0306b3f739f7b6fd43fb5d26cd321bd4de5 # v3
   #       with:
   #         name: build
   #         path: build
@@ -131,13 +131,13 @@ jobs:
   #   runs-on: ubuntu-latest
   #   steps:
   #     - name: 🛑 Cancel Previous Runs
-  #       uses: styfle/cancel-workflow-action@0.9.1
+  #       uses: styfle/cancel-workflow-action@a40b8845c0683271d9f53dfcb887a7e181d3918b # 0.9.1
 
   #     - name: ⬇️ Checkout repo
-  #       uses: actions/checkout@v3
+  #       uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
 
   #     - id: "auth"
-  #       uses: "google-github-actions/auth@v0"
+  #       uses: google-github-actions/auth@6e59a90b8f1ed8a7e4978d4358715338aa0e71b5 # v0
   #       with:
   #         credentials_json: "${{ secrets.GCP_SA_KEY }}"
   #       # with:
@@ -146,7 +146,7 @@ jobs:
 
   #     # Setup gcloud CLI
   #     - name: Set up Cloud SDK
-  #       uses: google-github-actions/setup-gcloud@v0
+  #       uses: google-github-actions/setup-gcloud@20c93dacc1d70ddbce76c63ab32c35595345bdd1 # v0
   #       with:
   #         install_components: "beta"
 
@@ -169,13 +169,13 @@ jobs:
 
   #   steps:
   #     - name: 🛑 Cancel Previous Runs
-  #       uses: styfle/cancel-workflow-action@0.9.1
+  #       uses: styfle/cancel-workflow-action@a40b8845c0683271d9f53dfcb887a7e181d3918b # 0.9.1
 
   #     - name: ⬇️ Checkout repo
-  #       uses: actions/checkout@v3
+  #       uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
 
   #     - id: "auth"
-  #       uses: "google-github-actions/auth@v0"
+  #       uses: google-github-actions/auth@6e59a90b8f1ed8a7e4978d4358715338aa0e71b5 # v0
   #       with:
   #         credentials_json: "${{ secrets.GCP_SA_KEY }}"
   #       # with:
@@ -184,7 +184,7 @@ jobs:
 
   #     # Activate image on GCR
   #     - id: "deploy"
-  #       uses: "google-github-actions/deploy-cloudrun@v0"
+  #       uses: google-github-actions/deploy-cloudrun@902592cd57d30d0f72ae0f73bb91512ce3c72452 # v0
   #       with:
   #         service: "${{ env.GCP_SERVICE_NAME }}"
   #         image: "us.gcr.io/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_SERVICE_NAME }}:${{ env.GITHUB_SHA }}"
