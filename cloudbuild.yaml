@@ -39,6 +39,7 @@ steps:
         docker build -f Dockerfile-proxy -t ${_IMAGE_NAME}-proxy .
   - id: "Run Database Migrations"
     name: "${_IMAGE_NAME}-proxy"
+    dir: /app
     env:
       - "DATABASE_NAME=${_DATABASE_NAME}"
       - "DATABASE_USER=${_DATABASE_USER}"
