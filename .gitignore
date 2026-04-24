@@ -8,6 +8,9 @@ node_modules
 # React Router v7 auto-generated route types
 /.react-router
 
+# Pi agent session artifacts (plans, scout contexts, etc.)
+/.pi
+
 /cypress/screenshots
 /cypress/videos
 /postgres-data
