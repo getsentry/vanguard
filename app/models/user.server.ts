@@ -1,4 +1,4 @@
-import { compareSync, hashSync } from "bcrypt";
+import { compareSync, hashSync } from "bcryptjs";
 import { eq, ilike, or } from "drizzle-orm";
 import invariant from "tiny-invariant";
 

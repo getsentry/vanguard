@@ -15,15 +15,7 @@ export default defineConfig({
     sourcemap: true,
   },
   optimizeDeps: {
-    // Native modules (bcrypt) and deps that pull in optional requires
-    // (@mapbox/node-pre-gyp -> nock / aws-sdk / mock-aws-s3) can't be
-    // prebundled by esbuild — keep them as runtime requires.
-    exclude: ["react-router-dom", "bcrypt", "@mapbox/node-pre-gyp"],
-  },
-  ssr: {
-    // Native modules (bcrypt) must stay external so Node's native require
-    // loads the .node binding instead of esbuild trying to bundle it.
-    external: ["bcrypt", "@mapbox/node-pre-gyp"],
+    exclude: ["react-router-dom"],
   },
   plugins: [
     reactRouter(),

@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { faker } from "@faker-js/faker";
 
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 import { db } from "../app/db/client";
 import { categories, posts, postRevisions, postSubscriptions, users } from "../app/db/schema";
