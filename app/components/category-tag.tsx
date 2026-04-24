@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 
 import type { Category } from "~/models/category.server";
 import IconMegaphone from "~/icons/IconMegaphone";

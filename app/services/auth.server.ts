@@ -27,8 +27,8 @@
 import type { User } from "~/models/user.server";
 import { Authenticator } from "remix-auth";
 import { FormStrategy } from "remix-auth-form";
-import type { AppLoadContext } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import type { AppLoadContext } from "react-router";
+import { redirect } from "react-router";
 
 import { buildUrl } from "~/lib/http";
 import {

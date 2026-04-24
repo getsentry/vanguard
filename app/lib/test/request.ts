@@ -1,4 +1,4 @@
-import type { Session } from "@remix-run/node";
+import type { Session } from "react-router";
 
 import { sessionStorage } from "~/services/session.server";
 import { authenticator } from "~/services/auth.server";

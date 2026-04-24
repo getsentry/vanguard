@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Form } from "@remix-run/react";
+import { Form } from "react-router";
 
 import type { Category } from "../models/category.server";
 import type { Feed } from "../models/feed.server";

@@ -1,6 +1,6 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import type { LoaderFunctionArgs } from "react-router";
+import { json } from "react-router";
+import { useLoaderData } from "react-router";
 
 import { requireUserId } from "~/services/auth.server";
 import { getPostList } from "~/models/post.server";
@@ -16,14 +16,14 @@ const clusteredCategories = ["shipped"];
 
 const FragmentedPostList = ({ posts, reactions, commentCounts }) => {
   // pull out the first unclustered post
-  let firstUnclusteredPost = posts.find(
+  const firstUnclusteredPost = posts.find(
     (p) => clusteredCategories.indexOf(p.category.slug) === -1,
   );
 
   // remaining posts
   posts = posts.filter((p) => p.id !== firstUnclusteredPost?.id);
 
-  let output: React.ReactNode[] = [];
+  const output: React.ReactNode[] = [];
   if (firstUnclusteredPost) {
     output.push(
       <Post

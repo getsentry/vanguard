@@ -179,8 +179,8 @@ describe("notifyComment", () => {
 
   describe("with parent", () => {
     test("notifies comment author on reply", async () => {
-      let otherAuthor = await Fixtures.User();
-      let childComment = await Fixtures.PostComment({
+      const otherAuthor = await Fixtures.User();
+      const childComment = await Fixtures.PostComment({
         parentId: comment.id,
         authorId: otherAuthor.id,
       });

@@ -2,16 +2,21 @@ import {
   unstable_composeUploadHandlers,
   unstable_createFileUploadHandler,
   unstable_createMemoryUploadHandler,
-  writeAsyncIterableToWritable,
-} from "@remix-run/node";
+  type UploadHandler,
+} from "~/lib/upload-compat";
 import { Storage } from "@google-cloud/storage";
-import type { FileUploadHandlerOptions } from "@remix-run/node/dist/upload/fileUploadHandler";
-import type { UploadHandler } from "@remix-run/node";
+import { writeAsyncIterableToWritable } from "@react-router/node";
 import { createId as cuid } from "@paralleldrive/cuid2";
 
 type UploadHandlerOptions = {
   namespace: string;
-  filter: FileUploadHandlerOptions["filter"];
+  filter:
+    | ((args: {
+        filename?: string;
+        contentType: string;
+        name: string;
+      }) => boolean | Promise<boolean>)
+    | undefined;
   urlPrefix: string;
   fieldName?: string;
 };
@@ -70,7 +75,13 @@ export type CloudStorageUploaderHandlerOptions = {
   namespace: UploadHandlerOptions["namespace"];
   fieldName?: UploadHandlerOptions["fieldName"];
   urlPrefix?: UploadHandlerOptions["urlPrefix"];
-  filter?: FileUploadHandlerOptions["filter"];
+  filter?:
+    | ((args: {
+        filename?: string;
+        contentType: string;
+        name: string;
+      }) => boolean | Promise<boolean>)
+    | undefined;
 };
 
 export function createCloudStorageUploadHandler({

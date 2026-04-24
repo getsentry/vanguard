@@ -1,6 +1,6 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import type { LoaderFunctionArgs } from "react-router";
+import { json } from "react-router";
+import { useLoaderData } from "react-router";
 
 import { requireAdmin } from "~/services/auth.server";
 import { paginate } from "~/lib/paginator";

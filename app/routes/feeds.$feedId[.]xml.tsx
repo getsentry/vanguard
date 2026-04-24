@@ -1,4 +1,4 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "react-router";
 import { getFeed } from "~/models/feed.server";
 import { getPostList } from "~/models/post.server";
 import { getPostLink } from "~/components/post-link";

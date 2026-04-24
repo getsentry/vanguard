@@ -1,15 +1,12 @@
 import { useEffect, useRef } from "react";
-import {
-  unstable_parseMultipartFormData,
-  json,
-  redirect,
-} from "@remix-run/node";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
+import { json, redirect } from "react-router";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { Form, Link, useActionData, useLoaderData } from "react-router";
 
 import { requireUserId } from "~/services/auth.server";
 import { getUserById, updateUser } from "~/models/user.server";
 import uploadHandler from "~/lib/upload-handler";
+import { unstable_parseMultipartFormData } from "~/lib/upload-compat";
 import AvatarInput from "~/components/avatar-input";
 import FormActions from "~/components/form-actions";
 import Button from "~/components/button";

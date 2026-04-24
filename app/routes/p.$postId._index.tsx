@@ -2,9 +2,9 @@ import type {
   ActionFunction,
   LoaderFunctionArgs,
   MetaFunction,
-} from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+} from "react-router";
+import { json } from "react-router";
+import { useLoaderData } from "react-router";
 import invariant from "tiny-invariant";
 
 import { announcePost, getPost, updatePost } from "~/models/post.server";
@@ -81,7 +81,7 @@ export const action: ActionFunction = async ({ request, context, params }) => {
 };
 
 export default function PostDetailsPage() {
-  let { post, user, reactions, comments, hasSubscription } =
+  const { post, user, reactions, comments, hasSubscription } =
     useLoaderData<typeof loader>();
 
   const canEdit = post.authorId === user.id || user.admin;

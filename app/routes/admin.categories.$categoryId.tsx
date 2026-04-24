@@ -1,6 +1,6 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import { Form, useActionData, useLoaderData } from "@remix-run/react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { json, redirect } from "react-router";
+import { Form, useActionData, useLoaderData } from "react-router";
 import invariant from "tiny-invariant";
 import type { ComponentPropsWithoutRef } from "react";
 
@@ -69,7 +69,7 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
     required: boolean;
   }[] = [];
   formData.forEach((value, key) => {
-    let match = key.match(/^meta\[(\d+)?]\.(.+)$/i);
+    const match = key.match(/^meta\[(\d+)?]\.(.+)$/i);
     if (match) {
       const idx: number = match[1] ? parseInt(match[1]) + 1 : 0;
       while (meta.length <= idx) {
@@ -147,13 +147,11 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
     }
 
     if (emailTo && typeof emailTo === "string") {
-      await tx
-        .insert(categoryEmails)
-        .values({
-          categoryId,
-          to: emailTo,
-          subjectPrefix: emailSubjectPrefix ? String(emailSubjectPrefix) : null,
-        });
+      await tx.insert(categoryEmails).values({
+        categoryId,
+        to: emailTo,
+        subjectPrefix: emailSubjectPrefix ? String(emailSubjectPrefix) : null,
+      });
     }
 
     for (const { id, ...data } of meta) {

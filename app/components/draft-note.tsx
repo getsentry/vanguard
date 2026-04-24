@@ -1,5 +1,5 @@
 import type { Post } from "~/models/post.server";
-import { Form } from "@remix-run/react";
+import { Form } from "react-router";
 
 import { getPostLink } from "./post-link";
 import ButtonDropdown, { ButtonDropdownItem } from "./button-dropdown";

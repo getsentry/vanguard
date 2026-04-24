@@ -1,6 +1,6 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import { Form, useActionData, useLoaderData } from "@remix-run/react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { json, redirect } from "react-router";
+import { Form, useActionData, useLoaderData } from "react-router";
 import invariant from "tiny-invariant";
 
 import { eq } from "drizzle-orm";

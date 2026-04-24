@@ -1,6 +1,6 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import { useActionData, useLoaderData } from "@remix-run/react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { json, redirect } from "react-router";
+import { useActionData, useLoaderData } from "react-router";
 
 import { announcePost, createPost, syndicatePost } from "~/models/post.server";
 import { requireUser, requireUserId } from "~/services/auth.server";

@@ -1,6 +1,6 @@
-import { json } from "@remix-run/node";
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { Form, useLoaderData } from "@remix-run/react";
+import { json } from "react-router";
+import type { LoaderFunctionArgs } from "react-router";
+import { Form, useLoaderData } from "react-router";
 
 import Button from "~/components/button";
 import Input from "~/components/input";

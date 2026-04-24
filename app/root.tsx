@@ -1,14 +1,14 @@
 import { useState } from "react";
-import InterStyles from "@fontsource/inter/index.css";
-import type { LinksFunction, LoaderFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { Form, Outlet, useLoaderData, useRouteError } from "@remix-run/react";
-import prismCss from "prism-sentry/index.css";
-import { withSentry, setUser } from "@sentry/remix";
+import InterStyles from "@fontsource/inter/index.css?url";
+import type { LinksFunction, LoaderFunction } from "react-router";
+import { json } from "react-router";
+import { Form, Outlet, useLoaderData, useRouteError } from "react-router";
+import prismCss from "prism-sentry/index.css?url";
+import { setUser } from "@sentry/react";
 import { Toaster } from "react-hot-toast";
 
-import fontsCss from "./styles/fonts.css";
-import indexCss from "./styles/index.css";
+import fontsCss from "./styles/fonts.css?url";
+import indexCss from "./styles/index.css?url";
 import Footer from "./components/footer";
 import Header from "./components/header";
 import Container from "./components/container";
@@ -202,4 +202,4 @@ function App() {
   );
 }
 
-export default withSentry(App, { wrapWithErrorBoundary: false });
+export default App;

@@ -1,4 +1,4 @@
-import { Form } from "@remix-run/react";
+import { Form } from "react-router";
 import type { Post } from "~/models/post.server";
 import type { PostComment } from "~/models/post-comments.server";
 

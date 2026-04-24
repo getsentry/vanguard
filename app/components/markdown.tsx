@@ -14,7 +14,7 @@ renderer.code = function (code, lang, escaped) {
     return `<pre class="code-block"><code>${code}</code></pre>`;
   }
 
-  var langClass = "language-" + lang;
+  const langClass = "language-" + lang;
   return `<pre class="code-block ${langClass}"><code class="${langClass}">${code}</code></pre>`;
 };
 
@@ -155,7 +155,7 @@ export default function Markdown({
     };
   }, [content]); // Re-run when content changes
 
-  let html = sanitize(
+  const html = sanitize(
     summarize ? summarizeFn(content) : parseMarkdown(content),
   );
 

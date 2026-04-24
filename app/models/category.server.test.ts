@@ -22,17 +22,17 @@ describe("getCategoryList", () => {
   describe("query", () => {
     describe("with a normal user", () => {
       test("matches slug", async () => {
-        let result = await getCategoryList({ userId: user.id, query: "foo" });
+        const result = await getCategoryList({ userId: user.id, query: "foo" });
         expect(result.length).toBe(1);
         expect(result[0].id).toBe(category.id);
       });
       test("matches name", async () => {
-        let result = await getCategoryList({ userId: user.id, query: "bar" });
+        const result = await getCategoryList({ userId: user.id, query: "bar" });
         expect(result.length).toBe(1);
         expect(result[0].id).toBe(category.id);
       });
       test("doesnt match everything", async () => {
-        let result = await getCategoryList({ userId: user.id, query: "baz" });
+        const result = await getCategoryList({ userId: user.id, query: "baz" });
         expect(result.length).toBe(0);
       });
     });
@@ -51,27 +51,27 @@ describe("getCategory", () => {
   });
 
   test("matches id", async () => {
-    let result = await getCategory({ id: category.id });
+    const result = await getCategory({ id: category.id });
     expect(result?.id).toBe(category.id);
   });
 
   test("matches slug", async () => {
-    let result = await getCategory({ slug: category.slug });
+    const result = await getCategory({ slug: category.slug });
     expect(result?.id).toBe(category.id);
   });
 
   test("doesnt match with invalid id", async () => {
-    let result = await getCategory({ id: "invalid id" });
+    const result = await getCategory({ id: "invalid id" });
     expect(result).toBe(null);
   });
 
   test("doesnt match with invalid slug", async () => {
-    let result = await getCategory({ slug: "invalid slug" });
+    const result = await getCategory({ slug: "invalid slug" });
     expect(result).toBe(null);
   });
 
   test("doesnt match with no params", async () => {
-    let result = await getCategory({});
+    const result = await getCategory({});
     expect(result).toBe(null);
   });
 });

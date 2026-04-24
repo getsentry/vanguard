@@ -12,22 +12,19 @@ describe("getFeedList", () => {
       .values({ email: "foo@example.com" })
       .returning();
     user = userRows[0];
-    const feedRows = await db
-      .insert(feeds)
-      .values({ name: "Bar" })
-      .returning();
+    const feedRows = await db.insert(feeds).values({ name: "Bar" }).returning();
     feed = feedRows[0];
   });
 
   describe("query", () => {
     describe("with a normal user", () => {
       test("restricts query on name", async () => {
-        let result = await getFeedList({ userId: user.id, query: "foo" });
+        const result = await getFeedList({ userId: user.id, query: "foo" });
         expect(result.length).toBe(0);
       });
 
       test("matches name", async () => {
-        let result = await getFeedList({ userId: user.id, query: "bar" });
+        const result = await getFeedList({ userId: user.id, query: "bar" });
         expect(result.length).toBe(1);
         expect(result[0].id).toBe(feed.id);
       });
@@ -44,12 +41,12 @@ describe("getFeed", () => {
   });
 
   test("matches id", async () => {
-    let result = await getFeed({ id: feed.id });
+    const result = await getFeed({ id: feed.id });
     expect(result?.id).toBe(feed.id);
   });
 
   test("doesnt match with no params", async () => {
-    let result = await getFeed({});
+    const result = await getFeed({});
     expect(result).toBe(null);
   });
 });

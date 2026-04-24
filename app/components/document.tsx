@@ -1,10 +1,4 @@
-import {
-  Links,
-  LiveReload,
-  Meta,
-  Scripts,
-  ScrollRestoration,
-} from "@remix-run/react";
+import { Links, Meta, Scripts, ScrollRestoration } from "react-router";
 import type { PropsWithChildren } from "react";
 import classNames from "~/lib/classNames";
 
@@ -49,7 +43,6 @@ export default function Document({
           }}
         />
         <Scripts />
-        <LiveReload />
       </body>
     </html>
   );

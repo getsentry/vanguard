@@ -2,9 +2,9 @@ import type {
   MetaFunction,
   LoaderFunctionArgs,
   ActionFunctionArgs,
-} from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { Form, useLoaderData } from "@remix-run/react";
+} from "react-router";
+import { json } from "react-router";
+import { Form, useLoaderData } from "react-router";
 import invariant from "tiny-invariant";
 
 import { getPostList } from "~/models/post.server";

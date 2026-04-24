@@ -1,4 +1,4 @@
-import type { Request } from "@remix-run/node";
+import type { Request } from "react-router";
 
 export const buildUrl = (
   path: string = "/",

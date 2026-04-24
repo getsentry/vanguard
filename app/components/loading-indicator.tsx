@@ -1,4 +1,4 @@
-import { useLocation } from "@remix-run/react";
+import { useLocation } from "react-router";
 import type { ReactElement } from "react";
 import { useEffect, useRef } from "react";
 
@@ -19,10 +19,10 @@ function useProgress() {
 
     el.current.style.width = `0%`;
 
-    let updateWidth = (ms: number) => {
+    const updateWidth = (ms: number) => {
       timeout.current = setTimeout(() => {
-        let width = parseFloat(el.current!.style.width);
-        let percent = !isNaN(width) ? 10 + 0.9 * width : 0;
+        const width = parseFloat(el.current!.style.width);
+        const percent = !isNaN(width) ? 10 + 0.9 * width : 0;
 
         el.current!.style.width = `${percent}%`;
 

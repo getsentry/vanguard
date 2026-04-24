@@ -1,17 +1,19 @@
-import {
-  type ActionFunctionArgs,
-  json,
-  unstable_parseMultipartFormData,
-} from "@remix-run/node";
+import { type ActionFunctionArgs, json } from "react-router";
 import { requireUserId } from "~/services/auth.server";
 import uploadHandler from "~/lib/upload-handler";
-import type { FileUploadHandlerOptions } from "@remix-run/node/dist/upload/fileUploadHandler";
+import { unstable_parseMultipartFormData } from "~/lib/upload-compat";
 
 export async function action({ request, context }: ActionFunctionArgs) {
   if (request.method !== "POST") return json({}, 405);
   const userId = await requireUserId(request, context);
 
-  const filter: FileUploadHandlerOptions["filter"] = ({ contentType }) => {
+  const filter:
+    | ((args: {
+        filename?: string;
+        contentType: string;
+        name: string;
+      }) => boolean | Promise<boolean>)
+    | undefined = ({ contentType }) => {
     return /image/i.test(contentType);
   };
 

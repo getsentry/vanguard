@@ -1,6 +1,6 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { json, redirect } from "react-router";
+import { Form, useActionData } from "react-router";
 
 import { requireAdmin } from "~/services/auth.server";
 import { db } from "~/db/client";
