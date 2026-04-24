@@ -8,13 +8,7 @@ export type CategoryMeta = typeof categoryMetas.$inferSelect;
 export type CategoryWithMeta = Category & { metaConfig: CategoryMeta[] };
 export type User = typeof users.$inferSelect;
 
-export async function getCategory({
-  id,
-  slug,
-}: {
-  id?: Category["id"];
-  slug?: Category["slug"];
-}) {
+export async function getCategory({ id, slug }: { id?: Category["id"]; slug?: Category["slug"] }) {
   if (!id && !slug) return null;
   const result = await db.query.categories.findFirst({
     where: and(
@@ -46,10 +40,7 @@ export async function getCategoryList({
 
   if (query) {
     conditions.push(
-      or(
-        ilike(categories.name, `%${query}%`),
-        ilike(categories.slug, `%${query}%`),
-      )!,
+      or(ilike(categories.name, `%${query}%`), ilike(categories.slug, `%${query}%`))!,
     );
   }
 
@@ -77,9 +68,6 @@ export async function createCategory({
   slug: Category["slug"];
   name: Category["name"];
 }) {
-  const [category] = await db
-    .insert(categories)
-    .values({ slug, name })
-    .returning();
+  const [category] = await db.insert(categories).values({ slug, name }).returning();
   return category;
 }

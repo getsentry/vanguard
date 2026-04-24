@@ -1,12 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
-import {
-  boolean,
-  pgTable,
-  text,
-  timestamp,
-  unique,
-  varchar,
-} from "drizzle-orm/pg-core";
+import { boolean, pgTable, text, timestamp, unique, varchar } from "drizzle-orm/pg-core";
 
 export const users = pgTable("User", {
   id: text("id")

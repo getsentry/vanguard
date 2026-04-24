@@ -41,10 +41,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const deleted = !!formData.get("deleted");
 
   if (typeof name !== "string" || name.length === 0) {
-    return Response.json(
-      { errors: { title: "Name is required" } },
-      { status: 400 },
-    );
+    return Response.json({ errors: { title: "Name is required" } }, { status: 400 });
   }
 
   await db
@@ -63,9 +60,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
 export default function Details() {
   const { feed, feedUrl } = useLoaderData<typeof loader>();
-  const actionData = useActionData() as
-    | { errors?: Record<string, any> }
-    | undefined;
+  const actionData = useActionData() as { errors?: Record<string, any> } | undefined;
   const errors = actionData?.errors;
 
   return (
@@ -142,9 +137,7 @@ export default function Details() {
             autoFocus
             defaultValue={feed.webhookUrl || ""}
             aria-invalid={errors?.webhookUrl ? true : undefined}
-            aria-errormessage={
-              errors?.webhookUrl ? "webhookUrl-error" : undefined
-            }
+            aria-errormessage={errors?.webhookUrl ? "webhookUrl-error" : undefined}
           />
         </label>
         {errors?.webhookUrl && (
@@ -156,11 +149,7 @@ export default function Details() {
 
       <div>
         <label className="field-inline">
-          <input
-            type="checkbox"
-            name="restricted"
-            defaultChecked={feed.restricted}
-          />
+          <input type="checkbox" name="restricted" defaultChecked={feed.restricted} />
           Restrict syndication to this feed
         </label>
       </div>

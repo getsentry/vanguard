@@ -1,7 +1,4 @@
-export const buildUrl = (
-  path: string = "/",
-  request: Request | null = null,
-): string => {
+export const buildUrl = (path: string = "/", request: Request | null = null): string => {
   if (!request) {
     if (process?.env?.BASE_URL) {
       return `${process.env.BASE_URL}${path}`;
@@ -13,8 +10,7 @@ export const buildUrl = (
     throw new Error("Missing request or node ENV");
   }
 
-  const host =
-    request.headers.get("X-Forwarded-Host") ?? request.headers.get("host");
+  const host = request.headers.get("X-Forwarded-Host") ?? request.headers.get("host");
   if (!host) {
     throw new Error("Could not determine domain URL.");
   }

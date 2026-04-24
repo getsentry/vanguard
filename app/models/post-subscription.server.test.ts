@@ -41,7 +41,10 @@ describe("createSubscription", () => {
   });
 
   test("with existing subscription", async () => {
-    const [sub] = await db.insert(postSubscriptions).values({ userId: user.id, postId: post.id }).returning();
+    const [sub] = await db
+      .insert(postSubscriptions)
+      .values({ userId: user.id, postId: post.id })
+      .returning();
     const result = await createSubscription({ userId: user.id, postId: post.id });
     expect(result?.id).toBe(sub.id);
   });

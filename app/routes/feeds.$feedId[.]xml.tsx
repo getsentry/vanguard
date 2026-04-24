@@ -33,9 +33,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             <item>
               <guid>${post.id}</guid>
               <title><![CDATA[${escapeCdata(post.title)}]]></title>
-              <description>${escapeHtml(
-                summarize(post.content || ""),
-              )}</description>
+              <description>${escapeHtml(summarize(post.content || ""))}</description>
               <category>${escapeHtml(post.category.name)}</category>
               <content:encoded><![CDATA[${escapeCdata(
                 marked.parse(post.content as string, {
@@ -43,9 +41,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
                   baseUrl: process.env.BASE_URL,
                 }),
               )}]]></content:encoded>
-              <author>${escapeHtml(
-                post.author.name || post.author.email,
-              )}</author>
+              <author>${escapeHtml(post.author.name || post.author.email)}</author>
               <pubDate>${post.publishedAt?.toUTCString()}</pubDate>
               <link>${buildUrl(getPostLink(post), request)}</link>
 

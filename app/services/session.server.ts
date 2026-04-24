@@ -22,9 +22,7 @@ export async function getSession(request: Request) {
   return await sessionStorage.getSession(cookie);
 }
 
-export async function getUser(
-  session: Session<SessionPayload, SessionPayload>,
-) {
+export async function getUser(session: Session<SessionPayload, SessionPayload>) {
   return session.get("user");
 }
 
@@ -42,18 +40,15 @@ export async function createSession({
   const s = await getSession(request);
   s.set("user", session.user);
 
-  return redirect(
-    !session.user.picture ? "/settings" : getSafeRedirect(redirectTo),
-    {
-      headers: {
-        "Set-Cookie": await sessionStorage.commitSession(s, {
-          maxAge: remember
-            ? 60 * 60 * 24 * 7 // 7 days
-            : undefined,
-        }),
-      },
+  return redirect(!session.user.picture ? "/settings" : getSafeRedirect(redirectTo), {
+    headers: {
+      "Set-Cookie": await sessionStorage.commitSession(s, {
+        maxAge: remember
+          ? 60 * 60 * 24 * 7 // 7 days
+          : undefined,
+      }),
     },
-  );
+  });
 }
 
 export async function logout(request: Request) {
@@ -66,7 +61,6 @@ export async function logout(request: Request) {
 }
 
 export function getSafeRedirect(value: string | null) {
-  if (!value || value?.indexOf("/") !== 0 || value?.indexOf("//") === 0)
-    return "/";
+  if (!value || value?.indexOf("/") !== 0 || value?.indexOf("//") === 0) return "/";
   return value;
 }

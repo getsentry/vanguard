@@ -8,9 +8,7 @@ const clearDatabase = async () => {
   );
   const tableNames = result.rows
     .filter(
-      ({ tablename }) =>
-        tablename !== "_prisma_migrations" &&
-        tablename !== "__drizzle_migrations",
+      ({ tablename }) => tablename !== "_prisma_migrations" && tablename !== "__drizzle_migrations",
     )
     .map(({ tablename }) => `"public"."${tablename}"`)
     .join(", ");

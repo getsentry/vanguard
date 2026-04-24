@@ -32,10 +32,6 @@ export default function EmojiPicker({
   const Picker = mod.default;
 
   return (
-    <Picker
-      {...props}
-      onEmojiClick={(e, obj) => onEmojiSelect(e, obj.emoji)}
-      pickerStyle={style}
-    />
+    <Picker {...props} onEmojiClick={(e, obj) => onEmojiSelect(e, obj.emoji)} pickerStyle={style} />
   );
 }

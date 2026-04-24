@@ -40,10 +40,7 @@ const FragmentedPostList = ({ posts, reactions, commentCounts }) => {
   posts.forEach((post) => {
     const isClustered = clusteredCategories.indexOf(post.category.slug) !== -1;
 
-    if (
-      buffer.length &&
-      (!isClustered || buffer[0].category.slug !== post.category.slug)
-    ) {
+    if (buffer.length && (!isClustered || buffer[0].category.slug !== post.category.slug)) {
       output.push(
         <ClusteredPostList
           category={buffer[0].category}
@@ -113,8 +110,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function Index() {
-  const { postListPaginated, reactions, commentCounts } =
-    useLoaderData<typeof loader>();
+  const { postListPaginated, reactions, commentCounts } = useLoaderData<typeof loader>();
 
   return (
     <>

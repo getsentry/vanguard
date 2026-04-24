@@ -40,22 +40,17 @@ export function announcePost(post: PostQueryType): void {
         where: eq(categoryEmails.categoryId, post.categoryId),
       });
       await Promise.all(
-        emailConfig.map((config) =>
-          email.notify({ post, config: config as email.EmailConfig }),
-        ),
+        emailConfig.map((config) => email.notify({ post, config: config as email.EmailConfig })),
       );
 
-      let slackConfig: slack.SlackConfig[] =
-        await db.query.categorySlacks.findMany({
-          where: eq(categorySlacks.categoryId, post.categoryId),
-        });
+      let slackConfig: slack.SlackConfig[] = await db.query.categorySlacks.findMany({
+        where: eq(categorySlacks.categoryId, post.categoryId),
+      });
       if (!slackConfig.length && process.env.SLACK_WEBHOOK_URL) {
         slackConfig = [{ webhookUrl: process.env.SLACK_WEBHOOK_URL }];
       }
       await Promise.all(
-        slackConfig.map((config) =>
-          slack.notify({ post, config: config as slack.SlackConfig }),
-        ),
+        slackConfig.map((config) => slack.notify({ post, config: config as slack.SlackConfig })),
       );
     })(),
   );
@@ -72,7 +67,7 @@ export async function syndicatePost(post) {
         let data: any;
         try {
           data = await res.json();
-        } catch (err) {
+        } catch {
           data = res.body;
         }
         error("feed webhook failed", {
@@ -156,9 +151,7 @@ export async function getPostList({
   offset?: number;
   limit?: number;
 }): Promise<PostQueryType[]> {
-  const user = userId
-    ? await db.query.users.findFirst({ where: eq(users.id, userId) })
-    : null;
+  const user = userId ? await db.query.users.findFirst({ where: eq(users.id, userId) }) : null;
 
   if (!user && !feedId) {
     throw new Error("Cannot query posts without either userId or feedId");
@@ -249,27 +242,20 @@ export async function updatePost({
 
   const whereCondition = user.admin
     ? eq(posts.id, id)
-    : and(
-        eq(posts.id, id),
-        eq(posts.authorId, userId),
-        eq(posts.deleted, false),
-      );
+    : and(eq(posts.id, id), eq(posts.authorId, userId), eq(posts.deleted, false));
 
   const post = await db.query.posts.findFirst({ where: whereCondition });
   invariant(post, "post not found");
 
   const data: Partial<Post> = {};
-  if (published !== undefined && published !== post.published)
-    data.published = !!published;
+  if (published !== undefined && published !== post.published) data.published = !!published;
   if (title !== undefined && title !== post.title) data.title = title;
   if (content !== undefined && content !== post.content) data.content = content;
-  if (categoryId !== undefined && categoryId !== post.categoryId)
-    data.categoryId = categoryId;
+  if (categoryId !== undefined && categoryId !== post.categoryId) data.categoryId = categoryId;
   if (data.published && !post.publishedAt) data.publishedAt = new Date();
 
   if (user.admin || deleted !== undefined) {
-    if (deleted !== undefined && post.deleted !== deleted)
-      data.deleted = !!deleted;
+    if (deleted !== undefined && post.deleted !== deleted) data.deleted = !!deleted;
   }
 
   const updatedPost = await db.transaction(async (tx) => {
@@ -297,9 +283,7 @@ export async function updatePost({
     if (feedIds !== undefined) {
       await tx.delete(feedToPost).where(eq(feedToPost.B, id));
       if (feedIds.length > 0) {
-        await tx
-          .insert(feedToPost)
-          .values(feedIds.map((feedId) => ({ A: feedId, B: id })));
+        await tx.insert(feedToPost).values(feedIds.map((feedId) => ({ A: feedId, B: id })));
       }
     }
 
@@ -309,9 +293,7 @@ export async function updatePost({
       if (meta.length > 0) {
         await tx
           .insert(postMetas)
-          .values(
-            meta.map((m) => ({ postId: id, name: m.name, content: m.content })),
-          );
+          .values(meta.map((m) => ({ postId: id, name: m.name, content: m.content })));
       }
     }
 
@@ -370,9 +352,7 @@ export async function createPost({
     });
 
     if (feedIds && feedIds.length > 0) {
-      await tx
-        .insert(feedToPost)
-        .values(feedIds.map((feedId) => ({ A: feedId, B: post.id })));
+      await tx.insert(feedToPost).values(feedIds.map((feedId) => ({ A: feedId, B: post.id })));
     }
 
     await tx.insert(postSubscriptions).values({
@@ -407,10 +387,7 @@ export async function createPost({
   } as PostQueryType;
 }
 
-export async function deletePost({
-  id,
-  userId,
-}: Pick<Post, "id"> & { userId: User["id"] }) {
+export async function deletePost({ id, userId }: Pick<Post, "id"> & { userId: User["id"] }) {
   updatePost({
     id,
     userId,

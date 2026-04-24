@@ -5,12 +5,6 @@ import { requireUserId } from "~/services/auth.server";
 import { isEmoji } from "~/lib/emoji";
 import { togglePostReaction } from "~/models/post-reactions.server";
 
-type ActionData = {
-  errors?: {
-    emoji?: string;
-  };
-};
-
 export async function action({ request, params }: ActionFunctionArgs) {
   if (request.method !== "POST") {
     return Response.json({ message: "Method not allowed" }, { status: 405 });
@@ -22,10 +16,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const { emoji } = await request.json();
 
   if (typeof emoji !== "string" || emoji.length === 0 || !isEmoji(emoji)) {
-    return Response.json(
-      { errors: { emoji: "Emoji is required" } },
-      { status: 400 },
-    );
+    return Response.json({ errors: { emoji: "Emoji is required" } }, { status: 400 });
   }
   // TODO: validate emoji
 

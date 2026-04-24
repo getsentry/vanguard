@@ -1,8 +1,4 @@
-import type {
-  Session,
-  LoaderFunctionArgs,
-  ActionFunctionArgs,
-} from "react-router";
+import type { Session, LoaderFunctionArgs, ActionFunctionArgs } from "react-router";
 
 import { sessionStorage } from "~/services/session.server";
 import { authenticator } from "~/services/auth.server";
@@ -35,7 +31,7 @@ export const buildRequest = async (
   const request = new Request(url, {
     headers: new Headers({
       Cookie: cookie,
-      ...(options?.headers || {}),
+      ...options?.headers,
     }),
     ...options,
   });

@@ -2,12 +2,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { useActionData, useLoaderData } from "react-router";
 
-import {
-  announcePost,
-  getPost,
-  syndicatePost,
-  updatePost,
-} from "~/models/post.server";
+import { announcePost, getPost, syndicatePost, updatePost } from "~/models/post.server";
 import { requireUser, requireUserId } from "~/services/auth.server";
 import { getCategory, getCategoryList } from "~/models/category.server";
 import PostForm from "~/components/post-form";
@@ -43,43 +38,25 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const content = formData.get("content");
   const categoryId = formData.get("categoryId");
   // to check if they've unticked feedIds we have to make sure they were using the edit form vs the publish action
-  const feedIds =
-    action === "update" ? (formData.getAll("feedId") as string[]) : null;
+  const feedIds = action === "update" ? (formData.getAll("feedId") as string[]) : null;
   const published =
     formData.get("published") === null
       ? undefined
-      : formData.get("published") === "true" ||
-        formData.get("published") === "announce";
+      : formData.get("published") === "true" || formData.get("published") === "announce";
 
   const announce = published && formData.get("published") === "announce";
-  const deleted =
-    formData.get("deleted") !== null ? !!formData.get("deleted") : undefined;
+  const deleted = formData.get("deleted") !== null ? !!formData.get("deleted") : undefined;
 
-  if (
-    categoryId !== null &&
-    (typeof categoryId !== "string" || categoryId.length === 0)
-  ) {
-    return Response.json(
-      { errors: { categoryId: "Category is required" } },
-      { status: 400 },
-    );
+  if (categoryId !== null && (typeof categoryId !== "string" || categoryId.length === 0)) {
+    return Response.json({ errors: { categoryId: "Category is required" } }, { status: 400 });
   }
 
   if (title !== null && (typeof title !== "string" || title.length === 0)) {
-    return Response.json(
-      { errors: { title: "Title is required" } },
-      { status: 400 },
-    );
+    return Response.json({ errors: { title: "Title is required" } }, { status: 400 });
   }
 
-  if (
-    content !== null &&
-    (typeof content !== "string" || content.length === 0)
-  ) {
-    return Response.json(
-      { errors: { content: "Content is required" } },
-      { status: 400 },
-    );
+  if (content !== null && (typeof content !== "string" || content.length === 0)) {
+    return Response.json({ errors: { content: "Content is required" } }, { status: 400 });
   }
 
   const data: { [key: string]: any } = {};
@@ -99,10 +76,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     ).map((f) => f.id);
     const invalid = feedIds.find((f) => allowedFeedIds.indexOf(f) === -1);
     if (invalid) {
-      return Response.json(
-        { errors: { feedId: "Invalid feed" } },
-        { status: 400 },
-      );
+      return Response.json({ errors: { feedId: "Invalid feed" } }, { status: 400 });
     }
     data.feedIds = feedIds;
   }
@@ -110,10 +84,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   if (categoryId && typeof categoryId === "string") {
     const category = await getCategory({ id: categoryId });
     if (!category || (category.restricted && !user.canPostRestricted)) {
-      return Response.json(
-        { errors: { categoryId: "Invalid category" } },
-        { status: 400 },
-      );
+      return Response.json({ errors: { categoryId: "Invalid category" } }, { status: 400 });
     }
 
     const meta = [];
@@ -157,9 +128,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
 export default function EditPostPage() {
   const { categoryList, feedList, post } = useLoaderData<typeof loader>();
-  const actionData = useActionData() as
-    | { errors?: Record<string, any> }
-    | undefined;
+  const actionData = useActionData() as { errors?: Record<string, any> } | undefined;
 
   const meta: { [name: string]: string } = {};
   post.meta.forEach((m) => {

@@ -34,33 +34,23 @@ export async function action({ request }: ActionFunctionArgs) {
   const emailTo = formData.get("email.to");
 
   if (typeof name !== "string" || name.length === 0) {
-    return Response.json(
-      { errors: { name: "Name is required" } },
-      { status: 400 },
-    );
+    return Response.json({ errors: { name: "Name is required" } }, { status: 400 });
   }
 
   if (typeof slug !== "string" || slug.length === 0) {
-    return Response.json(
-      { errors: { slug: "Slug is required" } },
-      { status: 400 },
-    );
+    return Response.json({ errors: { slug: "Slug is required" } }, { status: 400 });
   }
 
   // TODO: validate
   if (typeof colorHex !== "string" || colorHex.length === 0) {
-    return Response.json(
-      { errors: { colorHex: "Color is required" } },
-      { status: 400 },
-    );
+    return Response.json({ errors: { colorHex: "Color is required" } }, { status: 400 });
   }
 
   if (defaultEmojis.find((v) => !isEmoji(v))) {
     return Response.json(
       {
         errors: {
-          defaultEmojis:
-            "An invalid reaction was provided. All values must be emoji",
+          defaultEmojis: "An invalid reaction was provided. All values must be emoji",
         },
       },
       { status: 400 },
@@ -87,9 +77,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     if (emailTo && typeof emailTo === "string") {
-      await tx
-        .insert(categoryEmails)
-        .values({ categoryId: category.id, to: emailTo });
+      await tx.insert(categoryEmails).values({ categoryId: category.id, to: emailTo });
     }
   });
 
@@ -97,9 +85,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function Index() {
-  const actionData = useActionData() as
-    | { errors?: Record<string, any> }
-    | undefined;
+  const actionData = useActionData() as { errors?: Record<string, any> } | undefined;
   const errors = actionData?.errors;
   const [currentEmojiList, setCurrentEmojiList] = useState(DEFAULT_EMOJIS);
 
@@ -207,9 +193,7 @@ export default function Index() {
                 key={emoji}
                 onClick={(e) => {
                   e.preventDefault();
-                  setCurrentEmojiList(
-                    currentEmojiList.filter((v) => v !== emoji),
-                  );
+                  setCurrentEmojiList(currentEmojiList.filter((v) => v !== emoji));
                 }}
               >
                 <input type="hidden" name="defaultEmojis" value={emoji} />
@@ -236,9 +220,7 @@ export default function Index() {
             placeholder="e.g. https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX"
             aria-invalid={errors?.slackConfig?.webhookUrl ? true : undefined}
             aria-errormessage={
-              errors?.slackConfig?.webhookUrl
-                ? "slack-webhook-url-error"
-                : undefined
+              errors?.slackConfig?.webhookUrl ? "slack-webhook-url-error" : undefined
             }
           />
         </label>
@@ -257,9 +239,7 @@ export default function Index() {
             name="email.to"
             placeholder="e.g. my-notifications@example.company"
             aria-invalid={errors?.emailConfig?.to ? true : undefined}
-            aria-errormessage={
-              errors?.emailConfig?.to ? "email-to-error" : undefined
-            }
+            aria-errormessage={errors?.emailConfig?.to ? "email-to-error" : undefined}
           />
         </label>
         {errors?.emailConfig?.to && (

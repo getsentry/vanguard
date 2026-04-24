@@ -13,7 +13,7 @@ export type PostCommentWithAuthor = PostComment & {
 };
 
 export async function getCommentList({
-  userId,
+  userId: _userId,
   postId,
   offset = 0,
   limit = 50,
@@ -24,10 +24,7 @@ export async function getCommentList({
   limit?: number;
 }): Promise<PostCommentWithAuthor[]> {
   return db.query.postComments.findMany({
-    where: and(
-      eq(postComments.deleted, false),
-      eq(postComments.postId, postId),
-    ),
+    where: and(eq(postComments.deleted, false), eq(postComments.postId, postId)),
     with: { author: true },
     orderBy: asc(postComments.createdAt),
     offset,
@@ -36,7 +33,7 @@ export async function getCommentList({
 }
 
 export async function countCommentsForPosts({
-  userId,
+  userId: _userId,
   postList,
 }: {
   userId: string;
@@ -46,12 +43,7 @@ export async function countCommentsForPosts({
   const counts = await db
     .select({ postId: postComments.postId, count: sql<number>`count(*)::int` })
     .from(postComments)
-    .where(
-      and(
-        eq(postComments.deleted, false),
-        inArray(postComments.postId, postIds),
-      ),
-    )
+    .where(and(eq(postComments.deleted, false), inArray(postComments.postId, postIds)))
     .groupBy(postComments.postId);
 
   const results: { [postId: string]: number } = {};
@@ -101,10 +93,7 @@ export async function createComment({
   if (post.allowComments && post.category.allowComments) {
     const parent = parentId
       ? await db.query.postComments.findFirst({
-          where: and(
-            eq(postComments.postId, postId),
-            eq(postComments.id, parentId),
-          ),
+          where: and(eq(postComments.postId, postId), eq(postComments.id, parentId)),
           with: { author: true },
         })
       : null;
@@ -124,24 +113,14 @@ export async function createComment({
       with: { author: true },
     });
 
-    announceComment(
-      post as unknown as PostQueryType,
-      commentWithAuthor!,
-      parent,
-    );
+    announceComment(post as unknown as PostQueryType, commentWithAuthor!, parent);
 
     return commentWithAuthor!;
   }
   return null;
 }
 
-export async function deleteComment({
-  userId,
-  id,
-}: {
-  userId: string;
-  id: string;
-}) {
+export async function deleteComment({ userId, id }: { userId: string; id: string }) {
   const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
   invariant(user, "user not found");
 
@@ -152,8 +131,5 @@ export async function deleteComment({
   const comment = await db.query.postComments.findFirst({ where });
   invariant(comment, "comment not found");
 
-  await db
-    .update(postComments)
-    .set({ deleted: true })
-    .where(eq(postComments.id, id));
+  await db.update(postComments).set({ deleted: true }).where(eq(postComments.id, id));
 }

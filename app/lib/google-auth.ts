@@ -25,10 +25,7 @@
 // SOFTWARE.
 
 import type { StrategyVerifyCallback } from "remix-auth";
-import type {
-  OAuth2Profile,
-  OAuth2StrategyVerifyParams,
-} from "remix-auth-oauth2";
+import type { OAuth2Profile, OAuth2StrategyVerifyParams } from "remix-auth-oauth2";
 import { OAuth2Strategy } from "remix-auth-oauth2";
 
 export type GoogleStrategyOptions = {
@@ -75,11 +72,7 @@ export type GoogleExtraParams = {
 } & Record<string, string | number>;
 
 // @ts-ignore: library type incompatibility with OAuth2Strategy base class
-export class GoogleStrategy<User> extends OAuth2Strategy<
-  User,
-  GoogleProfile,
-  GoogleExtraParams
-> {
+export class GoogleStrategy<User> extends OAuth2Strategy<User, GoogleProfile, GoogleExtraParams> {
   public name = "google";
 
   private readonly scope: string;
@@ -92,8 +85,7 @@ export class GoogleStrategy<User> extends OAuth2Strategy<
 
   private readonly includeGrantedScopes: boolean;
 
-  private readonly userInfoURL =
-    "https://www.googleapis.com/oauth2/v3/userinfo";
+  private readonly userInfoURL = "https://www.googleapis.com/oauth2/v3/userinfo";
 
   constructor(
     {

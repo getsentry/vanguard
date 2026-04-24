@@ -16,10 +16,7 @@ export default function Header({
     <div className="flex relative py-12 xl:py-18 justify-between items-center pr-20 xl:pr-0">
       <div>
         <Link to="/">
-          <Logo
-            height={32}
-            className="text-primary-light dark:text-primary-dark"
-          />
+          <Logo height={32} className="text-primary-light dark:text-primary-dark" />
         </Link>
       </div>
       {!!user && (
@@ -30,11 +27,7 @@ export default function Header({
         </div>
       )}
       {!!handleSidebar && (
-        <IconHamburger
-          height={32}
-          onClick={() => handleSidebar()}
-          showSidebar={showSidebar}
-        />
+        <IconHamburger height={32} onClick={() => handleSidebar()} showSidebar={showSidebar} />
       )}
     </div>
   );

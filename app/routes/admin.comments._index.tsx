@@ -14,11 +14,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const user = await requireAdmin(request);
   const url = new URL(request.url);
   const cursor = url.searchParams.get("cursor");
-  const commentListPaginated = await paginate(
-    getCommentList,
-    { userId: user.id },
-    cursor,
-  );
+  const commentListPaginated = await paginate(getCommentList, { userId: user.id }, cursor);
   return { commentListPaginated };
 }
 
@@ -44,14 +40,10 @@ export default function Comments() {
                 {result.map((comment) => (
                   <tr key={comment.id}>
                     <td>
-                      <PostLink post={comment.post}>
-                        {comment.post.title}
-                      </PostLink>
+                      <PostLink post={comment.post}>{comment.post.title}</PostLink>
                     </td>
                     <td>
-                      <Link to={`/u/${comment.author.email}`}>
-                        {comment.author.email}
-                      </Link>
+                      <Link to={`/u/${comment.author.email}`}>{comment.author.email}</Link>
                     </td>
                     <td>
                       <TimeSince date={comment.createdAt} />

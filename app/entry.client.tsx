@@ -23,9 +23,3 @@ startTransition(() => {
     </StrictMode>,
   );
 });
-
-if (process.env.NODE_ENV === "development") {
-  import("@spotlightjs/spotlight").then((Spotlight) =>
-    Spotlight.init({ injectImmediately: true }),
-  );
-}

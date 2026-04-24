@@ -6,10 +6,7 @@ import EmojiReaction from "~/components/emoji-reaction";
 import { useEffect, useMemo, useState } from "react";
 import Picker from "~/components/emoji-picker";
 
-const toggleReaction = async (
-  postId: string,
-  emoji: string,
-): Promise<number | undefined> => {
+const toggleReaction = async (postId: string, emoji: string): Promise<number | undefined> => {
   const res = await fetch(`/api/posts/${postId}/reactions`, {
     method: "POST",
     body: JSON.stringify({
@@ -42,14 +39,11 @@ export default function PostReactions({
 }) {
   const [pickerVisible, setPickerVisible] = useState(false);
   const defaultEmojis = useMemo(
-    () =>
-      post.category.defaultEmojis.length ? post.category.defaultEmojis : ["❤️"],
+    () => (post.category.defaultEmojis.length ? post.category.defaultEmojis : ["❤️"]),
     [post.category.defaultEmojis],
   );
 
-  const defaults = defaultEmojis.filter(
-    (d) => !reactions.find((r) => r.emoji === d),
-  );
+  const defaults = defaultEmojis.filter((d) => !reactions.find((r) => r.emoji === d));
   const initialEmojiList = [
     ...defaults.map((d) => ({ selected: false, count: 0, value: d })),
     ...reactions.map((r) => ({
@@ -62,9 +56,7 @@ export default function PostReactions({
   const [emojiList, setEmojiList] = useState(initialEmojiList);
 
   useEffect(() => {
-    const defaults = defaultEmojis.filter(
-      (d) => !reactions.find((r) => r.emoji === d),
-    );
+    const defaults = defaultEmojis.filter((d) => !reactions.find((r) => r.emoji === d));
     const initialEmojiList = [
       ...defaults.map((d) => ({ selected: false, count: 0, value: d })),
       ...reactions.map((r) => ({
@@ -121,10 +113,7 @@ export default function PostReactions({
           );
         })}
         <div className="relative z-50">
-          <EmojiReaction
-            emoji={<PlusIcon />}
-            onClick={(e) => setPickerVisible(!pickerVisible)}
-          />
+          <EmojiReaction emoji={<PlusIcon />} onClick={(_e) => setPickerVisible(!pickerVisible)} />
           <Picker
             onEmojiSelect={(e, emoji) => {
               onEmojiClick(e, emoji);

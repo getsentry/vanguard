@@ -1,11 +1,6 @@
 import { program } from "commander";
 import { exit } from "process";
-import {
-  changePassword,
-  createUser,
-  getUserByEmail,
-  updateUser,
-} from "~/models/user.server";
+import { changePassword, createUser, getUserByEmail, updateUser } from "~/models/user.server";
 
 program.name("user").description("CLI for assisting with user management");
 

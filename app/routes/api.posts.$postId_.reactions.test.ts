@@ -26,12 +26,9 @@ describe("POST /api/posts/$postId/reactions", () => {
   it("requires user", async () => {
     await expectRequiresUser(
       action({
-        request: await buildRequest(
-          `http://localhost/api/posts/${post.id}/reactions`,
-          {
-            method: "POST",
-          },
-        ),
+        request: await buildRequest(`http://localhost/api/posts/${post.id}/reactions`, {
+          method: "POST",
+        }),
         params: { postId: post.id },
         context: {},
       }),

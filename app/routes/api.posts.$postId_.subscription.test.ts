@@ -21,12 +21,9 @@ describe("POST /api/posts/$postId/subscription", () => {
   it("requires user", async () => {
     await expectRequiresUser(
       action({
-        request: await buildRequest(
-          `http://localhost/api/posts/${post.id}/subscription`,
-          {
-            method: "POST",
-          },
-        ),
+        request: await buildRequest(`http://localhost/api/posts/${post.id}/subscription`, {
+          method: "POST",
+        }),
         params: { postId: post.id },
         context: {},
       }),

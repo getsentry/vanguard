@@ -58,10 +58,7 @@ export const Post = async ({ ...data }: Record<string, any> = {}) => {
     })
     .returning();
   const post = rows[0];
-  const authorRows = await db
-    .select()
-    .from(users)
-    .where(eq(users.id, post.authorId));
+  const authorRows = await db.select().from(users).where(eq(users.id, post.authorId));
   return { ...post, author: authorRows[0] ?? null };
 };
 
@@ -84,9 +81,6 @@ export const PostComment = async ({ ...data }: Record<string, any> = {}) => {
   const comment = rows[0];
 
   // Fetch author for compatibility with tests that expect comment.author
-  const authorRows = await db
-    .select()
-    .from(users)
-    .where(eq(users.id, comment.authorId));
+  const authorRows = await db.select().from(users).where(eq(users.id, comment.authorId));
   return { ...comment, author: authorRows[0] ?? null };
 };

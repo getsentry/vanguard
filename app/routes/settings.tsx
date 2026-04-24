@@ -42,10 +42,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   if (typeof name !== "string" || name.length === 0) {
-    return Response.json(
-      { errors: { name: "Name is required" } },
-      { status: 400 },
-    );
+    return Response.json({ errors: { name: "Name is required" } }, { status: 400 });
   }
 
   // TODO: update session
@@ -65,9 +62,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function Settings() {
   const { user } = useLoaderData<typeof loader>();
-  const actionData = useActionData() as
-    | { errors?: Record<string, any> }
-    | undefined;
+  const actionData = useActionData() as { errors?: Record<string, any> } | undefined;
   const errors = actionData?.errors;
 
   const nameRef = useRef<HTMLInputElement>(null);
@@ -124,11 +119,7 @@ export default function Settings() {
       <div>
         <label>
           <span>How about a slick way to visually identify yourself?</span>
-          <AvatarInput
-            initialValue={user.picture}
-            name="picture"
-            error={errors?.picture}
-          />
+          <AvatarInput initialValue={user.picture} name="picture" error={errors?.picture} />
         </label>
         {errors?.picture && (
           <div className="pt-1 text-red-700" id="picture-error">
@@ -138,11 +129,7 @@ export default function Settings() {
       </div>
       <div>
         <label className="field-inline">
-          <input
-            type="checkbox"
-            name="notifyReplies"
-            defaultChecked={user.notifyReplies}
-          />
+          <input type="checkbox" name="notifyReplies" defaultChecked={user.notifyReplies} />
           Receive notifications about replies to your comments?
         </label>
       </div>

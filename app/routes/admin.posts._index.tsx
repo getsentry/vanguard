@@ -15,11 +15,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const user = await requireAdmin(request);
   const url = new URL(request.url);
   const cursor = url.searchParams.get("cursor");
-  const postListPaginated = await paginate(
-    getPostList,
-    { userId: user.id },
-    cursor,
-  );
+  const postListPaginated = await paginate(getPostList, { userId: user.id }, cursor);
   return { postListPaginated };
 }
 
@@ -49,9 +45,7 @@ export default function Index() {
                       <PostLink post={post}>{post.title}</PostLink>
                     </td>
                     <td>
-                      <Link to={`/u/${post.author.email}`}>
-                        {post.author.email}
-                      </Link>
+                      <Link to={`/u/${post.author.email}`}>{post.author.email}</Link>
                     </td>
                     <td>
                       <BooleanIcon value={post.published} />

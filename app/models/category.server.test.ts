@@ -7,15 +7,9 @@ describe("getCategoryList", () => {
   let user: typeof users.$inferSelect;
 
   beforeEach(async () => {
-    const userRows = await db
-      .insert(users)
-      .values({ email: "foo@example.com" })
-      .returning();
+    const userRows = await db.insert(users).values({ email: "foo@example.com" }).returning();
     user = userRows[0];
-    const catRows = await db
-      .insert(categories)
-      .values({ name: "Bar", slug: "foo" })
-      .returning();
+    const catRows = await db.insert(categories).values({ name: "Bar", slug: "foo" }).returning();
     category = catRows[0];
   });
 
@@ -43,10 +37,7 @@ describe("getCategory", () => {
   let category: typeof categories.$inferSelect;
 
   beforeEach(async () => {
-    const rows = await db
-      .insert(categories)
-      .values({ name: "Bar", slug: "foo" })
-      .returning();
+    const rows = await db.insert(categories).values({ name: "Bar", slug: "foo" }).returning();
     category = rows[0];
   });
 

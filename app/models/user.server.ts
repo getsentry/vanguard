@@ -12,10 +12,7 @@ export async function getUserById(id: User["id"]) {
 }
 
 export async function getUserByExternalId(externalId: string) {
-  return (
-    db.query.users.findFirst({ where: eq(users.externalId, externalId) }) ??
-    null
-  );
+  return db.query.users.findFirst({ where: eq(users.externalId, externalId) }) ?? null;
 }
 
 export async function getUserByEmail(email: User["email"]) {
@@ -47,10 +44,7 @@ export async function getUserList(
 }
 
 export async function deleteUserByEmail(email: User["email"]) {
-  const [deleted] = await db
-    .delete(users)
-    .where(eq(users.email, email))
-    .returning();
+  const [deleted] = await db.delete(users).where(eq(users.email, email)).returning();
   return deleted;
 }
 
@@ -66,37 +60,19 @@ export async function createUser({
   admin?: User["admin"];
 }) {
   const passwordHash = password ? hashSync(password, 8) : null;
-  const [user] = await db
-    .insert(users)
-    .values({ email, passwordHash, name, admin })
-    .returning();
+  const [user] = await db.insert(users).values({ email, passwordHash, name, admin }).returning();
   return user;
 }
 
-export function verifyPassword({
-  user,
-  password,
-}: {
-  user: User;
-  password: string;
-}) {
+export function verifyPassword({ user, password }: { user: User; password: string }) {
   if (!user.passwordHash) return false;
   if (!compareSync(password, user.passwordHash)) return false;
   return true;
 }
 
-export async function changePassword({
-  user,
-  newPassword,
-}: {
-  user: User;
-  newPassword: string;
-}) {
+export async function changePassword({ user, newPassword }: { user: User; newPassword: string }) {
   const passwordHash = hashSync(newPassword, 8);
-  await db
-    .update(users)
-    .set({ passwordHash })
-    .where(eq(users.id, user.id));
+  await db.update(users).set({ passwordHash }).where(eq(users.id, user.id));
   user.passwordHash = passwordHash;
   return user;
 }
@@ -157,10 +133,7 @@ export async function updateUser({
   // admin only fields
   if (user.admin) {
     if (admin !== undefined && admin !== user.admin) data.admin = !!admin;
-    if (
-      canPostRestricted !== undefined &&
-      canPostRestricted !== user.canPostRestricted
-    )
+    if (canPostRestricted !== undefined && canPostRestricted !== user.canPostRestricted)
       data.canPostRestricted = !!canPostRestricted;
   }
 
@@ -173,10 +146,6 @@ export async function updateUser({
     return user;
   }
 
-  const [updated] = await db
-    .update(users)
-    .set(data)
-    .where(eq(users.id, id))
-    .returning();
+  const [updated] = await db.update(users).set(data).where(eq(users.id, id)).returning();
   return updated;
 }

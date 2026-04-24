@@ -9,12 +9,7 @@ import { and, eq, notInArray } from "drizzle-orm";
 import { requireAdmin } from "~/services/auth.server";
 import { getCategory } from "~/models/category.server";
 import { db } from "~/db/client";
-import {
-  categories,
-  categoryEmails,
-  categoryMetas,
-  categorySlacks,
-} from "~/db/schema";
+import { categories, categoryEmails, categoryMetas, categorySlacks } from "~/db/schema";
 import FormActions from "~/components/form-actions";
 import ButtonGroup from "~/components/button-group";
 import Button from "~/components/button";
@@ -83,33 +78,23 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const existingMetaIds = meta.map(({ id }) => id).filter((id) => !!id);
 
   if (typeof name !== "string" || name.length === 0) {
-    return Response.json(
-      { errors: { name: "Name is required" } },
-      { status: 400 },
-    );
+    return Response.json({ errors: { name: "Name is required" } }, { status: 400 });
   }
 
   if (typeof slug !== "string" || slug.length === 0) {
-    return Response.json(
-      { errors: { slug: "Slug is required" } },
-      { status: 400 },
-    );
+    return Response.json({ errors: { slug: "Slug is required" } }, { status: 400 });
   }
 
   // TODO: validate
   if (typeof colorHex !== "string" || colorHex.length === 0) {
-    return Response.json(
-      { errors: { colorHex: "Color is required" } },
-      { status: 400 },
-    );
+    return Response.json({ errors: { colorHex: "Color is required" } }, { status: 400 });
   }
 
   if (defaultEmojis.find((v) => !isEmoji(v))) {
     return Response.json(
       {
         errors: {
-          defaultEmojis:
-            "An invalid reaction was provided. All values must be emoji",
+          defaultEmojis: "An invalid reaction was provided. All values must be emoji",
         },
       },
       { status: 400 },
@@ -131,12 +116,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
       })
       .where(eq(categories.id, categoryId));
 
-    await tx
-      .delete(categorySlacks)
-      .where(eq(categorySlacks.categoryId, categoryId));
-    await tx
-      .delete(categoryEmails)
-      .where(eq(categoryEmails.categoryId, categoryId));
+    await tx.delete(categorySlacks).where(eq(categorySlacks.categoryId, categoryId));
+    await tx.delete(categoryEmails).where(eq(categoryEmails.categoryId, categoryId));
 
     if (existingMetaIds.length > 0) {
       await tx
@@ -150,9 +131,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }
 
     if (slackWebhookUrl && typeof slackWebhookUrl === "string") {
-      await tx
-        .insert(categorySlacks)
-        .values({ categoryId, webhookUrl: slackWebhookUrl });
+      await tx.insert(categorySlacks).values({ categoryId, webhookUrl: slackWebhookUrl });
     }
 
     if (emailTo && typeof emailTo === "string") {
@@ -165,10 +144,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
     for (const { id, ...data } of meta) {
       if (id) {
-        await tx
-          .update(categoryMetas)
-          .set(data)
-          .where(eq(categoryMetas.id, id));
+        await tx.update(categoryMetas).set(data).where(eq(categoryMetas.id, id));
       } else {
         await tx.insert(categoryMetas).values({ ...data, categoryId });
       }
@@ -179,19 +155,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 function MetaContainer(props: ComponentPropsWithoutRef<"div">) {
-  return (
-    <div
-      className="border border-border-light dark:border-border-dark p-4 mb-6"
-      {...props}
-    />
-  );
+  return <div className="border border-border-light dark:border-border-dark p-4 mb-6" {...props} />;
 }
 
 export default function Index() {
   const { category } = useLoaderData<typeof loader>();
-  const actionData = useActionData() as
-    | { errors?: Record<string, any> }
-    | undefined;
+  const actionData = useActionData() as { errors?: Record<string, any> } | undefined;
   const errors = actionData?.errors;
 
   const [currentEmojiList, setCurrentEmojiList] = useState(
@@ -265,9 +234,7 @@ export default function Index() {
             autoFocus
             defaultValue={category.description || ""}
             aria-invalid={errors?.description ? true : undefined}
-            aria-errormessage={
-              errors?.description ? "description-error" : undefined
-            }
+            aria-errormessage={errors?.description ? "description-error" : undefined}
           />
         </label>
         {errors?.description && (
@@ -298,22 +265,14 @@ export default function Index() {
 
       <div>
         <label className="field-inline">
-          <input
-            type="checkbox"
-            name="restricted"
-            defaultChecked={category.restricted}
-          />
+          <input type="checkbox" name="restricted" defaultChecked={category.restricted} />
           Restrict posting to this category
         </label>
       </div>
 
       <div>
         <label className="field-inline">
-          <input
-            type="checkbox"
-            name="allowComments"
-            defaultChecked={category.allowComments}
-          />
+          <input type="checkbox" name="allowComments" defaultChecked={category.allowComments} />
           Allow comments on posts in this category
         </label>
       </div>
@@ -337,9 +296,7 @@ export default function Index() {
                 key={emoji}
                 onClick={(e) => {
                   e.preventDefault();
-                  setCurrentEmojiList(
-                    currentEmojiList.filter((v) => v !== emoji),
-                  );
+                  setCurrentEmojiList(currentEmojiList.filter((v) => v !== emoji));
                 }}
               >
                 <input type="hidden" name="defaultEmojis" value={emoji} />
@@ -367,9 +324,7 @@ export default function Index() {
             defaultValue={slackConfig?.webhookUrl || ""}
             aria-invalid={errors?.slackConfig?.webhookUrl ? true : undefined}
             aria-errormessage={
-              errors?.slackConfig?.webhookUrl
-                ? "slack-webhook-url-error"
-                : undefined
+              errors?.slackConfig?.webhookUrl ? "slack-webhook-url-error" : undefined
             }
           />
         </label>
@@ -389,9 +344,7 @@ export default function Index() {
             placeholder="e.g. my-notifications@example.company"
             defaultValue={emailConfig?.to || ""}
             aria-invalid={errors?.emailConfig?.to ? true : undefined}
-            aria-errormessage={
-              errors?.emailConfig?.to ? "email-to-error" : undefined
-            }
+            aria-errormessage={errors?.emailConfig?.to ? "email-to-error" : undefined}
           />
         </label>
         {errors?.emailConfig?.to && (
@@ -411,9 +364,7 @@ export default function Index() {
             defaultValue={emailConfig?.subjectPrefix || ""}
             aria-invalid={errors?.emailConfig?.subjectPrefix ? true : undefined}
             aria-errormessage={
-              errors?.emailConfig?.subjectPrefix
-                ? "email-subject-prefix-error"
-                : undefined
+              errors?.emailConfig?.subjectPrefix ? "email-subject-prefix-error" : undefined
             }
           />
         </label>
@@ -426,18 +377,14 @@ export default function Index() {
 
       <h2>Metadata</h2>
       <p>
-        Define additional content fields to associate with posts. This is useful
-        for things like e.g. a fixed location for a video URL.
+        Define additional content fields to associate with posts. This is useful for things like
+        e.g. a fixed location for a video URL.
       </p>
 
       <div>
         {metaConfig.map((meta, idx) => (
           <MetaContainer key={meta.id || idx}>
-            <input
-              type="hidden"
-              name={`meta[${idx}].id`}
-              value={meta.id || ""}
-            />
+            <input type="hidden" name={`meta[${idx}].id`} value={meta.id || ""} />
             <label className="field-required">
               <span>Name</span>
               <input
@@ -514,12 +461,7 @@ const NewMetaConfig = ({ onCreate }) => {
       <input type="hidden" name="meta[].id" value="" />
       <label className="field-required">
         <span>Name</span>
-        <input
-          type="text"
-          name="meta[].name"
-          placeholder="e.g. Video URL"
-          ref={nameRef}
-        />
+        <input type="text" name="meta[].name" placeholder="e.g. Video URL" ref={nameRef} />
       </label>
 
       <label>

@@ -7,10 +7,7 @@ describe("getFeedList", () => {
   let user: typeof users.$inferSelect;
 
   beforeEach(async () => {
-    const userRows = await db
-      .insert(users)
-      .values({ email: "foo@example.com" })
-      .returning();
+    const userRows = await db.insert(users).values({ email: "foo@example.com" }).returning();
     user = userRows[0];
     const feedRows = await db.insert(feeds).values({ name: "Bar" }).returning();
     feed = feedRows[0];

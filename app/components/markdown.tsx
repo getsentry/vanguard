@@ -9,7 +9,7 @@ import "prism-sentry/index.css";
 
 const renderer = new marked.Renderer();
 
-renderer.code = function (code, lang, escaped) {
+renderer.code = function (code, lang, _escaped) {
   // @ts-ignore: highlight may not be in newer marked types
   code = (this as any).options?.highlight?.(code, lang) ?? code;
   if (!lang) {
@@ -138,10 +138,7 @@ export default function Markdown({
 
     const handleImageClick = (event: Event) => {
       const target = event.target as HTMLElement;
-      if (
-        target.tagName === "IMG" &&
-        target.classList.contains("markdown-image")
-      ) {
+      if (target.tagName === "IMG" && target.classList.contains("markdown-image")) {
         const src = target.getAttribute("data-enlarge-src");
         const alt = target.getAttribute("data-enlarge-alt");
         if (src) {
@@ -157,17 +154,11 @@ export default function Markdown({
     };
   }, [content]); // Re-run when content changes
 
-  const html = sanitize(
-    summarize ? summarizeFn(content) : parseMarkdown(content),
-  );
+  const html = sanitize(summarize ? summarizeFn(content) : parseMarkdown(content));
 
   return (
     <>
-      <div
-        ref={containerRef}
-        dangerouslySetInnerHTML={{ __html: html }}
-        {...props}
-      />
+      <div ref={containerRef} dangerouslySetInnerHTML={{ __html: html }} {...props} />
       <ImageModal
         src={modalImage?.src || ""}
         alt={modalImage?.alt || ""}

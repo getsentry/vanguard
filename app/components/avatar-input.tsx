@@ -49,10 +49,10 @@ export default function AvatarInput({
         e.preventDefault();
         setHover(false);
       }}
-      onMouseOver={(e) => {
+      onMouseOver={(_e) => {
         setHover(true);
       }}
-      onMouseOut={(e) => {
+      onMouseOut={(_e) => {
         setHover(false);
       }}
       onDrop={(e) => {

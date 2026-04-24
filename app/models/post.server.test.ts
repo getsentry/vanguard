@@ -1,19 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "~/db/client";
-import {
-  feedToPost,
-  postRevisions,
-  postSubscriptions,
-  posts,
-  users,
-} from "~/db/schema";
-import {
-  createPost,
-  getPost,
-  getPostList,
-  syndicatePost,
-  updatePost,
-} from "~/models/post.server";
+import { feedToPost, postRevisions, postSubscriptions, posts, users } from "~/db/schema";
+import { createPost, getPost, getPostList, syndicatePost, updatePost } from "~/models/post.server";
 import * as Fixtures from "~/lib/test/fixtures";
 
 describe("getPost", () => {
@@ -260,10 +248,7 @@ describe("createPost", () => {
     expect(post.title).toBe("test");
     expect(post.content).toBe("test content");
     // Verify no feed associations
-    const feedLinks = await db
-      .select()
-      .from(feedToPost)
-      .where(eq(feedToPost.B, post.id));
+    const feedLinks = await db.select().from(feedToPost).where(eq(feedToPost.B, post.id));
     expect(feedLinks.length).toBe(0);
   });
 
@@ -289,10 +274,7 @@ describe("createPost", () => {
       content: "test content",
       title: "test",
     });
-    const revs = await db
-      .select()
-      .from(postRevisions)
-      .where(eq(postRevisions.postId, post.id));
+    const revs = await db.select().from(postRevisions).where(eq(postRevisions.postId, post.id));
     expect(revs.length).toBe(1);
     expect(revs[0].content).toBe("test content");
     expect(revs[0].title).toBe("test");
@@ -308,10 +290,7 @@ describe("createPost", () => {
       feedIds: [feed.id],
     });
     expect(post).toBeDefined();
-    const feedLinks = await db
-      .select()
-      .from(feedToPost)
-      .where(eq(feedToPost.B, post.id));
+    const feedLinks = await db.select().from(feedToPost).where(eq(feedToPost.B, post.id));
     expect(feedLinks.length).toBe(1);
     expect(feedLinks[0].A).toBe(feed.id);
   });
@@ -341,10 +320,7 @@ describe("updatePost", () => {
       userId: post.authorId,
       feedIds: [feed.id],
     });
-    const feedLinks = await db
-      .select()
-      .from(feedToPost)
-      .where(eq(feedToPost.B, post.id));
+    const feedLinks = await db.select().from(feedToPost).where(eq(feedToPost.B, post.id));
     expect(feedLinks.length).toBe(1);
     expect(feedLinks[0].A).toBe(feed.id);
   });
@@ -358,10 +334,7 @@ describe("updatePost", () => {
       userId: post.authorId,
       feedIds: [],
     });
-    const feedLinks = await db
-      .select()
-      .from(feedToPost)
-      .where(eq(feedToPost.B, post.id));
+    const feedLinks = await db.select().from(feedToPost).where(eq(feedToPost.B, post.id));
     expect(feedLinks.length).toBe(0);
     // Feed itself still exists
     const feedRow = await db.query.feeds.findFirst({

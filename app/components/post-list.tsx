@@ -38,9 +38,7 @@ export default function PostList({ postList }) {
             }}
           >
             <div className="font-medium text-sm">
-              <Link to={`/u/${post.author.email}`}>
-                {post.author.name || post.author.email}
-              </Link>
+              <Link to={`/u/${post.author.email}`}>{post.author.name || post.author.email}</Link>
             </div>
             <div className="text-xs">
               <TimeSince date={post.publishedAt} />

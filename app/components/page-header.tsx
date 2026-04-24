@@ -9,9 +9,7 @@ export default function PageHeader({
 }) {
   return (
     <div className="mb-12 flex items-right flex-nowrap gap-4" {...props}>
-      {!!title && (
-        <h1 className="text-4xl flex-1 font-serif font-medium">{title}</h1>
-      )}
+      {!!title && <h1 className="text-4xl flex-1 font-serif font-medium">{title}</h1>}
       {children}
     </div>
   );

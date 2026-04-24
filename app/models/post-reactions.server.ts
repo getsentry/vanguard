@@ -50,7 +50,7 @@ export async function getReactionsForPosts({
 }
 
 export async function countReactionsForPosts({
-  userId,
+  userId: _userId,
   postList,
 }: {
   userId: string;

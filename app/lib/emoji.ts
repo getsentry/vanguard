@@ -4,8 +4,7 @@ const emojiPattern = String.raw`(?:\ud83e\uddd1\ud83c\udffb\u200d\u2764\ufe0f\u2
 
 export const isEmoji = (value: string): boolean => {
   const emojiRegex = new RegExp(emojiPattern, "g");
-  const pattern1 =
-    /[\p{Extended_Pictographic}\u{1F3FB}-\u{1F3FF}\u{1F9B0}-\u{1F9B3}]/gu;
+  const pattern1 = /[\p{Extended_Pictographic}\u{1F3FB}-\u{1F3FF}\u{1F9B0}-\u{1F9B3}]/gu;
   // https://davidwalsh.name/emoji-regex
   const pattern2 = /\p{Emoji_Presentation}/gu;
   const patterns = [emojiRegex, pattern1, pattern2];

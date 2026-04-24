@@ -20,10 +20,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const name = formData.get("name");
   if (typeof name !== "string" || name.length === 0) {
-    return Response.json(
-      { errors: { name: "Name is required" } },
-      { status: 400 },
-    );
+    return Response.json({ errors: { name: "Name is required" } }, { status: 400 });
   }
 
   const pictureFile = formData.get("picture");
@@ -60,9 +57,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function WelcomePage() {
   const { user } = useLoaderData<typeof loader>();
-  const actionData = useActionData() as
-    | { errors?: Record<string, any> }
-    | undefined;
+  const actionData = useActionData() as { errors?: Record<string, any> } | undefined;
   const errors = actionData?.errors;
 
   const nameRef = useRef<HTMLInputElement>(null);
@@ -89,10 +84,7 @@ export default function WelcomePage() {
       className="p-4"
     >
       <h1>Stay awhile and listen...</h1>
-      <p>
-        Welcome to Vanguard! We just need a few details before we can unlock the
-        gates..
-      </p>
+      <p>Welcome to Vanguard! We just need a few details before we can unlock the gates..</p>
       <div>
         <label>
           <span>What should we call you?</span>
@@ -117,11 +109,7 @@ export default function WelcomePage() {
       <div>
         <label>
           <span>How about a slick way to visually identify yourself?</span>
-          <AvatarInput
-            initialValue={user.picture}
-            name="picture"
-            error={errors?.picture}
-          />
+          <AvatarInput initialValue={user.picture} name="picture" error={errors?.picture} />
         </label>
       </div>
       <div>

@@ -117,19 +117,16 @@ export const postCommentsRelations = relations(postComments, ({ one, many }) => 
   children: many(postComments, { relationName: "CommentChildren" }),
 }));
 
-export const postSubscriptionsRelations = relations(
-  postSubscriptions,
-  ({ one }) => ({
-    post: one(posts, {
-      fields: [postSubscriptions.postId],
-      references: [posts.id],
-    }),
-    user: one(users, {
-      fields: [postSubscriptions.userId],
-      references: [users.id],
-    }),
+export const postSubscriptionsRelations = relations(postSubscriptions, ({ one }) => ({
+  post: one(posts, {
+    fields: [postSubscriptions.postId],
+    references: [posts.id],
   }),
-);
+  user: one(users, {
+    fields: [postSubscriptions.userId],
+    references: [users.id],
+  }),
+}));
 
 export const feedToPostRelations = relations(feedToPost, ({ one }) => ({
   feed: one(feeds, { fields: [feedToPost.A], references: [feeds.id] }),

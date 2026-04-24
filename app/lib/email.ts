@@ -77,12 +77,8 @@ export const notify = async ({
   }
 
   const postUrl = `${process.env.BASE_URL}/p/${post.id}`;
-  const sender = `"${post.author.name || post.author.email}" <${
-    post.author.email
-  }>`;
-  const subject = config.subjectPrefix
-    ? `${config.subjectPrefix} ${post.title}`
-    : post.title;
+  const sender = `"${post.author.name || post.author.email}" <${post.author.email}>`;
+  const subject = config.subjectPrefix ? `${config.subjectPrefix} ${post.title}` : post.title;
 
   try {
     await transport.sendMail({
@@ -95,7 +91,7 @@ export const notify = async ({
       text: `View this post on Vanguard: ${postUrl}\n\n${post.content}`,
       html: buildPostEmail(post),
     });
-  } catch (err) {
+  } catch {
     error("email notification failed");
   }
 };
@@ -127,9 +123,7 @@ const buildPostEmail = (post: PostQueryType): string => {
             </td>
           </tr>
           <tr>
-            <td><a href="${postUrl}" style="color:${
-              lightTheme.linkColor
-            };">View this Post</a></td>
+            <td><a href="${postUrl}" style="color:${lightTheme.linkColor};">View this Post</a></td>
           </tr>
         </td>
       </tr>
@@ -142,7 +136,7 @@ export const notifyComment = async ({
   post,
   comment,
   parent,
-  config,
+  config: _config,
   transport = mailTransport,
 }: {
   post: PostQueryType;
@@ -159,9 +153,7 @@ export const notifyComment = async ({
   }
 
   const commentUrl = `${process.env.BASE_URL}/p/${post.id}#c_${comment.id}`;
-  const sender = `"${comment.author.name || comment.author.email}" <${
-    comment.author.email
-  }>`;
+  const sender = `"${comment.author.name || comment.author.email}" <${comment.author.email}>`;
   const subject = `Re: ${post.title}`;
 
   const subscriptions: User[] = await getSubscriptions({ postId: post.id });
@@ -176,9 +168,7 @@ export const notifyComment = async ({
   subscriptions
     .filter((user) => user.id !== comment.authorId)
     .forEach(async (user) => {
-      console.log(
-        `Sending email notification for comment ${comment.id} to ${user.email}`,
-      );
+      console.log(`Sending email notification for comment ${comment.id} to ${user.email}`);
 
       const html = buildCommentHtml(user, post, comment, parent);
 
@@ -192,7 +182,7 @@ export const notifyComment = async ({
           text: `View this comment on Vanguard: ${commentUrl}\n\n${comment.content}`,
           html,
         });
-      } catch (err) {
+      } catch {
         error("email notification failed");
       }
     });
@@ -210,12 +200,8 @@ const buildCommentHtml = (
 
   const isInReplyTo = parent && parent.authorId === toUser.id;
   const titleLine = isInReplyTo
-    ? `${escapeHtml(
-        comment.author.name || comment.author.email,
-      )} just replied to your comment`
-    : `${escapeHtml(
-        comment.author.name || comment.author.email,
-      )} left a new comment`;
+    ? `${escapeHtml(comment.author.name || comment.author.email)} just replied to your comment`
+    : `${escapeHtml(comment.author.name || comment.author.email)} left a new comment`;
   const reasonLine = isInReplyTo
     ? `You are being notified because you have notification replies enabled. <a href="${settingsUrl}">Account Settings</a>`
     : `You are being notified because you are subscribed to this post. <a href="${postUrl}">Post Settings</a>`;
@@ -228,9 +214,7 @@ const buildCommentHtml = (
       <meta http-equiv="Content-Type" content="text/html charset=UTF-8" />
     </head>
     <body>
-      <h2 style="margin-top:0;margin-bottom:15px;color:${
-        lightTheme.textColor
-      };">${titleLine}</h2>
+      <h2 style="margin-top:0;margin-bottom:15px;color:${lightTheme.textColor};">${titleLine}</h2>
       ${
         isInReplyTo
           ? `<p style="margin-top:0;margin-bottom:15px;color:${
@@ -263,9 +247,7 @@ const buildCommentHtml = (
             </table>
         </tr>
       </table>
-      <p style="color:${
-        lightTheme.textColorSecondary
-      };margin:15px 0 0;">${reasonLine}</p>
+      <p style="color:${lightTheme.textColorSecondary};margin:15px 0 0;">${reasonLine}</p>
     </body>
   </html>
   `;

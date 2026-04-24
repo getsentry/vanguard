@@ -12,16 +12,11 @@ export default function IconHamburger({
     <svg
       fill="none"
       viewBox="0 0 32 32"
-      className={classNames(
-        "absolute z-[1000] right-0 block xl:hidden cursor-pointer",
-      )}
+      className={classNames("absolute z-[1000] right-0 block xl:hidden cursor-pointer")}
       {...props}
     >
       <path
-        className={classNames(
-          pathStyles,
-          showSidebar ? "opacity-0 translate-y-1" : "opacity-100",
-        )}
+        className={classNames(pathStyles, showSidebar ? "opacity-0 translate-y-1" : "opacity-100")}
         stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
@@ -42,10 +37,7 @@ export default function IconHamburger({
         d="M5 16h22"
       />
       <path
-        className={classNames(
-          pathStyles,
-          showSidebar ? "opacity-0 -translate-y-1" : "opacity-100",
-        )}
+        className={classNames(pathStyles, showSidebar ? "opacity-0 -translate-y-1" : "opacity-100")}
         stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"

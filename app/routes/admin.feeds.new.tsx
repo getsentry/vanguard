@@ -22,23 +22,16 @@ export async function action({ request }: ActionFunctionArgs) {
   const restricted = !!formData.get("restricted");
 
   if (typeof name !== "string" || name.length === 0) {
-    return Response.json(
-      { errors: { title: "Name is required" } },
-      { status: 400 },
-    );
+    return Response.json({ errors: { title: "Name is required" } }, { status: 400 });
   }
 
-  await db
-    .insert(feeds)
-    .values({ name, webhookUrl: webhookUrl as string | null, restricted });
+  await db.insert(feeds).values({ name, webhookUrl: webhookUrl as string | null, restricted });
 
   return redirect("/admin/feeds");
 }
 
 export default function Index() {
-  const actionData = useActionData() as
-    | { errors?: Record<string, any> }
-    | undefined;
+  const actionData = useActionData() as { errors?: Record<string, any> } | undefined;
   const errors = actionData?.errors;
 
   return (
@@ -104,9 +97,7 @@ export default function Index() {
             placeholder="e.g. https://blog.sentry.io/notify"
             autoFocus
             aria-invalid={errors?.webhookUrl ? true : undefined}
-            aria-errormessage={
-              errors?.webhookUrl ? "webhookUrl-error" : undefined
-            }
+            aria-errormessage={errors?.webhookUrl ? "webhookUrl-error" : undefined}
           />
         </label>
         {errors?.webhookUrl && (

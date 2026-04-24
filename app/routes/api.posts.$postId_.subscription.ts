@@ -1,10 +1,7 @@
 import type { ActionFunctionArgs } from "react-router";
 import invariant from "tiny-invariant";
 
-import {
-  createSubscription,
-  deleteSubscription,
-} from "~/models/post-subscription.server";
+import { createSubscription, deleteSubscription } from "~/models/post-subscription.server";
 import { requireUserId } from "~/services/auth.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {

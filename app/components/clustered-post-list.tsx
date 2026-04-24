@@ -26,10 +26,7 @@ export default function ClusteredPostList({
       <ul>
         {posts.map((post) => {
           const postReactions = reactions[post.id];
-          const totalReactions = postReactions.reduce(
-            (value, r) => value + r.total,
-            0,
-          );
+          const totalReactions = postReactions.reduce((value, r) => value + r.total, 0);
           const totalComments = commentCounts[post.id];
           return (
             <li key={post.id} className="clustered-post">

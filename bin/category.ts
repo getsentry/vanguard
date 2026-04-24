@@ -1,9 +1,7 @@
 import { program } from "commander";
 import { createCategory } from "~/models/category.server";
 
-program
-  .name("category")
-  .description("CLI for assisting with category management");
+program.name("category").description("CLI for assisting with category management");
 
 program
   .command("create")

@@ -6,29 +6,23 @@
   "sideEffects": false,
   "scripts": {
     "build": "react-router build",
-    "db:migrate": "run-p db:migrate:*",
+    "db:migrate": "pnpm db:migrate:dev && pnpm db:migrate:test",
     "db:migrate:dev": "pnpm exec drizzle-kit migrate",
     "db:migrate:test": "dotenv -e .env.test -- pnpm exec drizzle-kit migrate",
     "db:seed": "ts-node -r esbuild-register -r dotenv/config ./drizzle/seed.ts",
     "dev": "react-router dev",
     "docker": "docker-compose up -d",
-    "format": "prettier --write .",
-    "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint .",
-    "lint:fix": "eslint --fix --cache --cache-location ./node_modules/.cache/eslint .",
     "preinstall": "npx only-allow pnpm",
-    "postinstall": "run-p postinstall:*",
-    "postinstall:git-hooks": "simple-git-hooks",
     "start": "react-router-serve ./build/server/index.js",
-    "test": "run-s db:migrate:test test:vitest",
+    "test": "pnpm db:migrate:test && pnpm test:vitest",
     "test:vitest": "dotenv -e .env.test -- vitest --no-threads",
-    "test:ci": "run-s db:migrate:test test:ci:*",
+    "test:ci": "pnpm db:migrate:test && pnpm test:ci:vitest",
     "test:ci:vitest": "dotenv -e .env.test -- vitest --no-threads --coverage --reporter=junit --outputFile=junit.xml --reporter=default",
     "typecheck": "react-router typegen && tsc -b",
     "user": "ts-node -r esbuild-register -r dotenv/config ./bin/user.ts",
     "category": "ts-node -r esbuild-register -r dotenv/config ./bin/category.ts",
-    "validate": "run-p \"test -- --run\" lint typecheck test:e2e:run"
+    "validate": "vp check && pnpm typecheck && pnpm test -- --run"
   },
-  "prettier": {},
   "dependencies": {
     "@faker-js/faker": "^6.3.1",
     "@fontsource/inter": "^5.0.17",
@@ -53,10 +47,9 @@
     "@testing-library/user-event": "^14.5.2",
     "@types/bcrypt": "^5.0.2",
     "@types/bcryptjs": "^2.4.6",
-    "@types/eslint": "^8.56.6",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/marked": "^5.0.2",
-    "@types/node": "~20.0.0",
+    "@types/node": "^24.0.0",
     "@types/nodemailer": "^6.4.14",
     "@types/prismjs": "^1.26.3",
     "@types/react": "^18.2.70",
@@ -78,21 +71,14 @@
     "emoji-picker-react": "^3.6.5",
     "esbuild": "^0.20.2",
     "esbuild-register": "^3.5.0",
-    "eslint": "^8.57.0",
-    "eslint-config-prettier": "^8.10.0",
     "happy-dom": "^20.8.9",
     "isbot": "^5.1.39",
     "isomorphic-dompurify": "^2.6.0",
     "jsonwebtoken": "^9.0.2",
-    "lint-staged": "^15.2.2",
     "marked": "^4.3.0",
     "nodemailer": "^7.0.7",
-    "npm-run-all": "^4.1.5",
     "pg": "^8.20.0",
     "postcss": "^8.4.38",
-    "prettier": "^3.2.5",
-    "prettier-plugin-organize-imports": "^3.2.4",
-    "prettier-plugin-tailwindcss": "^0.4.1",
     "prism-sentry": "^1.0.2",
     "prismjs": "^1.29.0",
     "react": "^18.2.0",
@@ -103,7 +89,6 @@
     "remix-auth": "^3.6.0",
     "remix-auth-form": "^1.4.0",
     "remix-auth-oauth2": "^1.11.2",
-    "simple-git-hooks": "^2.11.0",
     "slugify": "^1.6.6",
     "start-server-and-test": "^2.0.3",
     "tailwindcss": "^3.4.1",
@@ -116,17 +101,14 @@
     "vite-tsconfig-paths": "^4.3.2",
     "vitest": "^0.33.0"
   },
+  "devDependencies": {
+    "@types/pg": "^8.20.0",
+    "nodemon": "^3.1.0"
+  },
   "engines": {
-    "node": ">=20.0.0 <21.0.0"
+    "node": ">=24.0.0"
   },
   "packageManager": "pnpm@10.4.1",
-  "volta": {
-    "node": "20.11.0",
-    "pnpm": "10.4.1"
-  },
-  "simple-git-hooks": {
-    "pre-commit": "pnpm exec lint-staged --concurrent false"
-  },
   "pnpm": {
     "onlyBuiltDependencies": [
       "bcrypt"
@@ -134,20 +116,5 @@
     "overrides": {
       "form-data": "4.0.4"
     }
-  },
-  "lint-staged": {
-    "*": [
-      "prettier --write --cache --ignore-unknown"
-    ],
-    "**/*.{js,jsx,ts,tsx}": [
-      "eslint --cache --fix"
-    ]
-  },
-  "devDependencies": {
-    "@spotlightjs/spotlight": "^1.2.15",
-    "@types/pg": "^8.20.0",
-    "@typescript-eslint/eslint-plugin": "^8.59.0",
-    "@typescript-eslint/parser": "^8.59.0",
-    "nodemon": "^3.1.0"
   }
 }

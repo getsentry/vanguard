@@ -23,7 +23,6 @@ import LoadingIndicator from "./components/loading-indicator";
 import DevNotice from "./components/dev-notice";
 import Button from "./components/button";
 import Document from "./components/document";
-import config from "./config";
 import Link from "./components/link";
 
 export const links: LinksFunction = () => {
@@ -81,9 +80,7 @@ export function ErrorBoundary() {
           <Header />
           <h1>Internal Server Error</h1>
           {error.stack && (
-            <pre className="whitespace-pre-wrap break-all text-left">
-              {error.stack}
-            </pre>
+            <pre className="whitespace-pre-wrap break-all text-left">{error.stack}</pre>
           )}
         </Container>
       </div>
@@ -92,8 +89,7 @@ export function ErrorBoundary() {
 }
 
 function App() {
-  const { user, categoryList, recentPostList, ...data } =
-    useLoaderData<LoaderData>();
+  const { user, categoryList, recentPostList, ...data } = useLoaderData<LoaderData>();
 
   const [showSidebar, setShowSidebar] = useState(false);
 
@@ -121,16 +117,9 @@ function App() {
       <div className="relative">
         <div className="xl:pb-24 xl:px-20 xl:mr-[30rem] relative">
           <Container>
-            <Header
-              showSidebar={showSidebar}
-              handleSidebar={handleSidebar}
-              user={user}
-            />
+            <Header showSidebar={showSidebar} handleSidebar={handleSidebar} user={user} />
             <Outlet />
-            <Footer
-              version={import.meta.env.VITE_VERSION}
-              admin={user?.admin}
-            />
+            <Footer version={import.meta.env.VITE_VERSION} admin={user?.admin} />
           </Container>
         </div>
         <Sidebar showSidebar={showSidebar}>
@@ -144,9 +133,7 @@ function App() {
                   <Button as={Link} baseStyle="link" to="/settings">
                     Settings
                   </Button>
-                  <div className="text-border-light dark:text-border-dark font-mono">
-                    /
-                  </div>
+                  <div className="text-border-light dark:text-border-dark font-mono">/</div>
                   <Button as={Link} baseStyle="link" to="/drafts">
                     Drafts
                   </Button>
@@ -154,11 +141,7 @@ function App() {
               </SidebarSection>
               <SidebarSection>
                 <Form method="get" action="/search">
-                  <Input
-                    variant="search"
-                    name="q"
-                    placeholder="Search posts..."
-                  />
+                  <Input variant="search" name="q" placeholder="Search posts..." />
                 </Form>
               </SidebarSection>
             </>

@@ -86,9 +86,9 @@ SMTP_PASS=
 ## Development
 
 - Install required tooling:
-
   - [pnpm](https://pnpm.io/) (`npm install -g pnpm`)
-  - Node 20.x
+  - Node 24.x (LTS)
+  - [Vite+ (`vp`)](https://viteplus.dev/) — used for linting, formatting, and static checks
 
 - Copy environment config:
 
@@ -118,7 +118,6 @@ SMTP_PASS=
   ```
 
   This creates:
-
   - A demo user: `demo@example.com` / `password123`
   - A sample "General" category
   - Three sample posts
@@ -179,14 +178,22 @@ pnpm typecheck
 ### Linting
 
 ```sh
-pnpm lint
-pnpm lint:fix
+vp lint          # check for lint errors (Oxlint)
+vp lint --fix    # auto-fix where possible
 ```
 
 ### Formatting
 
 ```sh
-pnpm format
+vp fmt --write   # format the repo (Oxfmt, Prettier-compatible)
+vp fmt --check   # verify formatting without writing
+```
+
+### All-in-one check
+
+```sh
+vp check         # fmt + lint in one pass
+vp check --fix   # plus auto-fix
 ```
 
 ## License

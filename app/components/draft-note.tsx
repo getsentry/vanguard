@@ -12,10 +12,7 @@ export default function DraftNote({ post }: { post: Post }) {
       method="post"
       action={`${getPostLink(post)}/edit`}
     >
-      <p>
-        This post has not been published, and is only visible if you have the
-        link.
-      </p>
+      <p>This post has not been published, and is only visible if you have the link.</p>
       <ButtonDropdown
         type="submit"
         mode="primary"

@@ -12,11 +12,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const cursor = url.searchParams.get("cursor");
   const query = url.searchParams.get("q") || "";
-  const postListPaginated = await paginate(
-    getPostList,
-    { userId, published: true, query },
-    cursor,
-  );
+  const postListPaginated = await paginate(getPostList, { userId, published: true, query }, cursor);
   return { postListPaginated, query };
 }
 

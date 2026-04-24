@@ -1,8 +1,4 @@
-import type {
-  MetaFunction,
-  LoaderFunctionArgs,
-  ActionFunctionArgs,
-} from "react-router";
+import type { MetaFunction, LoaderFunctionArgs, ActionFunctionArgs } from "react-router";
 import { Form, useLoaderData } from "react-router";
 import invariant from "tiny-invariant";
 
@@ -95,21 +91,11 @@ const UserAdmin: React.FC<{ user: User }> = ({ user }) => {
           </li>
           <li>
             {!user.canPostRestricted ? (
-              <Button
-                baseStyle="link"
-                name="canPostRestricted"
-                value="true"
-                type="submit"
-              >
+              <Button baseStyle="link" name="canPostRestricted" value="true" type="submit">
                 Allow posting in restricted categories
               </Button>
             ) : (
-              <Button
-                baseStyle="link"
-                name="canPostRestricted"
-                value="false"
-                type="submit"
-              >
+              <Button baseStyle="link" name="canPostRestricted" value="false" type="submit">
                 Restrict posting in restricted categories
               </Button>
             )}
@@ -129,9 +115,7 @@ export default function UserDetailsPage() {
         <Avatar user={user} size="96px" />
         <div>
           <h1 className="text-4xl font-serif">{user.name}</h1>
-          <div className="text-muted-light dark:text-muted-dark">
-            {user.email}
-          </div>
+          <div className="text-muted-light dark:text-muted-dark">{user.email}</div>
         </div>
       </div>
 

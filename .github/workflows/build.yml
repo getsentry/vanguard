@@ -11,7 +11,7 @@ on:
 
 jobs:
   lint:
-    name: ⬣ Lint
+    name: ⬣ Check (fmt + lint + typecheck)
     runs-on: ubuntu-latest
     steps:
       - name: Cancel Previous Runs
@@ -20,19 +20,20 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Setup Vite+
+        uses: voidzero-dev/setup-vp@v1
         with:
-          node-version: 20
+          node-version: "24"
+          cache: true
 
       - name: Install deps
-        run: pnpm install
+        run: vp install
 
-      - name: Lint
-        run: npm run lint
+      - name: Check
+        run: vp check
+
+      - name: Typecheck
+        run: pnpm typecheck
 
   test:
     name: ⚡ Test
@@ -64,16 +65,16 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Install deps
         run: pnpm install
 
       - name: Setup env
-        run: npm run db:migrate:test
+        run: pnpm db:migrate:test
 
       - name: Run vitest
-        run: npm run test:ci
+        run: pnpm test:ci
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v3

@@ -14,10 +14,7 @@ import type { PostCommentWithAuthor as PostComment } from "~/models/post-comment
 import TimeSince from "./timeSince";
 import Link from "./link";
 
-const deleteComment = async (
-  postId: string,
-  commentId: string,
-): Promise<string | undefined> => {
+const deleteComment = async (postId: string, commentId: string): Promise<string | undefined> => {
   const res = await fetch(`/api/posts/${postId}/comments/${commentId}`, {
     method: "DELETE",
   });
@@ -92,9 +89,7 @@ const Comment = ({
   return (
     <div id={`c_${comment.id}`}>
       <div className="flex gap-4">
-        {asChild && (
-          <IconCollapsedPost className="text-border-light dark:text-border-dark" />
-        )}
+        {asChild && <IconCollapsedPost className="text-border-light dark:text-border-dark" />}
         <div className="flex-1 rounded pt-4 px-4 mb-4 bg-layer100-light dark:bg-layer100-dark">
           <div className="flex flex-1 justify-between items-center gap-1 mb-2 w-full">
             <Avatar user={comment.author} size="24px" />
@@ -115,11 +110,7 @@ const Comment = ({
             )}
             <div className="flex-1 text-right">
               {!comment.parentId && (
-                <Button
-                  size="xs"
-                  baseStyle="link"
-                  onClick={() => onReplyTo(comment)}
-                >
+                <Button size="xs" baseStyle="link" onClick={() => onReplyTo(comment)}>
                   <ResetIcon />
                 </Button>
               )}
@@ -181,8 +172,7 @@ export default function PostComments({
   const childCommentsByparent: { [commentId: string]: PostComment[] } = {};
   commentList.forEach((comment) => {
     if (comment.parentId) {
-      if (!childCommentsByparent[comment.parentId])
-        childCommentsByparent[comment.parentId] = [];
+      if (!childCommentsByparent[comment.parentId]) childCommentsByparent[comment.parentId] = [];
       childCommentsByparent[comment.parentId].push(comment);
     } else {
       sortedCommentList.push(comment);

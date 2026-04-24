@@ -74,16 +74,12 @@
         "Category_name_unique": {
           "name": "Category_name_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "name"
-          ]
+          "columns": ["name"]
         },
         "Category_slug_unique": {
           "name": "Category_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         }
       },
       "policies": {},
@@ -125,12 +121,8 @@
           "name": "CategoryEmail_categoryId_Category_id_fk",
           "tableFrom": "CategoryEmail",
           "tableTo": "Category",
-          "columnsFrom": [
-            "categoryId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["categoryId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -183,12 +175,8 @@
           "name": "CategoryMeta_categoryId_Category_id_fk",
           "tableFrom": "CategoryMeta",
           "tableTo": "Category",
-          "columnsFrom": [
-            "categoryId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["categoryId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -246,12 +234,8 @@
           "name": "CategorySlack_categoryId_Category_id_fk",
           "tableFrom": "CategorySlack",
           "tableTo": "Category",
-          "columnsFrom": [
-            "categoryId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["categoryId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -285,12 +269,8 @@
           "name": "_FeedToPost_A_Feed_id_fk",
           "tableFrom": "_FeedToPost",
           "tableTo": "Feed",
-          "columnsFrom": [
-            "A"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["A"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -298,12 +278,8 @@
           "name": "_FeedToPost_B_Post_id_fk",
           "tableFrom": "_FeedToPost",
           "tableTo": "Post",
-          "columnsFrom": [
-            "B"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["B"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -364,9 +340,7 @@
         "Feed_name_unique": {
           "name": "Feed_name_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "name"
-          ]
+          "columns": ["name"]
         }
       },
       "policies": {},
@@ -428,12 +402,8 @@
           "name": "PostComment_postId_Post_id_fk",
           "tableFrom": "PostComment",
           "tableTo": "Post",
-          "columnsFrom": [
-            "postId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["postId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -441,12 +411,8 @@
           "name": "PostComment_authorId_User_id_fk",
           "tableFrom": "PostComment",
           "tableTo": "User",
-          "columnsFrom": [
-            "authorId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["authorId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -492,12 +458,8 @@
           "name": "PostMeta_postId_Post_id_fk",
           "tableFrom": "PostMeta",
           "tableTo": "Post",
-          "columnsFrom": [
-            "postId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["postId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -550,12 +512,8 @@
           "name": "PostReaction_postId_Post_id_fk",
           "tableFrom": "PostReaction",
           "tableTo": "Post",
-          "columnsFrom": [
-            "postId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["postId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -563,12 +521,8 @@
           "name": "PostReaction_authorId_User_id_fk",
           "tableFrom": "PostReaction",
           "tableTo": "User",
-          "columnsFrom": [
-            "authorId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["authorId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -578,11 +532,7 @@
         "PostReaction_postId_authorId_emoji_unique": {
           "name": "PostReaction_postId_authorId_emoji_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "postId",
-            "authorId",
-            "emoji"
-          ]
+          "columns": ["postId", "authorId", "emoji"]
         }
       },
       "policies": {},
@@ -643,12 +593,8 @@
           "name": "PostRevision_postId_Post_id_fk",
           "tableFrom": "PostRevision",
           "tableTo": "Post",
-          "columnsFrom": [
-            "postId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["postId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -656,12 +602,8 @@
           "name": "PostRevision_authorId_User_id_fk",
           "tableFrom": "PostRevision",
           "tableTo": "User",
-          "columnsFrom": [
-            "authorId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["authorId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -669,12 +611,8 @@
           "name": "PostRevision_categoryId_Category_id_fk",
           "tableFrom": "PostRevision",
           "tableTo": "Category",
-          "columnsFrom": [
-            "categoryId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["categoryId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -721,12 +659,8 @@
           "name": "PostSubscription_postId_Post_id_fk",
           "tableFrom": "PostSubscription",
           "tableTo": "Post",
-          "columnsFrom": [
-            "postId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["postId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -734,12 +668,8 @@
           "name": "PostSubscription_userId_User_id_fk",
           "tableFrom": "PostSubscription",
           "tableTo": "User",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -749,10 +679,7 @@
         "PostSubscription_postId_userId_unique": {
           "name": "PostSubscription_postId_userId_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "postId",
-            "userId"
-          ]
+          "columns": ["postId", "userId"]
         }
       },
       "policies": {},
@@ -842,12 +769,8 @@
           "name": "Post_authorId_User_id_fk",
           "tableFrom": "Post",
           "tableTo": "User",
-          "columnsFrom": [
-            "authorId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["authorId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -855,12 +778,8 @@
           "name": "Post_categoryId_Category_id_fk",
           "tableFrom": "Post",
           "tableTo": "Category",
-          "columnsFrom": [
-            "categoryId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["categoryId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -940,16 +859,12 @@
         "User_externalId_unique": {
           "name": "User_externalId_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "externalId"
-          ]
+          "columns": ["externalId"]
         },
         "User_email_unique": {
           "name": "User_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},

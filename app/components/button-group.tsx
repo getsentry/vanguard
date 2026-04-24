@@ -9,10 +9,7 @@ export default function ButtonGroup({
 }) {
   return (
     <div
-      className={classNames(
-        "flex gap-2",
-        align === "center" ? "justify-center" : "justify-end",
-      )}
+      className={classNames("flex gap-2", align === "center" ? "justify-center" : "justify-end")}
       {...props}
     />
   );

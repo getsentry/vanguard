@@ -17,23 +17,14 @@ export type CommentFormInitialData = {
   comment?: string;
 };
 
-const ParentComment = ({
-  comment,
-  onClear,
-}: {
-  comment?: PostComment;
-  onClear: () => void;
-}) => {
+const ParentComment = ({ comment, onClear }: { comment?: PostComment; onClear: () => void }) => {
   if (!comment) return null;
 
   return (
     <div className="bg-layer100-light dark:bg-layer100-dark flex px-6 py-3 text-sm rounded-md bold">
       <input type="hidden" name="parentId" value={comment.id} />
       <p className="flex-grow">
-        Replying to{" "}
-        <a href={`#c_${comment.id}`}>
-          {comment.author.name || comment.author.email}
-        </a>
+        Replying to <a href={`#c_${comment.id}`}>{comment.author.name || comment.author.email}</a>
       </p>
       <Button size="xs" baseStyle="link" onClick={() => onClear()}>
         <Cross1Icon />
@@ -44,7 +35,7 @@ const ParentComment = ({
 
 export default function CommentForm({
   post,
-  errors,
+  errors: _errors,
   initialData,
   inReplyTo = null,
   onInReplyTo,
@@ -105,12 +96,7 @@ export default function CommentForm({
     >
       <fieldset disabled={loading}>
         <div>
-          <Editor
-            defaultValue={initialData?.comment}
-            name="comment"
-            minRows={5}
-            noPreview
-          />
+          <Editor defaultValue={initialData?.comment} name="comment" minRows={5} noPreview />
           <HelpText>"Bad vibes don’t go with my outfit." - Anonymous</HelpText>
         </div>
         <ParentComment

@@ -57,10 +57,7 @@ export default function LoadingIndicator(): ReactElement {
 
   return (
     <div className="fixed left-0 right-0 top-0 flex z-[2147483647]">
-      <div
-        className="h-4 bg-loading-light dark:bg-loading-dark"
-        ref={progress}
-      />
+      <div className="h-4 bg-loading-light dark:bg-loading-dark" ref={progress} />
     </div>
   );
 }

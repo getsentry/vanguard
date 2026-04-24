@@ -30,12 +30,7 @@ import { FormStrategy } from "remix-auth-form";
 import { redirect } from "react-router";
 
 import { buildUrl } from "~/lib/http";
-import {
-  getUserByEmail,
-  getUserById,
-  upsertUser,
-  verifyPassword,
-} from "~/models/user.server";
+import { getUserByEmail, getUserById, upsertUser, verifyPassword } from "~/models/user.server";
 import { GoogleStrategy } from "~/lib/google-auth";
 import { sessionStorage } from "~/services/session.server";
 import invariant from "tiny-invariant";
@@ -76,7 +71,7 @@ authenticator.use(
       callbackURL: buildUrl("/auth/google/callback"),
       hd: config.GOOGLE_HD,
     },
-    async ({ accessToken, refreshToken, extraParams, profile, ...params }) => {
+    async ({ profile }) => {
       console.log(`Persisting user ${profile.emails[0].value}`);
       return upsertUser({
         email: profile.emails[0].value,

@@ -39,7 +39,7 @@ async function uploadImage(file: File) {
 function handleUploadImages(textareaEl: HTMLTextAreaElement, fileList: File[]) {
   const cursor = new Cursor(textareaEl);
 
-  fileList.forEach(async (file, idx) => {
+  fileList.forEach(async (file, _idx) => {
     const loadingText = `![Uploading ${file.name}...]()`;
 
     cursor.insert(`${loadingText}${Cursor.MARKER}`);
@@ -109,15 +109,8 @@ function Editor({
 
   const editorBlock = (
     <>
-      <Toolbar.Toolbar
-        className="editor-toolbar"
-        aria-label="Formatting options"
-      >
-        <Toolbar.Button
-          value="bold"
-          aria-label="Bold"
-          onClick={() => ref.current?.trigger("bold")}
-        >
+      <Toolbar.Toolbar className="editor-toolbar" aria-label="Formatting options">
+        <Toolbar.Button value="bold" aria-label="Bold" onClick={() => ref.current?.trigger("bold")}>
           <FontBoldIcon />
         </Toolbar.Button>
         <Toolbar.Button
@@ -157,17 +150,13 @@ function Editor({
           <QuoteIcon />
         </Toolbar.Button>
         <Toolbar.Separator />
-        <Toolbar.Button
-          value="link"
-          aria-label="Link"
-          onClick={() => ref.current?.trigger("link")}
-        >
+        <Toolbar.Button value="link" aria-label="Link" onClick={() => ref.current?.trigger("link")}>
           <Link1Icon />
         </Toolbar.Button>
         <Toolbar.Button
           value="image"
           aria-label="image"
-          onClick={(e) => {
+          onClick={(_e) => {
             fileRef.current?.click();
           }}
         >
@@ -225,7 +214,7 @@ function Editor({
       <input
         ref={fileRef}
         type="file"
-        onClick={(event) => {}}
+        onClick={(_event) => {}}
         accept="image/*"
         multiple
         onChange={(event) => {

@@ -18,12 +18,8 @@ export default function Document({
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <Meta />
-        {data?.sentryTrace && (
-          <meta name="sentry-trace" content={data.sentryTrace} />
-        )}
-        {data?.sentryBaggage && (
-          <meta name="baggage" content={data.sentryBaggage} />
-        )}
+        {data?.sentryTrace && <meta name="sentry-trace" content={data.sentryTrace} />}
+        {data?.sentryBaggage && <meta name="baggage" content={data.sentryBaggage} />}
         {title ? <title>{title}</title> : null}
         <Links />
       </head>

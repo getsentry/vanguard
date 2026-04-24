@@ -47,13 +47,7 @@ export async function createSubscription({
   return sub;
 }
 
-export async function deleteSubscription({
-  userId,
-  postId,
-}: {
-  userId: string;
-  postId: string;
-}) {
+export async function deleteSubscription({ userId, postId }: { userId: string; postId: string }) {
   await db
     .delete(postSubscriptions)
     .where(and(eq(postSubscriptions.userId, userId), eq(postSubscriptions.postId, postId)));

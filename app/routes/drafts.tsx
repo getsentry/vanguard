@@ -25,13 +25,10 @@ export default function Drafts() {
       <PageHeader title="My Drafts" />
       {postList.length === 0 ? (
         <p className="p-4">
-          You've got no posts in draft form.{" "}
-          <Link to="/new-post">Get to writing!</Link>
+          You've got no posts in draft form. <Link to="/new-post">Get to writing!</Link>
         </p>
       ) : (
-        postList.map((post) => (
-          <Post post={post} key={post.id} summary canEdit />
-        ))
+        postList.map((post) => <Post post={post} key={post.id} summary canEdit />)
       )}
     </div>
   );

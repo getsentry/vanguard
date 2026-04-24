@@ -124,7 +124,7 @@ module.exports = {
       },
 
       // that is actual animation
-      keyframes: (theme) => ({
+      keyframes: (_theme) => ({
         fadeIn: {
           "0%": { opacity: 0, transform: "translate(-20px, 0)" },
           "100%": { opacity: 1, transform: "translate(0, 0)" },

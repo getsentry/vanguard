@@ -90,10 +90,7 @@ export default function Login() {
         {config.GOOGLE_CLIENT_ID && <GoogleLogin redirectTo={redirectTo} />}
         {config.GOOGLE_CLIENT_ID && config.USE_BASIC_LOGIN && (
           <div className="relative my-8">
-            <div
-              className="absolute inset-0 flex items-center"
-              aria-hidden="true"
-            >
+            <div className="absolute inset-0 flex items-center" aria-hidden="true">
               <div className="min-w-full border-t border-border-light dark:border-border-dark" />
             </div>
             <div className="relative flex justify-center">

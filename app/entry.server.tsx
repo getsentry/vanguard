@@ -60,10 +60,7 @@ export default async function handleRequest(
   });
 }
 
-export function handleError(
-  error: unknown,
-  { request }: LoaderFunctionArgs | ActionFunctionArgs,
-): void {
+export function handleError(error: unknown, _args: LoaderFunctionArgs | ActionFunctionArgs): void {
   // Don't send 404s or route error responses to Sentry
   if (isRouteErrorResponse(error)) return;
   if (error instanceof Error) {

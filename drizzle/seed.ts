@@ -4,13 +4,7 @@ import { faker } from "@faker-js/faker";
 import bcrypt from "bcrypt";
 
 import { db } from "../app/db/client";
-import {
-  categories,
-  posts,
-  postRevisions,
-  postSubscriptions,
-  users,
-} from "../app/db/schema";
+import { categories, posts, postRevisions, postSubscriptions, users } from "../app/db/schema";
 
 // Sample images from Unsplash (free to use)
 const sampleImages = [
@@ -36,9 +30,7 @@ async function seed() {
         admin: true,
       })
       .returning();
-    console.log(
-      "✅ Created demo user: demo@example.com (password: password123)",
-    );
+    console.log("✅ Created demo user: demo@example.com (password: password123)");
   } else {
     console.log("✅ Using existing user:", user.email);
   }
@@ -106,9 +98,7 @@ async function seed() {
         postId: post.id,
       });
 
-      await db
-        .insert(postSubscriptions)
-        .values({ userId: user.id, postId: post.id });
+      await db.insert(postSubscriptions).values({ userId: user.id, postId: post.id });
 
       console.log("✅ Created post:", post.title);
     } else {

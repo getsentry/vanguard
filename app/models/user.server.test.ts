@@ -13,10 +13,7 @@ describe("getUserList", () => {
   let user: typeof users.$inferSelect;
 
   beforeEach(async () => {
-    [user] = await db
-      .insert(users)
-      .values({ email: "foo@example.com", name: "Bar" })
-      .returning();
+    [user] = await db.insert(users).values({ email: "foo@example.com", name: "Bar" }).returning();
   });
 
   describe("query", () => {
@@ -58,8 +55,7 @@ describe("updateUser", () => {
     const newUser = await updateUser({
       id: user.id,
       userId: user.id,
-      picture:
-        "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
+      picture: "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
     });
     expect(newUser).toBeDefined();
     expect(newUser.picture).toBe(
