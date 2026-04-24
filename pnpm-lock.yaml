@@ -46,12 +46,15 @@ importers:
       "@react-router/serve":
         specifier: ^7.14.2
         version: 7.14.2(react-router@7.14.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.4.3)
-      "@sentry/node":
+      "@sentry/browser":
         specifier: ^10.50.0
         version: 10.50.0
-      "@sentry/react":
+      "@sentry/react-router":
         specifier: ^10.50.0
-        version: 10.50.0(react@18.2.0)
+        version: 10.50.0(@react-router/node@7.14.2(react-router@7.14.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.4.3))(react-router@7.14.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)(rollup@4.52.5)
+      "@sentry/vite-plugin":
+        specifier: ^5.2.0
+        version: 5.2.0(rollup@4.52.5)
       "@tailwindcss/forms":
         specifier: ^0.5.7
         version: 0.5.7(tailwindcss@3.4.1(ts-node@10.9.2(@types/node@20.0.0)(typescript@5.4.3)))
@@ -103,6 +106,9 @@ importers:
       "@vercel/blob":
         specifier: ^2.3.3
         version: 2.3.3
+      "@vercel/functions":
+        specifier: ^3.4.4
+        version: 3.4.4
       "@vercel/react-router":
         specifier: ^1.2.6
         version: 1.2.6(@react-router/dev@7.14.2(@react-router/serve@7.14.2(react-router@7.14.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.4.3))(@types/node@20.0.0)(react-router@7.14.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.4.3)(vite@5.4.21(@types/node@20.0.0)))(@react-router/node@7.14.2(react-router@7.14.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.4.3))(isbot@5.1.39)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -2996,12 +3002,105 @@ packages:
       }
     engines: { node: ">=18" }
 
+  "@sentry/babel-plugin-component-annotate@5.2.0":
+    resolution:
+      {
+        integrity: sha512-8LbOI5Kzb5F0+7LVQPi2+zGz1iPiRRFhM+7uZ/ZQ33L9BmDOYNIy3xWxCfMw2JCuMXXaxF47XCjGmR22/B0WPg==,
+      }
+    engines: { node: ">= 18" }
+
   "@sentry/browser@10.50.0":
     resolution:
       {
         integrity: sha512-1f6rAvET6myiTaSeYqvaaBwvq1LfxqWjAPIoAW/NVC9bPMkeEcuvgDajHrnZMrBeWoJ81NMyoLkyX+iOc7MoFA==,
       }
     engines: { node: ">=18" }
+
+  "@sentry/bundler-plugin-core@5.2.0":
+    resolution:
+      {
+        integrity: sha512-+C0x4gEIJRgoMwyRFGx+TFiJ1Po2BZlT1v61+PnouiaprKL5qtZG8n5PXx/5LPLDsVjSIcXjnDrTz9aSm8SJ3w==,
+      }
+    engines: { node: ">= 18" }
+
+  "@sentry/cli-darwin@2.58.5":
+    resolution:
+      {
+        integrity: sha512-lYrNzenZFJftfwSya7gwrHGxtE+Kob/e1sr9lmHMFOd4utDlmq0XFDllmdZAMf21fxcPRI1GL28ejZ3bId01fQ==,
+      }
+    engines: { node: ">=10" }
+    os: [darwin]
+
+  "@sentry/cli-linux-arm64@2.58.5":
+    resolution:
+      {
+        integrity: sha512-/4gywFeBqRB6tR/iGMRAJ3HRqY6Z7Yp4l8ZCbl0TDLAfHNxu7schEw4tSnm2/Hh9eNMiOVy4z58uzAWlZXAYBQ==,
+      }
+    engines: { node: ">=10" }
+    cpu: [arm64]
+    os: [linux, freebsd, android]
+
+  "@sentry/cli-linux-arm@2.58.5":
+    resolution:
+      {
+        integrity: sha512-KtHweSIomYL4WVDrBrYSYJricKAAzxUgX86kc6OnlikbyOhoK6Fy8Vs6vwd52P6dvWPjgrMpUYjW2M5pYXQDUw==,
+      }
+    engines: { node: ">=10" }
+    cpu: [arm]
+    os: [linux, freebsd, android]
+
+  "@sentry/cli-linux-i686@2.58.5":
+    resolution:
+      {
+        integrity: sha512-G7261dkmyxqlMdyvyP06b+RTIVzp1gZNgglj5UksxSouSUqRd/46W/2pQeOMPhloDYo9yLtCN2YFb3Mw4aUsWw==,
+      }
+    engines: { node: ">=10" }
+    cpu: [x86, ia32]
+    os: [linux, freebsd, android]
+
+  "@sentry/cli-linux-x64@2.58.5":
+    resolution:
+      {
+        integrity: sha512-rP04494RSmt86xChkQ+ecBNRYSPbyXc4u0IA7R7N1pSLCyO74e5w5Al+LnAq35cMfVbZgz5Sm0iGLjyiUu4I1g==,
+      }
+    engines: { node: ">=10" }
+    cpu: [x64]
+    os: [linux, freebsd, android]
+
+  "@sentry/cli-win32-arm64@2.58.5":
+    resolution:
+      {
+        integrity: sha512-AOJ2nCXlQL1KBaCzv38m3i2VmSHNurUpm7xVKd6yAHX+ZoVBI8VT0EgvwmtJR2TY2N2hNCC7UrgRmdUsQ152bA==,
+      }
+    engines: { node: ">=10" }
+    cpu: [arm64]
+    os: [win32]
+
+  "@sentry/cli-win32-i686@2.58.5":
+    resolution:
+      {
+        integrity: sha512-EsuboLSOnlrN7MMPJ1eFvfMDm+BnzOaSWl8eYhNo8W/BIrmNgpRUdBwnWn9Q2UOjJj5ZopukmsiMYtU/D7ml9g==,
+      }
+    engines: { node: ">=10" }
+    cpu: [x86, ia32]
+    os: [win32]
+
+  "@sentry/cli-win32-x64@2.58.5":
+    resolution:
+      {
+        integrity: sha512-IZf+XIMiQwj+5NzqbOQfywlOitmCV424Vtf9c+ep61AaVScUFD1TSrQbOcJJv5xGxhlxNOMNgMeZhdexdzrKZg==,
+      }
+    engines: { node: ">=10" }
+    cpu: [x64]
+    os: [win32]
+
+  "@sentry/cli@2.58.5":
+    resolution:
+      {
+        integrity: sha512-tavJ7yGUZV+z3Ct2/ZB6mg339i08sAk6HDkgqmSRuQEu2iLS5sl9HIvuXfM6xjv8fwlgFOSy++WNABNAcGHUbg==,
+      }
+    engines: { node: ">= 10" }
+    hasBin: true
 
   "@sentry/core@10.50.0":
     resolution:
@@ -3056,6 +3155,17 @@ packages:
       "@opentelemetry/sdk-trace-base": ^1.30.1 || ^2.1.0
       "@opentelemetry/semantic-conventions": ^1.39.0
 
+  "@sentry/react-router@10.50.0":
+    resolution:
+      {
+        integrity: sha512-G3T+0XjasSZn1a5HEpimS6DNR/3B4du0wrLi2wqyYLBoLZ/VR/PlJ1zC4sgF+pvMBdwC5auvOTV2ijNfrSMYyw==,
+      }
+    engines: { node: ">=20" }
+    peerDependencies:
+      "@react-router/node": 7.x
+      react: ">=18"
+      react-router: 7.x
+
   "@sentry/react@10.50.0":
     resolution:
       {
@@ -3064,6 +3174,25 @@ packages:
     engines: { node: ">=18" }
     peerDependencies:
       react: ^16.14.0 || 17.x || 18.x || 19.x
+
+  "@sentry/rollup-plugin@5.2.0":
+    resolution:
+      {
+        integrity: sha512-a8LfpvcYMFtFSroro5MpCcOoS528LeLfUHzxWURnpofOnY+Aso9Si4y4dFlna+RKqxCXjmFbn6CLnfI+YrHysQ==,
+      }
+    engines: { node: ">= 18" }
+    peerDependencies:
+      rollup: ">=3.2.0"
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+
+  "@sentry/vite-plugin@5.2.0":
+    resolution:
+      {
+        integrity: sha512-4Jo3ixBspso5HY81PDvZdRXkH9wYGVmcw/0a2IX9ejbyKBdHqkYg4IhAtNqGUAyGuHwwRS9Y1S+sCMvrXv6htw==,
+      }
+    engines: { node: ">= 18" }
 
   "@sideway/address@4.1.5":
     resolution:
@@ -3535,6 +3664,25 @@ packages:
         integrity: sha512-MtD7VLo6hU07eHR7bmk5SIMD290q574UaNYTe46qeyRT+hWrCy26CoAqfd7PnIefVXvRehRZBzukxuTO9iGTVg==,
       }
     engines: { node: ">=20.0.0" }
+
+  "@vercel/functions@3.4.4":
+    resolution:
+      {
+        integrity: sha512-mdmCTMxAUTT5GMSs/iS4EuovzoofXNbb44/iPFwlgqulnJg3FEf6Sk46kLlZL4zuTTJQPT5YPTdBgZVlYZ5Azg==,
+      }
+    engines: { node: ">= 20" }
+    peerDependencies:
+      "@aws-sdk/credential-provider-web-identity": "*"
+    peerDependenciesMeta:
+      "@aws-sdk/credential-provider-web-identity":
+        optional: true
+
+  "@vercel/oidc@3.2.1":
+    resolution:
+      {
+        integrity: sha512-UUqZ2y+VXHgVH1Luoo+477/NcrO4X+ln38U70ldRgGiWJAuHhtjTm7cCAnyLkl2feg7ZmTBK3F1kvJKFEQc01w==,
+      }
+    engines: { node: ">= 20" }
 
   "@vercel/react-router@1.2.6":
     resolution:
@@ -5351,6 +5499,13 @@ packages:
     deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
     hasBin: true
 
+  glob@13.0.6:
+    resolution:
+      {
+        integrity: sha512-Wjlyrolmm8uDpm/ogGyXZXb1Z+Ca2B8NbJwqBVg0axK9GbBeoS7yGV6vjXnYdGm6X53iehEuxxbyiKp8QmN4Vw==,
+      }
+    engines: { node: 18 || 20 || >=22 }
+
   glob@7.2.3:
     resolution:
       {
@@ -6269,6 +6424,13 @@ packages:
       }
     engines: { node: 14 || >=16.14 }
 
+  lru-cache@11.3.5:
+    resolution:
+      {
+        integrity: sha512-NxVFwLAnrd9i7KUBxC4DrUhmgjzOs+1Qm50D3oF1/oL+r1NpZ4gA7xvG0/zJ8evR7zIKn4vLf7qTNduWFtCrRw==,
+      }
+    engines: { node: 20 || >=22 }
+
   lru-cache@5.1.1:
     resolution:
       {
@@ -6478,6 +6640,13 @@ packages:
     resolution:
       {
         integrity: sha512-jYofLM5Dam9279rdkWzqHozUo4ybjdZmCsDHePy5V/PbBcVMiSZR97gmAy45aqi8CK1lG2ECd356FU86avfwUQ==,
+      }
+    engines: { node: ">=16 || 14 >=14.17" }
+
+  minipass@7.1.3:
+    resolution:
+      {
+        integrity: sha512-tEBHqDnIoM/1rXME1zgka9g6Q2lcoCkxHLuc7ODJ5BxbP5d4c2Z5cGgtXAku59200Cx7diuHTOYfSBD8n6mm8A==,
       }
     engines: { node: ">=16 || 14 >=14.17" }
 
@@ -6907,6 +7076,13 @@ packages:
       }
     engines: { node: ">=16 || 14 >=14.17" }
 
+  path-scurry@2.0.2:
+    resolution:
+      {
+        integrity: sha512-3O/iVVsJAPsOnpwWIeD+d6z/7PmqApyQePUtCndjatj/9I5LylHvt5qluFaBT3I5h3r1ejfR056c+FCv+NnNXg==,
+      }
+    engines: { node: 18 || 20 || >=22 }
+
   path-to-regexp@0.1.13:
     resolution:
       {
@@ -7316,6 +7492,13 @@ packages:
         integrity: sha512-Kx/1w86q/epKcmte75LNrEoT+lX8pBpavuAbvJWRXar7Hz8jrtF+e3vY751p0R8H9HdArwaCTNDDzHg/ScJK1Q==,
       }
     engines: { node: ">=6" }
+
+  progress@2.0.3:
+    resolution:
+      {
+        integrity: sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==,
+      }
+    engines: { node: ">=0.4.0" }
 
   proxy-addr@2.0.7:
     resolution:
@@ -10542,6 +10725,8 @@ snapshots:
       "@sentry-internal/browser-utils": 10.50.0
       "@sentry/core": 10.50.0
 
+  "@sentry/babel-plugin-component-annotate@5.2.0": {}
+
   "@sentry/browser@10.50.0":
     dependencies:
       "@sentry-internal/browser-utils": 10.50.0
@@ -10549,6 +10734,63 @@ snapshots:
       "@sentry-internal/replay": 10.50.0
       "@sentry-internal/replay-canvas": 10.50.0
       "@sentry/core": 10.50.0
+
+  "@sentry/bundler-plugin-core@5.2.0":
+    dependencies:
+      "@babel/core": 7.29.0
+      "@sentry/babel-plugin-component-annotate": 5.2.0
+      "@sentry/cli": 2.58.5
+      dotenv: 16.4.5
+      find-up: 5.0.0
+      glob: 13.0.6
+      magic-string: 0.30.8
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+
+  "@sentry/cli-darwin@2.58.5":
+    optional: true
+
+  "@sentry/cli-linux-arm64@2.58.5":
+    optional: true
+
+  "@sentry/cli-linux-arm@2.58.5":
+    optional: true
+
+  "@sentry/cli-linux-i686@2.58.5":
+    optional: true
+
+  "@sentry/cli-linux-x64@2.58.5":
+    optional: true
+
+  "@sentry/cli-win32-arm64@2.58.5":
+    optional: true
+
+  "@sentry/cli-win32-i686@2.58.5":
+    optional: true
+
+  "@sentry/cli-win32-x64@2.58.5":
+    optional: true
+
+  "@sentry/cli@2.58.5":
+    dependencies:
+      https-proxy-agent: 5.0.1
+      node-fetch: 2.7.0
+      progress: 2.0.3
+      proxy-from-env: 1.1.0
+      which: 2.0.2
+    optionalDependencies:
+      "@sentry/cli-darwin": 2.58.5
+      "@sentry/cli-linux-arm": 2.58.5
+      "@sentry/cli-linux-arm64": 2.58.5
+      "@sentry/cli-linux-i686": 2.58.5
+      "@sentry/cli-linux-x64": 2.58.5
+      "@sentry/cli-win32-arm64": 2.58.5
+      "@sentry/cli-win32-i686": 2.58.5
+      "@sentry/cli-win32-x64": 2.58.5
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
 
   "@sentry/core@10.50.0": {}
 
@@ -10609,11 +10851,52 @@ snapshots:
       "@opentelemetry/semantic-conventions": 1.40.0
       "@sentry/core": 10.50.0
 
+  "@sentry/react-router@10.50.0(@react-router/node@7.14.2(react-router@7.14.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.4.3))(react-router@7.14.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)(rollup@4.52.5)":
+    dependencies:
+      "@opentelemetry/api": 1.9.1
+      "@opentelemetry/core": 2.7.0(@opentelemetry/api@1.9.1)
+      "@opentelemetry/instrumentation": 0.214.0(@opentelemetry/api@1.9.1)
+      "@opentelemetry/semantic-conventions": 1.40.0
+      "@react-router/node": 7.14.2(react-router@7.14.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.4.3)
+      "@sentry/browser": 10.50.0
+      "@sentry/cli": 2.58.5
+      "@sentry/core": 10.50.0
+      "@sentry/node": 10.50.0
+      "@sentry/react": 10.50.0(react@18.2.0)
+      "@sentry/vite-plugin": 5.2.0(rollup@4.52.5)
+      glob: 13.0.6
+      react: 18.2.0
+      react-router: 7.14.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+    transitivePeerDependencies:
+      - "@opentelemetry/exporter-trace-otlp-http"
+      - encoding
+      - rollup
+      - supports-color
+
   "@sentry/react@10.50.0(react@18.2.0)":
     dependencies:
       "@sentry/browser": 10.50.0
       "@sentry/core": 10.50.0
       react: 18.2.0
+
+  "@sentry/rollup-plugin@5.2.0(rollup@4.52.5)":
+    dependencies:
+      "@sentry/bundler-plugin-core": 5.2.0
+      magic-string: 0.30.8
+    optionalDependencies:
+      rollup: 4.52.5
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+
+  "@sentry/vite-plugin@5.2.0(rollup@4.52.5)":
+    dependencies:
+      "@sentry/bundler-plugin-core": 5.2.0
+      "@sentry/rollup-plugin": 5.2.0(rollup@4.52.5)
+    transitivePeerDependencies:
+      - encoding
+      - rollup
+      - supports-color
 
   "@sideway/address@4.1.5":
     dependencies:
@@ -10940,6 +11223,12 @@ snapshots:
       is-node-process: 1.2.0
       throttleit: 2.1.0
       undici: 6.25.0
+
+  "@vercel/functions@3.4.4":
+    dependencies:
+      "@vercel/oidc": 3.2.1
+
+  "@vercel/oidc@3.2.1": {}
 
   "@vercel/react-router@1.2.6(@react-router/dev@7.14.2(@react-router/serve@7.14.2(react-router@7.14.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.4.3))(@types/node@20.0.0)(react-router@7.14.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.4.3)(vite@5.4.21(@types/node@20.0.0)))(@react-router/node@7.14.2(react-router@7.14.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.4.3))(isbot@5.1.39)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)":
     dependencies:
@@ -12204,6 +12493,12 @@ snapshots:
       minipass: 7.0.4
       path-scurry: 1.10.1
 
+  glob@13.0.6:
+    dependencies:
+      minimatch: 10.2.5
+      minipass: 7.1.3
+      path-scurry: 2.0.2
+
   glob@7.2.3:
     dependencies:
       fs.realpath: 1.0.0
@@ -12745,6 +13040,8 @@ snapshots:
 
   lru-cache@10.2.0: {}
 
+  lru-cache@11.3.5: {}
+
   lru-cache@5.1.1:
     dependencies:
       yallist: 3.1.1
@@ -12829,6 +13126,8 @@ snapshots:
   minipass@5.0.0: {}
 
   minipass@7.0.4: {}
+
+  minipass@7.1.3: {}
 
   minizlib@2.1.2:
     dependencies:
@@ -13056,6 +13355,11 @@ snapshots:
       lru-cache: 10.2.0
       minipass: 7.0.4
 
+  path-scurry@2.0.2:
+    dependencies:
+      lru-cache: 11.3.5
+      minipass: 7.1.3
+
   path-to-regexp@0.1.13: {}
 
   path-type@3.0.0:
@@ -13235,6 +13539,8 @@ snapshots:
     optional: true
 
   prismjs@1.29.0: {}
+
+  progress@2.0.3: {}
 
   proxy-addr@2.0.7:
     dependencies:

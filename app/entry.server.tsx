@@ -1,10 +1,17 @@
 import { PassThrough } from "stream";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { createReadableStreamFromReadable } from "@react-router/node";
-import { ServerRouter } from "react-router";
+import { ServerRouter, isRouteErrorResponse } from "react-router";
 import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
-import * as Sentry from "@sentry/node";
+import * as Sentry from "@sentry/react-router";
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  environment: process.env.NODE_ENV,
+  release: process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.VERSION,
+  tracesSampleRate: 1.0,
+});
 
 const ABORT_DELAY = 5_000;
 
@@ -61,9 +68,11 @@ export function handleError(
   error: unknown,
   { request }: LoaderFunctionArgs | ActionFunctionArgs,
 ): void {
+  // Don't send 404s or route error responses to Sentry
+  if (isRouteErrorResponse(error)) return;
   if (error instanceof Error) {
     Sentry.captureException(error);
   } else {
-    Sentry.captureException(error);
+    Sentry.captureException(new Error(String(error)));
   }
 }

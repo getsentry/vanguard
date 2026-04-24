@@ -4,6 +4,7 @@ import invariant from "tiny-invariant";
 import { db } from "~/db/client";
 import { postComments, posts, users, categoryEmails } from "~/db/schema";
 import { notifyComment } from "~/lib/email";
+import { waitUntil } from "~/lib/wait-until";
 
 export type PostComment = typeof postComments.$inferSelect;
 
@@ -19,7 +20,10 @@ export async function getCommentList({
   limit?: number;
 }): Promise<PostComment[]> {
   return db.query.postComments.findMany({
-    where: and(eq(postComments.deleted, false), eq(postComments.postId, postId)),
+    where: and(
+      eq(postComments.deleted, false),
+      eq(postComments.postId, postId),
+    ),
     with: { author: true },
     orderBy: asc(postComments.createdAt),
     offset,
@@ -38,7 +42,12 @@ export async function countCommentsForPosts({
   const counts = await db
     .select({ postId: postComments.postId, count: sql<number>`count(*)::int` })
     .from(postComments)
-    .where(and(eq(postComments.deleted, false), inArray(postComments.postId, postIds)))
+    .where(
+      and(
+        eq(postComments.deleted, false),
+        inArray(postComments.postId, postIds),
+      ),
+    )
     .groupBy(postComments.postId);
 
   const results: { [postId: string]: number } = {};
@@ -49,15 +58,22 @@ export async function countCommentsForPosts({
   return results;
 }
 
-export async function announceComment(
-  post: typeof posts.$inferSelect & { category: typeof import("~/db/schema").categories.$inferSelect },
+export function announceComment(
+  post: typeof posts.$inferSelect & {
+    author: typeof import("~/db/schema").users.$inferSelect;
+    category: typeof import("~/db/schema").categories.$inferSelect;
+  },
   comment: PostComment,
-  parent?: PostComment | null,
-) {
-  const mailConfig = await db.query.categoryEmails.findMany({
-    where: eq(categoryEmails.categoryId, post.categoryId),
-  });
-  notifyComment({ post, comment, parent, mailConfig });
+  parent?: PostComment,
+): void {
+  waitUntil(
+    (async () => {
+      const mailConfig = await db.query.categoryEmails.findMany({
+        where: eq(categoryEmails.categoryId, post.categoryId),
+      });
+      notifyComment({ post, comment, parent: parent ?? null, mailConfig });
+    })(),
+  );
 }
 
 export async function createComment({
@@ -80,7 +96,10 @@ export async function createComment({
   if (post.allowComments && post.category.allowComments) {
     const parent = parentId
       ? await db.query.postComments.findFirst({
-          where: and(eq(postComments.postId, postId), eq(postComments.id, parentId)),
+          where: and(
+            eq(postComments.postId, postId),
+            eq(postComments.id, parentId),
+          ),
           with: { author: true },
         })
       : null;
@@ -124,5 +143,8 @@ export async function deleteComment({
   const comment = await db.query.postComments.findFirst({ where });
   invariant(comment, "comment not found");
 
-  await db.update(postComments).set({ deleted: true }).where(eq(postComments.id, id));
+  await db
+    .update(postComments)
+    .set({ deleted: true })
+    .where(eq(postComments.id, id));
 }

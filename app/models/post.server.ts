@@ -17,6 +17,7 @@ import {
   users,
 } from "~/db/schema";
 import { error } from "~/lib/logging";
+import { waitUntil } from "~/lib/wait-until";
 
 export type Post = typeof posts.$inferSelect;
 export type PostMeta = typeof postMetas.$inferSelect;
@@ -30,37 +31,32 @@ export interface PostQueryType extends Post {
   category: Category;
 }
 
-export async function announcePost(post: PostQueryType) {
-  const emailConfig = await db.query.categoryEmails.findMany({
-    where: eq(categoryEmails.categoryId, post.categoryId),
-  });
+export function announcePost(post: PostQueryType): void {
+  waitUntil(
+    (async () => {
+      const emailConfig = await db.query.categoryEmails.findMany({
+        where: eq(categoryEmails.categoryId, post.categoryId),
+      });
+      await Promise.all(
+        emailConfig.map((config) =>
+          email.notify({ post, config: config as email.EmailConfig }),
+        ),
+      );
 
-  emailConfig.forEach(async (config) => {
-    await email.notify({
-      post,
-      config: config as email.EmailConfig,
-    });
-  });
-
-  let slackConfig: slack.SlackConfig[] =
-    await db.query.categorySlacks.findMany({
-      where: eq(categorySlacks.categoryId, post.categoryId),
-    });
-
-  if (!slackConfig.length && process.env.SLACK_WEBHOOK_URL) {
-    slackConfig = [
-      {
-        webhookUrl: process.env.SLACK_WEBHOOK_URL,
-      },
-    ];
-  }
-
-  slackConfig.forEach(async (config) => {
-    await slack.notify({
-      post,
-      config: config as slack.SlackConfig,
-    });
-  });
+      let slackConfig: slack.SlackConfig[] =
+        await db.query.categorySlacks.findMany({
+          where: eq(categorySlacks.categoryId, post.categoryId),
+        });
+      if (!slackConfig.length && process.env.SLACK_WEBHOOK_URL) {
+        slackConfig = [{ webhookUrl: process.env.SLACK_WEBHOOK_URL }];
+      }
+      await Promise.all(
+        slackConfig.map((config) =>
+          slack.notify({ post, config: config as slack.SlackConfig }),
+        ),
+      );
+    })(),
+  );
 }
 
 export async function syndicatePost(post) {
@@ -244,7 +240,11 @@ export async function updatePost({
 
   const whereCondition = user.admin
     ? eq(posts.id, id)
-    : and(eq(posts.id, id), eq(posts.authorId, userId), eq(posts.deleted, false));
+    : and(
+        eq(posts.id, id),
+        eq(posts.authorId, userId),
+        eq(posts.deleted, false),
+      );
 
   const post = await db.query.posts.findFirst({ where: whereCondition });
   invariant(post, "post not found");
@@ -300,7 +300,9 @@ export async function updatePost({
       if (meta.length > 0) {
         await tx
           .insert(postMetas)
-          .values(meta.map((m) => ({ postId: id, name: m.name, content: m.content })));
+          .values(
+            meta.map((m) => ({ postId: id, name: m.name, content: m.content })),
+          );
       }
     }
 
@@ -360,7 +362,13 @@ export async function createPost({
     if (meta.length > 0) {
       await tx
         .insert(postMetas)
-        .values(meta.map((m) => ({ postId: post.id, name: m.name, content: m.content })));
+        .values(
+          meta.map((m) => ({
+            postId: post.id,
+            name: m.name,
+            content: m.content,
+          })),
+        );
     }
 
     return post;
