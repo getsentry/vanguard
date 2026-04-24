@@ -1,8 +1,13 @@
 // @ts-nocheck
 import { eq } from "drizzle-orm";
 import { faker } from "@faker-js/faker";
+import { createId } from "@paralleldrive/cuid2";
 import { db } from "~/db/client";
 import { categories, feeds, postComments, posts, users } from "~/db/schema";
+
+// Suffix faker output with a cuid to guarantee uniqueness across fixture calls
+// (faker has a small word list and will collide within a single test run).
+const uniq = (base: string) => `${base}-${createId().slice(0, 8)}`;
 
 export const User = async ({ ...data } = {}) => {
   const rows = await db
@@ -20,8 +25,8 @@ export const Category = async ({ ...data } = {}) => {
   const rows = await db
     .insert(categories)
     .values({
-      name: faker.lorem.word(),
-      slug: faker.lorem.slug(),
+      name: uniq(faker.lorem.word()),
+      slug: uniq(faker.lorem.slug()),
       ...data,
     })
     .returning();
@@ -32,7 +37,7 @@ export const Feed = async ({ ...data } = {}) => {
   const rows = await db
     .insert(feeds)
     .values({
-      name: faker.lorem.word(),
+      name: uniq(faker.lorem.word()),
       ...data,
     })
     .returning();
