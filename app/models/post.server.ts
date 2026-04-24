@@ -1,25 +1,29 @@
-import type {
-  User,
-  Post,
-  Category,
-  CategorySlack,
-  PostMeta,
-} from "@prisma/client";
 import invariant from "tiny-invariant";
+import { and, eq, inArray, or, sql } from "drizzle-orm";
 
 import * as email from "../lib/email";
 import * as slack from "../lib/slack";
-import { prisma } from "~/services/db.server";
+import { db } from "~/db/client";
+import {
+  categories,
+  categoryEmails,
+  categorySlacks,
+  feedToPost,
+  feeds,
+  postMetas,
+  postRevisions,
+  postSubscriptions,
+  posts,
+  users,
+} from "~/db/schema";
 import { error } from "~/lib/logging";
 
-export type {
-  Category,
-  Feed,
-  Post,
-  PostMeta,
-  PostRevision,
-  User,
-} from "@prisma/client";
+export type Post = typeof posts.$inferSelect;
+export type PostMeta = typeof postMetas.$inferSelect;
+export type PostRevision = typeof postRevisions.$inferSelect;
+export type User = typeof users.$inferSelect;
+export type Category = typeof categories.$inferSelect;
+export type Feed = typeof feeds.$inferSelect;
 
 export interface PostQueryType extends Post {
   author: User;
@@ -27,10 +31,8 @@ export interface PostQueryType extends Post {
 }
 
 export async function announcePost(post: PostQueryType) {
-  const emailConfig = await prisma.categoryEmail.findMany({
-    where: {
-      categoryId: post.categoryId,
-    },
+  const emailConfig = await db.query.categoryEmails.findMany({
+    where: eq(categoryEmails.categoryId, post.categoryId),
   });
 
   emailConfig.forEach(async (config) => {
@@ -40,11 +42,9 @@ export async function announcePost(post: PostQueryType) {
     });
   });
 
-  let slackConfig: slack.SlackConfig[] | CategorySlack[] =
-    await prisma.categorySlack.findMany({
-      where: {
-        categoryId: post.categoryId,
-      },
+  let slackConfig: slack.SlackConfig[] =
+    await db.query.categorySlacks.findMany({
+      where: eq(categorySlacks.categoryId, post.categoryId),
     });
 
   if (!slackConfig.length && process.env.SLACK_WEBHOOK_URL) {
@@ -94,28 +94,43 @@ export async function getPost({
   userId: User["id"];
   onlyPublished?: boolean;
 }): Promise<PostQueryType | null> {
-  const user = await prisma.user.findFirst({ where: { id: userId } });
+  const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
   invariant(user, "user not found");
 
-  const where = onlyPublished
-    ? {
-        OR: [
-          { id, authorId: userId, deleted: false },
-          { id, published: true, deleted: false },
-          ...(user.admin ? [{ id }] : []),
-        ],
-      }
-    : { OR: [{ id, deleted: false }, ...(user.admin ? [{ id }] : [])] };
+  let whereCondition;
+  if (onlyPublished) {
+    if (user.admin) {
+      whereCondition = eq(posts.id, id);
+    } else {
+      whereCondition = and(
+        eq(posts.id, id),
+        or(
+          and(eq(posts.authorId, userId), eq(posts.deleted, false)),
+          and(eq(posts.published, true), eq(posts.deleted, false)),
+        ),
+      );
+    }
+  } else {
+    if (user.admin) {
+      whereCondition = eq(posts.id, id);
+    } else {
+      whereCondition = and(eq(posts.id, id), eq(posts.deleted, false));
+    }
+  }
 
-  return await prisma.post.findFirst({
-    where,
-    include: {
+  const result = await db.query.posts.findFirst({
+    where: whereCondition,
+    with: {
       author: true,
       category: true,
       meta: true,
-      feeds: true,
+      feedToPost: {
+        with: { feed: true },
+      },
     },
   });
+
+  return result as PostQueryType | null;
 }
 
 export async function getPostList({
@@ -140,85 +155,67 @@ export async function getPostList({
   limit?: number;
 }): Promise<PostQueryType[]> {
   const user = userId
-    ? await prisma.user.findFirst({ where: { id: userId } })
+    ? await db.query.users.findFirst({ where: eq(users.id, userId) })
     : null;
 
   if (!user && !feedId) {
     throw new Error("Cannot query posts without either userId or feedId");
   }
 
-  const where: { [key: string]: any } = { deleted: false };
-  if (published !== undefined) {
-    where.published = published;
-  }
-  if (where.published !== true && !user?.admin) {
-    where.authorId = userId;
-  }
-  if (authorId) {
-    where.AND = [...(where.AND || []), { authorId }];
-  }
-  if (categoryId) {
-    where.AND = [...(where.AND || []), { categoryId }];
-  } else if (categoryIds) {
-    where.AND = [...(where.AND || []), { categoryId: { in: categoryIds } }];
-  }
-  if (feedId) {
-    where.AND = [
-      ...(where.AND || []),
-      {
-        feeds: {
-          some: {
-            id: feedId,
-          },
-        },
-      },
-    ];
-  }
-  if (query !== undefined) {
-    where.AND = [
-      ...(where.AND || []),
-      {
-        OR: [
-          {
-            title: {
-              search: query.split(" ").join(" & "),
-              mode: "insensitive",
-            },
-          },
-          {
-            content: {
-              search: query.split(" ").join(" & "),
-              mode: "insensitive",
-            },
-          },
-        ],
-      },
-    ];
+  const conditions = [eq(posts.deleted, false)];
+
+  if (published !== undefined && published !== null) {
+    conditions.push(eq(posts.published, published));
   }
 
-  return await prisma.post.findMany({
-    where,
-    // TODO(dcramer): would be nice to not require all of these
-    select: {
-      id: true,
-      title: true,
-      content: true,
+  if (published !== true && !user?.admin) {
+    conditions.push(eq(posts.authorId, userId!));
+  }
+
+  if (authorId) {
+    conditions.push(eq(posts.authorId, authorId));
+  }
+
+  if (categoryId) {
+    conditions.push(eq(posts.categoryId, categoryId));
+  } else if (categoryIds && categoryIds.length > 0) {
+    conditions.push(inArray(posts.categoryId, categoryIds));
+  }
+
+  if (feedId) {
+    // Filter posts that belong to this feed via the junction table
+    const postIdsInFeed = db
+      .select({ postId: feedToPost.B })
+      .from(feedToPost)
+      .where(eq(feedToPost.A, feedId));
+    conditions.push(inArray(posts.id, postIdsInFeed));
+  }
+
+  if (query !== undefined && query !== "") {
+    conditions.push(
+      sql`(
+        to_tsvector('english', ${posts.title}) @@ plainto_tsquery('english', ${query})
+        OR to_tsvector('english', coalesce(${posts.content}, '')) @@ plainto_tsquery('english', ${query})
+      )`,
+    );
+  }
+
+  const results = await db.query.posts.findMany({
+    where: and(...conditions),
+    with: {
       author: true,
-      meta: true,
       category: true,
-      published: true,
-      publishedAt: true,
-      authorId: true,
-      categoryId: true,
-      deleted: true,
-      createdAt: true,
-      updatedAt: true,
-      allowComments: true,
+      meta: true,
+      feedToPost: {
+        with: { feed: true },
+      },
     },
-    skip: offset,
-    take: limit,
-    orderBy: { publishedAt: "desc" },
+    limit,
+    offset,
+    orderBy: (p, { desc }) => desc(p.publishedAt),
   });
+
+  return results as PostQueryType[];
 }
 
 export async function updatePost({
@@ -242,71 +239,74 @@ export async function updatePost({
   deleted?: Post["deleted"];
   meta?: Pick<PostMeta, "name" | "content">[];
 }): Promise<Post> {
-  const user = await prisma.user.findFirst({ where: { id: userId } });
+  const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
   invariant(user, "user not found");
 
-  const where: { [key: string]: any } = { id };
-  if (!user.admin) {
-    where.authorId = userId;
-    where.deleted = false;
-  }
+  const whereCondition = user.admin
+    ? eq(posts.id, id)
+    : and(eq(posts.id, id), eq(posts.authorId, userId), eq(posts.deleted, false));
 
-  const post = await prisma.post.findFirst({
-    where,
-  });
+  const post = await db.query.posts.findFirst({ where: whereCondition });
   invariant(post, "post not found");
 
-  const data: { [key: string]: any } = {};
+  const data: Partial<Post> = {};
   if (published !== undefined && published !== post.published)
     data.published = !!published;
-  if (title !== undefined && title != post.title) data.title = title;
-  if (content !== undefined && content != post.content) data.content = content;
-  if (categoryId !== undefined && categoryId != post.categoryId)
+  if (title !== undefined && title !== post.title) data.title = title;
+  if (content !== undefined && content !== post.content) data.content = content;
+  if (categoryId !== undefined && categoryId !== post.categoryId)
     data.categoryId = categoryId;
   if (data.published && !post.publishedAt) data.publishedAt = new Date();
 
-  if (user.admin || deleted) {
-    if (deleted !== undefined && post.deleted != deleted)
+  if (user.admin || deleted !== undefined) {
+    if (deleted !== undefined && post.deleted !== deleted)
       data.deleted = !!deleted;
   }
 
-  data.revisions = {
-    create: [
-      {
-        authorId: userId,
-        title: data.title ?? post.title,
-        content: data.content ?? post.content,
-        categoryId: data.categoryId ?? post.categoryId,
-      },
-    ],
-  };
+  const updatedPost = await db.transaction(async (tx) => {
+    // Update post fields if any changed
+    let result = post;
+    if (Object.keys(data).length > 0) {
+      const [updated] = await tx
+        .update(posts)
+        .set({ ...data, updatedAt: new Date() })
+        .where(eq(posts.id, id))
+        .returning();
+      result = updated;
+    }
 
-  const queries: any[] = [];
-  if (feedIds !== undefined) {
-    data.feeds = {
-      set: [],
-      connect: feedIds.map((feedId) => ({ id: feedId })),
-    };
-  }
-  if (meta !== undefined) {
-    data.meta = {
-      deleteMany: {},
-      create: meta,
-    };
-  }
+    // Always create a revision
+    await tx.insert(postRevisions).values({
+      postId: id,
+      authorId: userId,
+      title: data.title ?? post.title,
+      content: data.content ?? post.content,
+      categoryId: data.categoryId ?? post.categoryId,
+    });
 
-  queries.push(
-    prisma.post.update({
-      where: {
-        id,
-      },
-      data,
-      include: { author: true, category: true, meta: true, feeds: true },
-    }),
-  );
+    // Update feeds M:M via junction table
+    if (feedIds !== undefined) {
+      await tx.delete(feedToPost).where(eq(feedToPost.B, id));
+      if (feedIds.length > 0) {
+        await tx
+          .insert(feedToPost)
+          .values(feedIds.map((feedId) => ({ A: feedId, B: id })));
+      }
+    }
 
-  const result = await prisma.$transaction(queries);
-  const updatedPost = result[result.length - 1];
+    // Replace meta
+    if (meta !== undefined) {
+      await tx.delete(postMetas).where(eq(postMetas.postId, id));
+      if (meta.length > 0) {
+        await tx
+          .insert(postMetas)
+          .values(meta.map((m) => ({ postId: id, name: m.name, content: m.content })));
+      }
+    }
+
+    return result;
+  });
+
   return updatedPost;
 }
 
@@ -325,47 +325,45 @@ export async function createPost({
   categoryId: Category["id"];
   meta?: Pick<PostMeta, "name" | "content">[];
 }): Promise<Post> {
-  return await prisma.post.create({
-    data: {
+  return await db.transaction(async (tx) => {
+    const [post] = await tx
+      .insert(posts)
+      .values({
+        title,
+        content,
+        published,
+        publishedAt: published ? new Date() : null,
+        authorId: userId,
+        categoryId,
+      })
+      .returning();
+
+    await tx.insert(postRevisions).values({
+      postId: post.id,
+      authorId: userId,
       title,
       content,
-      published,
-      publishedAt: published ? new Date() : null,
-      author: {
-        connect: {
-          id: userId,
-        },
-      },
-      category: {
-        connect: {
-          id: categoryId,
-        },
-      },
-      revisions: {
-        create: [
-          {
-            authorId: userId,
-            title,
-            content,
-            categoryId,
-          },
-        ],
-      },
-      feeds: {
-        connect: (feedIds || []).map((feedId) => ({ id: feedId })),
-      },
-      subscriptions: {
-        create: [
-          {
-            userId,
-          },
-        ],
-      },
-      meta: {
-        create: meta,
-      },
-    },
-    include: { author: true, category: true, meta: true, feeds: true },
+      categoryId,
+    });
+
+    if (feedIds && feedIds.length > 0) {
+      await tx
+        .insert(feedToPost)
+        .values(feedIds.map((feedId) => ({ A: feedId, B: post.id })));
+    }
+
+    await tx.insert(postSubscriptions).values({
+      postId: post.id,
+      userId,
+    });
+
+    if (meta.length > 0) {
+      await tx
+        .insert(postMetas)
+        .values(meta.map((m) => ({ postId: post.id, name: m.name, content: m.content })));
+    }
+
+    return post;
   });
 }
 
@@ -373,19 +371,9 @@ export async function deletePost({
   id,
   userId,
 }: Pick<Post, "id"> & { userId: User["id"] }) {
-  const user = await prisma.user.findFirst({ where: { id: userId } });
-  invariant(user, "user not found");
-
-  const where: { [key: string]: any } = { id };
-  if (!user.admin) where.authorId = userId;
-
   updatePost({
     id,
     userId,
     deleted: true,
   });
-
-  // return await prisma.post.deleteMany({
-  //   where,
-  // });
 }
