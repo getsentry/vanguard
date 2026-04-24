@@ -3,13 +3,14 @@
   "private": true,
   "description": "",
   "license": "Apache-2.0",
+  "type": "module",
   "sideEffects": false,
   "scripts": {
     "build": "react-router build",
     "db:migrate": "pnpm db:migrate:dev && pnpm db:migrate:test",
     "db:migrate:dev": "pnpm exec drizzle-kit migrate",
     "db:migrate:test": "dotenv -e .env.test -- pnpm exec drizzle-kit migrate",
-    "db:seed": "ts-node -r esbuild-register -r dotenv/config ./drizzle/seed.ts",
+    "db:seed": "tsx --env-file=.env ./drizzle/seed.ts",
     "dev": "react-router dev",
     "docker": "docker-compose up -d",
     "preinstall": "npx only-allow pnpm",
@@ -20,8 +21,8 @@
     "test:ci": "pnpm db:migrate:test && pnpm test:ci:vitest",
     "test:ci:vitest": "dotenv -e .env.test -- vitest run --no-threads --coverage --reporter=junit --outputFile=junit.xml --reporter=default",
     "typecheck": "react-router typegen && tsc -b",
-    "user": "ts-node -r esbuild-register -r dotenv/config ./bin/user.ts",
-    "category": "ts-node -r esbuild-register -r dotenv/config ./bin/category.ts",
+    "user": "tsx --env-file=.env ./bin/user.ts",
+    "category": "tsx --env-file=.env ./bin/category.ts",
     "validate": "vp check && pnpm typecheck && pnpm test"
   },
   "dependencies": {
@@ -103,7 +104,8 @@
   },
   "devDependencies": {
     "@types/pg": "^8.20.0",
-    "nodemon": "^3.1.0"
+    "nodemon": "^3.1.0",
+    "tsx": "^4.21.0"
   },
   "engines": {
     "node": ">=24.0.0"
