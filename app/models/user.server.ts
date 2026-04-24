@@ -169,6 +169,10 @@ export async function updateUser({
   if (notifyReplies !== undefined && notifyReplies !== user.notifyReplies)
     data.notifyReplies = !!notifyReplies;
 
+  if (Object.keys(data).length === 0) {
+    return user;
+  }
+
   const [updated] = await db
     .update(users)
     .set(data)

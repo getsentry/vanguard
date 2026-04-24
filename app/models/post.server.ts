@@ -130,7 +130,7 @@ export async function getPost({
     },
   });
 
-  return result as PostQueryType | null;
+  return (result ?? null) as PostQueryType | null;
 }
 
 export async function getPostList({

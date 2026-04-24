@@ -6,7 +6,7 @@ import { categories, users } from "~/db/schema";
 export type Category = typeof categories.$inferSelect;
 export type User = typeof users.$inferSelect;
 
-export function getCategory({
+export async function getCategory({
   id,
   slug,
 }: {
@@ -14,13 +14,14 @@ export function getCategory({
   slug?: Category["slug"];
 }) {
   if (!id && !slug) return null;
-  return db.query.categories.findFirst({
+  const result = await db.query.categories.findFirst({
     where: and(
       id ? eq(categories.id, id) : undefined,
       slug ? eq(categories.slug, slug) : undefined,
     ),
     with: { metaConfig: true },
   });
+  return result ?? null;
 }
 
 export async function getCategoryList({
