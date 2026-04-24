@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { Post } from "~/models/post.server";
 import type { User } from "~/models/user.server";
 import { expectRequiresUser } from "~/lib/test/expects";

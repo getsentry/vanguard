@@ -74,6 +74,7 @@ export type GoogleExtraParams = {
   id_token: string;
 } & Record<string, string | number>;
 
+// @ts-ignore: library type incompatibility with OAuth2Strategy base class
 export class GoogleStrategy<User> extends OAuth2Strategy<
   User,
   GoogleProfile,

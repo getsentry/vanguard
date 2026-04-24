@@ -10,7 +10,8 @@ import "prism-sentry/index.css";
 const renderer = new marked.Renderer();
 
 renderer.code = function (code, lang, escaped) {
-  code = this.options.highlight(code, lang);
+  // @ts-ignore: highlight may not be in newer marked types
+  code = (this as any).options?.highlight?.(code, lang) ?? code;
   if (!lang) {
     return `<pre class="code-block"><code>${code}</code></pre>`;
   }

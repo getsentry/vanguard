@@ -3,7 +3,7 @@ import Content from "./content";
 import PostLink from "./post-link";
 import Markdown from "./markdown";
 import CategoryTag from "./category-tag";
-import type { Post as PostType } from "~/models/post.server";
+import type { PostQueryType as PostType } from "~/models/post.server";
 import Middot from "./middot";
 import DefinitionList from "./definition-list";
 import { Fragment } from "react";
@@ -45,7 +45,7 @@ export default function Post({
         <div className="flex flex-1 flex-col justify-between">
           <div className="font-medium">
             <Link to={`/u/${post.author.email}`}>
-              {post.author.name || post.authorId.email}
+              {post.author.name || post.author.email}
             </Link>
           </div>
           <div className="text-muted-light dark:text-muted-dark flex">

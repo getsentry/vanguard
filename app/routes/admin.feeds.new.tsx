@@ -36,7 +36,9 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function Index() {
-  const actionData = useActionData<typeof action>();
+  const actionData = useActionData() as
+    | { errors?: Record<string, any> }
+    | undefined;
   const errors = actionData?.errors;
 
   return (

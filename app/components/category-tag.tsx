@@ -6,7 +6,13 @@ import IconShip from "~/icons/IconShip";
 import IconEye from "~/icons/IconEye";
 import type { ComponentPropsWithoutRef } from "react";
 
-const CategoryIcon = ({ category, ...props }: { category: Category }) => {
+const CategoryIcon = ({
+  category,
+  ...props
+}: {
+  category: Category;
+  height?: number;
+}) => {
   // TODO: move into category config
   switch (category.slug) {
     case "shipped":

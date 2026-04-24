@@ -35,8 +35,5 @@ export async function action({ request, params }: ActionFunctionArgs) {
     emoji,
   });
 
-  return {
-    emoji,
-    delta,
-  };
+  return Response.json({ emoji, delta });
 }

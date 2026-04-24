@@ -56,7 +56,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const colorHex = formData.get("colorHex");
   const restricted = !!formData.get("restricted");
   const allowComments = !!formData.get("allowComments");
-  const defaultEmojis = formData.getAll("defaultEmojis");
+  const defaultEmojis = formData.getAll("defaultEmojis") as string[];
   const deleted = !!formData.get("deleted");
   const slackWebhookUrl = formData.get("slack.webhookUrl");
   const emailTo = formData.get("email.to");
@@ -189,7 +189,9 @@ function MetaContainer(props: ComponentPropsWithoutRef<"div">) {
 
 export default function Index() {
   const { category } = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
+  const actionData = useActionData() as
+    | { errors?: Record<string, any> }
+    | undefined;
   const errors = actionData?.errors;
 
   const [currentEmojiList, setCurrentEmojiList] = useState(

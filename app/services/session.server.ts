@@ -1,6 +1,5 @@
 import type { Session } from "react-router";
 import { createCookieSessionStorage, redirect } from "react-router";
-import type { Request as ExpressRequest } from "express";
 import invariant from "tiny-invariant";
 
 import type { SessionPayload } from "~/types";
@@ -18,11 +17,8 @@ export const sessionStorage = createCookieSessionStorage({
   },
 });
 
-export async function getSession(request: Request | ExpressRequest) {
-  const cookie =
-    "get" in request
-      ? request.get("Cookie")
-      : (request as Request).headers.get("Cookie");
+export async function getSession(request: Request) {
+  const cookie = request.headers.get("Cookie");
   return await sessionStorage.getSession(cookie);
 }
 
@@ -60,7 +56,7 @@ export async function createSession({
   );
 }
 
-export async function logout(request: Request | ExpressRequest) {
+export async function logout(request: Request) {
   const s = await getSession(request);
   return redirect("/", {
     headers: {

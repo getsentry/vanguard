@@ -3,10 +3,14 @@ import invariant from "tiny-invariant";
 
 import { db } from "~/db/client";
 import { postComments, posts, users, categoryEmails } from "~/db/schema";
+import type { PostQueryType } from "~/models/post.server";
 import { notifyComment } from "~/lib/email";
 import { waitUntil } from "~/lib/wait-until";
 
 export type PostComment = typeof postComments.$inferSelect;
+export type PostCommentWithAuthor = PostComment & {
+  author: typeof users.$inferSelect;
+};
 
 export async function getCommentList({
   userId,
@@ -18,7 +22,7 @@ export async function getCommentList({
   postId: string;
   offset?: number;
   limit?: number;
-}): Promise<PostComment[]> {
+}): Promise<PostCommentWithAuthor[]> {
   return db.query.postComments.findMany({
     where: and(
       eq(postComments.deleted, false),
@@ -59,19 +63,20 @@ export async function countCommentsForPosts({
 }
 
 export function announceComment(
-  post: typeof posts.$inferSelect & {
-    author: typeof import("~/db/schema").users.$inferSelect;
-    category: typeof import("~/db/schema").categories.$inferSelect;
-  },
-  comment: PostComment,
-  parent?: PostComment,
+  post: PostQueryType,
+  comment: PostCommentWithAuthor,
+  parent?: PostCommentWithAuthor | null,
 ): void {
   waitUntil(
     (async () => {
       const mailConfig = await db.query.categoryEmails.findMany({
         where: eq(categoryEmails.categoryId, post.categoryId),
       });
-      notifyComment({ post, comment, parent: parent ?? null, mailConfig });
+      await Promise.all(
+        mailConfig.map((config) =>
+          notifyComment({ post, comment, parent: parent ?? null, config }),
+        ),
+      );
     })(),
   );
 }
@@ -119,7 +124,11 @@ export async function createComment({
       with: { author: true },
     });
 
-    announceComment(post, commentWithAuthor!, parent);
+    announceComment(
+      post as unknown as PostQueryType,
+      commentWithAuthor!,
+      parent,
+    );
 
     return commentWithAuthor!;
   }

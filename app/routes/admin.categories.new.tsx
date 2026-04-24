@@ -29,7 +29,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const colorHex = formData.get("colorHex");
   const restricted = !!formData.get("restricted");
   const allowComments = !!formData.get("allowComments");
-  const defaultEmojis = formData.getAll("defaultEmojis");
+  const defaultEmojis = formData.getAll("defaultEmojis") as string[];
   const slackWebhookUrl = formData.get("slack.webhookUrl");
   const emailTo = formData.get("email.to");
 
@@ -97,7 +97,9 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function Index() {
-  const actionData = useActionData<typeof action>();
+  const actionData = useActionData() as
+    | { errors?: Record<string, any> }
+    | undefined;
   const errors = actionData?.errors;
   const [currentEmojiList, setCurrentEmojiList] = useState(DEFAULT_EMOJIS);
 

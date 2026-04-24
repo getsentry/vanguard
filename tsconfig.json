@@ -9,6 +9,7 @@
     "types": ["vitest/globals"],
 
     "baseUrl": ".",
+    "rootDirs": [".", "./.react-router/types"],
     "paths": {
       "~/*": ["./app/*"]
     },

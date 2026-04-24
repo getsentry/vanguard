@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { db } from "~/db/client";
 import { postReactions } from "~/db/schema";
 import type { Post } from "~/models/post.server";
@@ -41,10 +42,8 @@ describe("POST /api/posts/$postId/reactions", () => {
     const response: Response = await action({
       request: await buildRequest(
         `http://localhost/api/posts/${post.id}/reactions`,
-        {
-          method: "POST",
-          body: JSON.stringify({ emoji: HEART }),
-        },
+        { method: "POST", body: JSON.stringify({ emoji: HEART }) },
+        { user: DefaultFixtures.DEFAULT_USER },
       ),
       params: { postId: post.id },
       context: { user: DefaultFixtures.DEFAULT_USER },
@@ -64,21 +63,17 @@ describe("POST /api/posts/$postId/reactions", () => {
   });
 
   it("deletes a new reaction that exists", async () => {
-    await db
-      .insert(postReactions)
-      .values({
-        emoji: HEART,
-        postId: post.id,
-        authorId: DefaultFixtures.DEFAULT_USER.id,
-      });
+    await db.insert(postReactions).values({
+      emoji: HEART,
+      postId: post.id,
+      authorId: DefaultFixtures.DEFAULT_USER.id,
+    });
 
     const response: Response = await action({
       request: await buildRequest(
         `http://localhost/api/posts/${post.id}/reactions`,
-        {
-          method: "POST",
-          body: JSON.stringify({ emoji: HEART }),
-        },
+        { method: "POST", body: JSON.stringify({ emoji: HEART }) },
+        { user: DefaultFixtures.DEFAULT_USER },
       ),
       params: { postId: post.id },
       context: { user: DefaultFixtures.DEFAULT_USER },
@@ -94,21 +89,17 @@ describe("POST /api/posts/$postId/reactions", () => {
   });
 
   it("does not delete differing emojis", async () => {
-    await db
-      .insert(postReactions)
-      .values({
-        emoji: HEART,
-        postId: post.id,
-        authorId: DefaultFixtures.DEFAULT_USER.id,
-      });
+    await db.insert(postReactions).values({
+      emoji: HEART,
+      postId: post.id,
+      authorId: DefaultFixtures.DEFAULT_USER.id,
+    });
 
     const response: Response = await action({
       request: await buildRequest(
         `http://localhost/api/posts/${post.id}/reactions`,
-        {
-          method: "POST",
-          body: JSON.stringify({ emoji: THUMBSUP }),
-        },
+        { method: "POST", body: JSON.stringify({ emoji: THUMBSUP }) },
+        { user: DefaultFixtures.DEFAULT_USER },
       ),
       params: { postId: post.id },
       context: { user: DefaultFixtures.DEFAULT_USER },

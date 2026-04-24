@@ -14,6 +14,9 @@ export default defineConfig({
   build: {
     sourcemap: true,
   },
+  optimizeDeps: {
+    exclude: ["react-router-dom"],
+  },
   plugins: [
     reactRouter(),
     tsconfigPaths(),

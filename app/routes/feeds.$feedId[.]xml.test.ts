@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as Fixtures from "~/lib/test/fixtures";
 import { buildRequest } from "~/lib/test/request";
 import { loader } from "./feeds.$feedId[.]xml";

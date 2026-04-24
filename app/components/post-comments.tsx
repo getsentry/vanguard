@@ -10,7 +10,7 @@ import Middot from "./middot";
 import type { User } from "~/models/user.server";
 import type { PostQueryType } from "~/models/post.server";
 import IconCollapsedPost from "~/icons/IconCollapsedPost";
-import type { PostComment } from "~/models/post-comments.server";
+import type { PostCommentWithAuthor as PostComment } from "~/models/post-comments.server";
 import TimeSince from "./timeSince";
 import Link from "./link";
 

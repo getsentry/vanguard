@@ -43,7 +43,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const content = formData.get("content");
   const categoryId = formData.get("categoryId");
   // to check if they've unticked feedIds we have to make sure they were using the edit form vs the publish action
-  const feedIds = action === "update" ? formData.getAll("feedId") : null;
+  const feedIds =
+    action === "update" ? (formData.getAll("feedId") as string[]) : null;
   const published =
     formData.get("published") === null
       ? undefined
@@ -106,7 +107,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     data.feedIds = feedIds;
   }
 
-  if (categoryId) {
+  if (categoryId && typeof categoryId === "string") {
     const category = await getCategory({ id: categoryId });
     if (!category || (category.restricted && !user.canPostRestricted)) {
       return Response.json(
@@ -156,7 +157,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
 export default function EditPostPage() {
   const { categoryList, feedList, post } = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
+  const actionData = useActionData() as
+    | { errors?: Record<string, any> }
+    | undefined;
 
   const meta: { [name: string]: string } = {};
   post.meta.forEach((m) => {

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Form } from "react-router";
 
-import type { Category } from "../models/category.server";
+import type { CategoryWithMeta as Category } from "../models/category.server";
 import type { Feed } from "../models/feed.server";
 import Editor from "./editor";
 import useLocalStorage from "~/lib/useLocalStorage";
@@ -158,11 +158,12 @@ export default function PostForm({
         setStoredDraft({});
       }}
       onChange={(e) => {
-        const match = e.target.name.match(/^meta\[(.+)\]$/);
-        const value = e.target.value;
+        const target = e.target as HTMLInputElement;
+        const match = target.name.match(/^meta\[(.+)\]$/);
+        const value = target.value;
         const additions = match
           ? { meta: { ...(storedDraft.meta || {}), [match[1]]: value } }
-          : { [e.target.name]: value };
+          : { [target.name]: value };
         setStoredDraft({ ...storedDraft, ...additions });
       }}
     >

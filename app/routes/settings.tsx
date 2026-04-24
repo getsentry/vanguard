@@ -65,7 +65,9 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function Settings() {
   const { user } = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
+  const actionData = useActionData() as
+    | { errors?: Record<string, any> }
+    | undefined;
   const errors = actionData?.errors;
 
   const nameRef = useRef<HTMLInputElement>(null);

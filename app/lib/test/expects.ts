@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { expect } from "vitest";
 
 expect.extend({

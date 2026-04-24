@@ -63,7 +63,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
 export default function Details() {
   const { feed, feedUrl } = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
+  const actionData = useActionData() as
+    | { errors?: Record<string, any> }
+    | undefined;
   const errors = actionData?.errors;
 
   return (

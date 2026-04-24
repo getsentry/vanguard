@@ -33,7 +33,9 @@ export async function action({ request }: ActionFunctionArgs) {
     formData.get("published") === "true" ||
     formData.get("published") === "announce";
   const announce = formData.get("published") === "announce";
-  const feedIds = formData.get("feedId") ? formData.getAll("feedId") : null;
+  const feedIds = formData.get("feedId")
+    ? (formData.getAll("feedId") as string[])
+    : null;
 
   if (typeof categoryId !== "string" || categoryId.length === 0) {
     return Response.json(
@@ -115,7 +117,9 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function NewPostPage() {
   const loaderData = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
+  const actionData = useActionData() as
+    | { errors?: Record<string, any> }
+    | undefined;
 
   return (
     <PostForm

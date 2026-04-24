@@ -6,7 +6,7 @@ import { useEffect, useRef } from "react";
 function useProgress() {
   const el = useRef<HTMLDivElement>(null);
   const timeout = useRef<NodeJS.Timeout>();
-  const { location } = useLocation();
+  const location = useLocation();
 
   useEffect(() => {
     if (!location || !el.current) {

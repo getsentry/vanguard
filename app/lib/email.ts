@@ -4,7 +4,7 @@ import { createTransport } from "nodemailer";
 import type { Transporter } from "nodemailer";
 import type SMTPTransport from "nodemailer/lib/smtp-transport";
 import type { PostQueryType } from "~/models/post.server";
-import type { PostComment } from "~/models/post-comments.server";
+import type { PostCommentWithAuthor } from "~/models/post-comments.server";
 import { getSubscriptions } from "~/models/post-subscription.server";
 import summarize from "./summarize";
 import { lightTheme } from "~/styles/theme";
@@ -19,9 +19,9 @@ export type EmailConfig = {
 const renderer = new marked.Renderer();
 
 renderer.image = function (href, title, text) {
-  return `<img src="${
-    this.options.baseUrl + href
-  }" title="${title}" alt="${text}" style="max-width:100%;"/>`;
+  const baseUrl = process.env.BASE_URL || "";
+  const src = href?.startsWith("http") ? href : `${baseUrl}${href}`;
+  return `<img src="${src}" title="${title}" alt="${text}" style="max-width:100%;"/>`;
 };
 
 let mailTransport: Transporter<SMTPTransport.SentMessageInfo>;
@@ -55,7 +55,7 @@ const createMailTransport = () => {
     port: process.env.SMTP_PORT || 465,
     secure: true,
     auth,
-  });
+  } as any);
 };
 
 export const notify = async ({
@@ -65,7 +65,7 @@ export const notify = async ({
 }: {
   post: PostQueryType;
   config: EmailConfig;
-  transport: Transporter<SMTPTransport.SentMessageInfo>;
+  transport?: Transporter<SMTPTransport.SentMessageInfo>;
 }) => {
   if (!hasEmailSupport()) return;
 
@@ -146,10 +146,10 @@ export const notifyComment = async ({
   transport = mailTransport,
 }: {
   post: PostQueryType;
-  comment: PostComment;
-  parent?: PostComment;
+  comment: PostCommentWithAuthor;
+  parent?: PostCommentWithAuthor | null;
   config: EmailConfig;
-  transport: Transporter<SMTPTransport.SentMessageInfo>;
+  transport?: Transporter<SMTPTransport.SentMessageInfo>;
 }) => {
   if (!hasEmailSupport()) return;
 
@@ -201,8 +201,8 @@ export const notifyComment = async ({
 const buildCommentHtml = (
   toUser: User,
   post: PostQueryType,
-  comment: PostComment,
-  parent?: PostComment,
+  comment: PostCommentWithAuthor,
+  parent?: PostCommentWithAuthor | null,
 ): string => {
   const postUrl = `${process.env.BASE_URL}/p/${post.id}`;
   const commentUrl = `${process.env.BASE_URL}/p/${post.id}#c_${comment.id}`;

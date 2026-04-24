@@ -1,6 +1,6 @@
 import { Form } from "react-router";
 import type { Post } from "~/models/post.server";
-import type { PostComment } from "~/models/post-comments.server";
+import type { PostCommentWithAuthor as PostComment } from "~/models/post-comments.server";
 
 import Editor from "./editor";
 import useLocalStorage from "~/lib/useLocalStorage";
@@ -77,7 +77,7 @@ export default function CommentForm({
 
         setLoading(true);
         try {
-          const data = new FormData(e.target);
+          const data = new FormData(e.target as HTMLFormElement);
           const res = await fetch(`/api/posts/${post.id}/comments`, {
             method: "POST",
             body: JSON.stringify({
@@ -99,7 +99,8 @@ export default function CommentForm({
         }
       }}
       onChange={(e) => {
-        setStoredDraft({ ...storedDraft, [e.target.name]: e.target.value });
+        const target = e.target as HTMLInputElement;
+        setStoredDraft({ ...storedDraft, [target.name]: target.value });
       }}
     >
       <fieldset disabled={loading}>

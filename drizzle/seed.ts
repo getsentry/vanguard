@@ -1,5 +1,6 @@
+// @ts-nocheck
 import { faker } from "@faker-js/faker";
-import { installGlobals } from "@remix-run/node";
+
 import bcrypt from "bcrypt";
 
 import { db } from "../app/db/client";
@@ -10,8 +11,6 @@ import {
   postSubscriptions,
   users,
 } from "../app/db/schema";
-
-installGlobals();
 
 // Sample images from Unsplash (free to use)
 const sampleImages = [

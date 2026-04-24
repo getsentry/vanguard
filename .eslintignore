@@ -2,3 +2,4 @@ dev-dist/
 dist/
 build/
 pnpm-lock.yaml
+.react-router/

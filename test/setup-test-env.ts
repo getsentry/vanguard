@@ -1,16 +1,17 @@
-import { installGlobals } from "@remix-run/node";
 import "@testing-library/jest-dom/extend-expect";
 import { sql } from "drizzle-orm";
 import { db } from "~/db/client";
-
-installGlobals();
 
 const clearDatabase = async () => {
   const result = await db.execute<{ tablename: string }>(
     sql`SELECT tablename FROM pg_tables WHERE schemaname='public'`,
   );
   const tableNames = result.rows
-    .filter(({ tablename }) => tablename !== "_prisma_migrations" && tablename !== "__drizzle_migrations")
+    .filter(
+      ({ tablename }) =>
+        tablename !== "_prisma_migrations" &&
+        tablename !== "__drizzle_migrations",
+    )
     .map(({ tablename }) => `"public"."${tablename}"`)
     .join(", ");
   if (tableNames) {

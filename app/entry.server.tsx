@@ -29,11 +29,7 @@ export default async function handleRequest(
     let didError = false;
 
     const { pipe, abort } = renderToPipeableStream(
-      <ServerRouter
-        context={routerContext}
-        url={request.url}
-        abortDelay={ABORT_DELAY}
-      />,
+      <ServerRouter context={routerContext} url={request.url} />,
       {
         [callbackName]: () => {
           const body = new PassThrough();

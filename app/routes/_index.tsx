@@ -3,6 +3,7 @@ import { useLoaderData } from "react-router";
 
 import { requireUserId } from "~/services/auth.server";
 import { getPostList } from "~/models/post.server";
+import type { PostQueryType } from "~/models/post.server";
 import Post from "~/components/post";
 import { paginate } from "~/lib/paginator";
 import Paginated from "~/components/paginated";
@@ -92,7 +93,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const cursor = url.searchParams.get("cursor");
 
-  const postListPaginated = await paginate(
+  const postListPaginated = await paginate<PostQueryType[]>(
     getPostList,
     { userId, published: true },
     cursor,

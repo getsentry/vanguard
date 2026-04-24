@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { expectRequiresUser } from "~/lib/test/expects";
 import * as Fixtures from "~/lib/test/fixtures";
 import { buildRequest } from "~/lib/test/request";

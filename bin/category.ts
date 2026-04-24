@@ -1,8 +1,5 @@
-import { installGlobals } from "@remix-run/node";
 import { program } from "commander";
 import { createCategory } from "~/models/category.server";
-
-installGlobals();
 
 program
   .name("category")

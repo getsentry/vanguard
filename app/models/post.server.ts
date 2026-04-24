@@ -29,6 +29,8 @@ export type Feed = typeof feeds.$inferSelect;
 export interface PostQueryType extends Post {
   author: User;
   category: Category;
+  meta: PostMeta[];
+  feeds: Feed[];
 }
 
 export function announcePost(post: PostQueryType): void {
@@ -126,7 +128,11 @@ export async function getPost({
     },
   });
 
-  return (result ?? null) as PostQueryType | null;
+  if (!result) return null;
+  return {
+    ...result,
+    feeds: result.feedToPost.map((ftp: any) => ftp.feed),
+  } as PostQueryType;
 }
 
 export async function getPostList({
@@ -211,7 +217,10 @@ export async function getPostList({
     orderBy: (p, { desc }) => desc(p.publishedAt),
   });
 
-  return results as PostQueryType[];
+  return results.map((r) => ({
+    ...r,
+    feeds: r.feedToPost.map((ftp: any) => ftp.feed),
+  })) as PostQueryType[];
 }
 
 export async function updatePost({
@@ -234,7 +243,7 @@ export async function updatePost({
   published?: Post["published"];
   deleted?: Post["deleted"];
   meta?: Pick<PostMeta, "name" | "content">[];
-}): Promise<Post> {
+}): Promise<PostQueryType> {
   const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
   invariant(user, "user not found");
 
@@ -306,10 +315,22 @@ export async function updatePost({
       }
     }
 
-    return result;
+    return result.id;
   });
 
-  return updatedPost;
+  const fullPost = await db.query.posts.findFirst({
+    where: eq(posts.id, updatedPost),
+    with: {
+      author: true,
+      category: true,
+      meta: true,
+      feedToPost: { with: { feed: true } },
+    },
+  });
+  return {
+    ...fullPost!,
+    feeds: fullPost!.feedToPost.map((ftp: any) => ftp.feed),
+  } as PostQueryType;
 }
 
 export async function createPost({
@@ -326,8 +347,8 @@ export async function createPost({
   feedIds?: Feed["id"][];
   categoryId: Category["id"];
   meta?: Pick<PostMeta, "name" | "content">[];
-}): Promise<Post> {
-  return await db.transaction(async (tx) => {
+}): Promise<PostQueryType> {
+  const post = await db.transaction(async (tx) => {
     const [post] = await tx
       .insert(posts)
       .values({
@@ -360,19 +381,30 @@ export async function createPost({
     });
 
     if (meta.length > 0) {
-      await tx
-        .insert(postMetas)
-        .values(
-          meta.map((m) => ({
-            postId: post.id,
-            name: m.name,
-            content: m.content,
-          })),
-        );
+      await tx.insert(postMetas).values(
+        meta.map((m) => ({
+          postId: post.id,
+          name: m.name,
+          content: m.content,
+        })),
+      );
     }
 
-    return post;
+    return post.id;
   });
+  const fullPost = await db.query.posts.findFirst({
+    where: eq(posts.id, post),
+    with: {
+      author: true,
+      category: true,
+      meta: true,
+      feedToPost: { with: { feed: true } },
+    },
+  });
+  return {
+    ...fullPost,
+    feeds: fullPost!.feedToPost.map((ftp: any) => ftp.feed),
+  } as PostQueryType;
 }
 
 export async function deletePost({

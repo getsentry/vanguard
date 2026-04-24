@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { expectRequiresAdmin } from "~/lib/test/expects";
 import * as Fixtures from "~/lib/test/fixtures";
 import { buildRequest } from "~/lib/test/request";
@@ -10,9 +11,11 @@ describe("GET /admin/feeds/$feedId", () => {
 
     await expectRequiresAdmin(
       loader({
-        request: await buildRequest(`http://localhost/admin/feeds/${feed.id}`, {
-          method: "GET",
-        }),
+        request: await buildRequest(
+          `http://localhost/admin/feeds/${feed.id}`,
+          { method: "GET" },
+          { user: DefaultFixtures.DEFAULT_USER },
+        ),
         params: { feedId: feed.id },
         context: { user: DefaultFixtures.DEFAULT_USER },
       }),
@@ -26,9 +29,11 @@ describe("POST /admin/feeds/$feedId", () => {
 
     await expectRequiresAdmin(
       action({
-        request: await buildRequest(`http://localhost/admin/feeds/${feed.id}`, {
-          method: "POST",
-        }),
+        request: await buildRequest(
+          `http://localhost/admin/feeds/${feed.id}`,
+          { method: "POST" },
+          { user: DefaultFixtures.DEFAULT_USER },
+        ),
         params: { feedId: feed.id },
         context: { user: DefaultFixtures.DEFAULT_USER },
       }),

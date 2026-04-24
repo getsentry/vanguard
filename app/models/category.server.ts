@@ -1,9 +1,11 @@
 import { and, eq, ilike, or } from "drizzle-orm";
 
 import { db } from "~/db/client";
-import { categories, users } from "~/db/schema";
+import { categories, categoryMetas, users } from "~/db/schema";
 
 export type Category = typeof categories.$inferSelect;
+export type CategoryMeta = typeof categoryMetas.$inferSelect;
+export type CategoryWithMeta = Category & { metaConfig: CategoryMeta[] };
 export type User = typeof users.$inferSelect;
 
 export async function getCategory({

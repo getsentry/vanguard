@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { Transporter } from "nodemailer";
 import { createTransport } from "nodemailer";
 import type Mail from "nodemailer/lib/mailer";

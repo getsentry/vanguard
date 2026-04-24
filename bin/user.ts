@@ -1,4 +1,3 @@
-import { installGlobals } from "@remix-run/node";
 import { program } from "commander";
 import { exit } from "process";
 import {
@@ -7,8 +6,6 @@ import {
   getUserByEmail,
   updateUser,
 } from "~/models/user.server";
-
-installGlobals();
 
 program.name("user").description("CLI for assisting with user management");
 
