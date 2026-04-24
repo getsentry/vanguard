@@ -32,6 +32,7 @@ import { buildUrl } from "~/lib/http";
 import { getUserById, upsertUser } from "~/models/user.server";
 import { GoogleStrategy } from "~/lib/google-auth";
 import { sessionStorage } from "~/services/session.server";
+import { getPreviewUser, previewAutoLoginEnabled } from "~/services/preview-auto-login.server";
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID ?? "";
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET ?? "";
@@ -40,7 +41,13 @@ const GOOGLE_HD = process.env.GOOGLE_HD || undefined;
 // Google OAuth is the sole authentication path. If its credentials are missing
 // in production the app would deploy to a state where nobody can log in — fail
 // loudly at boot instead of silently shipping a broken login page.
-if (process.env.NODE_ENV === "production" && (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET)) {
+// Exception: Vercel Preview deploys with PREVIEW_AUTO_LOGIN=1 skip Google OAuth
+// entirely (see preview-auto-login.server.ts), so creds are not required there.
+if (
+  process.env.NODE_ENV === "production" &&
+  !previewAutoLoginEnabled &&
+  (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET)
+) {
   throw new Error(
     "GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET must be set in production. Google OAuth is the only supported login method.",
   );
@@ -68,6 +75,7 @@ authenticator.use(
 );
 
 export async function getUserId(request: Request): Promise<string | undefined> {
+  if (previewAutoLoginEnabled) return (await getPreviewUser()).id;
   const user = await authenticator.isAuthenticated(request);
   if (!user) {
     return undefined;
@@ -76,6 +84,7 @@ export async function getUserId(request: Request): Promise<string | undefined> {
 }
 
 export async function getUser(request: Request) {
+  if (previewAutoLoginEnabled) return await getPreviewUser();
   const user = await authenticator.isAuthenticated(request);
   if (!user) {
     return undefined;
@@ -85,18 +94,21 @@ export async function getUser(request: Request) {
 }
 
 export async function requireUserId(request: Request): Promise<string> {
+  if (previewAutoLoginEnabled) return (await getPreviewUser()).id;
   const user = await authenticator.isAuthenticated(request);
   if (!user) throw redirectToAuth({ request });
   return user.id;
 }
 
 export async function requireUser(request: Request): Promise<User> {
+  if (previewAutoLoginEnabled) return await getPreviewUser();
   const user = await authenticator.isAuthenticated(request);
   if (!user) throw redirectToAuth({ request });
   return user;
 }
 
 export async function requireAdmin(request: Request): Promise<User> {
+  if (previewAutoLoginEnabled) return await getPreviewUser();
   const user = await authenticator.isAuthenticated(request);
   if (!user) throw redirectToAuth({ request });
   if (!user.admin) throw redirect(`/403`);

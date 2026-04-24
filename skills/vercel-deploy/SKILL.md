@@ -210,17 +210,60 @@ Remove the diagnostic immediately after resolving. Don't commit it.
 - **Empty string is falsy in JS but truthy in Vercel's eyes.** An env var set to `""` passes `vercel env ls` but fails `Boolean(process.env.X)`. Treat "set but empty" identical to "not set" — delete and re-add with a real value.
 - **Neon integration adds ~20 `PG*`, `POSTGRES_*`, `NEON_*` vars** alongside `DATABASE_URL`. They're harmless; Vanguard only reads `DATABASE_URL`.
 
+## Preview auto-login (bypassing Google OAuth on preview deploys)
+
+Google OAuth 2.0 requires every redirect URI to be registered in Google Cloud Console as an exact string match — no wildcards. That's incompatible with Vercel's per-deploy preview URLs (`vanguard-<hash>-sentry.vercel.app`), which would otherwise require manual Google Cloud edits per PR.
+
+Vanguard sidesteps this entirely on preview by **skipping app-level auth** and impersonating a seeded "Preview Admin" user. This is safe because Vercel **Deployment Protection** already gates every preview URL behind Sentry team SSO at the edge — the Lambda doesn't even run for unauthenticated viewers.
+
+### Enable it
+
+Set in Vercel → Settings → Environment Variables, scoped to **Preview only**:
+
+```
+PREVIEW_AUTO_LOGIN = 1
+```
+
+Do NOT set it in Production or Development. `app/services/preview-auto-login.server.ts` throws at module load if `VERCEL_ENV === "production" && PREVIEW_AUTO_LOGIN === "1"` — belt-and-braces against a misconfigured env var.
+
+With the flag on:
+- `/` renders immediately; no login page
+- All auth helpers (`getUserId`, `requireUserId`, `requireAdmin`, etc.) short-circuit to the Preview Admin user
+- The user is auto-created in the DB on first request (`preview-admin@vanguard.local`, `admin=true`, no `externalId`)
+- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` are **not required** in the Preview env scope
+- The `/login` page 302s to `/`
+
+### Security model
+
+The preview auto-login is safe **only** if Vercel Deployment Protection is enforced. Verify:
+
+```bash
+curl -I https://<preview-url>/
+# Expect: HTTP/2 401, set-cookie: _vercel_sso_nonce=...
+```
+
+If the preview URL is accessible without Vercel SSO, Deployment Protection is off and the preview auto-login must not be used. Fix: Settings → Deployment Protection → Standard Protection (Vercel Authentication).
+
+### Trade-offs
+
+- ✅ Zero Google Cloud Console setup per preview
+- ✅ CI/Playwright smoke tests against preview URLs trivial (just one `x-vercel-protection-bypass` header, no OAuth dance)
+- ✅ Reviewers open a preview link and are instantly in
+- ⚠️ Cannot test the Google OAuth flow itself on preview — do that locally or on staging/production
+- ⚠️ Only one "user" on preview (Preview Admin). Multi-user UX testing needs a staging environment or a local dev run.
+
 ## Step 8: First deploy checklist for a fresh Vercel project
 
 In order:
 
 1. Enable the Neon integration (Settings → Storage → Neon) — auto-populates `DATABASE_URL`, `POSTGRES_*`, `PG*` in all three env scopes.
 2. Run migrations against the Neon DB from your laptop: `DATABASE_URL=<neon-url> pnpm db:migrate:dev`.
-3. Set these in Vercel → Settings → Environment Variables (scoped to **Preview + Production**, or All):
-   - `SESSION_SECRET` — `openssl rand -hex 32`
-   - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` — required; the app throws at boot in production if either is missing. Google OAuth is the only supported login method.
-   - `GOOGLE_HD` — optional workspace-domain restriction (e.g. `sentry.io`).
-   - `BASE_URL` — leave unset for now; set once you have a stable preview alias, and remember to add `<BASE_URL>/auth/google/callback` to the Google OAuth client's Authorized redirect URIs.
+3. Set these in Vercel → Settings → Environment Variables:
+   - `SESSION_SECRET` — `openssl rand -hex 32`. Scope: **All**.
+   - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` — required in **Production**; the app throws at boot if either is missing (unless Preview auto-login is on in Preview scope). Google OAuth is the only real login method.
+   - `GOOGLE_HD` — optional workspace-domain restriction (e.g. `sentry.io`). Scope: **Production** (and any environment that actually runs Google OAuth).
+   - `BASE_URL` — set in **Production** to the prod domain. In Preview, leave unset when using `PREVIEW_AUTO_LOGIN=1` (see "Preview auto-login" section below).
+   - `PREVIEW_AUTO_LOGIN=1` — scope: **Preview only**. Bypasses Google OAuth on preview deploys; Vercel Deployment Protection is the sole security boundary there.
 4. Enable Vercel Blob: Settings → Storage → Blob → Create store. Auto-sets `BLOB_READ_WRITE_TOKEN`.
 5. Ensure the preset is wired (see Step 1).
 6. `vercel build && vercel deploy --prebuilt`.

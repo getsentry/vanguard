@@ -1,13 +1,19 @@
 import type { LoaderFunctionArgs } from "react-router";
-import { Form, useLoaderData } from "react-router";
+import { Form, redirect, useLoaderData } from "react-router";
 
 import Button from "~/components/button";
 import Link from "~/components/link";
+import { previewAutoLoginEnabled } from "~/services/preview-auto-login.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   let redirectTo = url.searchParams.get("redirectTo");
   if (!redirectTo || redirectTo?.indexOf("/") !== 0) redirectTo = "/";
+
+  // On Vercel Preview deploys with PREVIEW_AUTO_LOGIN=1, auth is bypassed and
+  // the user is already "signed in" as the seeded Preview Admin — skip the
+  // login page entirely.
+  if (previewAutoLoginEnabled) throw redirect(redirectTo);
 
   return { redirectTo };
 }
