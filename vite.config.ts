@@ -21,10 +21,9 @@ export default defineConfig({
     exclude: ["react-router-dom", "bcrypt", "@mapbox/node-pre-gyp"],
   },
   ssr: {
-    // Native modules (bcrypt) must stay external. textarea-markdown-editor is
-    // a CJS lib that attaches `.Wrapper` to its default export after load; Vite's
-    // ESM interop loses that mutation, so leave it to Node's native require.
-    external: ["bcrypt", "@mapbox/node-pre-gyp", "textarea-markdown-editor"],
+    // Native modules (bcrypt) must stay external so Node's native require
+    // loads the .node binding instead of esbuild trying to bundle it.
+    external: ["bcrypt", "@mapbox/node-pre-gyp"],
   },
   plugins: [
     reactRouter(),
