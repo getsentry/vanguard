@@ -15,7 +15,16 @@ export default defineConfig({
     sourcemap: true,
   },
   optimizeDeps: {
-    exclude: ["react-router-dom"],
+    // Native modules (bcrypt) and deps that pull in optional requires
+    // (@mapbox/node-pre-gyp -> nock / aws-sdk / mock-aws-s3) can't be
+    // prebundled by esbuild — keep them as runtime requires.
+    exclude: ["react-router-dom", "bcrypt", "@mapbox/node-pre-gyp"],
+  },
+  ssr: {
+    // Native modules (bcrypt) must stay external. textarea-markdown-editor is
+    // a CJS lib that attaches `.Wrapper` to its default export after load; Vite's
+    // ESM interop loses that mutation, so leave it to Node's native require.
+    external: ["bcrypt", "@mapbox/node-pre-gyp", "textarea-markdown-editor"],
   },
   plugins: [
     reactRouter(),
