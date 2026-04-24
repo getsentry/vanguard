@@ -21,10 +21,11 @@ function useProgress() {
 
     const updateWidth = (ms: number) => {
       timeout.current = setTimeout(() => {
-        const width = parseFloat(el.current!.style.width);
+        if (!el.current) return;
+        const width = parseFloat(el.current.style.width);
         const percent = !isNaN(width) ? 10 + 0.9 * width : 0;
 
-        el.current!.style.width = `${percent}%`;
+        el.current.style.width = `${percent}%`;
 
         updateWidth(100);
       }, ms);
@@ -35,16 +36,16 @@ function useProgress() {
     return () => {
       clearTimeout(timeout.current);
 
-      if (el.current!.style.width === `0%`) {
+      if (!el.current || el.current.style.width === `0%`) {
         return;
       }
 
-      el.current!.style.width = `100%`;
+      el.current.style.width = `100%`;
       timeout.current = setTimeout(() => {
-        if (el.current?.style.width !== "100%") {
+        if (!el.current || el.current.style.width !== "100%") {
           return;
         }
-        el.current!.style.width = ``;
+        el.current.style.width = ``;
       }, 200);
     };
   }, [location]);
