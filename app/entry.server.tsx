@@ -2,7 +2,7 @@ import { PassThrough } from "stream";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { createReadableStreamFromReadable } from "@react-router/node";
 import { ServerRouter } from "react-router";
-import isbot from "isbot";
+import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
 import * as Sentry from "@sentry/node";
 
