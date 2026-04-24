@@ -26,50 +26,35 @@
 
 import type { User } from "~/models/user.server";
 import { Authenticator } from "remix-auth";
-import { FormStrategy } from "remix-auth-form";
 import { redirect } from "react-router";
 
 import { buildUrl } from "~/lib/http";
-import { getUserByEmail, getUserById, upsertUser, verifyPassword } from "~/models/user.server";
+import { getUserById, upsertUser } from "~/models/user.server";
 import { GoogleStrategy } from "~/lib/google-auth";
 import { sessionStorage } from "~/services/session.server";
-import invariant from "tiny-invariant";
-import config from "~/config";
+
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID ?? "";
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET ?? "";
+const GOOGLE_HD = process.env.GOOGLE_HD || undefined;
+
+// Google OAuth is the sole authentication path. If its credentials are missing
+// in production the app would deploy to a state where nobody can log in — fail
+// loudly at boot instead of silently shipping a broken login page.
+if (process.env.NODE_ENV === "production" && (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET)) {
+  throw new Error(
+    "GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET must be set in production. Google OAuth is the only supported login method.",
+  );
+}
 
 export const authenticator = new Authenticator<User>(sessionStorage);
 
 authenticator.use(
-  new FormStrategy(async ({ form }) => {
-    const email = form.get("email");
-    const password = form.get("password");
-
-    invariant(typeof email === "string", "email must be a string");
-    invariant(email.length > 0, "email must not be empty");
-
-    invariant(typeof password === "string", "password must be a string");
-    invariant(password.length > 0, "password must not be empty");
-
-    const user = await getUserByEmail(email);
-    if (!user) {
-      return null;
-    }
-
-    if (!verifyPassword({ user, password })) {
-      return null;
-    }
-
-    return user;
-  }),
-  "user-pass",
-);
-
-authenticator.use(
   new GoogleStrategy(
     {
-      clientID: config.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      clientID: GOOGLE_CLIENT_ID,
+      clientSecret: GOOGLE_CLIENT_SECRET,
       callbackURL: buildUrl("/auth/google/callback"),
-      hd: config.GOOGLE_HD,
+      hd: GOOGLE_HD,
     },
     async ({ profile }) => {
       console.log(`Persisting user ${profile.emails[0].value}`);

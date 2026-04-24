@@ -1,8 +1,6 @@
 // @ts-nocheck
 import { faker } from "@faker-js/faker";
 
-import bcrypt from "bcryptjs";
-
 import { db } from "../app/db/client";
 import { categories, posts, postRevisions, postSubscriptions, users } from "../app/db/schema";
 
@@ -17,22 +15,24 @@ const sampleImages = [
 async function seed() {
   console.log("🌱 Seeding database...");
 
-  // Create a sample user if none exists
-  let user = await db.query.users.findFirst();
+  // Create a placeholder "Demo User" to own the sample posts. This user has no
+  // externalId and no password — it can never sign in; it exists purely to give
+  // the seed content an author so freshly-cloned dev environments have something
+  // to browse. Real users are created by Google OAuth on first sign-in.
+  let user = await db.query.users.findFirst({
+    where: (u, { eq }) => eq(u.email, "demo@example.com"),
+  });
   if (!user) {
-    const passwordHash = await bcrypt.hash("password123", 10);
     [user] = await db
       .insert(users)
       .values({
         email: "demo@example.com",
         name: "Demo User",
-        passwordHash,
-        admin: true,
       })
       .returning();
-    console.log("✅ Created demo user: demo@example.com (password: password123)");
+    console.log("✅ Created placeholder demo user: demo@example.com (cannot sign in — Google-only)");
   } else {
-    console.log("✅ Using existing user:", user.email);
+    console.log("✅ Using existing demo user:", user.email);
   }
 
   // Create a sample category if none exists

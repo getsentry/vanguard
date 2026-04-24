@@ -35,7 +35,7 @@ DATABASE_URL=postgresql://user:password@ep-xxx.us-east-1.aws.neon.tech/neondb?ss
 
 ### Google Auth
 
-Google Auth is the primary provider, although email/password is supported for local development. To configure Google, set the following values:
+Google OAuth is the **only** authentication method. It works in both local development (against `http://localhost:5173`) and production. To configure:
 
 ```sh
 GOOGLE_CLIENT_ID=
@@ -44,11 +44,12 @@ GOOGLE_CLIENT_SECRET=
 GOOGLE_HD=your-google-workspace-domain.com
 ```
 
-To disable email/password authentication:
+Ensure your OAuth client in the Google Cloud Console has every environment's callback URL registered as an Authorized redirect URI:
 
-```sh
-USE_BASIC_LOGIN=false
-```
+- Local dev: `http://localhost:5173/auth/google/callback`
+- Production: `https://<your-domain>/auth/google/callback`
+
+The first user to sign in on an empty database is automatically granted admin rights — this bootstraps the initial admin on a fresh install. Subsequent users sign in as regular users; promote them with `pnpm user make-admin <email>`.
 
 ### Sentry
 
@@ -118,11 +119,13 @@ SMTP_PASS=
   ```
 
   This creates:
-  - A demo user: `demo@example.com` / `password123`
+  - A placeholder `demo@example.com` user (no sign-in; owns the sample content)
   - A sample "General" category
   - Three sample posts
 
   The seed script is safe to run multiple times — it won't create duplicates.
+
+  You still sign in with your own Google account; the seed exists only to give you content to browse on first boot.
 
 - Start the dev server:
 
@@ -132,10 +135,15 @@ SMTP_PASS=
 
   Open [http://localhost:5173](http://localhost:5173).
 
-- Create a user (if not using Google Auth or the seed):
+- User management CLI:
 
   ```sh
-  pnpm user create <email> <password> --admin
+  # Promote a user (who has already signed in with Google) to admin
+  pnpm user make-admin <email>
+
+  # Create a passwordless placeholder user (cannot sign in — Google OAuth only)
+  pnpm user create <email> --admin
+
   pnpm category create <slug> <name>
   ```
 

@@ -226,7 +226,7 @@ See `.env.example` for the full current list. High level:
 | Category | Vars                                                                                                   |
 | -------- | ------------------------------------------------------------------------------------------------------ |
 | Core     | `DATABASE_URL`, `SESSION_SECRET`, `BASE_URL`                                                           |
-| Auth     | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_HD`, `USE_BASIC_LOGIN`                             |
+| Auth     | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_HD`                                                |
 | Storage  | `BLOB_READ_WRITE_TOKEN` (run `vercel env pull` after linking)                                          |
 | Email    | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`                                        |
 | Slack    | `SLACK_WEBHOOK_URL`, `SLACK_CHANNEL`, `SLACK_USERNAME`, `SLACK_ICON_URL`                               |

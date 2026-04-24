@@ -74,9 +74,6 @@ importers:
       '@testing-library/user-event':
         specifier: ^14.5.2
         version: 14.5.2(@testing-library/dom@9.3.4)
-      '@types/bcryptjs':
-        specifier: ^2.4.6
-        version: 2.4.6
       '@types/jsonwebtoken':
         specifier: ^9.0.6
         version: 9.0.6
@@ -116,9 +113,6 @@ importers:
       autoprefixer:
         specifier: ^10.4.19
         version: 10.4.19(postcss@8.4.38)
-      bcryptjs:
-        specifier: ^3.0.3
-        version: 3.0.3
       commander:
         specifier: ^12.0.0
         version: 12.0.0
@@ -197,9 +191,6 @@ importers:
       remix-auth:
         specifier: ^3.6.0
         version: 3.6.0(@remix-run/react@2.8.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(typescript@5.4.3))(@remix-run/server-runtime@2.8.1(typescript@5.4.3))
-      remix-auth-form:
-        specifier: ^1.4.0
-        version: 1.4.0(@remix-run/server-runtime@2.8.1(typescript@5.4.3))(remix-auth@3.6.0(@remix-run/react@2.8.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(typescript@5.4.3))(@remix-run/server-runtime@2.8.1(typescript@5.4.3)))
       remix-auth-oauth2:
         specifier: ^1.11.2
         version: 1.11.2(@remix-run/server-runtime@2.8.1(typescript@5.4.3))(remix-auth@3.6.0(@remix-run/react@2.8.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(typescript@5.4.3))(@remix-run/server-runtime@2.8.1(typescript@5.4.3)))
@@ -2173,9 +2164,6 @@ packages:
   '@types/babel__traverse@7.20.5':
     resolution: {integrity: sha512-WXCyOcRtH37HAUkpXhUduaxdm82b4GSlyTqajXviN4EfiuPgNYR109xMCKvpl6zPIpua0DGlMEDCq+g8EdoheQ==}
 
-  '@types/bcryptjs@2.4.6':
-    resolution: {integrity: sha512-9xlo6R2qDs5uixm0bcIqCeMCE6HiQsIyel9KQySStiyqNl2tnj2mP3DX1Nf56MD6KMenNNlBBsy3LJ7gUEQPXQ==}
-
   '@types/chai-subset@1.3.5':
     resolution: {integrity: sha512-c2mPnw+xHtXDoHmdtcCXGwyLMiauiAyxWMzhGpqHC4nqI/Y5G2XhTampslK2rb59kpcuHon03UH8W6iYUzw88A==}
 
@@ -2458,10 +2446,6 @@ packages:
   basic-auth@2.0.1:
     resolution: {integrity: sha512-NF+epuEdnUYVlGuhaxbbq+dvJttwLnGY+YixlXlME5KpQ5W3CnXA5cVTneY3SPbPDRkcjMbifrwmFYcClgOZeg==}
     engines: {node: '>= 0.8'}
-
-  bcryptjs@3.0.3:
-    resolution: {integrity: sha512-GlF5wPWnSa/X5LKM1o0wz0suXIINz1iHRLvTS+sLyi7XPbe5ycmYI3DlZqVGZZtDgl4DmasFg7gOB3JYbphV5g==}
-    hasBin: true
 
   binary-extensions@2.3.0:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
@@ -4124,12 +4108,6 @@ packages:
   regexp.prototype.flags@1.5.2:
     resolution: {integrity: sha512-NcDiDkTLuPR+++OCKB0nWafEmhg/Da8aUPLPMQbK+bxKKCm1/S5he+AqYa4PlMCVBalb4/yxIRub6qkEx5yJbw==}
     engines: {node: '>= 0.4'}
-
-  remix-auth-form@1.4.0:
-    resolution: {integrity: sha512-PirsVtv2AbJ7Lg+OjE+rjlW9AnkNYmqfmNIqTg0Mh1wur22ls5hxf2icVXVCRRhpcpV+FyoDxh03LtIyRj646A==}
-    peerDependencies:
-      '@remix-run/server-runtime': ^1.0.0 || ^2.0.0
-      remix-auth: ^3.6.0
 
   remix-auth-oauth2@1.11.2:
     resolution: {integrity: sha512-5ORP+LMi5CVCA/Wb8Z+FCAJ73Uiy4uyjEzhlVwNBfdAkPOnfxzoi+q/pY/CrueYv3OniCXRM35ZYqkVi3G1UPw==}
@@ -6600,8 +6578,6 @@ snapshots:
     dependencies:
       '@babel/types': 7.24.0
 
-  '@types/bcryptjs@2.4.6': {}
-
   '@types/chai-subset@1.3.5':
     dependencies:
       '@types/chai': 4.3.14
@@ -6925,8 +6901,6 @@ snapshots:
   basic-auth@2.0.1:
     dependencies:
       safe-buffer: 5.1.2
-
-  bcryptjs@3.0.3: {}
 
   binary-extensions@2.3.0: {}
 
@@ -8612,11 +8586,6 @@ snapshots:
       define-properties: 1.2.1
       es-errors: 1.3.0
       set-function-name: 2.0.2
-
-  remix-auth-form@1.4.0(@remix-run/server-runtime@2.8.1(typescript@5.4.3))(remix-auth@3.6.0(@remix-run/react@2.8.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(typescript@5.4.3))(@remix-run/server-runtime@2.8.1(typescript@5.4.3))):
-    dependencies:
-      '@remix-run/server-runtime': 2.8.1(typescript@5.4.3)
-      remix-auth: 3.6.0(@remix-run/react@2.8.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(typescript@5.4.3))(@remix-run/server-runtime@2.8.1(typescript@5.4.3))
 
   remix-auth-oauth2@1.11.2(@remix-run/server-runtime@2.8.1(typescript@5.4.3))(remix-auth@3.6.0(@remix-run/react@2.8.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(typescript@5.4.3))(@remix-run/server-runtime@2.8.1(typescript@5.4.3))):
     dependencies:

@@ -26,7 +26,7 @@ Vercel splits env vars across **Production**, **Preview**, **Development**. A va
 
 ### `--prebuilt` ships local binaries
 
-`vercel deploy --prebuilt` uploads `.vercel/output/` as-is. Any native `.node` binary in there was compiled for your local arch. On Vercel's Linux runtime, loading a Mach-O binary fails with `invalid ELF header`. Avoid native deps entirely — prefer pure-JS alternatives (`bcryptjs`, not `bcrypt`).
+`vercel deploy --prebuilt` uploads `.vercel/output/` as-is. Any native `.node` binary in there was compiled for your local arch. On Vercel's Linux runtime, loading a Mach-O binary fails with `invalid ELF header`. Avoid native deps entirely — prefer pure-JS alternatives.
 
 ## Step 1: Prerequisites (one-time)
 
@@ -121,11 +121,10 @@ A native `.node` binary compiled for the local arch got shipped via `--prebuilt`
 /var/task/node_modules/.pnpm/<package>@<ver>/.../binding/.../xyz.node: invalid ELF header
 ```
 
-Swap for a pure-JS alternative. Known cases for Vanguard:
+Swap for a pure-JS alternative. Potential future cases for Vanguard:
 
 | Native | Pure-JS drop-in | Notes |
 |---|---|---|
-| `bcrypt` | `bcryptjs` | Same `hashSync`/`compareSync` API, wire-format compatible (`$2b$` hashes are portable) |
 | `sharp` (if ever added) | `@vercel/og` or client-side | Only if image processing is actually needed |
 
 After swapping, remove any `optimizeDeps.exclude` / `ssr.external` entries for the old native package from `vite.config.ts` and drop it from `pnpm.onlyBuiltDependencies` in `package.json`.
@@ -210,7 +209,6 @@ Remove the diagnostic immediately after resolving. Don't commit it.
 - **Env changes require redeploy.** Adding/editing a var only affects future deployments. Existing Lambdas keep the old snapshot until their next cold start against a new deployment.
 - **Empty string is falsy in JS but truthy in Vercel's eyes.** An env var set to `""` passes `vercel env ls` but fails `Boolean(process.env.X)`. Treat "set but empty" identical to "not set" — delete and re-add with a real value.
 - **Neon integration adds ~20 `PG*`, `POSTGRES_*`, `NEON_*` vars** alongside `DATABASE_URL`. They're harmless; Vanguard only reads `DATABASE_URL`.
-- **`USE_BASIC_LOGIN`**: any truthy string activates basic-login mode. `.env.example` uses `1`; `true` also works. Don't use `false` — still truthy as a non-empty string.
 
 ## Step 8: First deploy checklist for a fresh Vercel project
 
@@ -220,8 +218,9 @@ In order:
 2. Run migrations against the Neon DB from your laptop: `DATABASE_URL=<neon-url> pnpm db:migrate:dev`.
 3. Set these in Vercel → Settings → Environment Variables (scoped to **Preview + Production**, or All):
    - `SESSION_SECRET` — `openssl rand -hex 32`
-   - `USE_BASIC_LOGIN=1` (simplest path to a working login)
-   - `BASE_URL` — leave unset for now; set once you have a stable preview alias
+   - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` — required; the app throws at boot in production if either is missing. Google OAuth is the only supported login method.
+   - `GOOGLE_HD` — optional workspace-domain restriction (e.g. `sentry.io`).
+   - `BASE_URL` — leave unset for now; set once you have a stable preview alias, and remember to add `<BASE_URL>/auth/google/callback` to the Google OAuth client's Authorized redirect URIs.
 4. Enable Vercel Blob: Settings → Storage → Blob → Create store. Auto-sets `BLOB_READ_WRITE_TOKEN`.
 5. Ensure the preset is wired (see Step 1).
 6. `vercel build && vercel deploy --prebuilt`.

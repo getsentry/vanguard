@@ -1,5 +1,4 @@
-import { compareSync, hashSync } from "bcryptjs";
-import { eq, ilike, or } from "drizzle-orm";
+import { eq, ilike, isNotNull, or } from "drizzle-orm";
 import invariant from "tiny-invariant";
 
 import { db } from "~/db/client";
@@ -51,29 +50,13 @@ export async function deleteUserByEmail(email: User["email"]) {
 export async function createUser({
   email,
   name,
-  password,
   admin,
 }: {
   email: User["email"];
-  password?: string;
   name?: User["name"];
   admin?: User["admin"];
 }) {
-  const passwordHash = password ? hashSync(password, 8) : null;
-  const [user] = await db.insert(users).values({ email, passwordHash, name, admin }).returning();
-  return user;
-}
-
-export function verifyPassword({ user, password }: { user: User; password: string }) {
-  if (!user.passwordHash) return false;
-  if (!compareSync(password, user.passwordHash)) return false;
-  return true;
-}
-
-export async function changePassword({ user, newPassword }: { user: User; newPassword: string }) {
-  const passwordHash = hashSync(newPassword, 8);
-  await db.update(users).set({ passwordHash }).where(eq(users.id, user.id));
-  user.passwordHash = passwordHash;
+  const [user] = await db.insert(users).values({ email, name, admin }).returning();
   return user;
 }
 
@@ -84,10 +67,22 @@ export async function upsertUser({
   email: User["email"];
   externalId: string;
 }) {
+  // Bootstrap: the very first user to sign in via Google becomes admin. We scope
+  // the check to users with an externalId so that placeholder rows inserted by
+  // `pnpm db:seed` (which have no externalId and cannot log in) do not prevent
+  // promotion. Existing authenticated users are never promoted/demoted here —
+  // onConflictDoUpdate only touches email/externalId, so the admin flag on an
+  // existing row is preserved.
+  const firstAuthenticatedUser = await db.query.users.findFirst({
+    where: isNotNull(users.externalId),
+    columns: { id: true },
+  });
+  const admin = !firstAuthenticatedUser;
+
   try {
     const [user] = await db
       .insert(users)
-      .values({ email, externalId })
+      .values({ email, externalId, admin })
       .onConflictDoUpdate({
         target: users.externalId,
         set: { email },
@@ -98,7 +93,7 @@ export async function upsertUser({
     // handles a rare case where an externalId was not set for an existing email
     const [user] = await db
       .insert(users)
-      .values({ email, externalId })
+      .values({ email, externalId, admin })
       .onConflictDoUpdate({
         target: users.email,
         set: { externalId },
