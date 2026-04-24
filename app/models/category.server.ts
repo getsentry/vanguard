@@ -1,8 +1,10 @@
-import type { User, Category } from "@prisma/client";
+import { and, eq, ilike, or } from "drizzle-orm";
 
-import { prisma } from "~/services/db.server";
+import { db } from "~/db/client";
+import { categories, users } from "~/db/schema";
 
-export type { Category } from "@prisma/client";
+export type Category = typeof categories.$inferSelect;
+export type User = typeof users.$inferSelect;
 
 export function getCategory({
   id,
@@ -12,11 +14,12 @@ export function getCategory({
   slug?: Category["slug"];
 }) {
   if (!id && !slug) return null;
-  return prisma.category.findFirst({
-    where: { id, slug },
-    include: {
-      metaConfig: true,
-    },
+  return db.query.categories.findFirst({
+    where: and(
+      id ? eq(categories.id, id) : undefined,
+      slug ? eq(categories.slug, slug) : undefined,
+    ),
+    with: { metaConfig: true },
   });
 }
 
@@ -33,34 +36,30 @@ export async function getCategoryList({
   offset?: number;
   limit?: number;
 }) {
-  // userId is used to find categories
-  const user = await prisma.user.findFirst({ where: { id: userId } });
+  const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
   const canPostRestricted = user ? user.canPostRestricted : false;
 
-  const where: { [key: string]: any } = { deleted: false };
-  if (query !== undefined) {
-    where.AND = [
-      ...(where.AND || []),
-      {
-        OR: [
-          {
-            name: { contains: query, mode: "insensitive" },
-          },
-          {
-            slug: { contains: query, mode: "insensitive" },
-          },
-        ],
-      },
-    ];
-  }
-  if (!includeRestricted && !canPostRestricted) where.restricted = false;
+  const conditions = [eq(categories.deleted, false)];
 
-  return await prisma.category.findMany({
-    where,
-    skip: offset,
-    take: limit,
-    orderBy: { name: "asc" },
-    include: {
+  if (query) {
+    conditions.push(
+      or(
+        ilike(categories.name, `%${query}%`),
+        ilike(categories.slug, `%${query}%`),
+      )!,
+    );
+  }
+
+  if (!includeRestricted && !canPostRestricted) {
+    conditions.push(eq(categories.restricted, false));
+  }
+
+  return db.query.categories.findMany({
+    where: and(...conditions),
+    limit,
+    offset,
+    orderBy: (c, { asc }) => asc(c.name),
+    with: {
       slackConfig: true,
       emailConfig: true,
       metaConfig: true,
@@ -75,10 +74,9 @@ export async function createCategory({
   slug: Category["slug"];
   name: Category["name"];
 }) {
-  return await prisma.category.create({
-    data: {
-      slug,
-      name,
-    },
-  });
+  const [category] = await db
+    .insert(categories)
+    .values({ slug, name })
+    .returning();
+  return category;
 }

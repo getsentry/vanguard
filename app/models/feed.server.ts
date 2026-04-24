@@ -1,14 +1,14 @@
-import type { User, Feed } from "@prisma/client";
+import { and, eq, ilike } from "drizzle-orm";
 
-import { prisma } from "~/services/db.server";
+import { db } from "~/db/client";
+import { feeds, users } from "~/db/schema";
 
-export type { Feed } from "@prisma/client";
+export type Feed = typeof feeds.$inferSelect;
+export type User = typeof users.$inferSelect;
 
 export function getFeed({ id }: { id?: Feed["id"] }) {
   if (!id) return null;
-  return prisma.feed.findFirst({
-    where: { id },
-  });
+  return db.query.feeds.findFirst({ where: eq(feeds.id, id) });
 }
 
 export async function getFeedList({
@@ -24,29 +24,23 @@ export async function getFeedList({
   offset?: number;
   limit?: number;
 }) {
-  // userId is used to find categories
-  const user = await prisma.user.findFirst({ where: { id: userId } });
+  const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
   const canPostRestricted = user ? user.canPostRestricted : false;
 
-  const where: { [key: string]: any } = { deleted: false };
-  if (query !== undefined) {
-    where.AND = [
-      ...(where.AND || []),
-      {
-        OR: [
-          {
-            name: { contains: query, mode: "insensitive" },
-          },
-        ],
-      },
-    ];
-  }
-  if (!includeRestricted && !canPostRestricted) where.restricted = false;
+  const conditions = [eq(feeds.deleted, false)];
 
-  return await prisma.feed.findMany({
-    where,
-    skip: offset,
-    take: limit,
-    orderBy: { name: "asc" },
+  if (query) {
+    conditions.push(ilike(feeds.name, `%${query}%`));
+  }
+
+  if (!includeRestricted && !canPostRestricted) {
+    conditions.push(eq(feeds.restricted, false));
+  }
+
+  return db.query.feeds.findMany({
+    where: and(...conditions),
+    limit,
+    offset,
+    orderBy: (f, { asc }) => asc(f.name),
   });
 }
