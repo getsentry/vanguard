@@ -15,13 +15,14 @@
     "preinstall": "npx only-allow pnpm",
     "start": "react-router-serve ./build/server/index.js",
     "test": "pnpm db:migrate:test && pnpm test:vitest",
-    "test:vitest": "dotenv -e .env.test -- vitest --no-threads",
+    "test:vitest": "dotenv -e .env.test -- vitest run --no-threads",
+    "test:watch": "dotenv -e .env.test -- vitest --no-threads",
     "test:ci": "pnpm db:migrate:test && pnpm test:ci:vitest",
-    "test:ci:vitest": "dotenv -e .env.test -- vitest --no-threads --coverage --reporter=junit --outputFile=junit.xml --reporter=default",
+    "test:ci:vitest": "dotenv -e .env.test -- vitest run --no-threads --coverage --reporter=junit --outputFile=junit.xml --reporter=default",
     "typecheck": "react-router typegen && tsc -b",
     "user": "ts-node -r esbuild-register -r dotenv/config ./bin/user.ts",
     "category": "ts-node -r esbuild-register -r dotenv/config ./bin/category.ts",
-    "validate": "vp check && pnpm typecheck && pnpm test -- --run"
+    "validate": "vp check && pnpm typecheck && pnpm test"
   },
   "dependencies": {
     "@faker-js/faker": "^6.3.1",
