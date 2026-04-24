@@ -19,7 +19,6 @@ import Avatar from "./components/avatar";
 import type { User } from "./models/post.server";
 import { getPostList } from "./models/post.server";
 import PostList from "./components/post-list";
-import LoadingIndicator from "./components/loading-indicator";
 import DevNotice from "./components/dev-notice";
 import Button from "./components/button";
 import Document from "./components/document";
@@ -109,7 +108,6 @@ function App() {
 
   return (
     <Document data={data} showSidebar={showSidebar}>
-      <LoadingIndicator />
       <div>
         <Toaster />
       </div>
