@@ -1,52 +1,48 @@
-import type { User, Post, PostReaction } from "@prisma/client";
-import { Prisma } from "@prisma/client";
-import { prisma } from "~/services/db.server";
+import { eq, and, inArray, sql } from "drizzle-orm";
 
-export type { PostReaction } from "@prisma/client";
+import { db } from "~/db/client";
+import { postReactions } from "~/db/schema";
+
+export type PostReaction = typeof postReactions.$inferSelect;
 
 export async function getReactionsForPosts({
   userId,
   postList,
 }: {
-  userId: User["id"];
-  postList: Post[];
+  userId: string;
+  postList: { id: string }[];
 }): Promise<{
   [postId: string]: { emoji: string; total: number; user: boolean }[];
 }> {
   const postIds = postList.map((p) => p.id);
-  const reactionCounts = await prisma.postReaction.groupBy({
-    by: ["emoji", "postId"],
-    where: {
-      postId: { in: postIds },
-    },
-    _count: {
-      emoji: true,
-    },
-  });
-  const userReactions = await prisma.postReaction.findMany({
-    select: {
-      emoji: true,
-      postId: true,
-    },
-    where: {
-      postId: { in: postIds },
-      authorId: userId,
-    },
-  });
+
+  const reactionCounts = await db
+    .select({
+      postId: postReactions.postId,
+      emoji: postReactions.emoji,
+      count: sql<number>`count(*)::int`,
+    })
+    .from(postReactions)
+    .where(inArray(postReactions.postId, postIds))
+    .groupBy(postReactions.postId, postReactions.emoji);
+
+  const userReactions = await db
+    .select({ emoji: postReactions.emoji, postId: postReactions.postId })
+    .from(postReactions)
+    .where(and(inArray(postReactions.postId, postIds), eq(postReactions.authorId, userId)));
+
   const userReactionsByPost: { [postId: string]: Set<string> } = {};
   userReactions.forEach(({ emoji, postId }) => {
     if (!userReactionsByPost[postId]) userReactionsByPost[postId] = new Set();
     userReactionsByPost[postId].add(emoji);
   });
 
-  const results: {
-    [postId: string]: { emoji: string; total: number; user: boolean }[];
-  } = {};
-  postIds.forEach((pId) => (results[pId] = []));
+  const results: { [postId: string]: { emoji: string; total: number; user: boolean }[] } = {};
+  postIds.forEach((id) => (results[id] = []));
   reactionCounts.forEach((row) => {
     results[row.postId].push({
       emoji: row.emoji,
-      total: row._count.emoji,
+      total: row.count,
       user: !!userReactionsByPost[row.postId]?.has(row.emoji),
     });
   });
@@ -57,28 +53,21 @@ export async function countReactionsForPosts({
   userId,
   postList,
 }: {
-  userId: User["id"];
-  postList: Post[];
-}): Promise<{
-  [postId: string]: number;
-}> {
+  userId: string;
+  postList: { id: string }[];
+}): Promise<{ [postId: string]: number }> {
   const postIds = postList.map((p) => p.id);
-  const reactionCounts = await prisma.postReaction.groupBy({
-    by: ["postId"],
-    where: {
-      postId: { in: postIds },
-    },
-    _count: {
-      postId: true,
-    },
-  });
 
-  const results: {
-    [postId: string]: number;
-  } = {};
-  postIds.forEach((pId) => (results[pId] = 0));
+  const reactionCounts = await db
+    .select({ postId: postReactions.postId, count: sql<number>`count(*)::int` })
+    .from(postReactions)
+    .where(inArray(postReactions.postId, postIds))
+    .groupBy(postReactions.postId);
+
+  const results: { [postId: string]: number } = {};
+  postIds.forEach((id) => (results[id] = 0));
   reactionCounts.forEach((row) => {
-    results[row.postId] = row._count.postId;
+    results[row.postId] = row.count;
   });
   return results;
 }
@@ -87,22 +76,32 @@ export async function togglePostReaction({
   postId,
   userId,
   emoji,
-}: Pick<PostReaction, "postId" | "userId" | "emoji">) {
-  try {
-    await prisma.postReaction.create({
-      data: { postId, authorId: userId, emoji },
-    });
+}: {
+  postId: string;
+  userId: string;
+  emoji: string;
+}): Promise<1 | -1> {
+  const existing = await db.query.postReactions.findFirst({
+    where: and(
+      eq(postReactions.postId, postId),
+      eq(postReactions.authorId, userId),
+      eq(postReactions.emoji, emoji),
+    ),
+  });
+
+  if (existing) {
+    await db
+      .delete(postReactions)
+      .where(
+        and(
+          eq(postReactions.postId, postId),
+          eq(postReactions.authorId, userId),
+          eq(postReactions.emoji, emoji),
+        ),
+      );
+    return -1;
+  } else {
+    await db.insert(postReactions).values({ postId, authorId: userId, emoji });
     return 1;
-  } catch (e) {
-    if (e instanceof Prisma.PrismaClientKnownRequestError) {
-      // The .code property can be accessed in a type-safe manner
-      if (e.code === "P2002") {
-        await prisma.postReaction.deleteMany({
-          where: { postId, authorId: userId, emoji },
-        });
-        return -1;
-      }
-    }
-    throw e;
   }
 }
