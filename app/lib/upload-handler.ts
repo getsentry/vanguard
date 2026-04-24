@@ -1,126 +1,29 @@
-import {
-  unstable_composeUploadHandlers,
-  unstable_createFileUploadHandler,
-  unstable_createMemoryUploadHandler,
-  type UploadHandler,
-} from "~/lib/upload-compat";
-import { Storage } from "@google-cloud/storage";
-import { writeAsyncIterableToWritable } from "@react-router/node";
+import os from "os";
+import fs from "fs/promises";
+import path from "path";
+import { put } from "@vercel/blob";
 import { createId as cuid } from "@paralleldrive/cuid2";
 
-type UploadHandlerOptions = {
-  namespace: string;
-  filter:
-    | ((args: {
-        filename?: string;
-        contentType: string;
-        name: string;
-      }) => boolean | Promise<boolean>)
-    | undefined;
-  urlPrefix: string;
-  fieldName?: string;
-};
+export async function uploadFile({
+  filename,
+  buffer,
+  namespace = "post-images",
+}: {
+  filename: string;
+  buffer: Buffer | ArrayBuffer;
+  namespace?: string;
+}): Promise<{ url: string }> {
+  const safeName = `${namespace}/${cuid()}-${filename.replace(/\s+/g, "-")}`;
 
-/**
- * Return an upload handler based on the server configuration.
- *
- * Result of uploads must always be a persistent file URL configured to server the file.
- */
-export default function uploadHandler({
-  namespace,
-  filter,
-  urlPrefix,
-  fieldName,
-}: UploadHandlerOptions): UploadHandler {
-  const useGcs = !!process.env.USE_GCS_STORAGE;
-
-  let handler: UploadHandler;
-  if (useGcs) {
-    handler = createCloudStorageUploadHandler({
-      namespace,
-      filter,
-      urlPrefix,
-      fieldName,
-    });
-  } else {
-    handler = async (params) => {
-      const { name } = params;
-      if (name !== fieldName) {
-        return undefined;
-      }
-
-      const fileHandler = unstable_createFileUploadHandler({
-        filter,
-        file: ({ filename }) =>
-          `${namespace}/${cuid()}-${filename.replace(/\s+/g, "-")}`,
-      });
-      const file = await fileHandler(params);
-
-      // if you dont return a non-false value (aka null or undefined) it will
-      // go to the next upload handler, which is in-memory, and return an object
-      // with params we dont want
-      if (!file || !file.name) return "";
-
-      return `${urlPrefix}/${namespace}/${file.name}`;
-    };
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    const blob = await put(safeName, buffer, { access: "public" });
+    return { url: blob.url };
   }
 
-  return unstable_composeUploadHandlers(
-    handler,
-    unstable_createMemoryUploadHandler(),
-  );
-}
-
-export type CloudStorageUploaderHandlerOptions = {
-  namespace: UploadHandlerOptions["namespace"];
-  fieldName?: UploadHandlerOptions["fieldName"];
-  urlPrefix?: UploadHandlerOptions["urlPrefix"];
-  filter?:
-    | ((args: {
-        filename?: string;
-        contentType: string;
-        name: string;
-      }) => boolean | Promise<boolean>)
-    | undefined;
-};
-
-export function createCloudStorageUploadHandler({
-  namespace,
-  fieldName = "file",
-  urlPrefix,
-  filter,
-}: CloudStorageUploaderHandlerOptions): UploadHandler {
-  return async (params): Promise<string | undefined> => {
-    const { name, data, filename } = params;
-    if (fieldName && name !== fieldName) {
-      return undefined;
-    }
-
-    // if you dont return a non-false value (aka null or undefined) it will
-    // go to the next upload handler, which is in-memory, and return an object
-    // with params we dont want
-    if (!filename) {
-      return "";
-    }
-    if (filter && !filter(params)) {
-      return "";
-    }
-
-    const bucketName = process.env.GCS_BUCKET_NAME as string;
-    const bucketPath = process.env.GCS_BUCKET_PATH
-      ? `${process.env.GCS_BUCKET_PATH}/`
-      : "";
-
-    // generate a new filename that is "hard to guess"
-    const newFilename = `${cuid()}-${filename.replace(/\s+/g, "-")}`;
-
-    const cloudStorage = new Storage();
-    const file = cloudStorage
-      .bucket(bucketName)
-      .file(`${bucketPath}${newFilename}`);
-
-    await writeAsyncIterableToWritable(data, file.createWriteStream());
-
-    return `${urlPrefix}/${newFilename}`;
-  };
+  // Local dev fallback — write to os.tmpdir(), serve via image-uploads.$ route
+  const dir = path.join(os.tmpdir(), namespace);
+  await fs.mkdir(dir, { recursive: true });
+  const basename = path.basename(safeName);
+  await fs.writeFile(path.join(dir, basename), Buffer.from(buffer));
+  return { url: `/image-uploads/${namespace}/${basename}` };
 }

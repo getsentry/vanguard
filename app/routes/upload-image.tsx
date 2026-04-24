@@ -1,36 +1,27 @@
-import { type ActionFunctionArgs } from "react-router";
+import type { ActionFunctionArgs } from "react-router";
 import { requireUserId } from "~/services/auth.server";
-import uploadHandler from "~/lib/upload-handler";
-import { unstable_parseMultipartFormData } from "~/lib/upload-compat";
+import { uploadFile } from "~/lib/upload-handler";
 
 export async function action({ request }: ActionFunctionArgs) {
   if (request.method !== "POST") return Response.json({}, { status: 405 });
   const userId = await requireUserId(request);
 
-  const filter:
-    | ((args: {
-        filename?: string;
-        contentType: string;
-        name: string;
-      }) => boolean | Promise<boolean>)
-    | undefined = ({ contentType }) => {
-    return /image/i.test(contentType);
-  };
+  const formData = await request.formData();
+  const file = formData.get("file");
 
-  const formData = await unstable_parseMultipartFormData(
-    request,
-    uploadHandler({
-      fieldName: "file",
-      namespace: userId,
-      filter,
-      urlPrefix: "/image-uploads",
-    }),
-  );
+  if (!(file instanceof File)) {
+    return Response.json({ error: "No file provided" }, { status: 400 });
+  }
+  if (!file.type.startsWith("image/")) {
+    return Response.json({ error: "Only images allowed" }, { status: 400 });
+  }
 
-  const imageUrl = formData.get("file");
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const { url } = await uploadFile({
+    filename: file.name,
+    buffer,
+    namespace: userId,
+  });
 
-  const width = 0;
-  const height = 0;
-
-  return { originalFilename: "", url: imageUrl, width, height };
+  return { url, originalFilename: file.name, width: 0, height: 0 };
 }

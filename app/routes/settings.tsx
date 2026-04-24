@@ -5,8 +5,7 @@ import { Form, Link, useActionData, useLoaderData } from "react-router";
 
 import { requireUserId } from "~/services/auth.server";
 import { getUserById, updateUser } from "~/models/user.server";
-import uploadHandler from "~/lib/upload-handler";
-import { unstable_parseMultipartFormData } from "~/lib/upload-compat";
+import { uploadFile } from "~/lib/upload-handler";
 import AvatarInput from "~/components/avatar-input";
 import FormActions from "~/components/form-actions";
 import Button from "~/components/button";
@@ -23,25 +22,24 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export async function action({ request }: ActionFunctionArgs) {
   const userId = await requireUserId(request);
 
-  const filter = ({ contentType }: { contentType: string }) => {
-    return /image/i.test(contentType);
-  };
-
-  const formData = await unstable_parseMultipartFormData(
-    request,
-    uploadHandler({
-      fieldName: "picture",
-      filter,
-      namespace: userId,
-      urlPrefix: "/image-uploads",
-    }),
-  );
+  const formData = await request.formData();
   const name = formData.get("name");
   const notifyReplies = !!formData.get("notifyReplies");
-  let picture: any = formData.get("picture");
-  // empty values get returned as empty strings, which will unset
-  // the picture rather than leave it unchanged
-  if (picture === "") picture = undefined;
+  const pictureFile = formData.get("picture");
+  let picture: string | undefined = undefined;
+  if (
+    pictureFile instanceof File &&
+    pictureFile.size > 0 &&
+    pictureFile.type.startsWith("image/")
+  ) {
+    const buffer = Buffer.from(await pictureFile.arrayBuffer());
+    const { url } = await uploadFile({
+      filename: pictureFile.name,
+      buffer,
+      namespace: userId,
+    });
+    picture = url;
+  }
 
   if (typeof name !== "string" || name.length === 0) {
     return Response.json(
