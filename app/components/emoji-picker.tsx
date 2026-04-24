@@ -1,37 +1,37 @@
-import React, { useEffect, useState } from "react";
+import type { CSSProperties, ComponentType } from "react";
+import { useEffect, useState } from "react";
+import type { EmojiClickData } from "emoji-picker-react";
 
-// The emoji-picker-react v3 shipped with unusual default-export wrapping;
-// the imported module's `.default` is itself a module whose `.default` is
-// the actual component. We accept the double-default at the render site.
-type EmojiPickerModule = {
-  default: React.ComponentType<{
-    onEmojiClick: (e: Event, obj: { emoji: string }) => void;
-    pickerStyle?: React.CSSProperties;
-  }>;
+// emoji-picker-react v4 touches browser APIs at module init, so it can't be
+// evaluated during SSR. Dynamically import on the client and render nothing
+// until the module resolves.
+type PickerProps = {
+  style?: CSSProperties;
+  onEmojiClick?: (emojiData: EmojiClickData, event: MouseEvent) => void;
 };
 
 export default function EmojiPicker({
   onEmojiSelect,
   style,
-  ...props
 }: {
-  onEmojiSelect: (event: Event, emoji: string) => void;
-  style?: React.CSSProperties;
+  onEmojiSelect: (event: MouseEvent, emoji: string) => void;
+  style?: CSSProperties;
 }) {
-  const [mod, setMod] = useState<EmojiPickerModule | null>(null);
+  const [Picker, setPicker] = useState<ComponentType<PickerProps> | null>(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      import("emoji-picker-react").then((_module) => {
-        setMod(_module.default as unknown as EmojiPickerModule);
-      });
-    }
+    import("emoji-picker-react").then((mod) => {
+      // Wrap in a factory so React's functional setter doesn't invoke the component.
+      setPicker(() => mod.default as ComponentType<PickerProps>);
+    });
   }, []);
 
-  if (!mod) return null;
-  const Picker = mod.default;
+  if (!Picker) return null;
 
   return (
-    <Picker {...props} onEmojiClick={(e, obj) => onEmojiSelect(e, obj.emoji)} pickerStyle={style} />
+    <Picker
+      style={style}
+      onEmojiClick={(emojiData, event) => onEmojiSelect(event, emojiData.emoji)}
+    />
   );
 }
