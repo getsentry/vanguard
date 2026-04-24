@@ -3,9 +3,12 @@ import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 
+import { eq } from "drizzle-orm";
+
 import { requireAdmin } from "~/services/auth.server";
 import { getFeed } from "~/models/feed.server";
-import { prisma } from "~/services/db.server";
+import { db } from "~/db/client";
+import { feeds } from "~/db/schema";
 import FormActions from "~/components/form-actions";
 import ButtonGroup from "~/components/button-group";
 import Button from "~/components/button";
@@ -41,20 +44,16 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
     return json({ errors: { title: "Name is required" } }, { status: 400 });
   }
 
-  const queries: any[] = [
-    prisma.feed.update({
-      where: { id: feedId },
-      data: {
-        name,
-        url,
-        restricted,
-        deleted,
-        webhookUrl,
-      },
-    }),
-  ];
-
-  await prisma.$transaction(queries);
+  await db
+    .update(feeds)
+    .set({
+      name,
+      url: url as string | null,
+      restricted,
+      deleted,
+      webhookUrl: webhookUrl as string | null,
+    })
+    .where(eq(feeds.id, feedId));
 
   return redirect("/admin/feeds");
 }

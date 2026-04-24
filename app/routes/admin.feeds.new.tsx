@@ -3,7 +3,8 @@ import { json, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 
 import { requireAdmin } from "~/services/auth.server";
-import { prisma } from "~/services/db.server";
+import { db } from "~/db/client";
+import { feeds } from "~/db/schema";
 import FormActions from "~/components/form-actions";
 import Button from "~/components/button";
 
@@ -24,17 +25,9 @@ export async function action({ request, context }: ActionFunctionArgs) {
     return json({ errors: { title: "Name is required" } }, { status: 400 });
   }
 
-  const queries: any[] = [
-    prisma.feed.create({
-      data: {
-        name,
-        webhookUrl,
-        restricted,
-      },
-    }),
-  ];
-
-  await prisma.$transaction(queries);
+  await db
+    .insert(feeds)
+    .values({ name, webhookUrl: webhookUrl as string | null, restricted });
 
   return redirect("/admin/feeds");
 }

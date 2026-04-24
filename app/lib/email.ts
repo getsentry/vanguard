@@ -9,7 +9,7 @@ import { getSubscriptions } from "~/models/post-subscription.server";
 import summarize from "./summarize";
 import { lightTheme } from "~/styles/theme";
 import { escapeHtml } from "./html";
-import type { User } from "@prisma/client";
+import type { User } from "~/models/user.server";
 
 export type EmailConfig = {
   to: string;

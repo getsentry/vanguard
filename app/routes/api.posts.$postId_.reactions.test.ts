@@ -1,5 +1,7 @@
-import type { Post, User } from "@prisma/client";
-import { prisma } from "~/services/db.server";
+import { db } from "~/db/client";
+import { postReactions } from "~/db/schema";
+import type { Post } from "~/models/post.server";
+import type { User } from "~/models/user.server";
 import { expectRequiresUser } from "~/lib/test/expects";
 import * as Fixtures from "~/lib/test/fixtures";
 
@@ -53,7 +55,7 @@ describe("POST /api/posts/$postId/reactions", () => {
     expect(data.emoji).toBe(HEART);
     expect(data.delta).toBe(1);
 
-    const reactions = await prisma.postReaction.findMany();
+    const reactions = await db.select().from(postReactions);
     expect(reactions.length).toEqual(1);
     const reaction = reactions[0];
     expect(reaction.postId).toBe(post.id);
@@ -62,13 +64,13 @@ describe("POST /api/posts/$postId/reactions", () => {
   });
 
   it("deletes a new reaction that exists", async () => {
-    await prisma.postReaction.create({
-      data: {
+    await db
+      .insert(postReactions)
+      .values({
         emoji: HEART,
         postId: post.id,
         authorId: DefaultFixtures.DEFAULT_USER.id,
-      },
-    });
+      });
 
     const response: Response = await action({
       request: await buildRequest(
@@ -87,18 +89,18 @@ describe("POST /api/posts/$postId/reactions", () => {
     expect(data.emoji).toBe(HEART);
     expect(data.delta).toBe(-1);
 
-    const reactions = await prisma.postReaction.findMany();
+    const reactions = await db.select().from(postReactions);
     expect(reactions.length).toEqual(0);
   });
 
   it("does not delete differing emojis", async () => {
-    await prisma.postReaction.create({
-      data: {
+    await db
+      .insert(postReactions)
+      .values({
         emoji: HEART,
         postId: post.id,
         authorId: DefaultFixtures.DEFAULT_USER.id,
-      },
-    });
+      });
 
     const response: Response = await action({
       request: await buildRequest(
@@ -117,7 +119,7 @@ describe("POST /api/posts/$postId/reactions", () => {
     expect(data.emoji).toBe(THUMBSUP);
     expect(data.delta).toBe(1);
 
-    const reactions = await prisma.postReaction.findMany();
+    const reactions = await db.select().from(postReactions);
     expect(reactions.length).toEqual(2);
   });
 });

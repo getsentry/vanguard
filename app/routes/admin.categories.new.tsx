@@ -3,7 +3,8 @@ import { json, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 
 import { requireAdmin } from "~/services/auth.server";
-import { prisma } from "~/services/db.server";
+import { db } from "~/db/client";
+import { categories, categoryEmails, categorySlacks } from "~/db/schema";
 import FormActions from "~/components/form-actions";
 import Button from "~/components/button";
 import { useState } from "react";
@@ -57,38 +58,31 @@ export async function action({ request, context }: ActionFunctionArgs) {
     );
   }
 
-  const queries: any[] = [
-    prisma.category.create({
-      data: {
+  await db.transaction(async (tx) => {
+    const [category] = await tx
+      .insert(categories)
+      .values({
         name,
         slug,
         colorHex,
         restricted,
         allowComments,
-        defaultEmojis,
-        slackConfig: slackWebhookUrl
-          ? {
-              create: [
-                {
-                  webhookUrl: slackWebhookUrl,
-                },
-              ],
-            }
-          : {},
-        emailConfig: emailTo
-          ? {
-              create: [
-                {
-                  to: emailTo,
-                },
-              ],
-            }
-          : {},
-      },
-    }),
-  ];
+        defaultEmojis: defaultEmojis as string[],
+      })
+      .returning();
 
-  await prisma.$transaction(queries);
+    if (slackWebhookUrl && typeof slackWebhookUrl === "string") {
+      await tx
+        .insert(categorySlacks)
+        .values({ categoryId: category.id, webhookUrl: slackWebhookUrl });
+    }
+
+    if (emailTo && typeof emailTo === "string") {
+      await tx
+        .insert(categoryEmails)
+        .values({ categoryId: category.id, to: emailTo });
+    }
+  });
 
   return redirect("/admin/categories");
 }

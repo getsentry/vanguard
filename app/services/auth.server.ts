@@ -24,7 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import type { User } from "@prisma/client";
+import type { User } from "~/models/user.server";
 import { Authenticator } from "remix-auth";
 import { FormStrategy } from "remix-auth-form";
 import type { AppLoadContext } from "@remix-run/node";

@@ -1,6 +1,8 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
+import { count } from "drizzle-orm";
 
-import { prisma } from "~/services/db.server";
+import { db } from "~/db/client";
+import { users } from "~/db/schema";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const host =
@@ -11,7 +13,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     // if we can connect to the database and make a simple query
     // and make a HEAD request to ourselves, then we're good.
     await Promise.all([
-      prisma.user.count(),
+      db.select({ count: count() }).from(users),
       fetch(url.toString(), { method: "HEAD" }).then((r) => {
         if (!r.ok) return Promise.reject(r);
       }),

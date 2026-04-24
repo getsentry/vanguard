@@ -4,9 +4,17 @@ import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import type { ComponentPropsWithoutRef } from "react";
 
+import { and, eq, notInArray } from "drizzle-orm";
+
 import { requireAdmin } from "~/services/auth.server";
 import { getCategory } from "~/models/category.server";
-import { prisma } from "~/services/db.server";
+import { db } from "~/db/client";
+import {
+  categories,
+  categoryEmails,
+  categoryMetas,
+  categorySlacks,
+} from "~/db/schema";
 import FormActions from "~/components/form-actions";
 import ButtonGroup from "~/components/button-group";
 import Button from "~/components/button";
@@ -21,9 +29,9 @@ const DEFAULT_EMOJIS = ["❤️"];
 export async function loader({ request, context, params }: LoaderFunctionArgs) {
   await requireAdmin(request, context);
   invariant(params.categoryId, "categoryId not found");
-  const category = await prisma.category.findFirst({
-    where: { id: params.categoryId },
-    include: {
+  const category = await db.query.categories.findFirst({
+    where: eq(categories.id, params.categoryId),
+    with: {
       slackConfig: true,
       emailConfig: true,
       metaConfig: true,
@@ -99,89 +107,66 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
     );
   }
 
-  const queries: any[] = [
-    prisma.category.update({
-      where: { id: categoryId },
-      data: {
+  await db.transaction(async (tx) => {
+    await tx
+      .update(categories)
+      .set({
         name,
         slug,
-        description,
+        description: description as string | null,
         colorHex,
         restricted,
         deleted,
         allowComments,
-        defaultEmojis,
-      },
-    }),
-    prisma.categorySlack.deleteMany({
-      where: { categoryId },
-    }),
-    prisma.categoryEmail.deleteMany({
-      where: { categoryId },
-    }),
-  ];
+        defaultEmojis: defaultEmojis as string[],
+      })
+      .where(eq(categories.id, categoryId));
 
-  if (existingMetaIds) {
-    queries.push(
-      prisma.categoryMeta.deleteMany({
-        where: {
-          categoryId,
-          NOT: {
-            id: {
-              in: existingMetaIds,
-            },
-          },
-        },
-      }),
-    );
-  }
+    await tx
+      .delete(categorySlacks)
+      .where(eq(categorySlacks.categoryId, categoryId));
+    await tx
+      .delete(categoryEmails)
+      .where(eq(categoryEmails.categoryId, categoryId));
 
-  if (slackWebhookUrl) {
-    queries.push(
-      prisma.categorySlack.create({
-        data: {
-          categoryId,
-          webhookUrl: slackWebhookUrl,
-        },
-      }),
-    );
-  }
+    if (existingMetaIds.length > 0) {
+      await tx
+        .delete(categoryMetas)
+        .where(
+          and(
+            eq(categoryMetas.categoryId, categoryId),
+            notInArray(categoryMetas.id, existingMetaIds),
+          ),
+        );
+    }
 
-  if (emailTo) {
-    queries.push(
-      prisma.categoryEmail.create({
-        data: {
+    if (slackWebhookUrl && typeof slackWebhookUrl === "string") {
+      await tx
+        .insert(categorySlacks)
+        .values({ categoryId, webhookUrl: slackWebhookUrl });
+    }
+
+    if (emailTo && typeof emailTo === "string") {
+      await tx
+        .insert(categoryEmails)
+        .values({
           categoryId,
           to: emailTo,
-          subjectPrefix: emailSubjectPrefix || null,
-        },
-      }),
-    );
-  }
+          subjectPrefix: emailSubjectPrefix ? String(emailSubjectPrefix) : null,
+        });
+    }
 
-  meta.forEach(({ id, ...data }) => {
-    if (id) {
-      // TODO(dcramer): we'd like to also pass in categoryId to the WHERE, but Prisma currently
-      // forbids updates with multiple conditions
-      queries.push(
-        prisma.categoryMeta.update({
-          where: { id },
-          data,
-        }),
-      );
-    } else {
-      queries.push(
-        prisma.categoryMeta.create({
-          data: {
-            ...data,
-            categoryId,
-          },
-        }),
-      );
+    for (const { id, ...data } of meta) {
+      if (id) {
+        await tx
+          .update(categoryMetas)
+          .set(data)
+          .where(eq(categoryMetas.id, id));
+      } else {
+        await tx.insert(categoryMetas).values({ ...data, categoryId });
+      }
     }
   });
-
-  await prisma.$transaction(queries);
 
   return redirect("/admin/categories");
 }

@@ -1,7 +1,9 @@
 import { expectRequiresAdmin } from "~/lib/test/expects";
 import * as Fixtures from "~/lib/test/fixtures";
 import { buildRequest } from "~/lib/test/request";
-import { prisma } from "~/services/db.server";
+import { eq } from "drizzle-orm";
+import { db } from "~/db/client";
+import { categories } from "~/db/schema";
 
 import { action, loader } from "./admin.categories.$categoryId";
 
@@ -95,10 +97,8 @@ describe("POST /admin/categories/$categoryId", () => {
 
     expect(response.status).toBe(302);
 
-    const newCat = await prisma.category.findUnique({
-      where: {
-        slug: category.slug,
-      },
+    const newCat = await db.query.categories.findFirst({
+      where: eq(categories.slug, category.slug),
     });
     expect(newCat?.defaultEmojis).toEqual([EMOJI]);
   });

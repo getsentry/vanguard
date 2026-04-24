@@ -2,7 +2,7 @@ import type { Session } from "@remix-run/node";
 
 import { sessionStorage } from "~/services/session.server";
 import { authenticator } from "~/services/auth.server";
-import type { User } from "@prisma/client";
+import type { User } from "~/models/user.server";
 
 export const buildRequest = async (
   url: string,

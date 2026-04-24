@@ -5,7 +5,8 @@ import Middot from "./middot";
 import IconCollapsedPost from "~/icons/IconCollapsedPost";
 import { ChatBubbleIcon, HeartIcon } from "@radix-ui/react-icons";
 import TimeSince from "./timeSince";
-import type { Category, Post } from "@prisma/client";
+import type { Category } from "~/models/category.server";
+import type { Post } from "~/models/post.server";
 import Link from "./link";
 
 export default function ClusteredPostList({

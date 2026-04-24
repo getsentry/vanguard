@@ -1,11 +1,14 @@
-import type { User, Post, PostComment } from "@prisma/client";
 import type { Transporter } from "nodemailer";
 import { createTransport } from "nodemailer";
 import type Mail from "nodemailer/lib/mailer";
 import type SMTPTransport from "nodemailer/lib/smtp-transport";
 
+import { db } from "~/db/client";
+import { postSubscriptions } from "~/db/schema";
 import * as Fixtures from "~/lib/test/fixtures";
-import { prisma } from "~/services/db.server";
+import type { Post } from "~/models/post.server";
+import type { PostComment } from "~/models/post-comments.server";
+import type { User } from "~/models/user.server";
 
 import { notify, notifyComment } from "./email";
 
@@ -147,12 +150,9 @@ describe("notifyComment", () => {
       authorId: author.id,
     });
 
-    await prisma.postSubscription.create({
-      data: {
-        userId: author.id,
-        postId: post.id,
-      },
-    });
+    await db
+      .insert(postSubscriptions)
+      .values({ userId: author.id, postId: post.id });
   });
 
   test("doesnt notify author", async () => {
@@ -162,12 +162,9 @@ describe("notifyComment", () => {
 
   test("constructs appropriate email", async () => {
     const otherAuthor = await Fixtures.User();
-    await prisma.postSubscription.create({
-      data: {
-        userId: otherAuthor.id,
-        postId: post.id,
-      },
-    });
+    await db
+      .insert(postSubscriptions)
+      .values({ userId: otherAuthor.id, postId: post.id });
     await notifyComment({
       post,
       comment,

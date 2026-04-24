@@ -1,5 +1,6 @@
 import { Form } from "@remix-run/react";
-import type { Post, PostComment } from "@prisma/client";
+import type { Post } from "~/models/post.server";
+import type { PostComment } from "~/models/post-comments.server";
 
 import Editor from "./editor";
 import useLocalStorage from "~/lib/useLocalStorage";

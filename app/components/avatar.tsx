@@ -1,4 +1,4 @@
-import type { User } from "@prisma/client";
+import type { User } from "~/models/user.server";
 
 export default function Avatar({
   user,
