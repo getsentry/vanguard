@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { json, redirect } from "react-router";
+import { redirect } from "react-router";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Form, Link, useActionData, useLoaderData } from "react-router";
 
@@ -12,16 +12,16 @@ import FormActions from "~/components/form-actions";
 import Button from "~/components/button";
 import PageHeader from "~/components/page-header";
 
-export async function loader({ request, context }: LoaderFunctionArgs) {
-  const userId = await requireUserId(request, context);
+export async function loader({ request }: LoaderFunctionArgs) {
+  const userId = await requireUserId(request);
 
   const user = await getUserById(userId);
 
-  return json({ user });
+  return { user };
 }
 
-export async function action({ request, context }: ActionFunctionArgs) {
-  const userId = await requireUserId(request, context);
+export async function action({ request }: ActionFunctionArgs) {
+  const userId = await requireUserId(request);
 
   const filter = ({ contentType }: { contentType: string }) => {
     return /image/i.test(contentType);
@@ -44,7 +44,10 @@ export async function action({ request, context }: ActionFunctionArgs) {
   if (picture === "") picture = undefined;
 
   if (typeof name !== "string" || name.length === 0) {
-    return json({ errors: { name: "Name is required" } }, { status: 400 });
+    return Response.json(
+      { errors: { name: "Name is required" } },
+      { status: 400 },
+    );
   }
 
   // TODO: update session

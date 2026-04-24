@@ -1,7 +1,6 @@
 import { useState } from "react";
 import InterStyles from "@fontsource/inter/index.css?url";
 import type { LinksFunction, LoaderFunction } from "react-router";
-import { json } from "react-router";
 import { Form, Outlet, useLoaderData, useRouteError } from "react-router";
 import prismCss from "prism-sentry/index.css?url";
 import { setUser } from "@sentry/react";
@@ -40,26 +39,17 @@ type LoaderData = {
   user: User | null;
   categoryList?: Awaited<ReturnType<typeof getCategoryList>> | null;
   recentPostList?: Awaited<ReturnType<typeof getPostList>> | null;
-  config: typeof config;
   sentryTrace?: string;
   sentryBaggage?: string;
 };
 
-export const loader: LoaderFunction = async ({ context: { user } }) => {
-  // TODO(dcramer): remix is currently not respecting a root loader redirect
-  // if (user) {
-  //   // probably a cleaner way to build this, but we're here for the duct tape
-  //   const pathname = new URL(request.url).pathname;
-  //   if (!user.name && pathname.indexOf("/welcome") !== 0) {
-  //     // send em to onboarding
-  //     const searchParams = new URLSearchParams([["redirectTo", pathname]]);
-  //     return redirect(`/welcome?${searchParams}`);
-  //   }
-  // }
+export const loader: LoaderFunction = async ({ request }) => {
+  const { getUserId, getUser } = await import("./services/auth.server");
+  const userId = await getUserId(request);
+  const user = userId ? await getUser(request) : null;
 
-  return json({
-    user,
-    config,
+  return {
+    user: user ?? null,
     categoryList: user
       ? await getCategoryList({
           userId: user.id,
@@ -73,7 +63,7 @@ export const loader: LoaderFunction = async ({ context: { user } }) => {
           limit: 3,
         })
       : null,
-  });
+  };
 };
 
 export function ErrorBoundary() {
@@ -102,13 +92,8 @@ export function ErrorBoundary() {
 }
 
 function App() {
-  const {
-    user,
-    categoryList,
-    recentPostList,
-    config = {},
-    ...data
-  } = useLoaderData<LoaderData>();
+  const { user, categoryList, recentPostList, ...data } =
+    useLoaderData<LoaderData>();
 
   const [showSidebar, setShowSidebar] = useState(false);
 
@@ -127,12 +112,12 @@ function App() {
   };
 
   return (
-    <Document config={config} data={data} showSidebar={showSidebar}>
+    <Document data={data} showSidebar={showSidebar}>
       <LoadingIndicator />
       <div>
         <Toaster />
       </div>
-      {config.ENV !== "production" && <DevNotice />}
+      {import.meta.env.MODE !== "production" && <DevNotice />}
       <div className="relative">
         <div className="xl:pb-24 xl:px-20 xl:mr-[30rem] relative">
           <Container>
@@ -142,7 +127,10 @@ function App() {
               user={user}
             />
             <Outlet />
-            <Footer version={config.VERSION} admin={user?.admin} />
+            <Footer
+              version={import.meta.env.VITE_VERSION}
+              admin={user?.admin}
+            />
           </Container>
         </div>
         <Sidebar showSidebar={showSidebar}>

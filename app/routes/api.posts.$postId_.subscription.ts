@@ -1,5 +1,4 @@
 import type { ActionFunctionArgs } from "react-router";
-import { json } from "react-router";
 import invariant from "tiny-invariant";
 
 import {
@@ -8,13 +7,13 @@ import {
 } from "~/models/post-subscription.server";
 import { requireUserId } from "~/services/auth.server";
 
-export async function action({ request, context, params }: ActionFunctionArgs) {
+export async function action({ request, params }: ActionFunctionArgs) {
   if (request.method !== "DELETE" && request.method !== "POST") {
-    return json({ message: "Method not allowed" }, 405);
+    return Response.json({ message: "Method not allowed" }, { status: 405 });
   }
   invariant(params.postId, "postId not found");
 
-  const userId = await requireUserId(request, context);
+  const userId = await requireUserId(request);
 
   if (request.method === "DELETE") {
     await deleteSubscription({ userId, postId: params.postId });
@@ -22,5 +21,5 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
     await createSubscription({ userId, postId: params.postId });
   }
 
-  return json({});
+  return {};
 }

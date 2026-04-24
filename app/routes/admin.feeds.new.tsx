@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { json, redirect } from "react-router";
+import { redirect } from "react-router";
 import { Form, useActionData } from "react-router";
 
 import { requireAdmin } from "~/services/auth.server";
@@ -8,21 +8,24 @@ import { feeds } from "~/db/schema";
 import FormActions from "~/components/form-actions";
 import Button from "~/components/button";
 
-export async function loader({ request, context }: LoaderFunctionArgs) {
-  await requireAdmin(request, context);
+export async function loader({ request }: LoaderFunctionArgs) {
+  await requireAdmin(request);
 
   return null;
 }
 
-export async function action({ request, context }: ActionFunctionArgs) {
-  await requireAdmin(request, context);
+export async function action({ request }: ActionFunctionArgs) {
+  await requireAdmin(request);
   const formData = await request.formData();
   const name = formData.get("name");
   const webhookUrl = formData.get("webhookUrl");
   const restricted = !!formData.get("restricted");
 
   if (typeof name !== "string" || name.length === 0) {
-    return json({ errors: { title: "Name is required" } }, { status: 400 });
+    return Response.json(
+      { errors: { title: "Name is required" } },
+      { status: 400 },
+    );
   }
 
   await db

@@ -1,11 +1,11 @@
-import { type ActionFunctionArgs, json } from "react-router";
+import { type ActionFunctionArgs } from "react-router";
 import { requireUserId } from "~/services/auth.server";
 import uploadHandler from "~/lib/upload-handler";
 import { unstable_parseMultipartFormData } from "~/lib/upload-compat";
 
-export async function action({ request, context }: ActionFunctionArgs) {
-  if (request.method !== "POST") return json({}, 405);
-  const userId = await requireUserId(request, context);
+export async function action({ request }: ActionFunctionArgs) {
+  if (request.method !== "POST") return Response.json({}, { status: 405 });
+  const userId = await requireUserId(request);
 
   const filter:
     | ((args: {
@@ -32,5 +32,5 @@ export async function action({ request, context }: ActionFunctionArgs) {
   const width = 0;
   const height = 0;
 
-  return json({ originalFilename: "", url: imageUrl, width, height });
+  return { originalFilename: "", url: imageUrl, width, height };
 }

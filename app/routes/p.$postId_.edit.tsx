@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { json, redirect } from "react-router";
+import { redirect } from "react-router";
 import { useActionData, useLoaderData } from "react-router";
 
 import {
@@ -15,8 +15,8 @@ import invariant from "tiny-invariant";
 import { getPostLink } from "~/components/post-link";
 import { getFeedList } from "~/models/feed.server";
 
-export async function loader({ request, context, params }: LoaderFunctionArgs) {
-  const userId = await requireUserId(request, context);
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const userId = await requireUserId(request);
   invariant(params.postId, "postId not found");
   const post = await getPost({ userId, id: params.postId });
   if (!post) {
@@ -30,11 +30,11 @@ export async function loader({ request, context, params }: LoaderFunctionArgs) {
     userId,
     includeRestricted: false,
   });
-  return json({ categoryList, feedList, post });
+  return { categoryList, feedList, post };
 }
 
-export async function action({ request, context, params }: ActionFunctionArgs) {
-  const user = await requireUser(request, context);
+export async function action({ request, params }: ActionFunctionArgs) {
+  const user = await requireUser(request);
   invariant(params.postId, "postId not found");
 
   const formData = await request.formData();
@@ -58,21 +58,24 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
     categoryId !== null &&
     (typeof categoryId !== "string" || categoryId.length === 0)
   ) {
-    return json(
+    return Response.json(
       { errors: { categoryId: "Category is required" } },
       { status: 400 },
     );
   }
 
   if (title !== null && (typeof title !== "string" || title.length === 0)) {
-    return json({ errors: { title: "Title is required" } }, { status: 400 });
+    return Response.json(
+      { errors: { title: "Title is required" } },
+      { status: 400 },
+    );
   }
 
   if (
     content !== null &&
     (typeof content !== "string" || content.length === 0)
   ) {
-    return json(
+    return Response.json(
       { errors: { content: "Content is required" } },
       { status: 400 },
     );
@@ -95,7 +98,7 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
     ).map((f) => f.id);
     const invalid = feedIds.find((f) => allowedFeedIds.indexOf(f) === -1);
     if (invalid) {
-      return json<ActionData>(
+      return Response.json(
         { errors: { feedId: "Invalid feed" } },
         { status: 400 },
       );
@@ -106,7 +109,7 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
   if (categoryId) {
     const category = await getCategory({ id: categoryId });
     if (!category || (category.restricted && !user.canPostRestricted)) {
-      return json<ActionData>(
+      return Response.json(
         { errors: { categoryId: "Invalid category" } },
         { status: 400 },
       );
@@ -119,7 +122,7 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
       if (content === null) return;
       anyMeta = true;
       if (required && !content) {
-        return json<ActionData>(
+        return Response.json(
           { errors: { meta: { name: `${name} is required` } } },
           { status: 400 },
         );

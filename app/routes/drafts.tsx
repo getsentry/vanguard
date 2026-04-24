@@ -1,5 +1,4 @@
 import type { LoaderFunctionArgs } from "react-router";
-import { json } from "react-router";
 import { useLoaderData } from "react-router";
 
 import { requireUserId } from "~/services/auth.server";
@@ -8,14 +7,14 @@ import Post from "~/components/post";
 import PageHeader from "~/components/page-header";
 import Link from "~/components/link";
 
-export async function loader({ request, context }: LoaderFunctionArgs) {
-  const userId = await requireUserId(request, context);
+export async function loader({ request }: LoaderFunctionArgs) {
+  const userId = await requireUserId(request);
   const postList = await getPostList({
     userId,
     authorId: userId,
     published: false,
   });
-  return json({ postList });
+  return { postList };
 }
 
 export default function Drafts() {

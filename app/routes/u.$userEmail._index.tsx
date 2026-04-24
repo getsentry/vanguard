@@ -3,7 +3,6 @@ import type {
   LoaderFunctionArgs,
   ActionFunctionArgs,
 } from "react-router";
-import { json } from "react-router";
 import { Form, useLoaderData } from "react-router";
 import invariant from "tiny-invariant";
 
@@ -17,8 +16,8 @@ import PostLink from "~/components/post-link";
 import Markdown from "~/components/markdown";
 import Button from "~/components/button";
 
-export async function loader({ request, context, params }: LoaderFunctionArgs) {
-  const currentUser = await requireUser(request, context);
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const currentUser = await requireUser(request);
   invariant(params.userEmail, "userEmail not found");
 
   const user = await getUserByEmail(params.userEmail);
@@ -32,7 +31,7 @@ export async function loader({ request, context, params }: LoaderFunctionArgs) {
     published: true,
     limit: 20,
   });
-  return json({ currentUser, user, postList });
+  return { currentUser, user, postList };
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
@@ -44,8 +43,8 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
   ];
 };
 
-export async function action({ request, context, params }: ActionFunctionArgs) {
-  const currentUser = await requireAdmin(request, context);
+export async function action({ request, params }: ActionFunctionArgs) {
+  const currentUser = await requireAdmin(request);
   invariant(params.userEmail, "userEmail not found");
 
   const user = await getUserByEmail(params.userEmail);

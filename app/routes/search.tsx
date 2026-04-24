@@ -1,5 +1,4 @@
 import type { LoaderFunctionArgs } from "react-router";
-import { json } from "react-router";
 import { useLoaderData } from "react-router";
 
 import { requireUserId } from "~/services/auth.server";
@@ -8,8 +7,8 @@ import Post from "~/components/post";
 import { paginate } from "~/lib/paginator";
 import Paginated from "~/components/paginated";
 
-export async function loader({ request, context }: LoaderFunctionArgs) {
-  const userId = await requireUserId(request, context);
+export async function loader({ request }: LoaderFunctionArgs) {
+  const userId = await requireUserId(request);
   const url = new URL(request.url);
   const cursor = url.searchParams.get("cursor");
   const query = url.searchParams.get("q") || "";
@@ -18,7 +17,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     { userId, published: true, query },
     cursor,
   );
-  return json({ postListPaginated, query });
+  return { postListPaginated, query };
 }
 
 export default function Search() {

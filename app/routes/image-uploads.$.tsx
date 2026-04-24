@@ -12,9 +12,9 @@ import { requireUserId } from "~/services/auth.server";
 
 const MAX_AGE = 60 * 60 ** 24;
 
-export async function loader({ request, context, params }: LoaderFunctionArgs) {
+export async function loader({ request, params }: LoaderFunctionArgs) {
   if (process.env.GCS_EXPIRES_IN) {
-    await requireUserId(request, context);
+    await requireUserId(request);
   }
 
   const fileParam = params["*"];

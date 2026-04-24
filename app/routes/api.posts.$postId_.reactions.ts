@@ -1,5 +1,4 @@
 import type { ActionFunctionArgs } from "react-router";
-import { json } from "react-router";
 import invariant from "tiny-invariant";
 
 import { requireUserId } from "~/services/auth.server";
@@ -12,18 +11,18 @@ type ActionData = {
   };
 };
 
-export async function action({ request, context, params }: ActionFunctionArgs) {
+export async function action({ request, params }: ActionFunctionArgs) {
   if (request.method !== "POST") {
-    return json({ message: "Method not allowed" }, 405);
+    return Response.json({ message: "Method not allowed" }, { status: 405 });
   }
   invariant(params.postId, "postId not found");
 
-  const userId = await requireUserId(request, context);
+  const userId = await requireUserId(request);
 
   const { emoji } = await request.json();
 
   if (typeof emoji !== "string" || emoji.length === 0 || !isEmoji(emoji)) {
-    return json<ActionData>(
+    return Response.json(
       { errors: { emoji: "Emoji is required" } },
       { status: 400 },
     );
@@ -36,8 +35,8 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
     emoji,
   });
 
-  return json({
+  return {
     emoji,
     delta,
-  });
+  };
 }

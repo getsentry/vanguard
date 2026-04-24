@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { json, redirect } from "react-router";
+import { redirect } from "react-router";
 import { Form, useActionData, useLoaderData } from "react-router";
 import invariant from "tiny-invariant";
 import type { ComponentPropsWithoutRef } from "react";
@@ -26,8 +26,8 @@ import { EmojiButton } from "~/components/emoji-reaction";
 
 const DEFAULT_EMOJIS = ["❤️"];
 
-export async function loader({ request, context, params }: LoaderFunctionArgs) {
-  await requireAdmin(request, context);
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  await requireAdmin(request);
   invariant(params.categoryId, "categoryId not found");
   const category = await db.query.categories.findFirst({
     where: eq(categories.id, params.categoryId),
@@ -39,11 +39,11 @@ export async function loader({ request, context, params }: LoaderFunctionArgs) {
   });
   invariant(category, "invalid category");
 
-  return json({ category });
+  return { category };
 }
 
-export async function action({ request, context, params }: ActionFunctionArgs) {
-  await requireAdmin(request, context);
+export async function action({ request, params }: ActionFunctionArgs) {
+  await requireAdmin(request);
   invariant(params.categoryId, "categoryId not found");
   const { categoryId } = params;
   const category = await getCategory({ id: categoryId });
@@ -83,20 +83,29 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
   const existingMetaIds = meta.map(({ id }) => id).filter((id) => !!id);
 
   if (typeof name !== "string" || name.length === 0) {
-    return json({ errors: { name: "Name is required" } }, { status: 400 });
+    return Response.json(
+      { errors: { name: "Name is required" } },
+      { status: 400 },
+    );
   }
 
   if (typeof slug !== "string" || slug.length === 0) {
-    return json({ errors: { slug: "Slug is required" } }, { status: 400 });
+    return Response.json(
+      { errors: { slug: "Slug is required" } },
+      { status: 400 },
+    );
   }
 
   // TODO: validate
   if (typeof colorHex !== "string" || colorHex.length === 0) {
-    return json({ errors: { colorHex: "Color is required" } }, { status: 400 });
+    return Response.json(
+      { errors: { colorHex: "Color is required" } },
+      { status: 400 },
+    );
   }
 
   if (defaultEmojis.find((v) => !isEmoji(v))) {
-    return json(
+    return Response.json(
       {
         errors: {
           defaultEmojis:

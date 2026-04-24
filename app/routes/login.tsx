@@ -1,4 +1,3 @@
-import { json } from "react-router";
 import type { LoaderFunctionArgs } from "react-router";
 import { Form, useLoaderData } from "react-router";
 
@@ -12,7 +11,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   let redirectTo = url.searchParams.get("redirectTo");
   if (!redirectTo || redirectTo?.indexOf("/") !== 0) redirectTo = "/";
 
-  return json({ redirectTo });
+  return { redirectTo };
 }
 
 type SharedProps = {

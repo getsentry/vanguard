@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { json, redirect } from "react-router";
+import { redirect } from "react-router";
 import { Form, useActionData, useLoaderData } from "react-router";
 import invariant from "tiny-invariant";
 
@@ -14,8 +14,8 @@ import ButtonGroup from "~/components/button-group";
 import Button from "~/components/button";
 import { buildUrl } from "~/lib/http";
 
-export async function loader({ request, context, params }: LoaderFunctionArgs) {
-  await requireAdmin(request, context);
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  await requireAdmin(request);
   invariant(params.feedId, "feedId not found");
   const { feedId } = params;
   const feed = await getFeed({ id: feedId });
@@ -23,11 +23,11 @@ export async function loader({ request, context, params }: LoaderFunctionArgs) {
 
   const feedUrl = buildUrl(`/feeds/${feed.id}.xml`, request);
 
-  return json({ feed, feedUrl });
+  return { feed, feedUrl };
 }
 
-export async function action({ request, context, params }: ActionFunctionArgs) {
-  await requireAdmin(request, context);
+export async function action({ request, params }: ActionFunctionArgs) {
+  await requireAdmin(request);
   invariant(params.feedId, "feedId not found");
   const { feedId } = params;
   const feed = await getFeed({ id: feedId });
@@ -41,7 +41,10 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
   const deleted = !!formData.get("deleted");
 
   if (typeof name !== "string" || name.length === 0) {
-    return json({ errors: { title: "Name is required" } }, { status: 400 });
+    return Response.json(
+      { errors: { title: "Name is required" } },
+      { status: 400 },
+    );
   }
 
   await db

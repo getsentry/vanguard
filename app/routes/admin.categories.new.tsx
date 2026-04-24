@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { json, redirect } from "react-router";
+import { redirect } from "react-router";
 import { Form, useActionData } from "react-router";
 
 import { requireAdmin } from "~/services/auth.server";
@@ -15,14 +15,14 @@ import { isEmoji } from "~/lib/emoji";
 
 const DEFAULT_EMOJIS = ["❤️"];
 
-export async function loader({ request, context }: LoaderFunctionArgs) {
-  await requireAdmin(request, context);
+export async function loader({ request }: LoaderFunctionArgs) {
+  await requireAdmin(request);
 
   return null;
 }
 
-export async function action({ request, context }: ActionFunctionArgs) {
-  await requireAdmin(request, context);
+export async function action({ request }: ActionFunctionArgs) {
+  await requireAdmin(request);
   const formData = await request.formData();
   const name = formData.get("name");
   const slug = formData.get("slug");
@@ -34,20 +34,29 @@ export async function action({ request, context }: ActionFunctionArgs) {
   const emailTo = formData.get("email.to");
 
   if (typeof name !== "string" || name.length === 0) {
-    return json({ errors: { name: "Name is required" } }, { status: 400 });
+    return Response.json(
+      { errors: { name: "Name is required" } },
+      { status: 400 },
+    );
   }
 
   if (typeof slug !== "string" || slug.length === 0) {
-    return json({ errors: { slug: "Slug is required" } }, { status: 400 });
+    return Response.json(
+      { errors: { slug: "Slug is required" } },
+      { status: 400 },
+    );
   }
 
   // TODO: validate
   if (typeof colorHex !== "string" || colorHex.length === 0) {
-    return json({ errors: { colorHex: "Color is required" } }, { status: 400 });
+    return Response.json(
+      { errors: { colorHex: "Color is required" } },
+      { status: 400 },
+    );
   }
 
   if (defaultEmojis.find((v) => !isEmoji(v))) {
-    return json(
+    return Response.json(
       {
         errors: {
           defaultEmojis:

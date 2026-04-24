@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { json, redirect } from "react-router";
+import { redirect } from "react-router";
 import { Form, useActionData, useLoaderData } from "react-router";
 
 import { requireUser, requireUserId } from "~/services/auth.server";
@@ -10,13 +10,13 @@ import { unstable_parseMultipartFormData } from "~/lib/upload-compat";
 import AvatarInput from "~/components/avatar-input";
 import Button from "~/components/button";
 
-export async function loader({ request, context }: LoaderFunctionArgs) {
-  const user = await requireUser(request, context);
-  return json({ user });
+export async function loader({ request }: LoaderFunctionArgs) {
+  const user = await requireUser(request);
+  return { user };
 }
 
-export async function action({ request, context }: ActionFunctionArgs) {
-  const userId = await requireUserId(request, context);
+export async function action({ request }: ActionFunctionArgs) {
+  const userId = await requireUserId(request);
 
   const filter = ({ contentType }: { contentType: string }) => {
     return /image/i.test(contentType);
@@ -33,7 +33,10 @@ export async function action({ request, context }: ActionFunctionArgs) {
   );
   const name = formData.get("name");
   if (typeof name !== "string" || name.length === 0) {
-    return json({ errors: { name: "Name is required" } }, { status: 400 });
+    return Response.json(
+      { errors: { name: "Name is required" } },
+      { status: 400 },
+    );
   }
 
   let picture: any = formData.get("picture");

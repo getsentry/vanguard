@@ -6,12 +6,10 @@ export default function Document({
   children,
   title = "Vanguard",
   showSidebar = false,
-  config = {},
   data,
 }: PropsWithChildren<{
   title?: string;
   showSidebar?: boolean;
-  config?: Record<string, any>;
   data?: Record<string, any>;
 }>) {
   return (
@@ -37,11 +35,6 @@ export default function Document({
       >
         {children}
         <ScrollRestoration />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.CONFIG = ${JSON.stringify(config)}`,
-          }}
-        />
         <Scripts />
       </body>
     </html>

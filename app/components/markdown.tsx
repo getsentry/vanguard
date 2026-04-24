@@ -1,5 +1,6 @@
 import { marked } from "marked";
-import { sanitize } from "isomorphic-dompurify";
+import DOMPurify from "isomorphic-dompurify";
+const { sanitize } = DOMPurify;
 import prismjs from "prismjs";
 import { default as summarizeFn } from "../lib/summarize";
 import { useState, useEffect, useRef } from "react";

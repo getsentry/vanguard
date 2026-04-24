@@ -1,5 +1,6 @@
 import { marked } from "marked";
-import { sanitize } from "isomorphic-dompurify";
+import DOMPurify from "isomorphic-dompurify";
+const { sanitize } = DOMPurify;
 
 export default (content: string, maxLength = 256): string => {
   // first remove elements we wouldn't want as a summary

@@ -1,5 +1,4 @@
 import type { LoaderFunctionArgs } from "react-router";
-import { json } from "react-router";
 import { useLoaderData } from "react-router";
 
 import { requireUserId } from "~/services/auth.server";
@@ -88,8 +87,8 @@ const FragmentedPostList = ({ posts, reactions, commentCounts }) => {
   return <>{output}</>;
 };
 
-export async function loader({ request, context }: LoaderFunctionArgs) {
-  const userId = await requireUserId(request, context);
+export async function loader({ request }: LoaderFunctionArgs) {
+  const userId = await requireUserId(request);
   const url = new URL(request.url);
   const cursor = url.searchParams.get("cursor");
 
@@ -109,7 +108,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     postList: postListPaginated.result,
   });
 
-  return json({ postListPaginated, reactions, commentCounts });
+  return { postListPaginated, reactions, commentCounts };
 }
 
 export default function Index() {

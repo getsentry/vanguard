@@ -1,5 +1,4 @@
 import type { LoaderFunctionArgs } from "react-router";
-import { json } from "react-router";
 import { useLoaderData } from "react-router";
 import invariant from "tiny-invariant";
 
@@ -10,8 +9,8 @@ import { paginate } from "~/lib/paginator";
 import Paginated from "~/components/paginated";
 import Post from "~/components/post";
 
-export async function loader({ request, context, params }: LoaderFunctionArgs) {
-  const userId = await requireUserId(request, context);
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const userId = await requireUserId(request);
   invariant(params.categorySlug, "categorySlug not found");
   const category = await getCategory({ slug: params.categorySlug });
   invariant(category, "invalid category");
@@ -26,7 +25,7 @@ export async function loader({ request, context, params }: LoaderFunctionArgs) {
     cursor,
   );
 
-  return json({ category, postListPaginated });
+  return { category, postListPaginated };
 }
 
 export default function Index() {

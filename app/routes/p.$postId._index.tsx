@@ -3,7 +3,6 @@ import type {
   LoaderFunctionArgs,
   MetaFunction,
 } from "react-router";
-import { json } from "react-router";
 import { useLoaderData } from "react-router";
 import invariant from "tiny-invariant";
 
@@ -16,8 +15,8 @@ import PostReactions from "~/components/post-reactions";
 import PostComments from "~/components/post-comments";
 import { hasSubscription } from "~/models/post-subscription.server";
 
-export async function loader({ request, context, params }: LoaderFunctionArgs) {
-  const user = await requireUser(request, context);
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const user = await requireUser(request);
 
   const post = await getPost({ userId: user.id, id: params.postId });
   if (!post) {
@@ -34,7 +33,7 @@ export async function loader({ request, context, params }: LoaderFunctionArgs) {
     limit: 1000,
   });
 
-  return json({
+  return {
     post,
     user,
     reactions,
@@ -43,7 +42,7 @@ export async function loader({ request, context, params }: LoaderFunctionArgs) {
       userId: user.id,
       postId: post.id,
     }),
-  });
+  };
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
@@ -55,8 +54,8 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
   ];
 };
 
-export const action: ActionFunction = async ({ request, context, params }) => {
-  const userId = await requireUserId(request, context);
+export const action: ActionFunction = async ({ request, params }) => {
+  const userId = await requireUserId(request);
   invariant(params.postId, "postId not found");
 
   const formData = await request.formData();
@@ -77,7 +76,7 @@ export const action: ActionFunction = async ({ request, context, params }) => {
     }
   }
 
-  return json({});
+  return {};
 };
 
 export default function PostDetailsPage() {

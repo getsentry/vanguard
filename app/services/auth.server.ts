@@ -27,7 +27,6 @@
 import type { User } from "~/models/user.server";
 import { Authenticator } from "remix-auth";
 import { FormStrategy } from "remix-auth-form";
-import type { AppLoadContext } from "react-router";
 import { redirect } from "react-router";
 
 import { buildUrl } from "~/lib/http";
@@ -105,26 +104,22 @@ export async function getUser(request: Request) {
   return await getUserById(user.id);
 }
 
-export async function requireUserId(request: Request, context: AppLoadContext) {
-  if (context.user) return context.user.id;
-
-  throw redirectToAuth({ request });
+export async function requireUserId(request: Request): Promise<string> {
+  const user = await authenticator.isAuthenticated(request);
+  if (!user) throw redirectToAuth({ request });
+  return user.id;
 }
 
-export async function requireUser(request: Request, context: AppLoadContext) {
-  if (context.user) return context.user;
-
-  throw redirectToAuth({ request });
+export async function requireUser(request: Request): Promise<User> {
+  const user = await authenticator.isAuthenticated(request);
+  if (!user) throw redirectToAuth({ request });
+  return user;
 }
 
-export async function requireAdmin(request: Request, context: AppLoadContext) {
-  const user = context.user;
-  if (!user) {
-    throw redirectToAuth({ request });
-  }
-  if (!user.admin) {
-    throw redirect(`/403`);
-  }
+export async function requireAdmin(request: Request): Promise<User> {
+  const user = await authenticator.isAuthenticated(request);
+  if (!user) throw redirectToAuth({ request });
+  if (!user.admin) throw redirect(`/403`);
   return user;
 }
 

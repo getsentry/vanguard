@@ -1,5 +1,3 @@
-import type { Request } from "react-router";
-
 export const buildUrl = (
   path: string = "/",
   request: Request | null = null,

@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { json, redirect } from "react-router";
+import { redirect } from "react-router";
 import { useActionData, useLoaderData } from "react-router";
 
 import { announcePost, createPost, syndicatePost } from "~/models/post.server";
@@ -9,8 +9,8 @@ import PostForm from "~/components/post-form";
 import { getPostLink } from "~/components/post-link";
 import { getFeedList } from "~/models/feed.server";
 
-export async function loader({ request, context }: LoaderFunctionArgs) {
-  const userId = await requireUserId(request, context);
+export async function loader({ request }: LoaderFunctionArgs) {
+  const userId = await requireUserId(request);
   const categoryList = await getCategoryList({
     userId,
     includeRestricted: false,
@@ -19,11 +19,11 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     userId,
     includeRestricted: false,
   });
-  return json({ categoryList, feedList });
+  return { categoryList, feedList };
 }
 
-export async function action({ request, context }: ActionFunctionArgs) {
-  const user = await requireUser(request, context);
+export async function action({ request }: ActionFunctionArgs) {
+  const user = await requireUser(request);
 
   const formData = await request.formData();
   const title = formData.get("title");
@@ -36,18 +36,21 @@ export async function action({ request, context }: ActionFunctionArgs) {
   const feedIds = formData.get("feedId") ? formData.getAll("feedId") : null;
 
   if (typeof categoryId !== "string" || categoryId.length === 0) {
-    return json(
+    return Response.json(
       { errors: { categoryId: "Category is required" } },
       { status: 400 },
     );
   }
 
   if (typeof title !== "string" || title.length === 0) {
-    return json({ errors: { title: "Title is required" } }, { status: 400 });
+    return Response.json(
+      { errors: { title: "Title is required" } },
+      { status: 400 },
+    );
   }
 
   if (typeof content !== "string" || content.length === 0) {
-    return json(
+    return Response.json(
       { errors: { content: "Content is required" } },
       { status: 400 },
     );
@@ -62,7 +65,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
     ).map((f) => f.id);
     const invalid = feedIds.find((f) => allowedFeedIds.indexOf(f) === -1);
     if (invalid) {
-      return json<ActionData>(
+      return Response.json(
         { errors: { feedId: "Invalid feed" } },
         { status: 400 },
       );
@@ -71,7 +74,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
 
   const category = await getCategory({ id: categoryId });
   if (!category || (category.restricted && !user.canPostRestricted)) {
-    return json<ActionData>(
+    return Response.json(
       { errors: { categoryId: "Invalid category" } },
       { status: 400 },
     );
@@ -80,7 +83,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
   category.metaConfig.forEach(({ name, required }) => {
     const content = formData.get(`meta[${name}]`);
     if (required && !content) {
-      return json<ActionData>(
+      return Response.json(
         { errors: { meta: { name: `${name} is required` } } },
         { status: 400 },
       );

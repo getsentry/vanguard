@@ -1,5 +1,4 @@
 import type { LoaderFunctionArgs } from "react-router";
-import { json } from "react-router";
 import { useLoaderData } from "react-router";
 
 import { requireAdmin } from "~/services/auth.server";
@@ -10,12 +9,12 @@ import BooleanIcon from "~/components/boolean-icon";
 import PageHeader from "~/components/page-header";
 import Link from "~/components/link";
 
-export async function loader({ request, context }: LoaderFunctionArgs) {
-  await requireAdmin(request, context);
+export async function loader({ request }: LoaderFunctionArgs) {
+  await requireAdmin(request);
   const url = new URL(request.url);
   const cursor = url.searchParams.get("cursor");
   const userListPaginated = await paginate(getUserList, {}, cursor);
-  return json({ userListPaginated });
+  return { userListPaginated };
 }
 
 export default function Index() {
