@@ -8,6 +8,9 @@ node_modules
 # React Router v7 auto-generated route types
 /.react-router
 
+# Vercel CLI link metadata + local `vercel build` output
+/.vercel
+
 # Pi agent session artifacts (plans, scout contexts, etc.)
 /.pi
 
@@ -24,3 +27,5 @@ junit.xml
 /coverage
 
 .eslintcache
+.vercel
+.env*.local
