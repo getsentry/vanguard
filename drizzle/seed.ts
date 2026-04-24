@@ -92,7 +92,7 @@ async function seed() {
           title: postData.title,
           content: postData.content,
           published: true,
-          publishedAt: faker.date.recent({ days: 7 }),
+          publishedAt: faker.date.recent(7),
           authorId: user.id,
           categoryId: category.id,
         })
