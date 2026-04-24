@@ -6,15 +6,18 @@ import type { EmojiClickData } from "emoji-picker-react";
 // evaluated during SSR. Dynamically import on the client and render nothing
 // until the module resolves.
 type PickerProps = {
+  open?: boolean;
   style?: CSSProperties;
   onEmojiClick?: (emojiData: EmojiClickData, event: MouseEvent) => void;
 };
 
 export default function EmojiPicker({
   onEmojiSelect,
+  open,
   style,
 }: {
   onEmojiSelect: (event: MouseEvent, emoji: string) => void;
+  open?: boolean;
   style?: CSSProperties;
 }) {
   const [Picker, setPicker] = useState<ComponentType<PickerProps> | null>(null);
@@ -30,6 +33,7 @@ export default function EmojiPicker({
 
   return (
     <Picker
+      open={open}
       style={style}
       onEmojiClick={(emojiData, event) => onEmojiSelect(event, emojiData.emoji)}
     />

@@ -115,14 +115,11 @@ export default function PostReactions({
         <div className="relative z-50">
           <EmojiReaction emoji={<PlusIcon />} onClick={(_e) => setPickerVisible(!pickerVisible)} />
           <Picker
+            open={pickerVisible}
+            style={{ position: "absolute" }}
             onEmojiSelect={(e, emoji) => {
               onEmojiClick(e, emoji);
               setPickerVisible(false);
-            }}
-            style={{
-              // have to use visibility here or it breaks the category selector
-              visibility: pickerVisible ? "visible" : "hidden",
-              position: "absolute",
             }}
           />
         </div>
