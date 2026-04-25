@@ -1,15 +1,11 @@
 import { reactRouter } from "@react-router/dev/vite";
-import autoprefixer from "autoprefixer";
-import tailwindcss from "tailwindcss";
+import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
-import tsconfigPaths from "vite-tsconfig-paths";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
 
 export default defineConfig({
-  css: {
-    postcss: {
-      plugins: [tailwindcss, autoprefixer],
-    },
+  resolve: {
+    tsconfigPaths: true,
   },
   build: {
     sourcemap: true,
@@ -18,8 +14,8 @@ export default defineConfig({
     exclude: ["react-router-dom"],
   },
   plugins: [
+    tailwindcss(),
     reactRouter(),
-    tsconfigPaths(),
     sentryVitePlugin({
       org: process.env.SENTRY_ORG,
       project: process.env.SENTRY_PROJECT,

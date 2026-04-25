@@ -8,7 +8,6 @@
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "types": ["vitest/globals"],
 
-    "baseUrl": ".",
     "rootDirs": [".", "./.react-router/types"],
     "paths": {
       "~/*": ["./app/*"]

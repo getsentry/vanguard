@@ -34,6 +34,6 @@ export async function uploadFile({
   // Local dev fallback — write to os.tmpdir(), served by image-uploads.$ route.
   const filepath = path.join(os.tmpdir(), pathname);
   await fs.mkdir(path.dirname(filepath), { recursive: true });
-  await fs.writeFile(filepath, Buffer.from(buffer));
+  await fs.writeFile(filepath, Buffer.isBuffer(buffer) ? buffer : Buffer.from(buffer));
   return { url: `/image-uploads/${pathname}` };
 }

@@ -8,6 +8,12 @@ node_modules
 # React Router v7 auto-generated route types
 /.react-router
 
+# tsc -b incremental build cache
+tsconfig.tsbuildinfo
+
+# Vite dev-mode config compile cache
+vite.config.ts.timestamp-*.mjs
+
 # Vercel CLI link metadata + local `vercel build` output
 /.vercel
 

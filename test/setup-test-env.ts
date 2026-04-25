@@ -1,4 +1,3 @@
-import "@testing-library/jest-dom/extend-expect";
 import { sql } from "drizzle-orm";
 import { db } from "~/db/client";
 

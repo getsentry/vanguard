@@ -1,6 +1,6 @@
 import { Link } from "react-router";
-import Logo from "app/icons/Logo";
-import IconHamburger from "app/icons/IconHamburger";
+import Logo from "~/icons/Logo";
+import IconHamburger from "~/icons/IconHamburger";
 import Button from "./button";
 
 export default function Header({
