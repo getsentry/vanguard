@@ -18,8 +18,6 @@
     "test": "pnpm db:migrate:test && pnpm test:vitest",
     "test:vitest": "dotenv -e .env.test -- vitest run --no-threads",
     "test:watch": "dotenv -e .env.test -- vitest --no-threads",
-    "test:ci": "pnpm db:migrate:test && pnpm test:ci:vitest",
-    "test:ci:vitest": "dotenv -e .env.test -- vitest run --no-threads --coverage --reporter=junit --outputFile=junit.xml --reporter=default",
     "typecheck": "react-router typegen && tsc -b",
     "user": "tsx --env-file=.env ./bin/user.ts",
     "category": "tsx --env-file=.env ./bin/category.ts",
