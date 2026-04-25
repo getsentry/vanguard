@@ -30,9 +30,7 @@ const FLAG = process.env.PREVIEW_AUTO_LOGIN === "1";
 // Belt-and-braces: even if a misconfigured env var slips into production,
 // refuse to boot rather than silently shipping an auth bypass.
 if (process.env.VERCEL_ENV === "production" && FLAG) {
-  throw new Error(
-    "PREVIEW_AUTO_LOGIN must not be set in production. Refusing to boot.",
-  );
+  throw new Error("PREVIEW_AUTO_LOGIN must not be set in production. Refusing to boot.");
 }
 
 export const previewAutoLoginEnabled = IS_PREVIEW && FLAG;

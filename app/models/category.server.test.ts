@@ -16,17 +16,17 @@ describe("getCategoryList", () => {
   describe("query", () => {
     describe("with a normal user", () => {
       test("matches slug", async () => {
-        const result = await getCategoryList({ userId: user.id, query: "foo" });
+        const result = await getCategoryList({ user, query: "foo" });
         expect(result.length).toBe(1);
         expect(result[0].id).toBe(category.id);
       });
       test("matches name", async () => {
-        const result = await getCategoryList({ userId: user.id, query: "bar" });
+        const result = await getCategoryList({ user, query: "bar" });
         expect(result.length).toBe(1);
         expect(result[0].id).toBe(category.id);
       });
       test("doesnt match everything", async () => {
-        const result = await getCategoryList({ userId: user.id, query: "baz" });
+        const result = await getCategoryList({ user, query: "baz" });
         expect(result.length).toBe(0);
       });
     });

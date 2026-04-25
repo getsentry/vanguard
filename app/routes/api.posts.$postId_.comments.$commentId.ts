@@ -2,7 +2,7 @@ import type { ActionFunctionArgs } from "react-router";
 import invariant from "tiny-invariant";
 import { deleteComment } from "~/models/post-comments.server";
 
-import { requireUserId } from "~/services/auth.server";
+import { requireUser } from "~/services/auth.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   if (request.method !== "DELETE") {
@@ -11,9 +11,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
   invariant(params.postId, "postId not found");
   invariant(params.commentId, "commentId not found");
 
-  const userId = await requireUserId(request);
+  const user = await requireUser(request);
   await deleteComment({
-    userId,
+    user,
     id: params.commentId,
   });
 

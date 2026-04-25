@@ -12,28 +12,25 @@ export function getFeed({ id }: { id?: Feed["id"] }) {
 }
 
 export async function getFeedList({
-  userId,
+  user,
   includeRestricted = true,
   query,
   offset = 0,
   limit = 50,
 }: {
-  userId: User["id"];
+  user: User;
   includeRestricted?: Feed["restricted"];
   query?: string | null;
   offset?: number;
   limit?: number;
 }) {
-  const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
-  const canPostRestricted = user ? user.canPostRestricted : false;
-
   const conditions = [eq(feeds.deleted, false)];
 
   if (query) {
     conditions.push(ilike(feeds.name, `%${query}%`));
   }
 
-  if (!includeRestricted && !canPostRestricted) {
+  if (!includeRestricted && !user.canPostRestricted) {
     conditions.push(eq(feeds.restricted, false));
   }
 

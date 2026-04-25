@@ -105,7 +105,7 @@ export async function upsertUser({
 
 export async function updateUser({
   id,
-  userId,
+  actor,
   admin,
   name,
   picture,
@@ -113,32 +113,35 @@ export async function updateUser({
   notifyReplies,
 }: {
   id: User["id"];
-  userId: User["id"];
+  /** The user performing the update — used for permission checks. */
+  actor: User;
   admin?: User["admin"] | null;
   name?: User["name"] | null;
   picture?: User["picture"] | null;
   canPostRestricted?: User["canPostRestricted"] | undefined;
   notifyReplies?: User["notifyReplies"] | undefined;
 }) {
-  const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
-  invariant(user, "user not found");
+  // When the actor is editing their own row, we already have the latest copy.
+  // Otherwise (admin editing another user) load the target so we can diff.
+  const target = actor.id === id ? actor : await getUserById(id);
+  invariant(target, "user not found");
 
   const data: Partial<typeof users.$inferInsert> = {};
 
   // admin only fields
-  if (user.admin) {
-    if (admin !== undefined && admin !== user.admin) data.admin = !!admin;
-    if (canPostRestricted !== undefined && canPostRestricted !== user.canPostRestricted)
+  if (actor.admin) {
+    if (admin !== undefined && admin !== target.admin) data.admin = !!admin;
+    if (canPostRestricted !== undefined && canPostRestricted !== target.canPostRestricted)
       data.canPostRestricted = !!canPostRestricted;
   }
 
-  if (name !== undefined && name !== user.name) data.name = name;
+  if (name !== undefined && name !== target.name) data.name = name;
   if (picture !== undefined) data.picture = picture;
-  if (notifyReplies !== undefined && notifyReplies !== user.notifyReplies)
+  if (notifyReplies !== undefined && notifyReplies !== target.notifyReplies)
     data.notifyReplies = !!notifyReplies;
 
   if (Object.keys(data).length === 0) {
-    return user;
+    return target;
   }
 
   const [updated] = await db.update(users).set(data).where(eq(users.id, id)).returning();

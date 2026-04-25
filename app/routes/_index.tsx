@@ -1,7 +1,7 @@
 import type { LoaderFunctionArgs } from "react-router";
 import { useLoaderData } from "react-router";
 
-import { requireUserId } from "~/services/auth.server";
+import { requireUser } from "~/services/auth.server";
 import { getPostList } from "~/models/post.server";
 import type { PostQueryType } from "~/models/post.server";
 import Post from "~/components/post";
@@ -86,25 +86,21 @@ const FragmentedPostList = ({ posts, reactions, commentCounts }) => {
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const userId = await requireUserId(request);
+  const user = await requireUser(request);
   const url = new URL(request.url);
   const cursor = url.searchParams.get("cursor");
 
   const postListPaginated = await paginate<PostQueryType[]>(
     getPostList,
-    { userId, published: true },
+    { user, published: true },
     cursor,
   );
 
-  const reactions = await getReactionsForPosts({
-    userId,
-    postList: postListPaginated.result,
-  });
-
-  const commentCounts = await countCommentsForPosts({
-    userId,
-    postList: postListPaginated.result,
-  });
+  // Reactions and comment counts are independent of each other — fetch in parallel.
+  const [reactions, commentCounts] = await Promise.all([
+    getReactionsForPosts({ userId: user.id, postList: postListPaginated.result }),
+    countCommentsForPosts({ userId: user.id, postList: postListPaginated.result }),
+  ]);
 
   return { postListPaginated, reactions, commentCounts };
 }

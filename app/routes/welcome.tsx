@@ -3,7 +3,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { Form, useActionData, useLoaderData } from "react-router";
 
-import { requireUser, requireUserId } from "~/services/auth.server";
+import { requireUser } from "~/services/auth.server";
 import { updateUser } from "~/models/user.server";
 import { uploadFile } from "~/lib/upload-handler";
 import AvatarInput from "~/components/avatar-input";
@@ -15,7 +15,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  const userId = await requireUserId(request);
+  const user = await requireUser(request);
 
   const formData = await request.formData();
   const name = formData.get("name");
@@ -34,14 +34,14 @@ export async function action({ request }: ActionFunctionArgs) {
     const { url } = await uploadFile({
       filename: pictureFile.name,
       buffer,
-      namespace: userId,
+      namespace: user.id,
     });
     picture = url;
   }
 
   await updateUser({
-    userId,
-    id: userId,
+    actor: user,
+    id: user.id,
     name,
     picture,
   });

@@ -13,6 +13,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const feed = await getFeed({ id: params.feedId });
   if (!feed) throw new Response("Not Found", { status: 404 });
 
+  // Public RSS feed — no user; getPostList accepts feedId without one.
   const posts = await getPostList({
     published: true,
     feedId: params.feedId,

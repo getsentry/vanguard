@@ -16,12 +16,12 @@ describe("getFeedList", () => {
   describe("query", () => {
     describe("with a normal user", () => {
       test("restricts query on name", async () => {
-        const result = await getFeedList({ userId: user.id, query: "foo" });
+        const result = await getFeedList({ user, query: "foo" });
         expect(result.length).toBe(0);
       });
 
       test("matches name", async () => {
-        const result = await getFeedList({ userId: user.id, query: "bar" });
+        const result = await getFeedList({ user, query: "bar" });
         expect(result.length).toBe(1);
         expect(result[0].id).toBe(feed.id);
       });

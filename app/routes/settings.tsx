@@ -3,8 +3,8 @@ import { redirect } from "react-router";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Form, Link, useActionData, useLoaderData } from "react-router";
 
-import { requireUserId } from "~/services/auth.server";
-import { getUserById, updateUser } from "~/models/user.server";
+import { requireUser } from "~/services/auth.server";
+import { updateUser } from "~/models/user.server";
 import { uploadFile } from "~/lib/upload-handler";
 import AvatarInput from "~/components/avatar-input";
 import FormActions from "~/components/form-actions";
@@ -12,15 +12,12 @@ import Button from "~/components/button";
 import PageHeader from "~/components/page-header";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const userId = await requireUserId(request);
-
-  const user = await getUserById(userId);
-
+  const user = await requireUser(request);
   return { user };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  const userId = await requireUserId(request);
+  const user = await requireUser(request);
 
   const formData = await request.formData();
   const name = formData.get("name");
@@ -36,7 +33,7 @@ export async function action({ request }: ActionFunctionArgs) {
     const { url } = await uploadFile({
       filename: pictureFile.name,
       buffer,
-      namespace: userId,
+      namespace: user.id,
     });
     picture = url;
   }
@@ -47,8 +44,8 @@ export async function action({ request }: ActionFunctionArgs) {
 
   // TODO: update session
   await updateUser({
-    userId,
-    id: userId,
+    actor: user,
+    id: user.id,
     name,
     picture,
     notifyReplies,

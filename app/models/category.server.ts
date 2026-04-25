@@ -21,21 +21,18 @@ export async function getCategory({ id, slug }: { id?: Category["id"]; slug?: Ca
 }
 
 export async function getCategoryList({
-  userId,
+  user,
   includeRestricted = true,
   query,
   offset = 0,
   limit = 50,
 }: {
-  userId: User["id"];
+  user: User;
   includeRestricted?: Category["restricted"];
   query?: string | null;
   offset?: number;
   limit?: number;
 }) {
-  const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
-  const canPostRestricted = user ? user.canPostRestricted : false;
-
   const conditions = [eq(categories.deleted, false)];
 
   if (query) {
@@ -44,7 +41,7 @@ export async function getCategoryList({
     );
   }
 
-  if (!includeRestricted && !canPostRestricted) {
+  if (!includeRestricted && !user.canPostRestricted) {
     conditions.push(eq(categories.restricted, false));
   }
 

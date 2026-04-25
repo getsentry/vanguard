@@ -5,7 +5,7 @@ import invariant from "tiny-invariant";
 import { announcePost, getPost, updatePost } from "~/models/post.server";
 import { getReactionsForPosts } from "~/models/post-reactions.server";
 import { getCommentList } from "~/models/post-comments.server";
-import { requireUser, requireUserId } from "~/services/auth.server";
+import { requireUser } from "~/services/auth.server";
 import { default as PostTemplate } from "~/components/post";
 import PostReactions from "~/components/post-reactions";
 import PostComments from "~/components/post-comments";
@@ -14,28 +14,25 @@ import { hasSubscription } from "~/models/post-subscription.server";
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const user = await requireUser(request);
 
-  const post = await getPost({ userId: user.id, id: params.postId });
+  const post = await getPost({ user, id: params.postId });
   if (!post) {
     throw new Response("Not Found", { status: 404 });
   }
 
-  const reactions = (await getReactionsForPosts({ userId: user.id, postList: [post] }))[post.id];
-
-  const comments = await getCommentList({
-    userId: user.id,
-    postId: post.id,
-    limit: 1000,
-  });
+  // Reactions, comments, and subscription state all depend on the post but are
+  // independent of each other — fetch them in parallel.
+  const [reactionsByPost, comments, hasSub] = await Promise.all([
+    getReactionsForPosts({ userId: user.id, postList: [post] }),
+    getCommentList({ userId: user.id, postId: post.id, limit: 1000 }),
+    hasSubscription({ userId: user.id, postId: post.id }),
+  ]);
 
   return {
     post,
     user,
-    reactions,
+    reactions: reactionsByPost[post.id],
     comments,
-    hasSubscription: await hasSubscription({
-      userId: user.id,
-      postId: post.id,
-    }),
+    hasSubscription: hasSub,
   };
 }
 
@@ -49,7 +46,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
-  const userId = await requireUserId(request);
+  const user = await requireUser(request);
   invariant(params.postId, "postId not found");
 
   const formData = await request.formData();
@@ -60,7 +57,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     const announce = published && formData.get("published") === "announce";
     const post = await updatePost({
       id: params.postId,
-      userId,
+      user,
       published,
     });
 

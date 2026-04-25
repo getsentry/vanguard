@@ -11,9 +11,9 @@ Internalise these before touching anything on Vercel.
 
 ### Build time ≠ runtime
 
-| Phase | What runs | Env vars read | Native deps |
-|---|---|---|---|
-| **Build** (`vercel build`) | `react-router build`, esbuild, Vite plugins, Sentry sourcemap upload | Only vars the build itself needs (e.g. `SENTRY_AUTH_TOKEN`) | Runs on the local machine's platform (e.g. arm64 macOS) |
+| Phase                           | What runs                                                              | Env vars read                                                                    | Native deps                                                 |
+| ------------------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| **Build** (`vercel build`)      | `react-router build`, esbuild, Vite plugins, Sentry sourcemap upload   | Only vars the build itself needs (e.g. `SENTRY_AUTH_TOKEN`)                      | Runs on the local machine's platform (e.g. arm64 macOS)     |
 | **Runtime** (Lambda cold start) | `build/server/nodejs_<b64>/index.js` top-level code → request handlers | All `process.env.*` reads, including top-level `invariant(process.env.X)` guards | Runs on Vercel's Linux x64 (or arm64) — binaries must match |
 
 Any error about `process.env.X` not being set is a **runtime** problem, not a build problem.
@@ -123,8 +123,8 @@ A native `.node` binary compiled for the local arch got shipped via `--prebuilt`
 
 Swap for a pure-JS alternative. Potential future cases for Vanguard:
 
-| Native | Pure-JS drop-in | Notes |
-|---|---|---|
+| Native                  | Pure-JS drop-in             | Notes                                       |
+| ----------------------- | --------------------------- | ------------------------------------------- |
 | `sharp` (if ever added) | `@vercel/og` or client-side | Only if image processing is actually needed |
 
 After swapping, remove any `optimizeDeps.exclude` / `ssr.external` entries for the old native package from `vite.config.ts` and drop it from `pnpm.onlyBuiltDependencies` in `package.json`.
@@ -195,11 +195,11 @@ console.log("[boot] env diagnostic:", {
 
 Rebuild + redeploy + tail logs + hit the URL. The boot log prints what the Lambda actually sees. Common findings:
 
-| Symptom | Cause | Fix |
-|---|---|---|
-| `present: false, length: 0` | Var not in scope OR value is empty string | `vercel env ls` to confirm scope; delete + re-add via dashboard with a real value |
-| `present: true, length: 0` | Impossible (length 0 string is falsy — you'd see `false`) | — |
-| Var is in `vercel env ls` but Lambda can't see it | Deployment predates the env var — env changes don't retroactively apply | `vercel deploy --prebuilt` again |
+| Symptom                                           | Cause                                                                   | Fix                                                                               |
+| ------------------------------------------------- | ----------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `present: false, length: 0`                       | Var not in scope OR value is empty string                               | `vercel env ls` to confirm scope; delete + re-add via dashboard with a real value |
+| `present: true, length: 0`                        | Impossible (length 0 string is falsy — you'd see `false`)               | —                                                                                 |
+| Var is in `vercel env ls` but Lambda can't see it | Deployment predates the env var — env changes don't retroactively apply | `vercel deploy --prebuilt` again                                                  |
 
 Remove the diagnostic immediately after resolving. Don't commit it.
 
@@ -227,6 +227,7 @@ PREVIEW_AUTO_LOGIN = 1
 Do NOT set it in Production or Development. `app/services/preview-auto-login.server.ts` throws at module load if `VERCEL_ENV === "production" && PREVIEW_AUTO_LOGIN === "1"` — belt-and-braces against a misconfigured env var.
 
 With the flag on:
+
 - `/` renders immediately; no login page
 - All auth helpers (`getUserId`, `requireUserId`, `requireAdmin`, etc.) short-circuit to the Preview Admin user
 - The user is auto-created in the DB on first request (`preview-admin@vanguard.local`, `admin=true`, no `externalId`)

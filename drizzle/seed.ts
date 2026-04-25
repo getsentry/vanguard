@@ -30,7 +30,9 @@ async function seed() {
         name: "Demo User",
       })
       .returning();
-    console.log("✅ Created placeholder demo user: demo@example.com (cannot sign in — Google-only)");
+    console.log(
+      "✅ Created placeholder demo user: demo@example.com (cannot sign in — Google-only)",
+    );
   } else {
     console.log("✅ Using existing demo user:", user.email);
   }

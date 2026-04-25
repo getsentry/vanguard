@@ -22,7 +22,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 
   const postList = await getPostList({
-    userId: currentUser.id,
+    user: currentUser,
     authorId: user.id,
     published: true,
     limit: 20,
@@ -51,23 +51,23 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const formData = await request.formData();
   if (formData.get("canPostRestricted") === "true") {
     await updateUser({
-      userId: currentUser.id,
+      actor: currentUser,
       id: user.id,
       canPostRestricted: true,
     });
   }
   if (formData.get("canPostRestricted") === "false") {
     await updateUser({
-      userId: currentUser.id,
+      actor: currentUser,
       id: user.id,
       canPostRestricted: false,
     });
   }
   if (formData.get("admin") === "true") {
-    await updateUser({ userId: currentUser.id, id: user.id, admin: true });
+    await updateUser({ actor: currentUser, id: user.id, admin: true });
   }
   if (formData.get("admin") === "false") {
-    await updateUser({ userId: currentUser.id, id: user.id, admin: false });
+    await updateUser({ actor: currentUser, id: user.id, admin: false });
   }
   return null;
 }

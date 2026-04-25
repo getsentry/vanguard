@@ -1,10 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "~/db/client";
 import { users } from "~/db/schema";
-import {
-  getPreviewUser,
-  previewAutoLoginEnabled,
-} from "~/services/preview-auto-login.server";
+import { getPreviewUser, previewAutoLoginEnabled } from "~/services/preview-auto-login.server";
 
 describe("preview-auto-login", () => {
   describe("previewAutoLoginEnabled", () => {
@@ -41,10 +38,7 @@ describe("preview-auto-login", () => {
       expect(second.id).toBe(first.id);
 
       // Only one row exists in the database.
-      const allPreviewRows = await db
-        .select()
-        .from(users)
-        .where(eq(users.email, PREVIEW_EMAIL));
+      const allPreviewRows = await db.select().from(users).where(eq(users.email, PREVIEW_EMAIL));
       expect(allPreviewRows).toHaveLength(1);
     });
 
@@ -54,17 +48,12 @@ describe("preview-auto-login", () => {
       // Fire N concurrent getPreviewUser() calls. Without ON CONFLICT DO
       // NOTHING, the parallel inserts would race and one would throw a unique
       // constraint violation.
-      const results = await Promise.all(
-        Array.from({ length: 5 }, () => getPreviewUser()),
-      );
+      const results = await Promise.all(Array.from({ length: 5 }, () => getPreviewUser()));
 
       const ids = new Set(results.map((u) => u.id));
       expect(ids.size).toBe(1);
 
-      const allPreviewRows = await db
-        .select()
-        .from(users)
-        .where(eq(users.email, PREVIEW_EMAIL));
+      const allPreviewRows = await db.select().from(users).where(eq(users.email, PREVIEW_EMAIL));
       expect(allPreviewRows).toHaveLength(1);
     });
   });

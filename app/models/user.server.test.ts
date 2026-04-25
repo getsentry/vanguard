@@ -38,7 +38,7 @@ describe("updateUser", () => {
   it("can change name on self", async () => {
     const newUser = await updateUser({
       id: user.id,
-      userId: user.id,
+      actor: user,
       name: "Fancy",
     });
     expect(newUser).toBeDefined();
@@ -48,7 +48,7 @@ describe("updateUser", () => {
   it("can change picture on self", async () => {
     const newUser = await updateUser({
       id: user.id,
-      userId: user.id,
+      actor: user,
       picture: "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
     });
     expect(newUser).toBeDefined();
@@ -60,7 +60,7 @@ describe("updateUser", () => {
   it("can change notifyReplies on self", async () => {
     const newUser = await updateUser({
       id: user.id,
-      userId: user.id,
+      actor: user,
       notifyReplies: false,
     });
     expect(newUser).toBeDefined();
@@ -70,7 +70,7 @@ describe("updateUser", () => {
   it("cannot change admin on self", async () => {
     const newUser = await updateUser({
       id: user.id,
-      userId: user.id,
+      actor: user,
       admin: true,
     });
     expect(newUser).toBeDefined();
@@ -80,7 +80,7 @@ describe("updateUser", () => {
   it("cannot change canPostRestricted on self", async () => {
     const newUser = await updateUser({
       id: user.id,
-      userId: user.id,
+      actor: user,
       canPostRestricted: true,
     });
     expect(newUser).toBeDefined();

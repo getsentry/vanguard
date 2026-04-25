@@ -15,7 +15,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const user = await requireAdmin(request);
   const url = new URL(request.url);
   const cursor = url.searchParams.get("cursor");
-  const postListPaginated = await paginate(getPostList, { userId: user.id }, cursor);
+  const postListPaginated = await paginate(getPostList, { user }, cursor);
   return { postListPaginated };
 }
 

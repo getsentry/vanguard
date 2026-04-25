@@ -42,26 +42,20 @@ type LoaderData = {
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const { getUserId, getUser } = await import("./services/auth.server");
-  const userId = await getUserId(request);
-  const user = userId ? await getUser(request) : null;
+  const { getUser } = await import("./services/auth.server");
+  const user = (await getUser(request)) ?? null;
 
-  return {
-    user: user ?? null,
-    categoryList: user
-      ? await getCategoryList({
-          userId: user.id,
-          includeRestricted: true,
-        })
-      : null,
-    recentPostList: user
-      ? await getPostList({
-          userId: user.id,
-          published: true,
-          limit: 3,
-        })
-      : null,
-  };
+  if (!user) {
+    return { user: null, categoryList: null, recentPostList: null };
+  }
+
+  // Sidebar fetches are independent — run them in parallel.
+  const [categoryList, recentPostList] = await Promise.all([
+    getCategoryList({ user, includeRestricted: true }),
+    getPostList({ user, published: true, limit: 3 }),
+  ]);
+
+  return { user, categoryList, recentPostList };
 };
 
 export function ErrorBoundary() {

@@ -58,7 +58,7 @@ describe("getPost", () => {
     });
 
     test("can view deleted posts", async () => {
-      const result = await getPost({ userId: admin.id, id: deletedPost.id });
+      const result = await getPost({ user: admin, id: deletedPost.id });
       expect(result?.id).toBe(deletedPost.id);
     });
   });
@@ -66,7 +66,7 @@ describe("getPost", () => {
   describe("a normal user", () => {
     test("can view a draft", async () => {
       const result = await getPost({
-        userId: author.id,
+        user: author,
         id: otherUnpublishedPost.id,
       });
       expect(result?.id).toBe(otherUnpublishedPost.id);
@@ -74,7 +74,7 @@ describe("getPost", () => {
 
     test("cannot view a draft with onlyPublished", async () => {
       const result = await getPost({
-        userId: author.id,
+        user: author,
         id: otherUnpublishedPost.id,
         onlyPublished: true,
       });
@@ -82,7 +82,7 @@ describe("getPost", () => {
     });
 
     test("cannot view deleted posts", async () => {
-      const result = await getPost({ userId: author.id, id: deletedPost.id });
+      const result = await getPost({ user: author, id: deletedPost.id });
       expect(result).toBe(null);
     });
   });
@@ -136,7 +136,7 @@ describe("getPostList", () => {
     describe("published", () => {
       test("can find unpublished posts of others", async () => {
         const result = await getPostList({
-          userId: admin.id,
+          user: admin,
           published: false,
         });
         expect(result.length).toBe(1);
@@ -148,13 +148,13 @@ describe("getPostList", () => {
   describe("a normal user", () => {
     describe("query", () => {
       test("matches title", async () => {
-        const result = await getPostList({ userId: author.id, query: "Test" });
+        const result = await getPostList({ user: author, query: "Test" });
         expect(result.length).toBe(1);
         expect(result[0].id).toBe(post.id);
       });
       test("matches content", async () => {
         const result = await getPostList({
-          userId: author.id,
+          user: author,
           query: "Content",
         });
         expect(result.length).toBe(1);
@@ -162,7 +162,7 @@ describe("getPostList", () => {
       });
       test("doesnt match everything", async () => {
         const result = await getPostList({
-          userId: author.id,
+          user: author,
           query: "Fiction",
         });
         expect(result.length).toBe(0);
@@ -172,7 +172,7 @@ describe("getPostList", () => {
     describe("authorId", () => {
       test("matches", async () => {
         const result = await getPostList({
-          userId: author.id,
+          user: author,
           authorId: author.id,
         });
         expect(result.length).toBe(1);
@@ -181,7 +181,7 @@ describe("getPostList", () => {
 
       test("doesnt match everything", async () => {
         const result = await getPostList({
-          userId: author.id,
+          user: author,
           authorId: "invalid id",
         });
         expect(result.length).toBe(0);
@@ -191,7 +191,7 @@ describe("getPostList", () => {
     describe("categoryId", () => {
       test("matches", async () => {
         const result = await getPostList({
-          userId: author.id,
+          user: author,
           categoryId: category.id,
         });
         expect(result.length).toBe(1);
@@ -200,7 +200,7 @@ describe("getPostList", () => {
 
       test("doesnt match everything", async () => {
         const result = await getPostList({
-          userId: author.id,
+          user: author,
           categoryId: "invalid id",
         });
         expect(result.length).toBe(0);
@@ -210,7 +210,7 @@ describe("getPostList", () => {
     describe("published", () => {
       test("cannot find unpublished posts of others", async () => {
         const result = await getPostList({
-          userId: author.id,
+          user: author,
           published: false,
         });
         expect(result.length).toBe(0);
@@ -218,7 +218,7 @@ describe("getPostList", () => {
 
       test("cannot find unpublished posts of themselves", async () => {
         const result = await getPostList({
-          userId: otherAuthor.id,
+          user: otherAuthor,
           published: false,
         });
         expect(result.length).toBe(1);
@@ -298,15 +298,17 @@ describe("createPost", () => {
 
 describe("updatePost", () => {
   let post: Awaited<ReturnType<typeof Fixtures.Post>>;
+  let author: Awaited<ReturnType<typeof Fixtures.User>>;
 
   beforeEach(async () => {
-    post = await Fixtures.Post();
+    author = await Fixtures.User();
+    post = await Fixtures.Post({ authorId: author.id });
   });
 
   it("updates the title", async () => {
     const updatedPost = await updatePost({
       id: post.id,
-      userId: post.authorId,
+      user: author,
       title: "updates a post",
     });
     expect(updatedPost).toBeDefined();
@@ -317,7 +319,7 @@ describe("updatePost", () => {
     const feed = await Fixtures.Feed();
     await updatePost({
       id: post.id,
-      userId: post.authorId,
+      user: author,
       feedIds: [feed.id],
     });
     const feedLinks = await db.select().from(feedToPost).where(eq(feedToPost.B, post.id));
@@ -331,7 +333,7 @@ describe("updatePost", () => {
     await db.insert(feedToPost).values({ A: feed.id, B: post.id });
     await updatePost({
       id: post.id,
-      userId: post.authorId,
+      user: author,
       feedIds: [],
     });
     const feedLinks = await db.select().from(feedToPost).where(eq(feedToPost.B, post.id));

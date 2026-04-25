@@ -32,7 +32,7 @@ program
       exit(1);
     }
 
-    await updateUser({ id: user.id, userId: user.id, admin: true });
+    await updateUser({ id: user.id, actor: user, admin: true });
     console.log(`${user.email} updated to be admin.`);
   });
 

@@ -140,7 +140,7 @@ describe("deleteComment", () => {
       .insert(postComments)
       .values({ content: "test", authorId: author.id, postId: post.id })
       .returning();
-    await deleteComment({ userId: admin.id, id: comment.id });
+    await deleteComment({ user: admin, id: comment.id });
     const [newComment] = await db
       .select()
       .from(postComments)
@@ -153,7 +153,7 @@ describe("deleteComment", () => {
       .insert(postComments)
       .values({ content: "test", authorId: author.id, postId: post.id })
       .returning();
-    await deleteComment({ userId: author.id, id: comment.id });
+    await deleteComment({ user: author, id: comment.id });
     const [newComment] = await db
       .select()
       .from(postComments)
@@ -167,7 +167,7 @@ describe("deleteComment", () => {
       .values({ content: "test", authorId: admin.id, postId: post.id })
       .returning();
     try {
-      await deleteComment({ userId: author.id, id: comment.id });
+      await deleteComment({ user: author, id: comment.id });
     } catch {}
     const [newComment] = await db
       .select()

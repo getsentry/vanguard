@@ -81,15 +81,12 @@ export async function syndicatePost(post) {
 
 export async function getPost({
   id,
-  userId,
+  user,
   onlyPublished = false,
 }: Pick<Post, "id"> & {
-  userId: User["id"];
+  user: User;
   onlyPublished?: boolean;
 }): Promise<PostQueryType | null> {
-  const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
-  invariant(user, "user not found");
-
   let whereCondition;
   if (onlyPublished) {
     if (user.admin) {
@@ -98,7 +95,7 @@ export async function getPost({
       whereCondition = and(
         eq(posts.id, id),
         or(
-          and(eq(posts.authorId, userId), eq(posts.deleted, false)),
+          and(eq(posts.authorId, user.id), eq(posts.deleted, false)),
           and(eq(posts.published, true), eq(posts.deleted, false)),
         ),
       );
@@ -131,7 +128,7 @@ export async function getPost({
 }
 
 export async function getPostList({
-  userId,
+  user,
   published,
   authorId,
   categoryId,
@@ -141,7 +138,7 @@ export async function getPostList({
   offset = 0,
   limit = 50,
 }: {
-  userId?: User["id"];
+  user?: User | null;
   published?: boolean | null;
   authorId?: User["id"];
   categoryId?: Category["id"];
@@ -151,10 +148,8 @@ export async function getPostList({
   offset?: number;
   limit?: number;
 }): Promise<PostQueryType[]> {
-  const user = userId ? await db.query.users.findFirst({ where: eq(users.id, userId) }) : null;
-
   if (!user && !feedId) {
-    throw new Error("Cannot query posts without either userId or feedId");
+    throw new Error("Cannot query posts without either user or feedId");
   }
 
   const conditions = [eq(posts.deleted, false)];
@@ -164,7 +159,7 @@ export async function getPostList({
   }
 
   if (published !== true && !user?.admin) {
-    conditions.push(eq(posts.authorId, userId!));
+    conditions.push(eq(posts.authorId, user!.id));
   }
 
   if (authorId) {
@@ -218,7 +213,7 @@ export async function getPostList({
 
 export async function updatePost({
   id,
-  userId,
+  user,
   title,
   content,
   categoryId,
@@ -228,7 +223,7 @@ export async function updatePost({
   meta = [],
 }: {
   id: Post["id"];
-  userId: User["id"];
+  user: User;
   title?: Post["title"];
   content?: Post["content"];
   categoryId?: Post["categoryId"];
@@ -237,12 +232,9 @@ export async function updatePost({
   deleted?: Post["deleted"];
   meta?: Pick<PostMeta, "name" | "content">[];
 }): Promise<PostQueryType> {
-  const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
-  invariant(user, "user not found");
-
   const whereCondition = user.admin
     ? eq(posts.id, id)
-    : and(eq(posts.id, id), eq(posts.authorId, userId), eq(posts.deleted, false));
+    : and(eq(posts.id, id), eq(posts.authorId, user.id), eq(posts.deleted, false));
 
   const post = await db.query.posts.findFirst({ where: whereCondition });
   invariant(post, "post not found");
@@ -273,7 +265,7 @@ export async function updatePost({
     // Always create a revision
     await tx.insert(postRevisions).values({
       postId: id,
-      authorId: userId,
+      authorId: user.id,
       title: data.title ?? post.title,
       content: data.content ?? post.content,
       categoryId: data.categoryId ?? post.categoryId,
@@ -387,10 +379,10 @@ export async function createPost({
   } as PostQueryType;
 }
 
-export async function deletePost({ id, userId }: Pick<Post, "id"> & { userId: User["id"] }) {
+export async function deletePost({ id, user }: Pick<Post, "id"> & { user: User }) {
   updatePost({
     id,
-    userId,
+    user,
     deleted: true,
   });
 }

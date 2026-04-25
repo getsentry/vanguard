@@ -1,17 +1,17 @@
 import type { LoaderFunctionArgs } from "react-router";
 import { useLoaderData } from "react-router";
 
-import { requireUserId } from "~/services/auth.server";
+import { requireUser } from "~/services/auth.server";
 import { getPostList } from "~/models/post.server";
 import Post from "~/components/post";
 import PageHeader from "~/components/page-header";
 import Link from "~/components/link";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const userId = await requireUserId(request);
+  const user = await requireUser(request);
   const postList = await getPostList({
-    userId,
-    authorId: userId,
+    user,
+    authorId: user.id,
     published: false,
   });
   return { postList };

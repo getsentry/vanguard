@@ -3,22 +3,19 @@ import { redirect } from "react-router";
 import { useActionData, useLoaderData } from "react-router";
 
 import { announcePost, createPost, syndicatePost } from "~/models/post.server";
-import { requireUser, requireUserId } from "~/services/auth.server";
+import { requireUser } from "~/services/auth.server";
 import { getCategory, getCategoryList } from "~/models/category.server";
 import PostForm from "~/components/post-form";
 import { getPostLink } from "~/components/post-link";
 import { getFeedList } from "~/models/feed.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const userId = await requireUserId(request);
-  const categoryList = await getCategoryList({
-    userId,
-    includeRestricted: false,
-  });
-  const feedList = await getFeedList({
-    userId,
-    includeRestricted: false,
-  });
+  const user = await requireUser(request);
+  // Category and feed lists are independent — fetch in parallel.
+  const [categoryList, feedList] = await Promise.all([
+    getCategoryList({ user, includeRestricted: false }),
+    getFeedList({ user, includeRestricted: false }),
+  ]);
   return { categoryList, feedList };
 }
 
@@ -49,7 +46,7 @@ export async function action({ request }: ActionFunctionArgs) {
   if (feedIds !== null) {
     const allowedFeedIds = (
       await getFeedList({
-        userId: user.id,
+        user,
         includeRestricted: false,
       })
     ).map((f) => f.id);

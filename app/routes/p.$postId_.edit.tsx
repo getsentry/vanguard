@@ -3,7 +3,7 @@ import { redirect } from "react-router";
 import { useActionData, useLoaderData } from "react-router";
 
 import { announcePost, getPost, syndicatePost, updatePost } from "~/models/post.server";
-import { requireUser, requireUserId } from "~/services/auth.server";
+import { requireUser } from "~/services/auth.server";
 import { getCategory, getCategoryList } from "~/models/category.server";
 import PostForm from "~/components/post-form";
 import invariant from "tiny-invariant";
@@ -11,20 +11,19 @@ import { getPostLink } from "~/components/post-link";
 import { getFeedList } from "~/models/feed.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const userId = await requireUserId(request);
+  const user = await requireUser(request);
   invariant(params.postId, "postId not found");
-  const post = await getPost({ userId, id: params.postId });
+
+  // Post + category list + feed list are all independent — fetch in parallel.
+  const [post, categoryList, feedList] = await Promise.all([
+    getPost({ user, id: params.postId }),
+    getCategoryList({ user, includeRestricted: false }),
+    getFeedList({ user, includeRestricted: false }),
+  ]);
+
   if (!post) {
     throw new Response("Not Found", { status: 404 });
   }
-  const categoryList = await getCategoryList({
-    userId,
-    includeRestricted: false,
-  });
-  const feedList = await getFeedList({
-    userId,
-    includeRestricted: false,
-  });
   return { categoryList, feedList, post };
 }
 
@@ -70,7 +69,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   if (feedIds !== null) {
     const allowedFeedIds = (
       await getFeedList({
-        userId: user.id,
+        user,
         includeRestricted: false,
       })
     ).map((f) => f.id);
@@ -109,7 +108,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const post = await updatePost({
     id: params.postId,
-    userId: user.id,
+    user,
     ...data,
   });
 

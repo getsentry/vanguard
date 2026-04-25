@@ -3,6 +3,7 @@ import invariant from "tiny-invariant";
 
 import { db } from "~/db/client";
 import { postComments, posts, users, categoryEmails } from "~/db/schema";
+import type { User } from "~/models/user.server";
 import type { PostQueryType } from "~/models/post.server";
 import { notifyComment } from "~/lib/email";
 import { waitUntil } from "~/lib/wait-until";
@@ -120,13 +121,10 @@ export async function createComment({
   return null;
 }
 
-export async function deleteComment({ userId, id }: { userId: string; id: string }) {
-  const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
-  invariant(user, "user not found");
-
+export async function deleteComment({ user, id }: { user: User; id: string }) {
   const where = user.admin
     ? eq(postComments.id, id)
-    : and(eq(postComments.id, id), eq(postComments.authorId, userId));
+    : and(eq(postComments.id, id), eq(postComments.authorId, user.id));
 
   const comment = await db.query.postComments.findFirst({ where });
   invariant(comment, "comment not found");
