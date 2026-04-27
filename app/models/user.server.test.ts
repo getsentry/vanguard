@@ -152,3 +152,21 @@ describe("upsertUser", () => {
     expect(roundTripped.admin).toBe(true);
   });
 });
+
+describe("getCurrentUserById", () => {
+  it("omits passwordHash and externalId from the returned shape", async () => {
+    const [row] = await db
+      .insert(users)
+      .values({ email: "current@example.com", passwordHash: "secret", externalId: "ext-123" })
+      .returning();
+
+    const { getCurrentUserById } = await import("~/models/user.server");
+    const result = await getCurrentUserById(row.id);
+
+    expect(result).not.toBeNull();
+    expect(result).not.toHaveProperty("passwordHash");
+    expect(result).not.toHaveProperty("externalId");
+    expect(result!.id).toBe(row.id);
+    expect(result!.email).toBe("current@example.com");
+  });
+});

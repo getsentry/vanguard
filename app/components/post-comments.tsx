@@ -7,7 +7,7 @@ import Button from "./button";
 import CommentForm from "./comment-form";
 import Markdown from "./markdown";
 import Middot from "./middot";
-import type { User } from "~/models/user.server";
+import type { PublicCurrentUser as User } from "~/models/user.server";
 import type { PostQueryType } from "~/models/post.server";
 import IconCollapsedPost from "~/icons/IconCollapsedPost";
 import type { PostCommentWithAuthor as PostComment } from "~/models/post-comments.server";

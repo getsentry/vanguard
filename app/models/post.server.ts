@@ -16,6 +16,7 @@ import {
   posts,
   users,
 } from "~/db/schema";
+import type { PublicCurrentUser } from "~/models/user.server";
 import { PUBLIC_USER_COLUMNS } from "~/models/user.server";
 import { error } from "~/lib/logging";
 import { waitUntil } from "~/lib/wait-until";
@@ -102,7 +103,7 @@ export async function getPost({
   user,
   onlyPublished = false,
 }: Pick<Post, "id"> & {
-  user: User;
+  user: PublicCurrentUser;
   onlyPublished?: boolean;
 }): Promise<PostQueryType | null> {
   let whereCondition;
@@ -156,7 +157,7 @@ export async function getPostList({
   offset = 0,
   limit = 50,
 }: {
-  user?: User | null;
+  user?: PublicCurrentUser | null;
   published?: boolean | null;
   authorId?: User["id"];
   categoryId?: Category["id"];
@@ -241,7 +242,7 @@ export async function updatePost({
   meta = [],
 }: {
   id: Post["id"];
-  user: User;
+  user: PublicCurrentUser;
   title?: Post["title"];
   content?: Post["content"];
   categoryId?: Post["categoryId"];
@@ -334,7 +335,7 @@ export async function createPost({
   published = false,
   meta = [],
 }: Pick<Post, "content" | "title"> & {
-  userId: User["id"];
+  userId: PublicCurrentUser["id"];
   published?: Post["published"];
   feedIds?: Feed["id"][];
   categoryId: Category["id"];
@@ -397,7 +398,7 @@ export async function createPost({
   } as PostQueryType;
 }
 
-export async function deletePost({ id, user }: Pick<Post, "id"> & { user: User }) {
+export async function deletePost({ id, user }: Pick<Post, "id"> & { user: PublicCurrentUser }) {
   updatePost({
     id,
     user,

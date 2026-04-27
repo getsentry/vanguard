@@ -3,7 +3,7 @@ import invariant from "tiny-invariant";
 
 import { db } from "~/db/client";
 import { postComments, posts, users, categoryEmails } from "~/db/schema";
-import type { User } from "~/models/user.server";
+import type { PublicCurrentUser } from "~/models/user.server";
 import { PUBLIC_USER_COLUMNS } from "~/models/user.server";
 import type { PostQueryType } from "~/models/post.server";
 import { notifyComment } from "~/lib/email";
@@ -122,7 +122,7 @@ export async function createComment({
   return null;
 }
 
-export async function deleteComment({ user, id }: { user: User; id: string }) {
+export async function deleteComment({ user, id }: { user: PublicCurrentUser; id: string }) {
   const where = user.admin
     ? eq(postComments.id, id)
     : and(eq(postComments.id, id), eq(postComments.authorId, user.id));

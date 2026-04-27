@@ -24,7 +24,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "~/db/client";
 import { users } from "~/db/schema";
-import type { User } from "~/models/user.server";
+import type { PublicCurrentUser } from "~/models/user.server";
 
 const IS_PREVIEW = process.env.VERCEL_ENV === "preview";
 const FLAG = process.env.PREVIEW_AUTO_LOGIN === "1";
@@ -48,9 +48,10 @@ const PREVIEW_USER_EMAIL = "preview-user@vanguard.local";
  * intentionally a regular (non-admin) account so previews exercise the
  * default reviewer experience.
  */
-export async function getPreviewUser(): Promise<User> {
+export async function getPreviewUser(): Promise<PublicCurrentUser> {
   const existing = await db.query.users.findFirst({
     where: eq(users.email, PREVIEW_USER_EMAIL),
+    columns: { passwordHash: false, externalId: false },
   });
   if (existing) return existing;
 
@@ -69,6 +70,7 @@ export async function getPreviewUser(): Promise<User> {
 
   const user = await db.query.users.findFirst({
     where: eq(users.email, PREVIEW_USER_EMAIL),
+    columns: { passwordHash: false, externalId: false },
   });
   if (!user) {
     throw new Error("Failed to create preview user");

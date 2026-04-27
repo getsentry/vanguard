@@ -9,6 +9,26 @@ export type User = typeof users.$inferSelect;
 /** Fields safe to embed in loader responses (never includes passwordHash / externalId). */
 export type PublicUser = Pick<User, "id" | "email" | "name" | "picture">;
 
+/**
+ * Current-user shape returned by auth helpers to loaders.
+ * Keeps admin / canPostRestricted / notifyReplies for client-side UI gating,
+ * but drops passwordHash and externalId which must never reach the browser.
+ */
+export type PublicCurrentUser = Omit<User, "passwordHash" | "externalId">;
+
+/**
+ * Loader-safe current-user fetch — identical to getUserById but projects
+ * out passwordHash and externalId before returning.
+ */
+export async function getCurrentUserById(id: User["id"]) {
+  return (
+    (await db.query.users.findFirst({
+      where: eq(users.id, id),
+      columns: { passwordHash: false, externalId: false },
+    })) ?? null
+  );
+}
+
 /** Drizzle column projection for public user fields. Use in `with: { author: { columns: PUBLIC_USER_COLUMNS } }`. */
 export const PUBLIC_USER_COLUMNS = {
   id: true,
@@ -138,7 +158,7 @@ export async function updateUser({
 }: {
   id: User["id"];
   /** The user performing the update — used for permission checks. */
-  actor: User;
+  actor: PublicCurrentUser;
   admin?: User["admin"] | null;
   name?: User["name"] | null;
   picture?: User["picture"] | null;

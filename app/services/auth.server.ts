@@ -25,11 +25,12 @@
 // SOFTWARE.
 
 import type { User } from "~/models/user.server";
+import type { PublicCurrentUser } from "~/models/user.server";
 import { Authenticator } from "remix-auth";
 import { redirect } from "react-router";
 
 import { buildUrl } from "~/lib/http";
-import { getUserById, upsertUser } from "~/models/user.server";
+import { getCurrentUserById, upsertUser } from "~/models/user.server";
 import { GoogleStrategy } from "~/lib/google-auth";
 import { sessionStorage } from "~/services/session.server";
 import { getPreviewUser, previewAutoLoginEnabled } from "~/services/preview-auto-login.server";
@@ -118,14 +119,14 @@ export async function getUserId(request: Request): Promise<string | undefined> {
   return user.id;
 }
 
-export async function getUser(request: Request) {
+export async function getUser(request: Request): Promise<PublicCurrentUser | undefined> {
   if (previewAutoLoginEnabled) return await getPreviewUser();
   const user = await authenticator.isAuthenticated(request);
   if (!user) {
     return undefined;
   }
 
-  return await getUserById(user.id);
+  return (await getCurrentUserById(user.id)) ?? undefined;
 }
 
 export async function requireUserId(request: Request): Promise<string> {
@@ -135,19 +136,23 @@ export async function requireUserId(request: Request): Promise<string> {
   return user.id;
 }
 
-export async function requireUser(request: Request): Promise<User> {
+export async function requireUser(request: Request): Promise<PublicCurrentUser> {
   if (previewAutoLoginEnabled) return await getPreviewUser();
   const user = await authenticator.isAuthenticated(request);
   if (!user) throw redirectToAuth({ request });
-  return user;
+  const currentUser = await getCurrentUserById(user.id);
+  if (!currentUser) throw redirectToAuth({ request });
+  return currentUser;
 }
 
-export async function requireAdmin(request: Request): Promise<User> {
+export async function requireAdmin(request: Request): Promise<PublicCurrentUser> {
   if (previewAutoLoginEnabled) return await getPreviewUser();
   const user = await authenticator.isAuthenticated(request);
   if (!user) throw redirectToAuth({ request });
-  if (!user.admin) throw redirect(`/403`);
-  return user;
+  const currentUser = await getCurrentUserById(user.id);
+  if (!currentUser) throw redirectToAuth({ request });
+  if (!currentUser.admin) throw redirect(`/403`);
+  return currentUser;
 }
 
 export function redirectToAuth({ request }: { request: Request }) {

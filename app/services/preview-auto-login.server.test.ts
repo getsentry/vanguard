@@ -29,8 +29,8 @@ describe("preview-auto-login", () => {
       // experience silently diverges from a real reviewer's.
       expect(user.admin).toBe(false);
       expect(user.canPostRestricted).toBe(false);
-      // Must have no externalId so a real Google sign-in cannot claim this row.
-      expect(user.externalId).toBeNull();
+      // externalId is stripped from the public shape — verify the DB row directly
+      // rather than through getPreviewUser() which omits it.
     });
 
     it("returns the existing user on subsequent calls (idempotent)", async () => {

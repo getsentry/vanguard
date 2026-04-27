@@ -1,12 +1,12 @@
 import { and, eq, ilike } from "drizzle-orm";
 
 import { db } from "~/db/client";
-import { feeds, users } from "~/db/schema";
+import { feeds } from "~/db/schema";
+import type { PublicCurrentUser } from "~/models/user.server";
 
 export type Feed = typeof feeds.$inferSelect;
 /** Loader-safe feed shape — excludes webhookUrl which is server-only. */
 export type PublicFeed = Omit<Feed, "webhookUrl">;
-export type User = typeof users.$inferSelect;
 
 export function getFeed({ id }: { id?: Feed["id"] }) {
   if (!id) return null;
@@ -20,7 +20,7 @@ export async function getFeedList({
   offset = 0,
   limit = 50,
 }: {
-  user: User;
+  user: PublicCurrentUser;
   includeRestricted?: Feed["restricted"];
   query?: string | null;
   offset?: number;

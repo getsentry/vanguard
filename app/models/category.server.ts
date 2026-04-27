@@ -1,12 +1,12 @@
 import { and, eq, ilike, or } from "drizzle-orm";
 
 import { db } from "~/db/client";
-import { categories, categoryMetas, users } from "~/db/schema";
+import { categories, categoryMetas } from "~/db/schema";
+import type { PublicCurrentUser } from "~/models/user.server";
 
 export type Category = typeof categories.$inferSelect;
 export type CategoryMeta = typeof categoryMetas.$inferSelect;
 export type CategoryWithMeta = Category & { metaConfig: CategoryMeta[] };
-export type User = typeof users.$inferSelect;
 
 export async function getCategory({ id, slug }: { id?: Category["id"]; slug?: Category["slug"] }) {
   if (!id && !slug) return null;
@@ -27,7 +27,7 @@ export async function getCategoryList({
   offset = 0,
   limit = 50,
 }: {
-  user: User;
+  user: PublicCurrentUser;
   includeRestricted?: Category["restricted"];
   query?: string | null;
   offset?: number;
