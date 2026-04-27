@@ -20,6 +20,7 @@ import type { User } from "./models/post.server";
 import { getPostList } from "./models/post.server";
 import PostList from "./components/post-list";
 import EnvNotice from "./components/env-notice";
+import LoadingIndicator from "./components/loading-indicator";
 import Button from "./components/button";
 import Document from "./components/document";
 import Link from "./components/link";
@@ -110,6 +111,7 @@ function App() {
 
   return (
     <Document data={data} showSidebar={showSidebar}>
+      <LoadingIndicator />
       <div>
         <Toaster />
       </div>
