@@ -9,6 +9,7 @@ import { getSubscriptions } from "~/models/post-subscription.server";
 import summarize from "./summarize";
 import { lightTheme } from "~/styles/theme";
 import { escapeHtml } from "./html";
+import { getUserById } from "~/models/user.server";
 import type { User } from "~/models/user.server";
 
 export type EmailConfig = {
@@ -157,12 +158,11 @@ export const notifyComment = async ({
   const subject = `Re: ${post.title}`;
 
   const subscriptions: User[] = await getSubscriptions({ postId: post.id });
-  if (
-    parent &&
-    parent.author.notifyReplies &&
-    !subscriptions.find((u) => u.id === parent.authorId)
-  ) {
-    subscriptions.push(parent.author);
+  if (parent && !subscriptions.find((u) => u.id === parent.authorId)) {
+    const parentAuthor = await getUserById(parent.authorId);
+    if (parentAuthor?.notifyReplies) {
+      subscriptions.push(parentAuthor);
+    }
   }
 
   subscriptions

@@ -4,6 +4,8 @@ import { db } from "~/db/client";
 import { feeds, users } from "~/db/schema";
 
 export type Feed = typeof feeds.$inferSelect;
+/** Loader-safe feed shape — excludes webhookUrl which is server-only. */
+export type PublicFeed = Omit<Feed, "webhookUrl">;
 export type User = typeof users.$inferSelect;
 
 export function getFeed({ id }: { id?: Feed["id"] }) {
@@ -36,6 +38,7 @@ export async function getFeedList({
 
   return db.query.feeds.findMany({
     where: and(...conditions),
+    columns: { webhookUrl: false },
     limit,
     offset,
     orderBy: (f, { asc }) => asc(f.name),

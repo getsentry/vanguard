@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Form } from "react-router";
 
 import type { CategoryWithMeta as Category } from "../models/category.server";
-import type { Feed } from "../models/feed.server";
+import type { PublicFeed } from "../models/feed.server";
 import Editor from "./editor";
 import useLocalStorage from "~/lib/useLocalStorage";
 import Button from "./button";
@@ -115,7 +115,7 @@ export default function PostForm({
   canAnnounce: _canAnnounce = true,
 }: {
   categoryList: Category[];
-  feedList: Feed[];
+  feedList: PublicFeed[];
   errors?: PostFormErrors;
   initialData?: PostFormInitialData;
   canDelete?: boolean;

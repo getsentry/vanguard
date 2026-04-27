@@ -4,13 +4,14 @@ import invariant from "tiny-invariant";
 import { db } from "~/db/client";
 import { postComments, posts, users, categoryEmails } from "~/db/schema";
 import type { User } from "~/models/user.server";
+import { PUBLIC_USER_COLUMNS } from "~/models/user.server";
 import type { PostQueryType } from "~/models/post.server";
 import { notifyComment } from "~/lib/email";
 import { waitUntil } from "~/lib/wait-until";
 
 export type PostComment = typeof postComments.$inferSelect;
 export type PostCommentWithAuthor = PostComment & {
-  author: typeof users.$inferSelect;
+  author: Pick<typeof users.$inferSelect, "id" | "email" | "name" | "picture">;
 };
 
 export async function getCommentList({
@@ -26,7 +27,7 @@ export async function getCommentList({
 }): Promise<PostCommentWithAuthor[]> {
   return db.query.postComments.findMany({
     where: and(eq(postComments.deleted, false), eq(postComments.postId, postId)),
-    with: { author: true },
+    with: { author: { columns: PUBLIC_USER_COLUMNS } },
     orderBy: asc(postComments.createdAt),
     offset,
     limit,
@@ -95,7 +96,7 @@ export async function createComment({
     const parent = parentId
       ? await db.query.postComments.findFirst({
           where: and(eq(postComments.postId, postId), eq(postComments.id, parentId)),
-          with: { author: true },
+          with: { author: { columns: PUBLIC_USER_COLUMNS } },
         })
       : null;
 
@@ -111,7 +112,7 @@ export async function createComment({
 
     const commentWithAuthor = await db.query.postComments.findFirst({
       where: eq(postComments.id, comment.id),
-      with: { author: true },
+      with: { author: { columns: PUBLIC_USER_COLUMNS } },
     });
 
     announceComment(post as unknown as PostQueryType, commentWithAuthor!, parent);

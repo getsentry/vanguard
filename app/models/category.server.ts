@@ -51,8 +51,6 @@ export async function getCategoryList({
     offset,
     orderBy: (c, { asc }) => asc(c.name),
     with: {
-      slackConfig: true,
-      emailConfig: true,
       metaConfig: true,
     },
   });

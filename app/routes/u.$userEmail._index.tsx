@@ -3,8 +3,7 @@ import { Form, useLoaderData } from "react-router";
 import invariant from "tiny-invariant";
 
 import { getPostList } from "~/models/post.server";
-import { getUserByEmail, updateUser } from "~/models/user.server";
-import type { User } from "~/models/user.server";
+import { getPublicUserByEmail, getUserByEmail, updateUser } from "~/models/user.server";
 import { requireAdmin, requireUser } from "~/services/auth.server";
 import Avatar from "~/components/avatar";
 import * as Panel from "~/components/panel";
@@ -16,7 +15,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const currentUser = await requireUser(request);
   invariant(params.userEmail, "userEmail not found");
 
-  const user = await getUserByEmail(params.userEmail);
+  const user = await getPublicUserByEmail(params.userEmail);
   if (!user) {
     throw new Response("Not Found", { status: 404 });
   }
@@ -72,7 +71,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
   return null;
 }
 
-const UserAdmin: React.FC<{ user: User }> = ({ user }) => {
+const UserAdmin: React.FC<{ user: { id: string; admin: boolean; canPostRestricted: boolean } }> = ({
+  user,
+}) => {
   return (
     <Panel.Panel>
       <Panel.Title>Admin</Panel.Title>

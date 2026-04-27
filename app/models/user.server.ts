@@ -6,6 +6,17 @@ import { users } from "~/db/schema";
 
 export type User = typeof users.$inferSelect;
 
+/** Fields safe to embed in loader responses (never includes passwordHash / externalId). */
+export type PublicUser = Pick<User, "id" | "email" | "name" | "picture">;
+
+/** Drizzle column projection for public user fields. Use in `with: { author: { columns: PUBLIC_USER_COLUMNS } }`. */
+export const PUBLIC_USER_COLUMNS = {
+  id: true,
+  email: true,
+  name: true,
+  picture: true,
+} as const;
+
 export async function getUserById(id: User["id"]) {
   return db.query.users.findFirst({ where: eq(users.id, id) }) ?? null;
 }
@@ -16,6 +27,19 @@ export async function getUserByExternalId(externalId: string) {
 
 export async function getUserByEmail(email: User["email"]) {
   return db.query.users.findFirst({ where: eq(users.email, email) }) ?? null;
+}
+
+/**
+ * Loader-safe variant — excludes passwordHash and externalId.
+ * Use in loaders that display a user's profile to other users.
+ */
+export async function getPublicUserByEmail(email: User["email"]) {
+  return (
+    (await db.query.users.findFirst({
+      where: eq(users.email, email),
+      columns: { passwordHash: false, externalId: false },
+    })) ?? null
+  );
 }
 
 export async function getUserList(

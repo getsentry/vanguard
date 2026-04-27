@@ -16,6 +16,7 @@ import {
   posts,
   users,
 } from "~/db/schema";
+import { PUBLIC_USER_COLUMNS } from "~/models/user.server";
 import { error } from "~/lib/logging";
 import { waitUntil } from "~/lib/wait-until";
 
@@ -26,12 +27,26 @@ export type User = typeof users.$inferSelect;
 export type Category = typeof categories.$inferSelect;
 export type Feed = typeof feeds.$inferSelect;
 
+/** Public feed shape — excludes webhookUrl which is server-only. */
+export type PublicFeed = Omit<Feed, "webhookUrl">;
+
+/** Public author shape embedded in loader-facing post/feed responses. */
+export type PostAuthor = Pick<User, "id" | "email" | "name" | "picture">;
+
 export interface PostQueryType extends Post {
-  author: User;
+  author: PostAuthor;
   category: Category;
   meta: PostMeta[];
-  feeds: Feed[];
+  feeds: PublicFeed[];
 }
+
+const PUBLIC_FEED_COLUMNS = {
+  id: true,
+  name: true,
+  restricted: true,
+  deleted: true,
+  url: true,
+} as const;
 
 export function announcePost(post: PostQueryType): void {
   waitUntil(
@@ -56,27 +71,30 @@ export function announcePost(post: PostQueryType): void {
   );
 }
 
-export async function syndicatePost(post) {
-  post.feeds.forEach(async (feed) => {
-    if (feed.webhookUrl) {
-      const res = await fetch(feed.webhookUrl, {
-        method: "POST",
-      });
+export async function syndicatePost(post: PostQueryType): Promise<void> {
+  if (!post.feeds.length) return;
+  const feedIds = post.feeds.map((f) => f.id);
+  const feedsWithWebhooks = await db
+    .select({ id: feeds.id, webhookUrl: feeds.webhookUrl })
+    .from(feeds)
+    .where(inArray(feeds.id, feedIds));
 
-      if (res.status !== 200) {
-        let data: any;
-        try {
-          data = await res.json();
-        } catch {
-          data = res.body;
-        }
-        error("feed webhook failed", {
-          context: { webhook: data },
-          tags: { statusCode: res.status },
-        });
+  for (const feed of feedsWithWebhooks) {
+    if (!feed.webhookUrl) continue;
+    const res = await fetch(feed.webhookUrl, { method: "POST" });
+    if (res.status !== 200) {
+      let data: unknown;
+      try {
+        data = await res.json();
+      } catch {
+        data = res.body;
       }
+      error("feed webhook failed", {
+        context: { webhook: data },
+        tags: { statusCode: res.status },
+      });
     }
-  });
+  }
 }
 
 export async function getPost({
@@ -111,11 +129,11 @@ export async function getPost({
   const result = await db.query.posts.findFirst({
     where: whereCondition,
     with: {
-      author: true,
+      author: { columns: PUBLIC_USER_COLUMNS },
       category: true,
       meta: true,
       feedToPost: {
-        with: { feed: true },
+        with: { feed: { columns: PUBLIC_FEED_COLUMNS } },
       },
     },
   });
@@ -193,11 +211,11 @@ export async function getPostList({
   const results = await db.query.posts.findMany({
     where: and(...conditions),
     with: {
-      author: true,
+      author: { columns: PUBLIC_USER_COLUMNS },
       category: true,
       meta: true,
       feedToPost: {
-        with: { feed: true },
+        with: { feed: { columns: PUBLIC_FEED_COLUMNS } },
       },
     },
     limit,
@@ -295,10 +313,10 @@ export async function updatePost({
   const fullPost = await db.query.posts.findFirst({
     where: eq(posts.id, updatedPost),
     with: {
-      author: true,
+      author: { columns: PUBLIC_USER_COLUMNS },
       category: true,
       meta: true,
-      feedToPost: { with: { feed: true } },
+      feedToPost: { with: { feed: { columns: PUBLIC_FEED_COLUMNS } } },
     },
   });
   return {
@@ -367,10 +385,10 @@ export async function createPost({
   const fullPost = await db.query.posts.findFirst({
     where: eq(posts.id, post),
     with: {
-      author: true,
+      author: { columns: PUBLIC_USER_COLUMNS },
       category: true,
       meta: true,
-      feedToPost: { with: { feed: true } },
+      feedToPost: { with: { feed: { columns: PUBLIC_FEED_COLUMNS } } },
     },
   });
   return {
