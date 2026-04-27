@@ -46,7 +46,7 @@
     "isbot": "^5.1.39",
     "isomorphic-dompurify": "^2.6.0",
     "marked": "^4.3.0",
-    "nodemailer": "^7.0.7",
+    "nodemailer": "^8.0.5",
     "pg": "^8.20.0",
     "prism-sentry": "^1.0.2",
     "prismjs": "^1.29.0",
