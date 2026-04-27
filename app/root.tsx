@@ -19,7 +19,7 @@ import Avatar from "./components/avatar";
 import type { User } from "./models/post.server";
 import { getPostList } from "./models/post.server";
 import PostList from "./components/post-list";
-import DevNotice from "./components/dev-notice";
+import EnvNotice from "./components/env-notice";
 import Button from "./components/button";
 import Document from "./components/document";
 import Link from "./components/link";
@@ -37,16 +37,23 @@ type LoaderData = {
   user: User | null;
   categoryList?: Awaited<ReturnType<typeof getCategoryList>> | null;
   recentPostList?: Awaited<ReturnType<typeof getPostList>> | null;
+  previewAutoLogin: boolean;
   sentryTrace?: string;
   sentryBaggage?: string;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
   const { getUser } = await import("./services/auth.server");
+  const { previewAutoLoginEnabled } = await import("./services/preview-auto-login.server");
   const user = (await getUser(request)) ?? null;
 
   if (!user) {
-    return { user: null, categoryList: null, recentPostList: null };
+    return {
+      user: null,
+      categoryList: null,
+      recentPostList: null,
+      previewAutoLogin: previewAutoLoginEnabled,
+    };
   }
 
   // Sidebar fetches are independent — run them in parallel.
@@ -55,7 +62,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     getPostList({ user, published: true, limit: 3 }),
   ]);
 
-  return { user, categoryList, recentPostList };
+  return { user, categoryList, recentPostList, previewAutoLogin: previewAutoLoginEnabled };
 };
 
 export function ErrorBoundary() {
@@ -82,7 +89,8 @@ export function ErrorBoundary() {
 }
 
 function App() {
-  const { user, categoryList, recentPostList, ...data } = useLoaderData<LoaderData>();
+  const { user, categoryList, recentPostList, previewAutoLogin, ...data } =
+    useLoaderData<LoaderData>();
 
   const [showSidebar, setShowSidebar] = useState(false);
 
@@ -105,7 +113,11 @@ function App() {
       <div>
         <Toaster />
       </div>
-      {import.meta.env.MODE !== "production" && <DevNotice />}
+      {previewAutoLogin ? (
+        <EnvNotice variant="preview" />
+      ) : (
+        import.meta.env.MODE !== "production" && <EnvNotice variant="development" />
+      )}
       <div className="relative">
         <div className="xl:pb-24 xl:px-20 xl:mr-[30rem] relative">
           <Container>
