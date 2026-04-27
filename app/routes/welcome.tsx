@@ -5,7 +5,7 @@ import { Form, useActionData, useLoaderData } from "react-router";
 
 import { requireUser } from "~/services/auth.server";
 import { updateUser } from "~/models/user.server";
-import { uploadFile } from "~/lib/upload-handler";
+import { uploadFile, isAllowedImageType } from "~/lib/upload-handler";
 import AvatarInput from "~/components/avatar-input";
 import Button from "~/components/button";
 
@@ -25,14 +25,10 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const pictureFile = formData.get("picture");
   let picture: string | undefined = undefined;
-  if (
-    pictureFile instanceof File &&
-    pictureFile.size > 0 &&
-    ["image/jpeg", "image/png", "image/gif", "image/webp"].includes(pictureFile.type)
-  ) {
+  if (pictureFile instanceof File && pictureFile.size > 0 && isAllowedImageType(pictureFile.type)) {
     const buffer = Buffer.from(await pictureFile.arrayBuffer());
     const { url } = await uploadFile({
-      filename: pictureFile.name,
+      mimeType: pictureFile.type,
       buffer,
       namespace: user.id,
     });

@@ -5,6 +5,7 @@ import type { LoaderFunctionArgs } from "react-router";
 import invariant from "tiny-invariant";
 import { get } from "@vercel/blob";
 import { requireUserId } from "~/services/auth.server";
+import { EXT_TO_MIME } from "~/lib/upload-handler";
 
 // 1 day browser cache. `private` so CDNs / shared caches don't store the
 // auth-gated bytes — only the requesting user's browser keeps a copy.
@@ -42,10 +43,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const filepath = path.join(os.tmpdir(), pathname);
   const fd = await fs.open(filepath, "r");
   const stream = fd.createReadStream();
+  const ext = path.extname(pathname).slice(1).toLowerCase();
+  const contentType = EXT_TO_MIME[ext] ?? "application/octet-stream";
 
   return new Response(stream as unknown as ReadableStream, {
     status: 200,
     headers: {
+      "Content-Type": contentType,
       "Cache-Control": CACHE_CONTROL,
       ...SECURITY_HEADERS,
     },

@@ -1,8 +1,6 @@
 import type { ActionFunctionArgs } from "react-router";
 import { requireUserId } from "~/services/auth.server";
-import { uploadFile } from "~/lib/upload-handler";
-
-const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/gif", "image/webp"]);
+import { uploadFile, isAllowedImageType } from "~/lib/upload-handler";
 
 export async function action({ request }: ActionFunctionArgs) {
   if (request.method !== "POST") return Response.json({}, { status: 405 });
@@ -14,7 +12,7 @@ export async function action({ request }: ActionFunctionArgs) {
   if (!(file instanceof File)) {
     return Response.json({ error: "No file provided" }, { status: 400 });
   }
-  if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+  if (!isAllowedImageType(file.type)) {
     return Response.json(
       { error: "Only JPEG, PNG, GIF, and WebP images are allowed" },
       { status: 400 },
@@ -23,7 +21,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const buffer = Buffer.from(await file.arrayBuffer());
   const { url } = await uploadFile({
-    filename: file.name,
+    mimeType: file.type,
     buffer,
     namespace: userId,
   });

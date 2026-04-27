@@ -58,4 +58,15 @@ describe("POST /upload-image", () => {
     // Should not be a 400 (actual upload may fail in test env, that's OK)
     expect(response.status).not.toBe(400);
   });
+
+  it("stores file without original filename in URL", async () => {
+    const png = new File([Buffer.from("fake-png")], "evil.svg.png", { type: "image/png" });
+    const request = await buildUploadRequest(png);
+    const result = await action({ request, params: {}, context: {} });
+    // A plain object is returned on success; a Response on error
+    if (!(result instanceof Response)) {
+      expect(result.url).toMatch(/\/image-uploads\/[^/]+\/[a-z0-9]+\.png$/);
+      expect(result.url).not.toContain("evil");
+    }
+  });
 });

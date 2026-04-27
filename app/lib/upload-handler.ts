@@ -4,6 +4,28 @@ import path from "path";
 import { put } from "@vercel/blob";
 import { createId as cuid } from "@paralleldrive/cuid2";
 
+export const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/gif", "image/webp"]);
+
+export function isAllowedImageType(mime: string): boolean {
+  return ALLOWED_IMAGE_TYPES.has(mime);
+}
+
+const MIME_TO_EXT: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/gif": "gif",
+  "image/webp": "webp",
+};
+
+/** Map a file extension to its MIME type (for local-dev Content-Type derivation). */
+export const EXT_TO_MIME: Record<string, string> = {
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  gif: "image/gif",
+  webp: "image/webp",
+};
+
 /**
  * Store an uploaded file. Returns a URL to be embedded in post content.
  *
@@ -16,15 +38,16 @@ import { createId as cuid } from "@paralleldrive/cuid2";
  * proxy URL, served by the same route from the local filesystem.
  */
 export async function uploadFile({
-  filename,
+  mimeType,
   buffer,
   namespace = "post-images",
 }: {
-  filename: string;
+  mimeType: string;
   buffer: Buffer | ArrayBuffer;
   namespace?: string;
 }): Promise<{ url: string }> {
-  const pathname = `${namespace}/${cuid()}-${filename.replace(/\s+/g, "-")}`;
+  const ext = MIME_TO_EXT[mimeType] ?? "bin";
+  const pathname = `${namespace}/${cuid()}.${ext}`;
 
   if (process.env.BLOB_READ_WRITE_TOKEN) {
     await put(pathname, buffer, { access: "private" });
