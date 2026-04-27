@@ -55,6 +55,43 @@ if (
 
 export const authenticator = new Authenticator<User>(sessionStorage);
 
+/**
+ * Exported for unit-testing only. Validates a Google profile against the
+ * configured workspace domain and persists the user on success.
+ */
+export async function verifyGoogleProfile(
+  profile: {
+    id: string;
+    emails: [{ value: string }];
+    _json: { email_verified: boolean; hd?: string };
+  },
+  googleHd: string | undefined,
+): Promise<User> {
+  const email = profile.emails[0].value;
+
+  // Enforce email_verified — reject unverified Google accounts.
+  if (!profile._json.email_verified) {
+    throw new Error(`Google account ${email} is not email-verified.`);
+  }
+
+  // Enforce workspace domain server-side. The hd OAuth hint is advisory;
+  // any Google account that completes the flow would otherwise get a session.
+  if (googleHd) {
+    const returnedHd = profile._json.hd;
+    const emailDomain = email.split("@")[1];
+    if (returnedHd !== googleHd && emailDomain !== googleHd) {
+      throw new Error(
+        `Google account ${email} does not belong to the required workspace domain (${googleHd}).`,
+      );
+    }
+  }
+
+  return upsertUser({
+    email,
+    externalId: profile.id,
+  });
+}
+
 authenticator.use(
   new GoogleStrategy(
     {
@@ -65,10 +102,7 @@ authenticator.use(
     },
     async ({ profile }) => {
       console.log(`Persisting user ${profile.emails[0].value}`);
-      return upsertUser({
-        email: profile.emails[0].value,
-        externalId: profile.id,
-      });
+      return verifyGoogleProfile(profile, GOOGLE_HD);
     },
   ),
   "google",
