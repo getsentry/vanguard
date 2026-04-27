@@ -10,8 +10,8 @@ export default function Footer({ version, admin }: Props) {
   return (
     <div className="flex justify-between text-xs text-secondary-light dark:text-secondary-dark">
       <div>
-        <span>Vanguard {version ? version.substring(0, 7) : ""}</span>{" "}
-        <Middot /> <Link to="/about">About</Link>
+        <span>Vanguard {version ? version.substring(0, 7) : ""}</span> <Middot />{" "}
+        <Link to="/about">About</Link>
       </div>
       <div>
         {admin && (

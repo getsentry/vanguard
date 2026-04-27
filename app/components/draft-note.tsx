@@ -1,5 +1,5 @@
-import type { Post } from "@prisma/client";
-import { Form } from "@remix-run/react";
+import type { Post } from "~/models/post.server";
+import { Form } from "react-router";
 
 import { getPostLink } from "./post-link";
 import ButtonDropdown, { ButtonDropdownItem } from "./button-dropdown";
@@ -12,10 +12,7 @@ export default function DraftNote({ post }: { post: Post }) {
       method="post"
       action={`${getPostLink(post)}/edit`}
     >
-      <p>
-        This post has not been published, and is only visible if you have the
-        link.
-      </p>
+      <p>This post has not been published, and is only visible if you have the link.</p>
       <ButtonDropdown
         type="submit"
         mode="primary"

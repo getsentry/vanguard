@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { Form } from "@remix-run/react";
+import { Form } from "react-router";
 
-import type { Category } from "../models/category.server";
-import type { Feed } from "../models/feed.server";
+import type { CategoryWithMeta as Category } from "../models/category.server";
+import type { PublicFeed } from "../models/feed.server";
 import Editor from "./editor";
 import useLocalStorage from "~/lib/useLocalStorage";
 import Button from "./button";
@@ -34,7 +34,7 @@ const CategorySelector = ({
   name,
   categoryList,
   defaultValue = "",
-  error,
+  error: _error,
   onChange,
 }: {
   name: string;
@@ -56,11 +56,7 @@ const CategorySelector = ({
           <label
             className="font-mono cursor-pointer flex flex-row text-sm items-center gap-2 px-4 py-2 rounded-full uppercase border border-border-light dark:border-border-dark"
             key={category.id}
-            style={
-              category.id === categoryId
-                ? categoryTagStyles(category.colorHex)
-                : undefined
-            }
+            style={category.id === categoryId ? categoryTagStyles(category.colorHex) : undefined}
           >
             <input
               type="radio"
@@ -97,11 +93,7 @@ const MetaConfigField = ({
     <div>
       <label className={required ? "field-required" : ""}>
         <span>{name}: </span>
-        <input
-          name={`meta[${name}]`}
-          required={required}
-          defaultValue={defaultValue}
-        />
+        <input name={`meta[${name}]`} required={required} defaultValue={defaultValue} />
         {description && <HelpText>{description}</HelpText>}
       </label>
       {error && (
@@ -120,10 +112,10 @@ export default function PostForm({
   initialData,
   canDelete = false,
   canUnpublish = false,
-  canAnnounce = true,
+  canAnnounce: _canAnnounce = true,
 }: {
   categoryList: Category[];
-  feedList: Feed[];
+  feedList: PublicFeed[];
   errors?: PostFormErrors;
   initialData?: PostFormInitialData;
   canDelete?: boolean;
@@ -158,11 +150,12 @@ export default function PostForm({
         setStoredDraft({});
       }}
       onChange={(e) => {
-        const match = e.target.name.match(/^meta\[(.+)\]$/);
-        const value = e.target.value;
+        const target = e.target as HTMLInputElement;
+        const match = target.name.match(/^meta\[(.+)\]$/);
+        const value = target.value;
         const additions = match
-          ? { meta: { ...(storedDraft.meta || {}), [match[1]]: value } }
-          : { [e.target.name]: value };
+          ? { meta: { ...storedDraft.meta, [match[1]]: value } }
+          : { [target.name]: value };
         setStoredDraft({ ...storedDraft, ...additions });
       }}
     >
@@ -244,12 +237,10 @@ export default function PostForm({
                       name="feedId"
                       value={feed.id}
                       defaultChecked={
-                        initialData?.feedIds &&
-                        initialData?.feedIds?.indexOf(feed.id) !== -1
+                        initialData?.feedIds && initialData?.feedIds?.indexOf(feed.id) !== -1
                       }
                     />
-                    Publish to{" "}
-                    {feed.url ? <a href={feed.url}>{feed.name}</a> : feed.name}
+                    Publish to {feed.url ? <a href={feed.url}>{feed.name}</a> : feed.name}
                   </label>
                 </div>
               </li>
@@ -262,11 +253,7 @@ export default function PostForm({
           {initialData && initialData.published ? (
             canUnpublish && initialData.published ? (
               <ButtonDropdown type="submit" mode="primary" label="Save Changes">
-                <ButtonDropdownItem
-                  type="submit"
-                  name="published"
-                  value="false"
-                >
+                <ButtonDropdownItem type="submit" name="published" value="false">
                   Save as Draft
                   <HelpText>Unpublish this post.</HelpText>
                 </ButtonDropdownItem>

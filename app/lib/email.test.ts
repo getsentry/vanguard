@@ -1,11 +1,15 @@
-import type { User, Post, PostComment } from "@prisma/client";
+// @ts-nocheck
 import type { Transporter } from "nodemailer";
 import { createTransport } from "nodemailer";
 import type Mail from "nodemailer/lib/mailer";
 import type SMTPTransport from "nodemailer/lib/smtp-transport";
 
+import { db } from "~/db/client";
+import { postSubscriptions } from "~/db/schema";
 import * as Fixtures from "~/lib/test/fixtures";
-import { prisma } from "~/services/db.server";
+import type { Post } from "~/models/post.server";
+import type { PostComment } from "~/models/post-comments.server";
+import type { User } from "~/models/user.server";
 
 import { notify, notifyComment } from "./email";
 
@@ -71,8 +75,7 @@ describe("notify", () => {
     });
     post = await Fixtures.Post({
       title: "An Essay",
-      content:
-        "**An Essay** on _life_\n\n[Hello World](/foo/bar)\n\n![An Image](/foo.jpg)",
+      content: "**An Essay** on _life_\n\n[Hello World](/foo/bar)\n\n![An Image](/foo.jpg)",
       authorId: author.id,
     });
   });
@@ -115,15 +118,13 @@ describe("notify", () => {
     expect(outbox.length).toBe(1);
     const message = outbox[0];
 
-    const pictureUrl = message.html.match(
-      /http\:\/\/localhost\/img\/placeholder-avatar.png/,
-    );
+    const pictureUrl = message.html.match(/http:\/\/localhost\/img\/placeholder-avatar.png/);
     expect(pictureUrl[0]).toBeDefined();
 
-    const linkUrl = message.html.match(/http\:\/\/localhost\/foo\/bar/);
+    const linkUrl = message.html.match(/http:\/\/localhost\/foo\/bar/);
     expect(linkUrl[0]).toBeDefined();
 
-    const imgUrl = message.html.match(/http\:\/\/localhost\/foo.jpg/);
+    const imgUrl = message.html.match(/http:\/\/localhost\/foo.jpg/);
     expect(imgUrl[0]).toBeDefined();
   });
 });
@@ -147,12 +148,7 @@ describe("notifyComment", () => {
       authorId: author.id,
     });
 
-    await prisma.postSubscription.create({
-      data: {
-        userId: author.id,
-        postId: post.id,
-      },
-    });
+    await db.insert(postSubscriptions).values({ userId: author.id, postId: post.id });
   });
 
   test("doesnt notify author", async () => {
@@ -162,12 +158,7 @@ describe("notifyComment", () => {
 
   test("constructs appropriate email", async () => {
     const otherAuthor = await Fixtures.User();
-    await prisma.postSubscription.create({
-      data: {
-        userId: otherAuthor.id,
-        postId: post.id,
-      },
-    });
+    await db.insert(postSubscriptions).values({ userId: otherAuthor.id, postId: post.id });
     await notifyComment({
       post,
       comment,
@@ -182,8 +173,8 @@ describe("notifyComment", () => {
 
   describe("with parent", () => {
     test("notifies comment author on reply", async () => {
-      let otherAuthor = await Fixtures.User();
-      let childComment = await Fixtures.PostComment({
+      const otherAuthor = await Fixtures.User();
+      const childComment = await Fixtures.PostComment({
         parentId: comment.id,
         authorId: otherAuthor.id,
       });

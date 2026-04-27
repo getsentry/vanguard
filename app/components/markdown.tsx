@@ -1,5 +1,6 @@
 import { marked } from "marked";
-import { sanitize } from "isomorphic-dompurify";
+import DOMPurify from "isomorphic-dompurify";
+const { sanitize } = DOMPurify;
 import prismjs from "prismjs";
 import { default as summarizeFn } from "../lib/summarize";
 import { useState, useEffect, useRef } from "react";
@@ -8,13 +9,14 @@ import "prism-sentry/index.css";
 
 const renderer = new marked.Renderer();
 
-renderer.code = function (code, lang, escaped) {
-  code = this.options.highlight(code, lang);
+renderer.code = function (code, lang, _escaped) {
+  // @ts-ignore: highlight may not be in newer marked types
+  code = (this as any).options?.highlight?.(code, lang) ?? code;
   if (!lang) {
     return `<pre class="code-block"><code>${code}</code></pre>`;
   }
 
-  var langClass = "language-" + lang;
+  const langClass = "language-" + lang;
   return `<pre class="code-block ${langClass}"><code class="${langClass}">${code}</code></pre>`;
 };
 
@@ -136,10 +138,7 @@ export default function Markdown({
 
     const handleImageClick = (event: Event) => {
       const target = event.target as HTMLElement;
-      if (
-        target.tagName === "IMG" &&
-        target.classList.contains("markdown-image")
-      ) {
+      if (target.tagName === "IMG" && target.classList.contains("markdown-image")) {
         const src = target.getAttribute("data-enlarge-src");
         const alt = target.getAttribute("data-enlarge-alt");
         if (src) {
@@ -155,17 +154,11 @@ export default function Markdown({
     };
   }, [content]); // Re-run when content changes
 
-  let html = sanitize(
-    summarize ? summarizeFn(content) : parseMarkdown(content),
-  );
+  const html = sanitize(summarize ? summarizeFn(content) : parseMarkdown(content));
 
   return (
     <>
-      <div
-        ref={containerRef}
-        dangerouslySetInnerHTML={{ __html: html }}
-        {...props}
-      />
+      <div ref={containerRef} dangerouslySetInnerHTML={{ __html: html }} {...props} />
       <ImageModal
         src={modalImage?.src || ""}
         alt={modalImage?.alt || ""}

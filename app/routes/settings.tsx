@@ -1,59 +1,47 @@
 import { useEffect, useRef } from "react";
-import {
-  unstable_parseMultipartFormData,
-  json,
-  redirect,
-} from "@remix-run/node";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
+import { redirect } from "react-router";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { Form, Link, useActionData, useLoaderData } from "react-router";
 
-import { requireUserId } from "~/services/auth.server";
-import { getUserById, updateUser } from "~/models/user.server";
-import uploadHandler from "~/lib/upload-handler";
+import { requireUser } from "~/services/auth.server";
+import { updateUser } from "~/models/user.server";
+import { uploadFile, isAllowedImageType } from "~/lib/upload-handler";
 import AvatarInput from "~/components/avatar-input";
 import FormActions from "~/components/form-actions";
 import Button from "~/components/button";
 import PageHeader from "~/components/page-header";
 
-export async function loader({ request, context }: LoaderFunctionArgs) {
-  const userId = await requireUserId(request, context);
-
-  const user = await getUserById(userId);
-
-  return json({ user });
+export async function loader({ request }: LoaderFunctionArgs) {
+  const user = await requireUser(request);
+  return { user };
 }
 
-export async function action({ request, context }: ActionFunctionArgs) {
-  const userId = await requireUserId(request, context);
+export async function action({ request }: ActionFunctionArgs) {
+  const user = await requireUser(request);
 
-  const filter = ({ contentType }: { contentType: string }) => {
-    return /image/i.test(contentType);
-  };
-
-  const formData = await unstable_parseMultipartFormData(
-    request,
-    uploadHandler({
-      fieldName: "picture",
-      filter,
-      namespace: userId,
-      urlPrefix: "/image-uploads",
-    }),
-  );
+  const formData = await request.formData();
   const name = formData.get("name");
   const notifyReplies = !!formData.get("notifyReplies");
-  let picture: any = formData.get("picture");
-  // empty values get returned as empty strings, which will unset
-  // the picture rather than leave it unchanged
-  if (picture === "") picture = undefined;
+  const pictureFile = formData.get("picture");
+  let picture: string | undefined = undefined;
+  if (pictureFile instanceof File && pictureFile.size > 0 && isAllowedImageType(pictureFile.type)) {
+    const buffer = Buffer.from(await pictureFile.arrayBuffer());
+    const { url } = await uploadFile({
+      mimeType: pictureFile.type,
+      buffer,
+      namespace: user.id,
+    });
+    picture = url;
+  }
 
   if (typeof name !== "string" || name.length === 0) {
-    return json({ errors: { name: "Name is required" } }, { status: 400 });
+    return Response.json({ errors: { name: "Name is required" } }, { status: 400 });
   }
 
   // TODO: update session
   await updateUser({
-    userId,
-    id: userId,
+    actor: user,
+    id: user.id,
     name,
     picture,
     notifyReplies,
@@ -67,7 +55,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
 
 export default function Settings() {
   const { user } = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
+  const actionData = useActionData() as { errors?: Record<string, any> } | undefined;
   const errors = actionData?.errors;
 
   const nameRef = useRef<HTMLInputElement>(null);
@@ -124,11 +112,7 @@ export default function Settings() {
       <div>
         <label>
           <span>How about a slick way to visually identify yourself?</span>
-          <AvatarInput
-            initialValue={user.picture}
-            name="picture"
-            error={errors?.picture}
-          />
+          <AvatarInput initialValue={user.picture} name="picture" error={errors?.picture} />
         </label>
         {errors?.picture && (
           <div className="pt-1 text-red-700" id="picture-error">
@@ -138,11 +122,7 @@ export default function Settings() {
       </div>
       <div>
         <label className="field-inline">
-          <input
-            type="checkbox"
-            name="notifyReplies"
-            defaultChecked={user.notifyReplies}
-          />
+          <input type="checkbox" name="notifyReplies" defaultChecked={user.notifyReplies} />
           Receive notifications about replies to your comments?
         </label>
       </div>

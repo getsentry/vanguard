@@ -1,9 +1,5 @@
-import type { User } from "@prisma/client";
-import type {
-  ComponentPropsWithoutRef,
-  ElementType,
-  PropsWithChildren,
-} from "react";
+import type { User } from "~/models/user.server";
+import type { ComponentPropsWithoutRef, ElementType, PropsWithChildren } from "react";
 
 export type PolymorphicAsProp<E extends ElementType> = {
   as?: E;

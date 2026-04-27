@@ -1,0 +1,886 @@
+{
+  "id": "68e0d93f-359a-416c-8058-580806cddbc2",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.Category": {
+      "name": "Category",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slug": {
+          "name": "slug",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deleted": {
+          "name": "deleted",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "restricted": {
+          "name": "restricted",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "colorHex": {
+          "name": "colorHex",
+          "type": "varchar(7)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "allowComments": {
+          "name": "allowComments",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "defaultEmojis": {
+          "name": "defaultEmojis",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "Category_name_unique": {
+          "name": "Category_name_unique",
+          "nullsNotDistinct": false,
+          "columns": ["name"]
+        },
+        "Category_slug_unique": {
+          "name": "Category_slug_unique",
+          "nullsNotDistinct": false,
+          "columns": ["slug"]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.CategoryEmail": {
+      "name": "CategoryEmail",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "categoryId": {
+          "name": "categoryId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "to": {
+          "name": "to",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "subjectPrefix": {
+          "name": "subjectPrefix",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "CategoryEmail_categoryId_Category_id_fk": {
+          "name": "CategoryEmail_categoryId_Category_id_fk",
+          "tableFrom": "CategoryEmail",
+          "tableTo": "Category",
+          "columnsFrom": ["categoryId"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.CategoryMeta": {
+      "name": "CategoryMeta",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "categoryId": {
+          "name": "categoryId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "required": {
+          "name": "required",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "CategoryMeta_categoryId_Category_id_fk": {
+          "name": "CategoryMeta_categoryId_Category_id_fk",
+          "tableFrom": "CategoryMeta",
+          "tableTo": "Category",
+          "columnsFrom": ["categoryId"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.CategorySlack": {
+      "name": "CategorySlack",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "categoryId": {
+          "name": "categoryId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "webhookUrl": {
+          "name": "webhookUrl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "username": {
+          "name": "username",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "iconUrl": {
+          "name": "iconUrl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "channel": {
+          "name": "channel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "CategorySlack_categoryId_Category_id_fk": {
+          "name": "CategorySlack_categoryId_Category_id_fk",
+          "tableFrom": "CategorySlack",
+          "tableTo": "Category",
+          "columnsFrom": ["categoryId"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public._FeedToPost": {
+      "name": "_FeedToPost",
+      "schema": "",
+      "columns": {
+        "A": {
+          "name": "A",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "B": {
+          "name": "B",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "_FeedToPost_A_Feed_id_fk": {
+          "name": "_FeedToPost_A_Feed_id_fk",
+          "tableFrom": "_FeedToPost",
+          "tableTo": "Feed",
+          "columnsFrom": ["A"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "_FeedToPost_B_Post_id_fk": {
+          "name": "_FeedToPost_B_Post_id_fk",
+          "tableFrom": "_FeedToPost",
+          "tableTo": "Post",
+          "columnsFrom": ["B"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Feed": {
+      "name": "Feed",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "restricted": {
+          "name": "restricted",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "deleted": {
+          "name": "deleted",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "url": {
+          "name": "url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "webhookUrl": {
+          "name": "webhookUrl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "Feed_name_unique": {
+          "name": "Feed_name_unique",
+          "nullsNotDistinct": false,
+          "columns": ["name"]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.PostComment": {
+      "name": "PostComment",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "postId": {
+          "name": "postId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "authorId": {
+          "name": "authorId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "deleted": {
+          "name": "deleted",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "content": {
+          "name": "content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "parentId": {
+          "name": "parentId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "PostComment_postId_Post_id_fk": {
+          "name": "PostComment_postId_Post_id_fk",
+          "tableFrom": "PostComment",
+          "tableTo": "Post",
+          "columnsFrom": ["postId"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "PostComment_authorId_User_id_fk": {
+          "name": "PostComment_authorId_User_id_fk",
+          "tableFrom": "PostComment",
+          "tableTo": "User",
+          "columnsFrom": ["authorId"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.PostMeta": {
+      "name": "PostMeta",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "postId": {
+          "name": "postId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "content": {
+          "name": "content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "PostMeta_postId_Post_id_fk": {
+          "name": "PostMeta_postId_Post_id_fk",
+          "tableFrom": "PostMeta",
+          "tableTo": "Post",
+          "columnsFrom": ["postId"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.PostReaction": {
+      "name": "PostReaction",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "postId": {
+          "name": "postId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "authorId": {
+          "name": "authorId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "emoji": {
+          "name": "emoji",
+          "type": "varchar(8)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "PostReaction_postId_Post_id_fk": {
+          "name": "PostReaction_postId_Post_id_fk",
+          "tableFrom": "PostReaction",
+          "tableTo": "Post",
+          "columnsFrom": ["postId"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "PostReaction_authorId_User_id_fk": {
+          "name": "PostReaction_authorId_User_id_fk",
+          "tableFrom": "PostReaction",
+          "tableTo": "User",
+          "columnsFrom": ["authorId"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "PostReaction_postId_authorId_emoji_unique": {
+          "name": "PostReaction_postId_authorId_emoji_unique",
+          "nullsNotDistinct": false,
+          "columns": ["postId", "authorId", "emoji"]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.PostRevision": {
+      "name": "PostRevision",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "postId": {
+          "name": "postId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "authorId": {
+          "name": "authorId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "content": {
+          "name": "content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "categoryId": {
+          "name": "categoryId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "PostRevision_postId_Post_id_fk": {
+          "name": "PostRevision_postId_Post_id_fk",
+          "tableFrom": "PostRevision",
+          "tableTo": "Post",
+          "columnsFrom": ["postId"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "PostRevision_authorId_User_id_fk": {
+          "name": "PostRevision_authorId_User_id_fk",
+          "tableFrom": "PostRevision",
+          "tableTo": "User",
+          "columnsFrom": ["authorId"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "PostRevision_categoryId_Category_id_fk": {
+          "name": "PostRevision_categoryId_Category_id_fk",
+          "tableFrom": "PostRevision",
+          "tableTo": "Category",
+          "columnsFrom": ["categoryId"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.PostSubscription": {
+      "name": "PostSubscription",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "postId": {
+          "name": "postId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "PostSubscription_postId_Post_id_fk": {
+          "name": "PostSubscription_postId_Post_id_fk",
+          "tableFrom": "PostSubscription",
+          "tableTo": "Post",
+          "columnsFrom": ["postId"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "PostSubscription_userId_User_id_fk": {
+          "name": "PostSubscription_userId_User_id_fk",
+          "tableFrom": "PostSubscription",
+          "tableTo": "User",
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "PostSubscription_postId_userId_unique": {
+          "name": "PostSubscription_postId_userId_unique",
+          "nullsNotDistinct": false,
+          "columns": ["postId", "userId"]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Post": {
+      "name": "Post",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "publishedAt": {
+          "name": "publishedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "title": {
+          "name": "title",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "content": {
+          "name": "content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "published": {
+          "name": "published",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "deleted": {
+          "name": "deleted",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "authorId": {
+          "name": "authorId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "categoryId": {
+          "name": "categoryId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "allowComments": {
+          "name": "allowComments",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "Post_authorId_User_id_fk": {
+          "name": "Post_authorId_User_id_fk",
+          "tableFrom": "Post",
+          "tableTo": "User",
+          "columnsFrom": ["authorId"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "Post_categoryId_Category_id_fk": {
+          "name": "Post_categoryId_Category_id_fk",
+          "tableFrom": "Post",
+          "tableTo": "Category",
+          "columnsFrom": ["categoryId"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.User": {
+      "name": "User",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "passwordHash": {
+          "name": "passwordHash",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "externalId": {
+          "name": "externalId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "picture": {
+          "name": "picture",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "canPostRestricted": {
+          "name": "canPostRestricted",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "admin": {
+          "name": "admin",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "notifyReplies": {
+          "name": "notifyReplies",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "User_externalId_unique": {
+          "name": "User_externalId_unique",
+          "nullsNotDistinct": false,
+          "columns": ["externalId"]
+        },
+        "User_email_unique": {
+          "name": "User_email_unique",
+          "nullsNotDistinct": false,
+          "columns": ["email"]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

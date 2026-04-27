@@ -1,6 +1,5 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import type { LoaderFunctionArgs } from "react-router";
+import { useLoaderData } from "react-router";
 
 import { requireAdmin } from "~/services/auth.server";
 import { paginate } from "~/lib/paginator";
@@ -11,16 +10,12 @@ import { getCommentList } from "~/models/post-comments.server";
 import TimeSince from "~/components/timeSince";
 import Link from "~/components/link";
 
-export async function loader({ request, context }: LoaderFunctionArgs) {
-  const user = await requireAdmin(request, context);
+export async function loader({ request }: LoaderFunctionArgs) {
+  const user = await requireAdmin(request);
   const url = new URL(request.url);
   const cursor = url.searchParams.get("cursor");
-  const commentListPaginated = await paginate(
-    getCommentList,
-    { userId: user.id },
-    cursor,
-  );
-  return json({ commentListPaginated });
+  const commentListPaginated = await paginate(getCommentList, { userId: user.id }, cursor);
+  return { commentListPaginated };
 }
 
 export default function Comments() {
@@ -45,14 +40,10 @@ export default function Comments() {
                 {result.map((comment) => (
                   <tr key={comment.id}>
                     <td>
-                      <PostLink post={comment.post}>
-                        {comment.post.title}
-                      </PostLink>
+                      <PostLink post={comment.post}>{comment.post.title}</PostLink>
                     </td>
                     <td>
-                      <Link to={`/u/${comment.author.email}`}>
-                        {comment.author.email}
-                      </Link>
+                      <Link to={`/u/${comment.author.email}`}>{comment.author.email}</Link>
                     </td>
                     <td>
                       <TimeSince date={comment.createdAt} />

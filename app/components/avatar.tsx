@@ -1,12 +1,10 @@
-import type { User } from "@prisma/client";
-
 export default function Avatar({
   user,
   size = "3rem",
   ...props
 }: {
   size?: string;
-  user?: User;
+  user?: { picture?: string | null };
 }) {
   return (
     <img

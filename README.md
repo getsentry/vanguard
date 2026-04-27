@@ -2,6 +2,8 @@
 
 Vanguard is an internal blog-like platform, inspired by [PlanetScale's Beam](https://github.com/planetscale/beam).
 
+Built on **React Router v7 + Drizzle + Vercel Blob**, deployed on Vercel.
+
 An excerpt in how we describe this at Sentry:
 
 > Vanguard has been designed to provide a way to create permanence around
@@ -12,45 +14,44 @@ An excerpt in how we describe this at Sentry:
 > which we're dubbing as 'Strategy' in this context. You'll see several
 > historical posts by myself of this nature.
 
-It is built on top of [Remix](https://github.com/remix-run/remix), and intended to be deployed on private GCP infrastructure.
-
 **Note: This project is a work in progress, and is primarily intended for Sentry use. Our hope is that we can keep it generic enough that its usable elsewhere, but that may require effort from the open source community.**
 
 ![screenshot of vanguard](/screenshot.png?raw=true)
 
 ## Deployment
 
-While we at Sentry deploy this to GCP (using a combination of Cloud Run, Cloud Storage, and SQL), we have included the stock [blues-stack Fly config](https://github.com/remix-run/blues-stack). You will still need to configure an image storage service.
+Vanguard is designed for **Vercel deployment** with [Neon Postgres](https://neon.tech) and [Vercel Blob](https://vercel.com/docs/storage/vercel-blob) storage.
+
+See the [React Router on Vercel guide](https://vercel.com/docs/frameworks/react-router) for deployment details. Neon's branching feature integrates cleanly with Vercel Preview Deployments — each preview branch can point at its own Neon branch.
 
 You will need to ensure a few key values are set in production:
 
 ```sh
-# generate a random secret using `openssl rand -hex 32`
+# Generate with: openssl rand -hex 32
 SESSION_SECRET=
-DATABASE_URL=
+# Neon connection string
+DATABASE_URL=postgresql://user:password@ep-xxx.us-east-1.aws.neon.tech/neondb?sslmode=require
 ```
 
 ### Google Auth
 
-Google Auth is the primary provider, although email/password is supported for local development. To configure Google, you will need to set the following value:
+Google OAuth is the **only** authentication method. It works in both local development (against `http://localhost:5173`) and production. To configure:
 
 ```sh
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
-GOOGLE_IAP_AUDIENCE=
-# preferably restrict it to your domain
+# Restrict login to your Google Workspace domain
 GOOGLE_HD=your-google-workspace-domain.com
 ```
 
-To disable email/password authentication, you can set this option:
+Ensure your OAuth client in the Google Cloud Console has every environment's callback URL registered as an Authorized redirect URI:
 
-```sh
-USE_BASIC_LOGIN=false
-```
+- Local dev: `http://localhost:5173/auth/google/callback`
+- Production: `https://<your-domain>/auth/google/callback`
+
+The first user to sign in on an empty database is automatically granted admin rights — this bootstraps the initial admin on a fresh install. Subsequent users sign in as regular users; promote them with `pnpm user make-admin <email>`.
 
 ### Sentry
-
-For Sentry to work, you will also need the following defined:
 
 ```sh
 SENTRY_DSN=
@@ -59,30 +60,21 @@ SENTRY_PROJECT=
 SENTRY_AUTH_TOKEN=
 ```
 
-For more details on deploying to Fly, we recommend taking a look at the guide in [blues-stack](https://github.com/remix-run/blues-stack#deployment).
+### Image Storage (Vercel Blob)
 
-### Images Hosting
-
-To support avatars and image attachments on posts you will need to configure an image hosting service. This is done using environment variables:
+Avatars and image attachments are stored in [Vercel Blob](https://vercel.com/docs/storage/vercel-blob). After linking your project on Vercel, run:
 
 ```sh
-USE_GCS_STORAGE=1
-GCS_BUCKET_NAME=your-bucket-name
-GCS_BUCKET_PATH=images
+vercel env pull
 ```
 
-You can enable signed URLs for images by setting the expiration time in the `GCS_EXPIRES_IN` variable. In this case, you will have to provide a GCP service account, either with the Workload Identity (recommended), or with a static key (with the `GOOGLE_APPLICATION_CREDENTIALS` environment variable).
+This populates `BLOB_READ_WRITE_TOKEN` in your local `.env`. In production, Vercel sets this automatically.
 
-```sh
-# 1 hour expiration time
-GCS_EXPIRES_IN=3600000
-```
-
-Currently we only support Google's Cloud Storage service, but would happily take contributions to enable other services such as S3.
+For local development without a Vercel account, leave `BLOB_READ_WRITE_TOKEN` empty — uploads fall back to local filesystem storage served via `/image-uploads/...`.
 
 ### Outbound Email
 
-You'll have to figure this one out. Outbound email is used for publishing new posts, as well as receiving notifications of new comments. We suggest something like Sendgrid to make it easy.
+Outbound email is used for publishing new posts and receiving comment notifications. Configure SMTP (e.g. Sendgrid):
 
 ```sh
 SMTP_FROM=vanguard@example.com
@@ -94,71 +86,70 @@ SMTP_PASS=
 
 ## Development
 
-- Make sure you have all required tooling:
+- Install required tooling:
+  - [pnpm](https://pnpm.io/) (`npm install -g pnpm`)
+  - Node 24.x (LTS)
+  - [Vite+ (`vp`)](https://viteplus.dev/) — used for linting, formatting, and static checks
 
-  - [pre-commit](https://pre-commit.com/)
-  - [pnpm](https://pnpm.io/)
-
-- Bootstrap the environment:
+- Copy environment config:
 
   ```sh
-  # this will copy the default config to .env
-  make
+  cp .env.example .env
   ```
 
-- Start the Postgres Database in [Docker](https://www.docker.com/get-started):
+- Start Postgres in [Docker](https://www.docker.com/get-started):
 
   ```sh
   docker-compose up -d
   ```
 
-- Initial setup:
+  Alternatively, point `DATABASE_URL` at a [Neon](https://neon.tech) dev branch.
+
+- Install dependencies and migrate the database:
 
   ```sh
-  make
+  pnpm install
+  pnpm db:migrate:dev
   ```
 
-- Create a user (assuming you've not setup Google Auth):
+- **Optional**: Seed the database with demo content:
 
   ```sh
-  pnpm user create <email> <password> --admin
+  pnpm db:seed
   ```
 
-  - Create at least one category
+  This creates:
+  - A placeholder `demo@example.com` user (no sign-in; owns the sample content)
+  - A sample "General" category
+  - Three sample posts
 
-  ```sh
-  pnpm category create <slug> <name>
-  ```
+  The seed script is safe to run multiple times — it won't create duplicates.
 
-- **Optional**: Populate your database with sample data:
+  You still sign in with your own Google account; the seed exists only to give you content to browse on first boot.
 
-  ```sh
-  pnpm run db:seed
-  ```
-
-  This will create:
-
-  - A demo user (if none exists): `demo@example.com` with password `password123`
-  - A sample category (if none exists): "General"
-  - Three sample posts with rich content and images
-
-  The seed script is safe to run multiple times - it won't create duplicates.
-
-- Run the first build:
-
-  ```sh
-  pnpm build
-  ```
-
-- Start dev server:
+- Start the dev server:
 
   ```sh
   pnpm dev
   ```
 
+  Open [http://localhost:5173](http://localhost:5173).
+
+- User management CLI:
+
+  ```sh
+  # Promote a user (who has already signed in with Google) to admin
+  pnpm user make-admin <email>
+
+  # Create a passwordless placeholder user (cannot sign in — Google OAuth only)
+  pnpm user create <email> --admin
+
+  pnpm category create <slug> <name>
+  ```
+
 ### Authentication
 
-Authentication is enforced per-route via the Remix loaders. All routes **must** enforce authentication unless they are intended to be publicly accessible.
+Authentication is enforced per-route via loaders. All routes **must** enforce authentication unless publicly accessible.
 
 ```typescript
 export const loader: LoaderFunction = async ({ request, context }) => {
@@ -166,7 +157,7 @@ export const loader: LoaderFunction = async ({ request, context }) => {
 };
 ```
 
-If you are also using actions on the route, you need to define the same check in the action:
+Actions on the same route also need the check:
 
 ```typescript
 export const action: ActionFunction = async ({ request, context }) => {
@@ -174,26 +165,45 @@ export const action: ActionFunction = async ({ request, context }) => {
 };
 ```
 
-All endpoints which require auth must also contain a test asserting that authentication is enforced.
+All endpoints that require auth must include a test asserting that authentication is enforced.
 
 ## Testing
 
 ### Vitest
 
-For lower level tests of utilities and individual components, we use `vitest`. We have DOM-specific assertion helpers via [`@testing-library/jest-dom`](https://testing-library.com/jest-dom).
+Lower-level tests use [Vitest](https://vitest.dev/) with `happy-dom` and [`@testing-library/jest-dom`](https://testing-library.com/jest-dom) for DOM assertions. DB-hitting tests run against a real Postgres instance (local or CI service container).
+
+```sh
+pnpm test
+```
 
 ### Type Checking
 
-This project uses TypeScript. It's recommended to get TypeScript set up for your editor to get a really great in-editor experience with type checking and auto-complete. To run type checking across the whole project, run `npm run typecheck`.
+```sh
+pnpm typecheck
+```
 
 ### Linting
 
-This project uses ESLint for linting. That is configured in `.eslintrc.js`.
+```sh
+vp lint          # check for lint errors (Oxlint)
+vp lint --fix    # auto-fix where possible
+```
 
 ### Formatting
 
-We use [Prettier](https://prettier.io/) for auto-formatting in this project. It's recommended to install an editor plugin (like the [VSCode Prettier plugin](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)) to get auto-formatting on save. There's also a `npm run format` script you can run to format all files in the project.
+```sh
+vp fmt --write   # format the repo (Oxfmt, Prettier-compatible)
+vp fmt --check   # verify formatting without writing
+```
+
+### All-in-one check
+
+```sh
+vp check         # fmt + lint in one pass
+vp check --fix   # plus auto-fix
+```
 
 ## License
 
-See `LICENSE`, with an asterisk that Gazpacho is currently bundled in the repository and requires a commercial license. We'll fix this to make it optional in the future.
+See `LICENSE`. Note: Gazpacho is currently bundled in the repository and requires a commercial license. We'll fix this to make it optional in the future.

@@ -1,4 +1,5 @@
 import type { ComponentPropsWithoutRef } from "react";
+import type React from "react";
 import classNames from "~/lib/classNames";
 
 export function EmojiButton({
@@ -29,7 +30,7 @@ export default function EmojiReaction({
   onClick,
 }: {
   count?: number;
-  emoji: string;
+  emoji: string | React.ReactNode;
   selected?: boolean;
   onClick: any;
 }) {

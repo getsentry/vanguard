@@ -1,32 +1,41 @@
-import React, { useEffect, useState } from "react";
+import type { CSSProperties, ComponentType } from "react";
+import { useEffect, useState } from "react";
+import type { EmojiClickData } from "emoji-picker-react";
+
+// emoji-picker-react v4 touches browser APIs at module init, so it can't be
+// evaluated during SSR. Dynamically import on the client and render nothing
+// until the module resolves.
+type PickerProps = {
+  open?: boolean;
+  style?: CSSProperties;
+  onEmojiClick?: (emojiData: EmojiClickData, event: MouseEvent) => void;
+};
 
 export default function EmojiPicker({
   onEmojiSelect,
+  open,
   style,
-  ...props
 }: {
-  onEmojiSelect: (event: Event, emoji: string) => void;
-  style?: any;
+  onEmojiSelect: (event: MouseEvent, emoji: string) => void;
+  open?: boolean;
+  style?: CSSProperties;
 }) {
-  const [Component, setComponent] = useState<React.ReactNode | null>(null);
+  const [Picker, setPicker] = useState<ComponentType<PickerProps> | null>(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      import("emoji-picker-react").then((_module) => {
-        // XXX(dcramer): this isnt correct.. default seems to be the module
-        // and if we set it to the component (using .default.default) it errors out{
-        setComponent(_module.default);
-      });
-    }
+    import("emoji-picker-react").then((mod) => {
+      // Wrap in a factory so React's functional setter doesn't invoke the component.
+      setPicker(() => mod.default as ComponentType<PickerProps>);
+    });
   }, []);
 
-  if (!Component) return null;
+  if (!Picker) return null;
 
   return (
-    <Component.default
-      {...props}
-      onEmojiClick={(e, obj) => onEmojiSelect(e, obj.emoji)}
-      pickerStyle={style}
+    <Picker
+      open={open}
+      style={style}
+      onEmojiClick={(emojiData, event) => onEmojiSelect(event, emojiData.emoji)}
     />
   );
 }

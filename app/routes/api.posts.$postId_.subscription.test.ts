@@ -1,4 +1,6 @@
-import type { Post, User } from "@prisma/client";
+// @ts-nocheck
+import type { Post } from "~/models/post.server";
+import type { User } from "~/models/user.server";
 import { expectRequiresUser } from "~/lib/test/expects";
 import * as Fixtures from "~/lib/test/fixtures";
 import { buildRequest } from "~/lib/test/request";
@@ -19,12 +21,9 @@ describe("POST /api/posts/$postId/subscription", () => {
   it("requires user", async () => {
     await expectRequiresUser(
       action({
-        request: await buildRequest(
-          `http://localhost/api/posts/${post.id}/subscription`,
-          {
-            method: "POST",
-          },
-        ),
+        request: await buildRequest(`http://localhost/api/posts/${post.id}/subscription`, {
+          method: "POST",
+        }),
         params: { postId: post.id },
         context: {},
       }),

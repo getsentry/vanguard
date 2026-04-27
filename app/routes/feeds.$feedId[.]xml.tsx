@@ -1,4 +1,4 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "react-router";
 import { getFeed } from "~/models/feed.server";
 import { getPostList } from "~/models/post.server";
 import { getPostLink } from "~/components/post-link";
@@ -13,6 +13,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const feed = await getFeed({ id: params.feedId });
   if (!feed) throw new Response("Not Found", { status: 404 });
 
+  // Public RSS feed — no user; getPostList accepts feedId without one.
   const posts = await getPostList({
     published: true,
     feedId: params.feedId,
@@ -33,9 +34,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             <item>
               <guid>${post.id}</guid>
               <title><![CDATA[${escapeCdata(post.title)}]]></title>
-              <description>${escapeHtml(
-                summarize(post.content || ""),
-              )}</description>
+              <description>${escapeHtml(summarize(post.content || ""))}</description>
               <category>${escapeHtml(post.category.name)}</category>
               <content:encoded><![CDATA[${escapeCdata(
                 marked.parse(post.content as string, {
@@ -43,9 +42,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
                   baseUrl: process.env.BASE_URL,
                 }),
               )}]]></content:encoded>
-              <author>${escapeHtml(
-                post.author.name || post.author.email,
-              )}</author>
+              <author>${escapeHtml(post.author.name || post.author.email)}</author>
               <pubDate>${post.publishedAt?.toUTCString()}</pubDate>
               <link>${buildUrl(getPostLink(post), request)}</link>
 

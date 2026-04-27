@@ -1,14 +1,14 @@
 {
-  "include": ["remix.env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": [".react-router/types/**/*", "**/*.ts", "**/*.tsx"],
   "compilerOptions": {
     "target": "ES2022",
-    "module": "CommonJS",
-    "moduleResolution": "node",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
 
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "types": ["vitest/globals"],
 
-    "baseUrl": ".",
+    "rootDirs": [".", "./.react-router/types"],
     "paths": {
       "~/*": ["./app/*"]
     },
@@ -22,14 +22,6 @@
     "forceConsistentCasingInFileNames": true,
     "jsx": "react-jsx",
 
-    /* Linting */
-    "strict": true,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noFallthroughCasesInSwitch": true,
-    "outDir": "./dist",
-
-    // Remix takes care of building everything in `remix build`.
     "noEmit": true
   }
 }

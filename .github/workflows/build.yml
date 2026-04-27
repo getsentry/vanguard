@@ -2,8 +2,6 @@ name: ci
 
 env:
   DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
-  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  GCP_SERVICE_NAME: vanguard
 
 on:
   push:
@@ -13,7 +11,7 @@ on:
 
 jobs:
   lint:
-    name: ⬣ Lint
+    name: ⬣ Check (fmt + lint + typecheck)
     runs-on: ubuntu-latest
     steps:
       - name: Cancel Previous Runs
@@ -22,19 +20,20 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Setup Vite+
+        uses: voidzero-dev/setup-vp@v1
         with:
-          node-version: 20
+          node-version: "24"
+          cache: true
 
       - name: Install deps
-        run: pnpm install
+        run: vp install
 
-      - name: Lint
-        run: npm run lint
+      - name: Check
+        run: vp check
+
+      - name: Typecheck
+        run: vp run typecheck
 
   test:
     name: ⚡ Test
@@ -66,128 +65,13 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Install deps
         run: pnpm install
 
       - name: Setup env
-        run: npm run db:migrate:test
+        run: pnpm db:migrate:test
 
       - name: Run vitest
-        run: npm run test:ci
-
-      - name: Publish Test Report
-        uses: mikepenz/action-junit-report@v3
-        if: always() # always run even if the previous step fails
-        with:
-          report_paths: "**/junit.xml"
-
-      - uses: codecov/codecov-action@v3
-        name: Publish Codecov Report
-        if: always() # always run even if the previous step fails
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: coverage/coverage-final.json
-          # directory: coverage
-          fail_ci_if_error: true
-          verbose: true
-
-  # build:
-  #   name: 🐳 Build
-  #   # only on main
-  #   if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: 🛑 Cancel Previous Runs
-  #       uses: styfle/cancel-workflow-action@0.9.1
-
-  #     - name: ⬇️ Checkout repo
-  #       uses: actions/checkout@v3
-
-  #     - name: ⎔ Setup node
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 16
-
-  #     - name: 📥 Download deps
-  #       uses: bahmutov/npm-install@v1
-
-  #     - name: ⚡️ Build Remix
-  #       run: |
-  #         npm run build
-
-  #     - name: Archive Production Artifact
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: build
-  #         path: build
-
-  # TODO(dcramer): we'd like to bring build visibility into GH, but its tricky to get right + secure secrets
-  # gcp_build:
-  #   name: "🐳 Build"
-  #   # only on main
-  #   if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: 🛑 Cancel Previous Runs
-  #       uses: styfle/cancel-workflow-action@0.9.1
-
-  #     - name: ⬇️ Checkout repo
-  #       uses: actions/checkout@v3
-
-  #     - id: "auth"
-  #       uses: "google-github-actions/auth@v0"
-  #       with:
-  #         credentials_json: "${{ secrets.GCP_SA_KEY }}"
-  #       # with:
-  #       #   workload_identity_provider: "projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider"
-  #       #   service_account: "my-service-account@my-project.iam.gserviceaccount.com"
-
-  #     # Setup gcloud CLI
-  #     - name: Set up Cloud SDK
-  #       uses: google-github-actions/setup-gcloud@v0
-  #       with:
-  #         install_components: "beta"
-
-  #     # Build and push image to Google Container Registry
-  #     - id: "build"
-  #       name: Trigger Cloud Build
-  #       run: |-
-  #         gcloud beta builds triggers run ${{ secrets.GCP_TRIGGER_ID }} --quiet
-
-  # gcp_deploy:
-  #   name: Deploy
-  #   # only on main
-  #   if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}
-  #   runs-on: ubuntu-latest
-  #   needs: [gcp_build, vitest, lint]
-
-  #   permissions:
-  #     contents: "read"
-  #     id-token: "write"
-
-  #   steps:
-  #     - name: 🛑 Cancel Previous Runs
-  #       uses: styfle/cancel-workflow-action@0.9.1
-
-  #     - name: ⬇️ Checkout repo
-  #       uses: actions/checkout@v3
-
-  #     - id: "auth"
-  #       uses: "google-github-actions/auth@v0"
-  #       with:
-  #         credentials_json: "${{ secrets.GCP_SA_KEY }}"
-  #       # with:
-  #       #   workload_identity_provider: "projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider"
-  #       #   service_account: "my-service-account@my-project.iam.gserviceaccount.com"
-
-  #     # Activate image on GCR
-  #     - id: "deploy"
-  #       uses: "google-github-actions/deploy-cloudrun@v0"
-  #       with:
-  #         service: "${{ env.GCP_SERVICE_NAME }}"
-  #         image: "us.gcr.io/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_SERVICE_NAME }}:${{ env.GITHUB_SHA }}"
-
-  #     - name: "Use output"
-  #       run: 'curl "${{ steps.deploy.outputs.url }}"'
+        run: pnpm test

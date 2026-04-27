@@ -5,7 +5,8 @@ import Middot from "./middot";
 import IconCollapsedPost from "~/icons/IconCollapsedPost";
 import { ChatBubbleIcon, HeartIcon } from "@radix-ui/react-icons";
 import TimeSince from "./timeSince";
-import type { Category, Post } from "@prisma/client";
+import type { Category } from "~/models/category.server";
+import type { PostQueryType as Post } from "~/models/post.server";
 import Link from "./link";
 
 export default function ClusteredPostList({
@@ -25,10 +26,7 @@ export default function ClusteredPostList({
       <ul>
         {posts.map((post) => {
           const postReactions = reactions[post.id];
-          const totalReactions = postReactions.reduce(
-            (value, r) => value + r.total,
-            0,
-          );
+          const totalReactions = postReactions.reduce((value, r) => value + r.total, 0);
           const totalComments = commentCounts[post.id];
           return (
             <li key={post.id} className="clustered-post">

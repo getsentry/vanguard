@@ -1,32 +1,33 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import type { LoaderFunctionArgs } from "react-router";
+import { useLoaderData } from "react-router";
 import invariant from "tiny-invariant";
 
-import { requireUserId } from "~/services/auth.server";
+import { requireUser } from "~/services/auth.server";
 import { getPostList } from "~/models/post.server";
 import { getCategory } from "~/models/category.server";
 import { paginate } from "~/lib/paginator";
 import Paginated from "~/components/paginated";
 import Post from "~/components/post";
 
-export async function loader({ request, context, params }: LoaderFunctionArgs) {
-  const userId = await requireUserId(request, context);
+export async function loader({ request, params }: LoaderFunctionArgs) {
   invariant(params.categorySlug, "categorySlug not found");
-  const category = await getCategory({ slug: params.categorySlug });
-  invariant(category, "invalid category");
-
-  // Grab cursor information
   const url = new URL(request.url);
   const cursor = url.searchParams.get("cursor");
 
+  // User auth and category lookup are independent — fetch in parallel.
+  const [user, category] = await Promise.all([
+    requireUser(request),
+    getCategory({ slug: params.categorySlug }),
+  ]);
+  invariant(category, "invalid category");
+
   const postListPaginated = await paginate(
     getPostList,
-    { userId, categoryId: category.id, published: true },
+    { user, categoryId: category.id, published: true },
     cursor,
   );
 
-  return json({ category, postListPaginated });
+  return { category, postListPaginated };
 }
 
 export default function Index() {

@@ -1,24 +1,20 @@
-/// <reference types="vitest" />
 /// <reference types="vite/client" />
 
 import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
-import tsconfigPaths from "vite-tsconfig-paths";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-  plugins: [react(), tsconfigPaths()],
+  resolve: {
+    tsconfigPaths: true,
+  },
+  plugins: [react()],
   test: {
-    coverage: {
-      reporter: ["json"],
-    },
     globals: true,
-    environment: "happy-dom",
+    environment: "node",
     setupFiles: ["./test/setup-test-env.ts"],
     include: ["./app/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
-    watchExclude: [
-      ".*\\/node_modules\\/.*",
-      ".*\\/build\\/.*",
-      ".*\\/postgres-data\\/.*",
-    ],
+    // Tests share a single Postgres DB and truncate all tables before each
+    // run, so they must execute sequentially.
+    maxWorkers: 1,
   },
 });

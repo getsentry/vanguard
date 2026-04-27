@@ -1,6 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../../tailwind.config.cjs";
 
 html {
   @apply min-h-screen;
@@ -271,4 +270,29 @@ figcaption {
 .code-block {
   /* Background color is copied from prism-sentry/index.css */
   @apply bg-[#251f3d] p-4 rounded-lg overflow-x-auto;
+}
+
+/* Top-of-page indeterminate loading bar (see components/loading-indicator.tsx).
+ * A 33%-wide segment slides repeatedly across the viewport while RR7's
+ * useNavigation() reports a non-idle state. */
+.loading-bar {
+  width: 33%;
+  animation: loading-slide 1.1s ease-in-out infinite;
+}
+
+@keyframes loading-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-bar {
+    width: 100%;
+    animation: none;
+    opacity: 0.6;
+  }
 }

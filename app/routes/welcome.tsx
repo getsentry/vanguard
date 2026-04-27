@@ -1,52 +1,43 @@
 import { useEffect, useRef } from "react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import {
-  unstable_parseMultipartFormData,
-  json,
-  redirect,
-} from "@remix-run/node";
-import { Form, useActionData, useLoaderData } from "@remix-run/react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { redirect } from "react-router";
+import { Form, useActionData, useLoaderData } from "react-router";
 
-import { requireUser, requireUserId } from "~/services/auth.server";
+import { requireUser } from "~/services/auth.server";
 import { updateUser } from "~/models/user.server";
-import uploadHandler from "~/lib/upload-handler";
+import { uploadFile, isAllowedImageType } from "~/lib/upload-handler";
 import AvatarInput from "~/components/avatar-input";
 import Button from "~/components/button";
 
-export async function loader({ request, context }: LoaderFunctionArgs) {
-  const user = await requireUser(request, context);
-  return json({ user });
+export async function loader({ request }: LoaderFunctionArgs) {
+  const user = await requireUser(request);
+  return { user };
 }
 
-export async function action({ request, context }: ActionFunctionArgs) {
-  const userId = await requireUserId(request, context);
+export async function action({ request }: ActionFunctionArgs) {
+  const user = await requireUser(request);
 
-  const filter = ({ contentType }: { contentType: string }) => {
-    return /image/i.test(contentType);
-  };
-
-  const formData = await unstable_parseMultipartFormData(
-    request,
-    uploadHandler({
-      fieldName: "picture",
-      filter,
-      namespace: userId,
-      urlPrefix: "/image-uploads",
-    }),
-  );
+  const formData = await request.formData();
   const name = formData.get("name");
   if (typeof name !== "string" || name.length === 0) {
-    return json({ errors: { name: "Name is required" } }, { status: 400 });
+    return Response.json({ errors: { name: "Name is required" } }, { status: 400 });
   }
 
-  let picture: any = formData.get("picture");
-  // empty values get returned as empty strings, which will unset
-  // the picture rather than leave it unchanged
-  if (picture === "") picture = undefined;
+  const pictureFile = formData.get("picture");
+  let picture: string | undefined = undefined;
+  if (pictureFile instanceof File && pictureFile.size > 0 && isAllowedImageType(pictureFile.type)) {
+    const buffer = Buffer.from(await pictureFile.arrayBuffer());
+    const { url } = await uploadFile({
+      mimeType: pictureFile.type,
+      buffer,
+      namespace: user.id,
+    });
+    picture = url;
+  }
 
   await updateUser({
-    userId,
-    id: userId,
+    actor: user,
+    id: user.id,
     name,
     picture,
   });
@@ -62,7 +53,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
 
 export default function WelcomePage() {
   const { user } = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
+  const actionData = useActionData() as { errors?: Record<string, any> } | undefined;
   const errors = actionData?.errors;
 
   const nameRef = useRef<HTMLInputElement>(null);
@@ -89,10 +80,7 @@ export default function WelcomePage() {
       className="p-4"
     >
       <h1>Stay awhile and listen...</h1>
-      <p>
-        Welcome to Vanguard! We just need a few details before we can unlock the
-        gates..
-      </p>
+      <p>Welcome to Vanguard! We just need a few details before we can unlock the gates..</p>
       <div>
         <label>
           <span>What should we call you?</span>
@@ -117,11 +105,7 @@ export default function WelcomePage() {
       <div>
         <label>
           <span>How about a slick way to visually identify yourself?</span>
-          <AvatarInput
-            initialValue={user.picture}
-            name="picture"
-            error={errors?.picture}
-          />
+          <AvatarInput initialValue={user.picture} name="picture" error={errors?.picture} />
         </label>
       </div>
       <div>

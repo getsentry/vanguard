@@ -1,40 +1,34 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import { useActionData, useLoaderData } from "@remix-run/react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { redirect } from "react-router";
+import { useActionData, useLoaderData } from "react-router";
 
-import {
-  announcePost,
-  getPost,
-  syndicatePost,
-  updatePost,
-} from "~/models/post.server";
-import { requireUser, requireUserId } from "~/services/auth.server";
+import { announcePost, getPost, syndicatePost, updatePost } from "~/models/post.server";
+import { requireUser } from "~/services/auth.server";
 import { getCategory, getCategoryList } from "~/models/category.server";
 import PostForm from "~/components/post-form";
 import invariant from "tiny-invariant";
 import { getPostLink } from "~/components/post-link";
 import { getFeedList } from "~/models/feed.server";
 
-export async function loader({ request, context, params }: LoaderFunctionArgs) {
-  const userId = await requireUserId(request, context);
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const user = await requireUser(request);
   invariant(params.postId, "postId not found");
-  const post = await getPost({ userId, id: params.postId });
+
+  // Post + category list + feed list are all independent — fetch in parallel.
+  const [post, categoryList, feedList] = await Promise.all([
+    getPost({ user, id: params.postId }),
+    getCategoryList({ user, includeRestricted: false }),
+    getFeedList({ user, includeRestricted: false }),
+  ]);
+
   if (!post) {
     throw new Response("Not Found", { status: 404 });
   }
-  const categoryList = await getCategoryList({
-    userId,
-    includeRestricted: false,
-  });
-  const feedList = await getFeedList({
-    userId,
-    includeRestricted: false,
-  });
-  return json({ categoryList, feedList, post });
+  return { categoryList, feedList, post };
 }
 
-export async function action({ request, context, params }: ActionFunctionArgs) {
-  const user = await requireUser(request, context);
+export async function action({ request, params }: ActionFunctionArgs) {
+  const user = await requireUser(request);
   invariant(params.postId, "postId not found");
 
   const formData = await request.formData();
@@ -43,39 +37,25 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
   const content = formData.get("content");
   const categoryId = formData.get("categoryId");
   // to check if they've unticked feedIds we have to make sure they were using the edit form vs the publish action
-  const feedIds = action === "update" ? formData.getAll("feedId") : null;
+  const feedIds = action === "update" ? (formData.getAll("feedId") as string[]) : null;
   const published =
     formData.get("published") === null
       ? undefined
-      : formData.get("published") === "true" ||
-        formData.get("published") === "announce";
+      : formData.get("published") === "true" || formData.get("published") === "announce";
 
   const announce = published && formData.get("published") === "announce";
-  const deleted =
-    formData.get("deleted") !== null ? !!formData.get("deleted") : undefined;
+  const deleted = formData.get("deleted") !== null ? !!formData.get("deleted") : undefined;
 
-  if (
-    categoryId !== null &&
-    (typeof categoryId !== "string" || categoryId.length === 0)
-  ) {
-    return json(
-      { errors: { categoryId: "Category is required" } },
-      { status: 400 },
-    );
+  if (categoryId !== null && (typeof categoryId !== "string" || categoryId.length === 0)) {
+    return Response.json({ errors: { categoryId: "Category is required" } }, { status: 400 });
   }
 
   if (title !== null && (typeof title !== "string" || title.length === 0)) {
-    return json({ errors: { title: "Title is required" } }, { status: 400 });
+    return Response.json({ errors: { title: "Title is required" } }, { status: 400 });
   }
 
-  if (
-    content !== null &&
-    (typeof content !== "string" || content.length === 0)
-  ) {
-    return json(
-      { errors: { content: "Content is required" } },
-      { status: 400 },
-    );
+  if (content !== null && (typeof content !== "string" || content.length === 0)) {
+    return Response.json({ errors: { content: "Content is required" } }, { status: 400 });
   }
 
   const data: { [key: string]: any } = {};
@@ -89,27 +69,21 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
   if (feedIds !== null) {
     const allowedFeedIds = (
       await getFeedList({
-        userId: user.id,
+        user,
         includeRestricted: false,
       })
     ).map((f) => f.id);
     const invalid = feedIds.find((f) => allowedFeedIds.indexOf(f) === -1);
     if (invalid) {
-      return json<ActionData>(
-        { errors: { feedId: "Invalid feed" } },
-        { status: 400 },
-      );
+      return Response.json({ errors: { feedId: "Invalid feed" } }, { status: 400 });
     }
     data.feedIds = feedIds;
   }
 
-  if (categoryId) {
+  if (categoryId && typeof categoryId === "string") {
     const category = await getCategory({ id: categoryId });
     if (!category || (category.restricted && !user.canPostRestricted)) {
-      return json<ActionData>(
-        { errors: { categoryId: "Invalid category" } },
-        { status: 400 },
-      );
+      return Response.json({ errors: { categoryId: "Invalid category" } }, { status: 400 });
     }
 
     const meta = [];
@@ -119,7 +93,7 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
       if (content === null) return;
       anyMeta = true;
       if (required && !content) {
-        return json<ActionData>(
+        return Response.json(
           { errors: { meta: { name: `${name} is required` } } },
           { status: 400 },
         );
@@ -134,7 +108,7 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
 
   const post = await updatePost({
     id: params.postId,
-    userId: user.id,
+    user,
     ...data,
   });
 
@@ -153,7 +127,7 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
 
 export default function EditPostPage() {
   const { categoryList, feedList, post } = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
+  const actionData = useActionData() as { errors?: Record<string, any> } | undefined;
 
   const meta: { [name: string]: string } = {};
   post.meta.forEach((m) => {

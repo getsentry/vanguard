@@ -1,115 +1,62 @@
-import {
-  unstable_composeUploadHandlers,
-  unstable_createFileUploadHandler,
-  unstable_createMemoryUploadHandler,
-  writeAsyncIterableToWritable,
-} from "@remix-run/node";
-import { Storage } from "@google-cloud/storage";
-import type { FileUploadHandlerOptions } from "@remix-run/node/dist/upload/fileUploadHandler";
-import type { UploadHandler } from "@remix-run/node";
+import os from "os";
+import fs from "fs/promises";
+import path from "path";
+import { put } from "@vercel/blob";
 import { createId as cuid } from "@paralleldrive/cuid2";
 
-type UploadHandlerOptions = {
-  namespace: string;
-  filter: FileUploadHandlerOptions["filter"];
-  urlPrefix: string;
-  fieldName?: string;
+export const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/gif", "image/webp"]);
+
+export function isAllowedImageType(mime: string): boolean {
+  return ALLOWED_IMAGE_TYPES.has(mime);
+}
+
+const MIME_TO_EXT: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/gif": "gif",
+  "image/webp": "webp",
+};
+
+/** Map a file extension to its MIME type (for local-dev Content-Type derivation). */
+export const EXT_TO_MIME: Record<string, string> = {
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  gif: "image/gif",
+  webp: "image/webp",
 };
 
 /**
- * Return an upload handler based on the server configuration.
+ * Store an uploaded file. Returns a URL to be embedded in post content.
  *
- * Result of uploads must always be a persistent file URL configured to server the file.
+ * In production (when `BLOB_READ_WRITE_TOKEN` is set), writes to a **private**
+ * Vercel Blob store and returns an auth-gated proxy URL (`/image-uploads/...`)
+ * served by `app/routes/image-uploads.$.tsx`. Images are never directly
+ * reachable from the public internet — only logged-in users can fetch them.
+ *
+ * In local dev (no token), writes to `os.tmpdir()` and returns the same
+ * proxy URL, served by the same route from the local filesystem.
  */
-export default function uploadHandler({
-  namespace,
-  filter,
-  urlPrefix,
-  fieldName,
-}: UploadHandlerOptions): UploadHandler {
-  const useGcs = !!process.env.USE_GCS_STORAGE;
+export async function uploadFile({
+  mimeType,
+  buffer,
+  namespace = "post-images",
+}: {
+  mimeType: string;
+  buffer: Buffer | ArrayBuffer;
+  namespace?: string;
+}): Promise<{ url: string }> {
+  const ext = MIME_TO_EXT[mimeType] ?? "bin";
+  const pathname = `${namespace}/${cuid()}.${ext}`;
 
-  let handler: UploadHandler;
-  if (useGcs) {
-    handler = createCloudStorageUploadHandler({
-      namespace,
-      filter,
-      urlPrefix,
-      fieldName,
-    });
-  } else {
-    handler = async (params) => {
-      const { name } = params;
-      if (name !== fieldName) {
-        return undefined;
-      }
-
-      const fileHandler = unstable_createFileUploadHandler({
-        filter,
-        file: ({ filename }) =>
-          `${namespace}/${cuid()}-${filename.replace(/\s+/g, "-")}`,
-      });
-      const file = await fileHandler(params);
-
-      // if you dont return a non-false value (aka null or undefined) it will
-      // go to the next upload handler, which is in-memory, and return an object
-      // with params we dont want
-      if (!file || !file.name) return "";
-
-      return `${urlPrefix}/${namespace}/${file.name}`;
-    };
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    await put(pathname, buffer, { access: "private" });
+    return { url: `/image-uploads/${pathname}` };
   }
 
-  return unstable_composeUploadHandlers(
-    handler,
-    unstable_createMemoryUploadHandler(),
-  );
-}
-
-export type CloudStorageUploaderHandlerOptions = {
-  namespace: UploadHandlerOptions["namespace"];
-  fieldName?: UploadHandlerOptions["fieldName"];
-  urlPrefix?: UploadHandlerOptions["urlPrefix"];
-  filter?: FileUploadHandlerOptions["filter"];
-};
-
-export function createCloudStorageUploadHandler({
-  namespace,
-  fieldName = "file",
-  urlPrefix,
-  filter,
-}: CloudStorageUploaderHandlerOptions): UploadHandler {
-  return async (params): Promise<string | undefined> => {
-    const { name, data, filename } = params;
-    if (fieldName && name !== fieldName) {
-      return undefined;
-    }
-
-    // if you dont return a non-false value (aka null or undefined) it will
-    // go to the next upload handler, which is in-memory, and return an object
-    // with params we dont want
-    if (!filename) {
-      return "";
-    }
-    if (filter && !filter(params)) {
-      return "";
-    }
-
-    const bucketName = process.env.GCS_BUCKET_NAME as string;
-    const bucketPath = process.env.GCS_BUCKET_PATH
-      ? `${process.env.GCS_BUCKET_PATH}/`
-      : "";
-
-    // generate a new filename that is "hard to guess"
-    const newFilename = `${cuid()}-${filename.replace(/\s+/g, "-")}`;
-
-    const cloudStorage = new Storage();
-    const file = cloudStorage
-      .bucket(bucketName)
-      .file(`${bucketPath}${newFilename}`);
-
-    await writeAsyncIterableToWritable(data, file.createWriteStream());
-
-    return `${urlPrefix}/${newFilename}`;
-  };
+  // Local dev fallback — write to os.tmpdir(), served by image-uploads.$ route.
+  const filepath = path.join(os.tmpdir(), pathname);
+  await fs.mkdir(path.dirname(filepath), { recursive: true });
+  await fs.writeFile(filepath, Buffer.isBuffer(buffer) ? buffer : Buffer.from(buffer));
+  return { url: `/image-uploads/${pathname}` };
 }

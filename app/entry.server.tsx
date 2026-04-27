@@ -1,23 +1,27 @@
 import { PassThrough } from "stream";
-import {
-  createReadableStreamFromReadable,
-  type LoaderFunctionArgs,
-  type ActionFunctionArgs,
-  type HandleDocumentRequestFunction,
-} from "@remix-run/node";
-import { RemixServer } from "@remix-run/react";
-import isbot from "isbot";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { createReadableStreamFromReadable } from "@react-router/node";
+import { ServerRouter, isRouteErrorResponse } from "react-router";
+import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
-import * as Sentry from "@sentry/remix";
+import * as Sentry from "@sentry/react-router";
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  environment: process.env.NODE_ENV,
+  release: process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.VERSION,
+  tracesSampleRate: 1.0,
+});
 
 const ABORT_DELAY = 5_000;
 
-type DocRequestArgs = Parameters<HandleDocumentRequestFunction>;
-
-export default async function handleRequest(...args: DocRequestArgs) {
-  const [request, responseStatusCode, responseHeaders, remixContext] = args;
-
-  const callbackName = isbot(request.headers.get("user-agent"))
+export default async function handleRequest(
+  request: Request,
+  responseStatusCode: number,
+  responseHeaders: Headers,
+  routerContext: Parameters<typeof ServerRouter>[0]["context"],
+) {
+  const callbackName = isbot(request.headers.get("user-agent") ?? "")
     ? "onAllReady"
     : "onShellReady";
 
@@ -25,11 +29,7 @@ export default async function handleRequest(...args: DocRequestArgs) {
     let didError = false;
 
     const { pipe, abort } = renderToPipeableStream(
-      <RemixServer
-        context={remixContext}
-        url={request.url}
-        abortDelay={ABORT_DELAY}
-      />,
+      <ServerRouter context={routerContext} url={request.url} />,
       {
         [callbackName]: () => {
           const body = new PassThrough();
@@ -60,13 +60,12 @@ export default async function handleRequest(...args: DocRequestArgs) {
   });
 }
 
-export function handleError(
-  error: unknown,
-  { request }: LoaderFunctionArgs | ActionFunctionArgs,
-): void {
+export function handleError(error: unknown, _args: LoaderFunctionArgs | ActionFunctionArgs): void {
+  // Don't send 404s or route error responses to Sentry
+  if (isRouteErrorResponse(error)) return;
   if (error instanceof Error) {
-    Sentry.captureRemixServerException(error, "remix.server", request);
-  } else {
     Sentry.captureException(error);
+  } else {
+    Sentry.captureException(new Error(String(error)));
   }
 }

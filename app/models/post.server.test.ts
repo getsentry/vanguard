@@ -1,89 +1,80 @@
-import type { Category, Feed, Post, User } from "@prisma/client";
-import { prisma } from "~/services/db.server";
-import {
-  createPost,
-  getPost,
-  getPostList,
-  syndicatePost,
-  updatePost,
-} from "~/models/post.server";
+import { eq } from "drizzle-orm";
+import { db } from "~/db/client";
+import { feedToPost, postRevisions, postSubscriptions, posts, users } from "~/db/schema";
+import { createPost, getPost, getPostList, syndicatePost, updatePost } from "~/models/post.server";
 import * as Fixtures from "~/lib/test/fixtures";
 
 describe("getPost", () => {
-  let author: User;
-  let otherAuthor: User;
-  let admin: User;
-  let category: Category;
-  let otherUnpublishedPost: Post;
-  let deletedPost: Post;
+  let author: Awaited<ReturnType<typeof Fixtures.User>>;
+  let otherAuthor: Awaited<ReturnType<typeof Fixtures.User>>;
+  let admin: Awaited<ReturnType<typeof Fixtures.User>>;
+  let category: Awaited<ReturnType<typeof Fixtures.Category>>;
+  let otherUnpublishedPost: typeof posts.$inferSelect;
+  let deletedPost: typeof posts.$inferSelect;
 
   beforeEach(async () => {
     author = await Fixtures.User();
     otherAuthor = await Fixtures.User();
     category = await Fixtures.Category();
-    await prisma.post.create({
-      data: {
-        title: "Test",
-        content: "**Content**",
-        deleted: false,
-        published: true,
-        authorId: author.id,
-        categoryId: category.id,
-      },
+    await db.insert(posts).values({
+      title: "Test",
+      content: "**Content**",
+      deleted: false,
+      published: true,
+      authorId: author.id,
+      categoryId: category.id,
     });
-    otherUnpublishedPost = await prisma.post.create({
-      data: {
+    [otherUnpublishedPost] = await db
+      .insert(posts)
+      .values({
         title: "Foo",
         content: "**Bar**",
         published: false,
         deleted: false,
         authorId: otherAuthor.id,
         categoryId: category.id,
-      },
-    });
-    deletedPost = await prisma.post.create({
-      data: {
+      })
+      .returning();
+    [deletedPost] = await db
+      .insert(posts)
+      .values({
         title: "Foo",
         content: "**Bar**",
         published: false,
         deleted: true,
         authorId: otherAuthor.id,
         categoryId: category.id,
-      },
-    });
+      })
+      .returning();
   });
 
   describe("an admin user", () => {
     beforeEach(async () => {
-      admin = await prisma.user.create({
-        data: {
-          email: "admin@example.com",
-          admin: true,
-        },
-      });
+      admin = await db
+        .insert(users)
+        .values({ email: "admin@example.com", admin: true })
+        .returning()
+        .then((r) => r[0]);
     });
 
     test("can view deleted posts", async () => {
-      let result = await getPost({
-        userId: admin.id,
-        id: deletedPost.id,
-      });
+      const result = await getPost({ user: admin, id: deletedPost.id });
       expect(result?.id).toBe(deletedPost.id);
     });
   });
 
   describe("a normal user", () => {
     test("can view a draft", async () => {
-      let result = await getPost({
-        userId: author.id,
+      const result = await getPost({
+        user: author,
         id: otherUnpublishedPost.id,
       });
       expect(result?.id).toBe(otherUnpublishedPost.id);
     });
 
     test("cannot view a draft with onlyPublished", async () => {
-      let result = await getPost({
-        userId: author.id,
+      const result = await getPost({
+        user: author,
         id: otherUnpublishedPost.id,
         onlyPublished: true,
       });
@@ -91,62 +82,61 @@ describe("getPost", () => {
     });
 
     test("cannot view deleted posts", async () => {
-      let result = await getPost({
-        userId: author.id,
-        id: deletedPost.id,
-      });
+      const result = await getPost({ user: author, id: deletedPost.id });
       expect(result).toBe(null);
     });
   });
 });
 
 describe("getPostList", () => {
-  let author: User;
-  let otherAuthor: User;
-  let admin: User;
-  let category: Category;
-  let post: Post;
-  let otherUnpublishedPost: Post;
+  let author: Awaited<ReturnType<typeof Fixtures.User>>;
+  let otherAuthor: Awaited<ReturnType<typeof Fixtures.User>>;
+  let admin: Awaited<ReturnType<typeof Fixtures.User>>;
+  let category: Awaited<ReturnType<typeof Fixtures.Category>>;
+  let post: typeof posts.$inferSelect;
+  let otherUnpublishedPost: typeof posts.$inferSelect;
 
   beforeEach(async () => {
     author = await Fixtures.User();
     otherAuthor = await Fixtures.User();
     category = await Fixtures.Category();
-    post = await prisma.post.create({
-      data: {
+    [post] = await db
+      .insert(posts)
+      .values({
         title: "Test",
         content: "**Content**",
         deleted: false,
         published: true,
         authorId: author.id,
         categoryId: category.id,
-      },
-    });
-    otherUnpublishedPost = await prisma.post.create({
-      data: {
+      })
+      .returning();
+    [otherUnpublishedPost] = await db
+      .insert(posts)
+      .values({
         title: "Foo",
         content: "**Bar**",
         published: false,
         deleted: false,
         authorId: otherAuthor.id,
         categoryId: category.id,
-      },
-    });
+      })
+      .returning();
   });
+
   describe("an admin", () => {
     beforeEach(async () => {
-      admin = await prisma.user.create({
-        data: {
-          email: "admin@example.com",
-          admin: true,
-        },
-      });
+      admin = await db
+        .insert(users)
+        .values({ email: "admin@example.com", admin: true })
+        .returning()
+        .then((r) => r[0]);
     });
 
     describe("published", () => {
       test("can find unpublished posts of others", async () => {
         const result = await getPostList({
-          userId: admin.id,
+          user: admin,
           published: false,
         });
         expect(result.length).toBe(1);
@@ -158,24 +148,21 @@ describe("getPostList", () => {
   describe("a normal user", () => {
     describe("query", () => {
       test("matches title", async () => {
-        let result = await getPostList({
-          userId: author.id,
-          query: "Test",
-        });
+        const result = await getPostList({ user: author, query: "Test" });
         expect(result.length).toBe(1);
         expect(result[0].id).toBe(post.id);
       });
       test("matches content", async () => {
-        let result = await getPostList({
-          userId: author.id,
+        const result = await getPostList({
+          user: author,
           query: "Content",
         });
         expect(result.length).toBe(1);
         expect(result[0].id).toBe(post.id);
       });
       test("doesnt match everything", async () => {
-        let result = await getPostList({
-          userId: author.id,
+        const result = await getPostList({
+          user: author,
           query: "Fiction",
         });
         expect(result.length).toBe(0);
@@ -185,7 +172,7 @@ describe("getPostList", () => {
     describe("authorId", () => {
       test("matches", async () => {
         const result = await getPostList({
-          userId: author.id,
+          user: author,
           authorId: author.id,
         });
         expect(result.length).toBe(1);
@@ -194,7 +181,7 @@ describe("getPostList", () => {
 
       test("doesnt match everything", async () => {
         const result = await getPostList({
-          userId: author.id,
+          user: author,
           authorId: "invalid id",
         });
         expect(result.length).toBe(0);
@@ -204,7 +191,7 @@ describe("getPostList", () => {
     describe("categoryId", () => {
       test("matches", async () => {
         const result = await getPostList({
-          userId: author.id,
+          user: author,
           categoryId: category.id,
         });
         expect(result.length).toBe(1);
@@ -213,7 +200,7 @@ describe("getPostList", () => {
 
       test("doesnt match everything", async () => {
         const result = await getPostList({
-          userId: author.id,
+          user: author,
           categoryId: "invalid id",
         });
         expect(result.length).toBe(0);
@@ -223,7 +210,7 @@ describe("getPostList", () => {
     describe("published", () => {
       test("cannot find unpublished posts of others", async () => {
         const result = await getPostList({
-          userId: author.id,
+          user: author,
           published: false,
         });
         expect(result.length).toBe(0);
@@ -231,7 +218,7 @@ describe("getPostList", () => {
 
       test("cannot find unpublished posts of themselves", async () => {
         const result = await getPostList({
-          userId: otherAuthor.id,
+          user: otherAuthor,
           published: false,
         });
         expect(result.length).toBe(1);
@@ -242,8 +229,8 @@ describe("getPostList", () => {
 });
 
 describe("createPost", () => {
-  let author: User;
-  let category: Category;
+  let author: Awaited<ReturnType<typeof Fixtures.User>>;
+  let category: Awaited<ReturnType<typeof Fixtures.Category>>;
 
   beforeEach(async () => {
     author = await Fixtures.User();
@@ -251,7 +238,7 @@ describe("createPost", () => {
   });
 
   it("creates a post", async () => {
-    let post = await createPost({
+    const post = await createPost({
       userId: author.id,
       categoryId: category.id,
       content: "test content",
@@ -260,41 +247,42 @@ describe("createPost", () => {
     expect(post).toBeDefined();
     expect(post.title).toBe("test");
     expect(post.content).toBe("test content");
-    expect(post.feeds.length).toBe(0);
+    // Verify no feed associations
+    const feedLinks = await db.select().from(feedToPost).where(eq(feedToPost.B, post.id));
+    expect(feedLinks.length).toBe(0);
   });
 
   test("creates default subscription", async () => {
-    let post = await createPost({
+    const post = await createPost({
       userId: author.id,
       categoryId: category.id,
       content: "test",
       title: "test",
     });
-    const subs = await prisma.postSubscription.findMany({
-      where: { postId: post.id },
-    });
+    const subs = await db
+      .select()
+      .from(postSubscriptions)
+      .where(eq(postSubscriptions.postId, post.id));
     expect(subs.length).toBe(1);
     expect(subs[0].userId).toBe(author.id);
   });
 
   test("creates default revision", async () => {
-    let post = await createPost({
+    const post = await createPost({
       userId: author.id,
       categoryId: category.id,
       content: "test content",
       title: "test",
     });
-    const revs = await prisma.postRevision.findMany({
-      where: { postId: post.id },
-    });
+    const revs = await db.select().from(postRevisions).where(eq(postRevisions.postId, post.id));
     expect(revs.length).toBe(1);
     expect(revs[0].content).toBe("test content");
     expect(revs[0].title).toBe("test");
   });
 
   it("creates feed links", async () => {
-    let feed = await Fixtures.Feed();
-    let post = await createPost({
+    const feed = await Fixtures.Feed();
+    const post = await createPost({
       userId: author.id,
       categoryId: category.id,
       content: "test content",
@@ -302,22 +290,25 @@ describe("createPost", () => {
       feedIds: [feed.id],
     });
     expect(post).toBeDefined();
-    expect(post.feeds.length).toBe(1);
-    expect(post.feeds[0].id).toBe(feed.id);
+    const feedLinks = await db.select().from(feedToPost).where(eq(feedToPost.B, post.id));
+    expect(feedLinks.length).toBe(1);
+    expect(feedLinks[0].A).toBe(feed.id);
   });
 });
 
 describe("updatePost", () => {
-  let post: Post;
+  let post: Awaited<ReturnType<typeof Fixtures.Post>>;
+  let author: Awaited<ReturnType<typeof Fixtures.User>>;
 
   beforeEach(async () => {
-    post = await Fixtures.Post();
+    author = await Fixtures.User();
+    post = await Fixtures.Post({ authorId: author.id });
   });
 
   it("updates the title", async () => {
-    let updatedPost = await updatePost({
+    const updatedPost = await updatePost({
       id: post.id,
-      userId: post.authorId,
+      user: author,
       title: "updates a post",
     });
     expect(updatedPost).toBeDefined();
@@ -325,57 +316,49 @@ describe("updatePost", () => {
   });
 
   it("adds feedIds", async () => {
-    let feed = await Fixtures.Feed();
-    let updatedPost = await updatePost({
+    const feed = await Fixtures.Feed();
+    await updatePost({
       id: post.id,
-      userId: post.authorId,
+      user: author,
       feedIds: [feed.id],
     });
-    expect(updatedPost).toBeDefined();
-    expect(updatedPost.feeds.length).toBe(1);
-    expect(updatedPost.feeds[0].id).toBe(feed.id);
+    const feedLinks = await db.select().from(feedToPost).where(eq(feedToPost.B, post.id));
+    expect(feedLinks.length).toBe(1);
+    expect(feedLinks[0].A).toBe(feed.id);
   });
 
   it("removes feedIds", async () => {
-    let feed = await Fixtures.Feed();
-    await prisma.post.update({
-      where: { id: post.id },
-      data: {
-        feeds: {
-          connect: [{ id: feed.id }],
-        },
-      },
-    });
-    let updatedPost = await updatePost({
+    const feed = await Fixtures.Feed();
+    // First add a feed
+    await db.insert(feedToPost).values({ A: feed.id, B: post.id });
+    await updatePost({
       id: post.id,
-      userId: post.authorId,
+      user: author,
       feedIds: [],
     });
-    expect(updatedPost).toBeDefined();
-    expect(updatedPost.feeds.length).toBe(0);
-
-    const newFeed = await prisma.feed.findFirst({
-      where: { id: feed.id },
+    const feedLinks = await db.select().from(feedToPost).where(eq(feedToPost.B, post.id));
+    expect(feedLinks.length).toBe(0);
+    // Feed itself still exists
+    const feedRow = await db.query.feeds.findFirst({
+      where: (f, { eq }) => eq(f.id, feed.id),
     });
-    expect(newFeed).toBeDefined();
+    expect(feedRow).toBeDefined();
   });
 });
 
 describe("syndicatePost", () => {
-  let author: User;
-  let category: Category;
-  let feed: Feed;
+  let author: Awaited<ReturnType<typeof Fixtures.User>>;
+  let category: Awaited<ReturnType<typeof Fixtures.Category>>;
+  let feed: Awaited<ReturnType<typeof Fixtures.Feed>>;
 
   beforeEach(async () => {
     author = await Fixtures.User();
     category = await Fixtures.Category();
-    feed = await Fixtures.Feed({
-      webhookUrl: "https://example.com/notify",
-    });
+    feed = await Fixtures.Feed({ webhookUrl: "https://example.com/notify" });
   });
 
   it("POSTs to webhookUrl", async () => {
-    let post = await createPost({
+    const post = await createPost({
       userId: author.id,
       categoryId: category.id,
       content: "test content",
@@ -385,7 +368,8 @@ describe("syndicatePost", () => {
 
     const fetchSpy = vi.spyOn(global, "fetch");
 
-    await syndicatePost(post);
+    // syndicatePost expects a post object with feeds array
+    await syndicatePost({ ...post, feeds: [feed] });
 
     expect(fetchSpy).toHaveBeenCalledOnce();
     expect(fetchSpy).toBeCalledWith("https://example.com/notify", {

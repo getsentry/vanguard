@@ -1,15 +1,9 @@
-import type {
-  MetaFunction,
-  LoaderFunctionArgs,
-  ActionFunctionArgs,
-} from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { Form, useLoaderData } from "@remix-run/react";
+import type { MetaFunction, LoaderFunctionArgs, ActionFunctionArgs } from "react-router";
+import { Form, useLoaderData } from "react-router";
 import invariant from "tiny-invariant";
 
 import { getPostList } from "~/models/post.server";
-import { getUserByEmail, updateUser } from "~/models/user.server";
-import type { User } from "~/models/user.server";
+import { getPublicUserByEmail, getUserByEmail, updateUser } from "~/models/user.server";
 import { requireAdmin, requireUser } from "~/services/auth.server";
 import Avatar from "~/components/avatar";
 import * as Panel from "~/components/panel";
@@ -17,22 +11,22 @@ import PostLink from "~/components/post-link";
 import Markdown from "~/components/markdown";
 import Button from "~/components/button";
 
-export async function loader({ request, context, params }: LoaderFunctionArgs) {
-  const currentUser = await requireUser(request, context);
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const currentUser = await requireUser(request);
   invariant(params.userEmail, "userEmail not found");
 
-  const user = await getUserByEmail(params.userEmail);
+  const user = await getPublicUserByEmail(params.userEmail);
   if (!user) {
     throw new Response("Not Found", { status: 404 });
   }
 
   const postList = await getPostList({
-    userId: currentUser.id,
+    user: currentUser,
     authorId: user.id,
     published: true,
     limit: 20,
   });
-  return json({ currentUser, user, postList });
+  return { currentUser, user, postList };
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
@@ -44,8 +38,8 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
   ];
 };
 
-export async function action({ request, context, params }: ActionFunctionArgs) {
-  const currentUser = await requireAdmin(request, context);
+export async function action({ request, params }: ActionFunctionArgs) {
+  const currentUser = await requireAdmin(request);
   invariant(params.userEmail, "userEmail not found");
 
   const user = await getUserByEmail(params.userEmail);
@@ -56,28 +50,30 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
   const formData = await request.formData();
   if (formData.get("canPostRestricted") === "true") {
     await updateUser({
-      userId: currentUser.id,
+      actor: currentUser,
       id: user.id,
       canPostRestricted: true,
     });
   }
   if (formData.get("canPostRestricted") === "false") {
     await updateUser({
-      userId: currentUser.id,
+      actor: currentUser,
       id: user.id,
       canPostRestricted: false,
     });
   }
   if (formData.get("admin") === "true") {
-    await updateUser({ userId: currentUser.id, id: user.id, admin: true });
+    await updateUser({ actor: currentUser, id: user.id, admin: true });
   }
   if (formData.get("admin") === "false") {
-    await updateUser({ userId: currentUser.id, id: user.id, admin: false });
+    await updateUser({ actor: currentUser, id: user.id, admin: false });
   }
   return null;
 }
 
-const UserAdmin: React.FC<{ user: User }> = ({ user }) => {
+const UserAdmin: React.FC<{ user: { id: string; admin: boolean; canPostRestricted: boolean } }> = ({
+  user,
+}) => {
   return (
     <Panel.Panel>
       <Panel.Title>Admin</Panel.Title>
@@ -96,21 +92,11 @@ const UserAdmin: React.FC<{ user: User }> = ({ user }) => {
           </li>
           <li>
             {!user.canPostRestricted ? (
-              <Button
-                baseStyle="link"
-                name="canPostRestricted"
-                value="true"
-                type="submit"
-              >
+              <Button baseStyle="link" name="canPostRestricted" value="true" type="submit">
                 Allow posting in restricted categories
               </Button>
             ) : (
-              <Button
-                baseStyle="link"
-                name="canPostRestricted"
-                value="false"
-                type="submit"
-              >
+              <Button baseStyle="link" name="canPostRestricted" value="false" type="submit">
                 Restrict posting in restricted categories
               </Button>
             )}
@@ -130,9 +116,7 @@ export default function UserDetailsPage() {
         <Avatar user={user} size="96px" />
         <div>
           <h1 className="text-4xl font-serif">{user.name}</h1>
-          <div className="text-muted-light dark:text-muted-dark">
-            {user.email}
-          </div>
+          <div className="text-muted-light dark:text-muted-dark">{user.email}</div>
         </div>
       </div>
 

@@ -1,9 +1,10 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { redirect } from "react-router";
+import { Form, useActionData } from "react-router";
 
 import { requireAdmin } from "~/services/auth.server";
-import { prisma } from "~/services/db.server";
+import { db } from "~/db/client";
+import { categories, categoryEmails, categorySlacks } from "~/db/schema";
 import FormActions from "~/components/form-actions";
 import Button from "~/components/button";
 import { useState } from "react";
@@ -14,87 +15,77 @@ import { isEmoji } from "~/lib/emoji";
 
 const DEFAULT_EMOJIS = ["❤️"];
 
-export async function loader({ request, context }: LoaderFunctionArgs) {
-  await requireAdmin(request, context);
+export async function loader({ request }: LoaderFunctionArgs) {
+  await requireAdmin(request);
 
   return null;
 }
 
-export async function action({ request, context }: ActionFunctionArgs) {
-  await requireAdmin(request, context);
+export async function action({ request }: ActionFunctionArgs) {
+  await requireAdmin(request);
   const formData = await request.formData();
   const name = formData.get("name");
   const slug = formData.get("slug");
   const colorHex = formData.get("colorHex");
   const restricted = !!formData.get("restricted");
   const allowComments = !!formData.get("allowComments");
-  const defaultEmojis = formData.getAll("defaultEmojis");
+  const defaultEmojis = formData.getAll("defaultEmojis") as string[];
   const slackWebhookUrl = formData.get("slack.webhookUrl");
   const emailTo = formData.get("email.to");
 
   if (typeof name !== "string" || name.length === 0) {
-    return json({ errors: { name: "Name is required" } }, { status: 400 });
+    return Response.json({ errors: { name: "Name is required" } }, { status: 400 });
   }
 
   if (typeof slug !== "string" || slug.length === 0) {
-    return json({ errors: { slug: "Slug is required" } }, { status: 400 });
+    return Response.json({ errors: { slug: "Slug is required" } }, { status: 400 });
   }
 
   // TODO: validate
   if (typeof colorHex !== "string" || colorHex.length === 0) {
-    return json({ errors: { colorHex: "Color is required" } }, { status: 400 });
+    return Response.json({ errors: { colorHex: "Color is required" } }, { status: 400 });
   }
 
   if (defaultEmojis.find((v) => !isEmoji(v))) {
-    return json(
+    return Response.json(
       {
         errors: {
-          defaultEmojis:
-            "An invalid reaction was provided. All values must be emoji",
+          defaultEmojis: "An invalid reaction was provided. All values must be emoji",
         },
       },
       { status: 400 },
     );
   }
 
-  const queries: any[] = [
-    prisma.category.create({
-      data: {
+  await db.transaction(async (tx) => {
+    const [category] = await tx
+      .insert(categories)
+      .values({
         name,
         slug,
         colorHex,
         restricted,
         allowComments,
-        defaultEmojis,
-        slackConfig: slackWebhookUrl
-          ? {
-              create: [
-                {
-                  webhookUrl: slackWebhookUrl,
-                },
-              ],
-            }
-          : {},
-        emailConfig: emailTo
-          ? {
-              create: [
-                {
-                  to: emailTo,
-                },
-              ],
-            }
-          : {},
-      },
-    }),
-  ];
+        defaultEmojis: defaultEmojis as string[],
+      })
+      .returning();
 
-  await prisma.$transaction(queries);
+    if (slackWebhookUrl && typeof slackWebhookUrl === "string") {
+      await tx
+        .insert(categorySlacks)
+        .values({ categoryId: category.id, webhookUrl: slackWebhookUrl });
+    }
+
+    if (emailTo && typeof emailTo === "string") {
+      await tx.insert(categoryEmails).values({ categoryId: category.id, to: emailTo });
+    }
+  });
 
   return redirect("/admin/categories");
 }
 
 export default function Index() {
-  const actionData = useActionData<typeof action>();
+  const actionData = useActionData() as { errors?: Record<string, any> } | undefined;
   const errors = actionData?.errors;
   const [currentEmojiList, setCurrentEmojiList] = useState(DEFAULT_EMOJIS);
 
@@ -202,9 +193,7 @@ export default function Index() {
                 key={emoji}
                 onClick={(e) => {
                   e.preventDefault();
-                  setCurrentEmojiList(
-                    currentEmojiList.filter((v) => v !== emoji),
-                  );
+                  setCurrentEmojiList(currentEmojiList.filter((v) => v !== emoji));
                 }}
               >
                 <input type="hidden" name="defaultEmojis" value={emoji} />
@@ -231,9 +220,7 @@ export default function Index() {
             placeholder="e.g. https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX"
             aria-invalid={errors?.slackConfig?.webhookUrl ? true : undefined}
             aria-errormessage={
-              errors?.slackConfig?.webhookUrl
-                ? "slack-webhook-url-error"
-                : undefined
+              errors?.slackConfig?.webhookUrl ? "slack-webhook-url-error" : undefined
             }
           />
         </label>
@@ -252,9 +239,7 @@ export default function Index() {
             name="email.to"
             placeholder="e.g. my-notifications@example.company"
             aria-invalid={errors?.emailConfig?.to ? true : undefined}
-            aria-errormessage={
-              errors?.emailConfig?.to ? "email-to-error" : undefined
-            }
+            aria-errormessage={errors?.emailConfig?.to ? "email-to-error" : undefined}
           />
         </label>
         {errors?.emailConfig?.to && (

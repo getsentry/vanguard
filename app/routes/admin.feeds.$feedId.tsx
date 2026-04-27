@@ -1,18 +1,21 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import { Form, useActionData, useLoaderData } from "@remix-run/react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { redirect } from "react-router";
+import { Form, useActionData, useLoaderData } from "react-router";
 import invariant from "tiny-invariant";
+
+import { eq } from "drizzle-orm";
 
 import { requireAdmin } from "~/services/auth.server";
 import { getFeed } from "~/models/feed.server";
-import { prisma } from "~/services/db.server";
+import { db } from "~/db/client";
+import { feeds } from "~/db/schema";
 import FormActions from "~/components/form-actions";
 import ButtonGroup from "~/components/button-group";
 import Button from "~/components/button";
 import { buildUrl } from "~/lib/http";
 
-export async function loader({ request, context, params }: LoaderFunctionArgs) {
-  await requireAdmin(request, context);
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  await requireAdmin(request);
   invariant(params.feedId, "feedId not found");
   const { feedId } = params;
   const feed = await getFeed({ id: feedId });
@@ -20,11 +23,11 @@ export async function loader({ request, context, params }: LoaderFunctionArgs) {
 
   const feedUrl = buildUrl(`/feeds/${feed.id}.xml`, request);
 
-  return json({ feed, feedUrl });
+  return { feed, feedUrl };
 }
 
-export async function action({ request, context, params }: ActionFunctionArgs) {
-  await requireAdmin(request, context);
+export async function action({ request, params }: ActionFunctionArgs) {
+  await requireAdmin(request);
   invariant(params.feedId, "feedId not found");
   const { feedId } = params;
   const feed = await getFeed({ id: feedId });
@@ -38,30 +41,26 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
   const deleted = !!formData.get("deleted");
 
   if (typeof name !== "string" || name.length === 0) {
-    return json({ errors: { title: "Name is required" } }, { status: 400 });
+    return Response.json({ errors: { title: "Name is required" } }, { status: 400 });
   }
 
-  const queries: any[] = [
-    prisma.feed.update({
-      where: { id: feedId },
-      data: {
-        name,
-        url,
-        restricted,
-        deleted,
-        webhookUrl,
-      },
-    }),
-  ];
-
-  await prisma.$transaction(queries);
+  await db
+    .update(feeds)
+    .set({
+      name,
+      url: url as string | null,
+      restricted,
+      deleted,
+      webhookUrl: webhookUrl as string | null,
+    })
+    .where(eq(feeds.id, feedId));
 
   return redirect("/admin/feeds");
 }
 
 export default function Details() {
   const { feed, feedUrl } = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
+  const actionData = useActionData() as { errors?: Record<string, any> } | undefined;
   const errors = actionData?.errors;
 
   return (
@@ -138,9 +137,7 @@ export default function Details() {
             autoFocus
             defaultValue={feed.webhookUrl || ""}
             aria-invalid={errors?.webhookUrl ? true : undefined}
-            aria-errormessage={
-              errors?.webhookUrl ? "webhookUrl-error" : undefined
-            }
+            aria-errormessage={errors?.webhookUrl ? "webhookUrl-error" : undefined}
           />
         </label>
         {errors?.webhookUrl && (
@@ -152,11 +149,7 @@ export default function Details() {
 
       <div>
         <label className="field-inline">
-          <input
-            type="checkbox"
-            name="restricted"
-            defaultChecked={feed.restricted}
-          />
+          <input type="checkbox" name="restricted" defaultChecked={feed.restricted} />
           Restrict syndication to this feed
         </label>
       </div>

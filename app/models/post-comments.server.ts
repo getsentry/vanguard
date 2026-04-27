@@ -1,84 +1,78 @@
-import type { User, Post, PostComment } from "@prisma/client";
+import { eq, and, asc, inArray, sql } from "drizzle-orm";
 import invariant from "tiny-invariant";
 
-import { prisma } from "~/services/db.server";
+import { db } from "~/db/client";
+import { postComments, posts, users, categoryEmails } from "~/db/schema";
+import type { PublicCurrentUser } from "~/models/user.server";
+import { PUBLIC_USER_COLUMNS } from "~/models/user.server";
+import type { PostQueryType } from "~/models/post.server";
 import { notifyComment } from "~/lib/email";
+import { waitUntil } from "~/lib/wait-until";
 
-export type { PostComment } from "@prisma/client";
+export type PostComment = typeof postComments.$inferSelect;
+export type PostCommentWithAuthor = PostComment & {
+  author: Pick<typeof users.$inferSelect, "id" | "email" | "name" | "picture">;
+};
 
 export async function getCommentList({
-  userId,
+  userId: _userId,
   postId,
-
   offset = 0,
   limit = 50,
 }: {
-  userId: User["id"];
+  userId: string;
   postId: string;
-
   offset?: number;
   limit?: number;
-}): Promise<PostComment[]> {
-  const where: { [key: string]: any } = { deleted: false };
-
-  if (postId) where.postId = postId;
-
-  return await prisma.postComment.findMany({
-    include: {
-      author: true,
-      post: !postId, // we are prob too clever here
-    },
-    where,
-    orderBy: {
-      createdAt: "asc",
-    },
-    skip: offset,
-    take: limit,
+}): Promise<PostCommentWithAuthor[]> {
+  return db.query.postComments.findMany({
+    where: and(eq(postComments.deleted, false), eq(postComments.postId, postId)),
+    with: { author: { columns: PUBLIC_USER_COLUMNS } },
+    orderBy: asc(postComments.createdAt),
+    offset,
+    limit,
   });
 }
 
 export async function countCommentsForPosts({
-  userId,
+  userId: _userId,
   postList,
 }: {
-  userId: User["id"];
-  postList: Post[];
-}): Promise<{
-  [postId: string]: number;
-}> {
+  userId: string;
+  postList: { id: string }[];
+}): Promise<{ [postId: string]: number }> {
   const postIds = postList.map((p) => p.id);
-  const counts = await prisma.postComment.groupBy({
-    by: ["postId"],
-    where: {
-      deleted: false,
-      postId: { in: postIds },
-    },
-    _count: {
-      postId: true,
-    },
-  });
+  const counts = await db
+    .select({ postId: postComments.postId, count: sql<number>`count(*)::int` })
+    .from(postComments)
+    .where(and(eq(postComments.deleted, false), inArray(postComments.postId, postIds)))
+    .groupBy(postComments.postId);
 
-  const results: {
-    [postId: string]: number;
-  } = {};
-  postIds.forEach((pId) => (results[pId] = 0));
+  const results: { [postId: string]: number } = {};
+  postIds.forEach((id) => (results[id] = 0));
   counts.forEach((row) => {
-    results[row.postId] = row._count.postId;
+    results[row.postId] = row.count;
   });
   return results;
 }
 
-export async function announceComment(
-  post: Post,
-  comment: PostComment,
-  parent?: PostComment,
-) {
-  const mailConfig = await prisma.categoryEmail.findMany({
-    where: {
-      categoryId: post.categoryId,
-    },
-  });
-  notifyComment({ post, comment, parent, mailConfig });
+export function announceComment(
+  post: PostQueryType,
+  comment: PostCommentWithAuthor,
+  parent?: PostCommentWithAuthor | null,
+): void {
+  waitUntil(
+    (async () => {
+      const mailConfig = await db.query.categoryEmails.findMany({
+        where: eq(categoryEmails.categoryId, post.categoryId),
+      });
+      await Promise.all(
+        mailConfig.map((config) =>
+          notifyComment({ post, comment, parent: parent ?? null, config }),
+        ),
+      );
+    })(),
+  );
 }
 
 export async function createComment({
@@ -87,69 +81,54 @@ export async function createComment({
   content,
   parentId = null,
 }: {
-  userId: User["id"];
-  postId: Post["id"];
+  userId: string;
+  postId: string;
   content: string;
-  parentId?: PostComment["id"];
+  parentId?: string | null;
 }): Promise<PostComment | null> {
-  const post = await prisma.post.findFirst({
-    where: {
-      id: postId,
-    },
-    include: {
-      author: true,
-      category: true,
-    },
+  const post = await db.query.posts.findFirst({
+    where: eq(posts.id, postId),
+    with: { author: true, category: true },
   });
   invariant(post, "post not found");
 
   if (post.allowComments && post.category.allowComments) {
     const parent = parentId
-      ? await prisma.postComment.findFirst({
-          where: { postId, id: parentId },
-          include: { author: true },
+      ? await db.query.postComments.findFirst({
+          where: and(eq(postComments.postId, postId), eq(postComments.id, parentId)),
+          with: { author: { columns: PUBLIC_USER_COLUMNS } },
         })
       : null;
 
-    const comment = await prisma.postComment.create({
-      data: {
+    const [comment] = await db
+      .insert(postComments)
+      .values({
         postId,
         authorId: userId,
         content,
         parentId: parent ? parent.id : null,
-      },
-      include: {
-        author: true,
-      },
+      })
+      .returning();
+
+    const commentWithAuthor = await db.query.postComments.findFirst({
+      where: eq(postComments.id, comment.id),
+      with: { author: { columns: PUBLIC_USER_COLUMNS } },
     });
 
-    announceComment(post, comment, parent);
+    announceComment(post as unknown as PostQueryType, commentWithAuthor!, parent);
 
-    return comment;
+    return commentWithAuthor!;
   }
   return null;
 }
 
-export async function deleteComment({
-  userId,
-  id,
-}: {
-  userId: User["id"];
-  id: Comment["id"];
-}) {
-  const user = await prisma.user.findFirst({ where: { id: userId } });
-  invariant(user, "user not found");
+export async function deleteComment({ user, id }: { user: PublicCurrentUser; id: string }) {
+  const where = user.admin
+    ? eq(postComments.id, id)
+    : and(eq(postComments.id, id), eq(postComments.authorId, user.id));
 
-  const where: { [key: string]: any } = { id };
-  if (!user.admin) where.authorId = userId;
-
-  const comment = await prisma.postComment.findFirst({ where });
+  const comment = await db.query.postComments.findFirst({ where });
   invariant(comment, "comment not found");
 
-  await prisma.postComment.update({
-    where: { id },
-    data: {
-      deleted: true,
-    },
-  });
+  await db.update(postComments).set({ deleted: true }).where(eq(postComments.id, id));
 }

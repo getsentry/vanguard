@@ -3,7 +3,7 @@ import Content from "./content";
 import PostLink from "./post-link";
 import Markdown from "./markdown";
 import CategoryTag from "./category-tag";
-import type { Post as PostType } from "~/models/post.server";
+import type { PostQueryType as PostType } from "~/models/post.server";
 import Middot from "./middot";
 import DefinitionList from "./definition-list";
 import { Fragment } from "react";
@@ -31,8 +31,7 @@ export default function Post({
   reactions?: any[];
   totalComments?: number;
 }) {
-  const totalReactions =
-    reactions?.reduce((value, r) => value + r.total, 0) || 0;
+  const totalReactions = reactions?.reduce((value, r) => value + r.total, 0) || 0;
 
   return (
     <div className="post">
@@ -44,9 +43,7 @@ export default function Post({
         <Avatar user={post.author} />
         <div className="flex flex-1 flex-col justify-between">
           <div className="font-medium">
-            <Link to={`/u/${post.author.email}`}>
-              {post.author.name || post.authorId.email}
-            </Link>
+            <Link to={`/u/${post.author.email}`}>{post.author.name || post.author.email}</Link>
           </div>
           <div className="text-muted-light dark:text-muted-dark flex">
             <div>
@@ -78,7 +75,9 @@ export default function Post({
             )}
             {summary && (
               <div className="text-right flex-grow">
-                {reactions?.map((r) => <span key={r.emoji}>{r.emoji}</span>)}
+                {reactions?.map((r) => (
+                  <span key={r.emoji}>{r.emoji}</span>
+                ))}
               </div>
             )}
           </div>
@@ -101,11 +100,7 @@ export default function Post({
               <Fragment key={meta.id}>
                 <DefinitionList.Term>{meta.name}</DefinitionList.Term>
                 <DefinitionList.Desc>
-                  {isUrl(meta.content) ? (
-                    <a href={meta.content}>{meta.content}</a>
-                  ) : (
-                    meta.content
-                  )}
+                  {isUrl(meta.content) ? <a href={meta.content}>{meta.content}</a> : meta.content}
                 </DefinitionList.Desc>
               </Fragment>
             ))}
@@ -156,7 +151,6 @@ const CommaSeparated = ({ children }) => {
 
 const readingTime = (content: string, plural: boolean = true): string => {
   const time = Math.ceil(content.length / 2000);
-  if (time > 60)
-    return time / 60 + " hour" + (plural && time / 60 > 1 ? "s" : "");
+  if (time > 60) return time / 60 + " hour" + (plural && time / 60 > 1 ? "s" : "");
   return time + " minute" + (plural && time > 1 ? "s" : "");
 };

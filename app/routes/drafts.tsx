@@ -1,21 +1,20 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import type { LoaderFunctionArgs } from "react-router";
+import { useLoaderData } from "react-router";
 
-import { requireUserId } from "~/services/auth.server";
+import { requireUser } from "~/services/auth.server";
 import { getPostList } from "~/models/post.server";
 import Post from "~/components/post";
 import PageHeader from "~/components/page-header";
 import Link from "~/components/link";
 
-export async function loader({ request, context }: LoaderFunctionArgs) {
-  const userId = await requireUserId(request, context);
+export async function loader({ request }: LoaderFunctionArgs) {
+  const user = await requireUser(request);
   const postList = await getPostList({
-    userId,
-    authorId: userId,
+    user,
+    authorId: user.id,
     published: false,
   });
-  return json({ postList });
+  return { postList };
 }
 
 export default function Drafts() {
@@ -26,13 +25,10 @@ export default function Drafts() {
       <PageHeader title="My Drafts" />
       {postList.length === 0 ? (
         <p className="p-4">
-          You've got no posts in draft form.{" "}
-          <Link to="/new-post">Get to writing!</Link>
+          You've got no posts in draft form. <Link to="/new-post">Get to writing!</Link>
         </p>
       ) : (
-        postList.map((post) => (
-          <Post post={post} key={post.id} summary canEdit />
-        ))
+        postList.map((post) => <Post post={post} key={post.id} summary canEdit />)
       )}
     </div>
   );

@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 
 import type { Category } from "~/models/category.server";
 import IconMegaphone from "~/icons/IconMegaphone";
@@ -6,7 +6,7 @@ import IconShip from "~/icons/IconShip";
 import IconEye from "~/icons/IconEye";
 import type { ComponentPropsWithoutRef } from "react";
 
-const CategoryIcon = ({ category, ...props }: { category: Category }) => {
+const CategoryIcon = ({ category, ...props }: { category: Category; height?: number }) => {
   // TODO: move into category config
   switch (category.slug) {
     case "shipped":
@@ -58,9 +58,7 @@ function contrastColor(colorHex: string) {
   const rgb = hexToRgb(colorHex);
   if (!rgb) return "black";
 
-  const brightness = Math.round(
-    (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000,
-  );
+  const brightness = Math.round((rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000);
   return brightness > 125 ? "black" : "#eeeeee";
 }
 

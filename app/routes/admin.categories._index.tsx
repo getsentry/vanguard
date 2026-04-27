@@ -1,6 +1,5 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import type { LoaderFunctionArgs } from "react-router";
+import { useLoaderData } from "react-router";
 
 import { requireAdmin } from "~/services/auth.server";
 import { paginate } from "~/lib/paginator";
@@ -11,16 +10,12 @@ import PageHeader from "~/components/page-header";
 import Button from "~/components/button";
 import Link from "~/components/link";
 
-export async function loader({ request, context }: LoaderFunctionArgs) {
-  const user = await requireAdmin(request, context);
+export async function loader({ request }: LoaderFunctionArgs) {
+  const user = await requireAdmin(request);
   const url = new URL(request.url);
   const cursor = url.searchParams.get("cursor");
-  const categoryListPaginated = await paginate(
-    getCategoryList,
-    { userId: user.id },
-    cursor,
-  );
-  return json({ categoryListPaginated });
+  const categoryListPaginated = await paginate(getCategoryList, { user }, cursor);
+  return { categoryListPaginated };
 }
 
 export default function Index() {

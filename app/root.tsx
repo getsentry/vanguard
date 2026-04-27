@@ -1,14 +1,13 @@
 import { useState } from "react";
-import InterStyles from "@fontsource/inter/index.css";
-import type { LinksFunction, LoaderFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { Form, Outlet, useLoaderData, useRouteError } from "@remix-run/react";
-import prismCss from "prism-sentry/index.css";
-import { withSentry, setUser } from "@sentry/remix";
+import InterStyles from "@fontsource/inter/index.css?url";
+import type { LinksFunction, LoaderFunction } from "react-router";
+import { Form, Outlet, useLoaderData, useRouteError } from "react-router";
+import prismCss from "prism-sentry/index.css?url";
+import { setUser } from "@sentry/react-router";
 import { Toaster } from "react-hot-toast";
 
-import fontsCss from "./styles/fonts.css";
-import indexCss from "./styles/index.css";
+import fontsCss from "./styles/fonts.css?url";
+import indexCss from "./styles/index.css?url";
 import Footer from "./components/footer";
 import Header from "./components/header";
 import Container from "./components/container";
@@ -20,11 +19,10 @@ import Avatar from "./components/avatar";
 import type { User } from "./models/post.server";
 import { getPostList } from "./models/post.server";
 import PostList from "./components/post-list";
+import EnvNotice from "./components/env-notice";
 import LoadingIndicator from "./components/loading-indicator";
-import DevNotice from "./components/dev-notice";
 import Button from "./components/button";
 import Document from "./components/document";
-import config from "./config";
 import Link from "./components/link";
 
 export const links: LinksFunction = () => {
@@ -40,40 +38,32 @@ type LoaderData = {
   user: User | null;
   categoryList?: Awaited<ReturnType<typeof getCategoryList>> | null;
   recentPostList?: Awaited<ReturnType<typeof getPostList>> | null;
-  config: typeof config;
+  previewAutoLogin: boolean;
   sentryTrace?: string;
   sentryBaggage?: string;
 };
 
-export const loader: LoaderFunction = async ({ context: { user } }) => {
-  // TODO(dcramer): remix is currently not respecting a root loader redirect
-  // if (user) {
-  //   // probably a cleaner way to build this, but we're here for the duct tape
-  //   const pathname = new URL(request.url).pathname;
-  //   if (!user.name && pathname.indexOf("/welcome") !== 0) {
-  //     // send em to onboarding
-  //     const searchParams = new URLSearchParams([["redirectTo", pathname]]);
-  //     return redirect(`/welcome?${searchParams}`);
-  //   }
-  // }
+export const loader: LoaderFunction = async ({ request }) => {
+  const { getUser } = await import("./services/auth.server");
+  const { previewAutoLoginEnabled } = await import("./services/preview-auto-login.server");
+  const user = (await getUser(request)) ?? null;
 
-  return json({
-    user,
-    config,
-    categoryList: user
-      ? await getCategoryList({
-          userId: user.id,
-          includeRestricted: true,
-        })
-      : null,
-    recentPostList: user
-      ? await getPostList({
-          userId: user.id,
-          published: true,
-          limit: 3,
-        })
-      : null,
-  });
+  if (!user) {
+    return {
+      user: null,
+      categoryList: null,
+      recentPostList: null,
+      previewAutoLogin: previewAutoLoginEnabled,
+    };
+  }
+
+  // Sidebar fetches are independent — run them in parallel.
+  const [categoryList, recentPostList] = await Promise.all([
+    getCategoryList({ user, includeRestricted: true }),
+    getPostList({ user, published: true, limit: 3 }),
+  ]);
+
+  return { user, categoryList, recentPostList, previewAutoLogin: previewAutoLoginEnabled };
 };
 
 export function ErrorBoundary() {
@@ -91,9 +81,7 @@ export function ErrorBoundary() {
           <Header />
           <h1>Internal Server Error</h1>
           {error.stack && (
-            <pre className="whitespace-pre-wrap break-all text-left">
-              {error.stack}
-            </pre>
+            <pre className="whitespace-pre-wrap break-all text-left">{error.stack}</pre>
           )}
         </Container>
       </div>
@@ -102,13 +90,8 @@ export function ErrorBoundary() {
 }
 
 function App() {
-  const {
-    user,
-    categoryList,
-    recentPostList,
-    config = {},
-    ...data
-  } = useLoaderData<LoaderData>();
+  const { user, categoryList, recentPostList, previewAutoLogin, ...data } =
+    useLoaderData<LoaderData>();
 
   const [showSidebar, setShowSidebar] = useState(false);
 
@@ -127,22 +110,22 @@ function App() {
   };
 
   return (
-    <Document config={config} data={data} showSidebar={showSidebar}>
+    <Document data={data} showSidebar={showSidebar}>
       <LoadingIndicator />
       <div>
         <Toaster />
       </div>
-      {config.ENV !== "production" && <DevNotice />}
+      {previewAutoLogin ? (
+        <EnvNotice variant="preview" />
+      ) : (
+        import.meta.env.MODE !== "production" && <EnvNotice variant="development" />
+      )}
       <div className="relative">
         <div className="xl:pb-24 xl:px-20 xl:mr-[30rem] relative">
           <Container>
-            <Header
-              showSidebar={showSidebar}
-              handleSidebar={handleSidebar}
-              user={user}
-            />
+            <Header showSidebar={showSidebar} handleSidebar={handleSidebar} user={user} />
             <Outlet />
-            <Footer version={config.VERSION} admin={user?.admin} />
+            <Footer version={import.meta.env.VITE_VERSION} admin={user?.admin} />
           </Container>
         </div>
         <Sidebar showSidebar={showSidebar}>
@@ -156,9 +139,7 @@ function App() {
                   <Button as={Link} baseStyle="link" to="/settings">
                     Settings
                   </Button>
-                  <div className="text-border-light dark:text-border-dark font-mono">
-                    /
-                  </div>
+                  <div className="text-border-light dark:text-border-dark font-mono">/</div>
                   <Button as={Link} baseStyle="link" to="/drafts">
                     Drafts
                   </Button>
@@ -166,11 +147,7 @@ function App() {
               </SidebarSection>
               <SidebarSection>
                 <Form method="get" action="/search">
-                  <Input
-                    variant="search"
-                    name="q"
-                    placeholder="Search posts..."
-                  />
+                  <Input variant="search" name="q" placeholder="Search posts..." />
                 </Form>
               </SidebarSection>
             </>
@@ -202,4 +179,4 @@ function App() {
   );
 }
 
-export default withSentry(App, { wrapWithErrorBoundary: false });
+export default App;

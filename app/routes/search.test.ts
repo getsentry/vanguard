@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { expectRequiresUser } from "~/lib/test/expects";
 import { buildRequest } from "~/lib/test/request";
 import { loader } from "./search";

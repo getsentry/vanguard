@@ -1,49 +1,39 @@
-import type {
-  ActionFunction,
-  LoaderFunctionArgs,
-  MetaFunction,
-} from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import type { ActionFunction, LoaderFunctionArgs, MetaFunction } from "react-router";
+import { useLoaderData } from "react-router";
 import invariant from "tiny-invariant";
 
 import { announcePost, getPost, updatePost } from "~/models/post.server";
 import { getReactionsForPosts } from "~/models/post-reactions.server";
 import { getCommentList } from "~/models/post-comments.server";
-import { requireUser, requireUserId } from "~/services/auth.server";
+import { requireUser } from "~/services/auth.server";
 import { default as PostTemplate } from "~/components/post";
 import PostReactions from "~/components/post-reactions";
 import PostComments from "~/components/post-comments";
 import { hasSubscription } from "~/models/post-subscription.server";
 
-export async function loader({ request, context, params }: LoaderFunctionArgs) {
-  const user = await requireUser(request, context);
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const user = await requireUser(request);
 
-  const post = await getPost({ userId: user.id, id: params.postId });
+  const post = await getPost({ user, id: params.postId });
   if (!post) {
     throw new Response("Not Found", { status: 404 });
   }
 
-  const reactions = (
-    await getReactionsForPosts({ userId: user.id, postList: [post] })
-  )[post.id];
+  // Reactions, comments, and subscription state all depend on the post but are
+  // independent of each other — fetch them in parallel.
+  const [reactionsByPost, comments, hasSub] = await Promise.all([
+    getReactionsForPosts({ userId: user.id, postList: [post] }),
+    getCommentList({ userId: user.id, postId: post.id, limit: 1000 }),
+    hasSubscription({ userId: user.id, postId: post.id }),
+  ]);
 
-  const comments = await getCommentList({
-    userId: user.id,
-    postId: post.id,
-    limit: 1000,
-  });
-
-  return json({
+  return {
     post,
     user,
-    reactions,
+    reactions: reactionsByPost[post.id],
     comments,
-    hasSubscription: await hasSubscription({
-      userId: user.id,
-      postId: post.id,
-    }),
-  });
+    hasSubscription: hasSub,
+  };
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
@@ -55,20 +45,19 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
   ];
 };
 
-export const action: ActionFunction = async ({ request, context, params }) => {
-  const userId = await requireUserId(request, context);
+export const action: ActionFunction = async ({ request, params }) => {
+  const user = await requireUser(request);
   invariant(params.postId, "postId not found");
 
   const formData = await request.formData();
   const published =
-    formData.get("published") === "true" ||
-    formData.get("published") === "announce";
+    formData.get("published") === "true" || formData.get("published") === "announce";
 
   if (published) {
     const announce = published && formData.get("published") === "announce";
     const post = await updatePost({
       id: params.postId,
-      userId,
+      user,
       published,
     });
 
@@ -77,12 +66,11 @@ export const action: ActionFunction = async ({ request, context, params }) => {
     }
   }
 
-  return json({});
+  return {};
 };
 
 export default function PostDetailsPage() {
-  let { post, user, reactions, comments, hasSubscription } =
-    useLoaderData<typeof loader>();
+  const { post, user, reactions, comments, hasSubscription } = useLoaderData<typeof loader>();
 
   const canEdit = post.authorId === user.id || user.admin;
 
@@ -96,9 +84,7 @@ export default function PostDetailsPage() {
             post={post}
             comments={comments}
             user={user}
-            allowComments={
-              !!(post.allowComments && post.category.allowComments)
-            }
+            allowComments={!!(post.allowComments && post.category.allowComments)}
             hasSubscription={hasSubscription}
           />
         </>

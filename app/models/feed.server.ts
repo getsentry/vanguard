@@ -1,52 +1,46 @@
-import type { User, Feed } from "@prisma/client";
+import { and, eq, ilike } from "drizzle-orm";
 
-import { prisma } from "~/services/db.server";
+import { db } from "~/db/client";
+import { feeds } from "~/db/schema";
+import type { PublicCurrentUser } from "~/models/user.server";
 
-export type { Feed } from "@prisma/client";
+export type Feed = typeof feeds.$inferSelect;
+/** Loader-safe feed shape — excludes webhookUrl which is server-only. */
+export type PublicFeed = Omit<Feed, "webhookUrl">;
 
 export function getFeed({ id }: { id?: Feed["id"] }) {
   if (!id) return null;
-  return prisma.feed.findFirst({
-    where: { id },
-  });
+  return db.query.feeds.findFirst({ where: eq(feeds.id, id) });
 }
 
 export async function getFeedList({
-  userId,
+  user,
   includeRestricted = true,
   query,
   offset = 0,
   limit = 50,
 }: {
-  userId: User["id"];
+  user: PublicCurrentUser;
   includeRestricted?: Feed["restricted"];
   query?: string | null;
   offset?: number;
   limit?: number;
 }) {
-  // userId is used to find categories
-  const user = await prisma.user.findFirst({ where: { id: userId } });
-  const canPostRestricted = user ? user.canPostRestricted : false;
+  const conditions = [eq(feeds.deleted, false)];
 
-  const where: { [key: string]: any } = { deleted: false };
-  if (query !== undefined) {
-    where.AND = [
-      ...(where.AND || []),
-      {
-        OR: [
-          {
-            name: { contains: query, mode: "insensitive" },
-          },
-        ],
-      },
-    ];
+  if (query) {
+    conditions.push(ilike(feeds.name, `%${query}%`));
   }
-  if (!includeRestricted && !canPostRestricted) where.restricted = false;
 
-  return await prisma.feed.findMany({
-    where,
-    skip: offset,
-    take: limit,
-    orderBy: { name: "asc" },
+  if (!includeRestricted && !user.canPostRestricted) {
+    conditions.push(eq(feeds.restricted, false));
+  }
+
+  return db.query.feeds.findMany({
+    where: and(...conditions),
+    columns: { webhookUrl: false },
+    limit,
+    offset,
+    orderBy: (f, { asc }) => asc(f.name),
   });
 }

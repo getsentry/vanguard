@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import type { Props as ButtonProps } from "./button";
 import Button from "./button";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 import classNames from "~/lib/classNames";
-import type { ComponentPropsWithoutRef, MouseEventHandler } from "react";
+import type { ComponentPropsWithoutRef } from "react";
 
 export function ButtonDropdownItem(props: ComponentPropsWithoutRef<"button">) {
   return (
@@ -23,8 +23,8 @@ export default function ButtonDropdown({
 }) {
   const [isOpen, setOpen] = useState<boolean>(false);
 
-  const toggleDropdown = (e: MouseEventHandler<HTMLButtonElement>) => {
-    e.preventDefault && e.preventDefault();
+  const toggleDropdown = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     setOpen(!isOpen);
   };
 
@@ -32,7 +32,7 @@ export default function ButtonDropdown({
 
   useEffect(() => {
     const handleClick = (e: Event) => {
-      if (e.target && !dropdownRef.current?.contains(e.target)) {
+      if (e.target && !dropdownRef.current?.contains(e.target as Node)) {
         setOpen(false);
       }
     };

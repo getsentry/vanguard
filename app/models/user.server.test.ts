@@ -1,52 +1,35 @@
-import type { User } from "@prisma/client";
-import { prisma } from "~/services/db.server";
-import {
-  changePassword,
-  createUser,
-  getUserList,
-  updateUser,
-  verifyPassword,
-} from "~/models/user.server";
+import { db } from "~/db/client";
+import { users } from "~/db/schema";
+import { createUser, getUserList, updateUser, upsertUser } from "~/models/user.server";
 import * as Fixtures from "~/lib/test/fixtures";
 
 describe("getUserList", () => {
-  let user: User;
+  let user: typeof users.$inferSelect;
 
   beforeEach(async () => {
-    user = await prisma.user.create({
-      data: {
-        email: "foo@example.com",
-        name: "Bar",
-      },
-    });
+    [user] = await db.insert(users).values({ email: "foo@example.com", name: "Bar" }).returning();
   });
 
   describe("query", () => {
     test("matches email", async () => {
-      let result = await getUserList({
-        query: "foo",
-      });
+      const result = await getUserList({ query: "foo" });
       expect(result.length).toBe(1);
       expect(result[0].id).toBe(user.id);
     });
     test("matches name", async () => {
-      let result = await getUserList({
-        query: "bar",
-      });
+      const result = await getUserList({ query: "bar" });
       expect(result.length).toBe(1);
       expect(result[0].id).toBe(user.id);
     });
     test("doesnt match everything", async () => {
-      let result = await getUserList({
-        query: "baz",
-      });
+      const result = await getUserList({ query: "baz" });
       expect(result.length).toBe(0);
     });
   });
 });
 
 describe("updateUser", () => {
-  let user: User;
+  let user: Awaited<ReturnType<typeof Fixtures.User>>;
 
   beforeEach(async () => {
     user = await Fixtures.User();
@@ -55,7 +38,7 @@ describe("updateUser", () => {
   it("can change name on self", async () => {
     const newUser = await updateUser({
       id: user.id,
-      userId: user.id,
+      actor: user,
       name: "Fancy",
     });
     expect(newUser).toBeDefined();
@@ -65,9 +48,8 @@ describe("updateUser", () => {
   it("can change picture on self", async () => {
     const newUser = await updateUser({
       id: user.id,
-      userId: user.id,
-      picture:
-        "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
+      actor: user,
+      picture: "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
     });
     expect(newUser).toBeDefined();
     expect(newUser.picture).toBe(
@@ -78,7 +60,7 @@ describe("updateUser", () => {
   it("can change notifyReplies on self", async () => {
     const newUser = await updateUser({
       id: user.id,
-      userId: user.id,
+      actor: user,
       notifyReplies: false,
     });
     expect(newUser).toBeDefined();
@@ -88,7 +70,7 @@ describe("updateUser", () => {
   it("cannot change admin on self", async () => {
     const newUser = await updateUser({
       id: user.id,
-      userId: user.id,
+      actor: user,
       admin: true,
     });
     expect(newUser).toBeDefined();
@@ -98,7 +80,7 @@ describe("updateUser", () => {
   it("cannot change canPostRestricted on self", async () => {
     const newUser = await updateUser({
       id: user.id,
-      userId: user.id,
+      actor: user,
       canPostRestricted: true,
     });
     expect(newUser).toBeDefined();
@@ -122,12 +104,69 @@ describe("createUser", () => {
   });
 });
 
-describe("changePassword", () => {
-  it("updates password", async () => {
-    const user = await Fixtures.User();
+describe("upsertUser", () => {
+  it("promotes the very first authenticated user of an empty database to admin", async () => {
+    // setup-test-env truncates all tables and seeds a DEFAULT_USER before each test,
+    // so start from a fully empty users table to observe the first-user bootstrap.
+    await db.delete(users);
+    const user = await upsertUser({
+      email: "first@example.com",
+      externalId: "google-first",
+    });
+    expect(user.admin).toBe(true);
+  });
 
-    await changePassword({ user, newPassword: "fizzle" });
+  it("does not promote subsequent users", async () => {
+    // DEFAULT_USER already exists from the test setup, so this is not the first user.
+    const user = await upsertUser({
+      email: "second@example.com",
+      externalId: "google-second",
+    });
+    expect(user.admin).toBe(false);
+  });
 
-    expect(verifyPassword({ user, password: "fizzle" })).toBe(true);
+  it("promotes the first authenticated user even if placeholder seed users exist", async () => {
+    // Simulate `pnpm db:seed` having created a placeholder user with no externalId.
+    // That row owns seeded sample content but can never sign in, and must not prevent
+    // the first real Google sign-in from being granted admin.
+    await db.delete(users);
+    await Fixtures.User({ email: "demo@example.com", externalId: null });
+    const user = await upsertUser({
+      email: "first@example.com",
+      externalId: "google-first",
+    });
+    expect(user.admin).toBe(true);
+  });
+
+  it("preserves the admin flag on an existing user across re-login", async () => {
+    const existing = await Fixtures.User({
+      email: "admin@example.com",
+      externalId: "google-admin",
+      admin: true,
+    });
+    const roundTripped = await upsertUser({
+      email: "admin@example.com",
+      externalId: "google-admin",
+    });
+    expect(roundTripped.id).toBe(existing.id);
+    expect(roundTripped.admin).toBe(true);
+  });
+});
+
+describe("getCurrentUserById", () => {
+  it("omits passwordHash and externalId from the returned shape", async () => {
+    const [row] = await db
+      .insert(users)
+      .values({ email: "current@example.com", passwordHash: "secret", externalId: "ext-123" })
+      .returning();
+
+    const { getCurrentUserById } = await import("~/models/user.server");
+    const result = await getCurrentUserById(row.id);
+
+    expect(result).not.toBeNull();
+    expect(result).not.toHaveProperty("passwordHash");
+    expect(result).not.toHaveProperty("externalId");
+    expect(result!.id).toBe(row.id);
+    expect(result!.email).toBe("current@example.com");
   });
 });

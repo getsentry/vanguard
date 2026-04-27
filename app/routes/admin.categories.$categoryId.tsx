@@ -1,12 +1,15 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import { Form, useActionData, useLoaderData } from "@remix-run/react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { redirect } from "react-router";
+import { Form, useActionData, useLoaderData } from "react-router";
 import invariant from "tiny-invariant";
 import type { ComponentPropsWithoutRef } from "react";
 
+import { and, eq, notInArray } from "drizzle-orm";
+
 import { requireAdmin } from "~/services/auth.server";
 import { getCategory } from "~/models/category.server";
-import { prisma } from "~/services/db.server";
+import { db } from "~/db/client";
+import { categories, categoryEmails, categoryMetas, categorySlacks } from "~/db/schema";
 import FormActions from "~/components/form-actions";
 import ButtonGroup from "~/components/button-group";
 import Button from "~/components/button";
@@ -18,12 +21,12 @@ import { EmojiButton } from "~/components/emoji-reaction";
 
 const DEFAULT_EMOJIS = ["❤️"];
 
-export async function loader({ request, context, params }: LoaderFunctionArgs) {
-  await requireAdmin(request, context);
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  await requireAdmin(request);
   invariant(params.categoryId, "categoryId not found");
-  const category = await prisma.category.findFirst({
-    where: { id: params.categoryId },
-    include: {
+  const category = await db.query.categories.findFirst({
+    where: eq(categories.id, params.categoryId),
+    with: {
       slackConfig: true,
       emailConfig: true,
       metaConfig: true,
@@ -31,11 +34,11 @@ export async function loader({ request, context, params }: LoaderFunctionArgs) {
   });
   invariant(category, "invalid category");
 
-  return json({ category });
+  return { category };
 }
 
-export async function action({ request, context, params }: ActionFunctionArgs) {
-  await requireAdmin(request, context);
+export async function action({ request, params }: ActionFunctionArgs) {
+  await requireAdmin(request);
   invariant(params.categoryId, "categoryId not found");
   const { categoryId } = params;
   const category = await getCategory({ id: categoryId });
@@ -48,7 +51,7 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
   const colorHex = formData.get("colorHex");
   const restricted = !!formData.get("restricted");
   const allowComments = !!formData.get("allowComments");
-  const defaultEmojis = formData.getAll("defaultEmojis");
+  const defaultEmojis = formData.getAll("defaultEmojis") as string[];
   const deleted = !!formData.get("deleted");
   const slackWebhookUrl = formData.get("slack.webhookUrl");
   const emailTo = formData.get("email.to");
@@ -61,7 +64,7 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
     required: boolean;
   }[] = [];
   formData.forEach((value, key) => {
-    let match = key.match(/^meta\[(\d+)?]\.(.+)$/i);
+    const match = key.match(/^meta\[(\d+)?]\.(.+)$/i);
     if (match) {
       const idx: number = match[1] ? parseInt(match[1]) + 1 : 0;
       while (meta.length <= idx) {
@@ -75,129 +78,89 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
   const existingMetaIds = meta.map(({ id }) => id).filter((id) => !!id);
 
   if (typeof name !== "string" || name.length === 0) {
-    return json({ errors: { name: "Name is required" } }, { status: 400 });
+    return Response.json({ errors: { name: "Name is required" } }, { status: 400 });
   }
 
   if (typeof slug !== "string" || slug.length === 0) {
-    return json({ errors: { slug: "Slug is required" } }, { status: 400 });
+    return Response.json({ errors: { slug: "Slug is required" } }, { status: 400 });
   }
 
   // TODO: validate
   if (typeof colorHex !== "string" || colorHex.length === 0) {
-    return json({ errors: { colorHex: "Color is required" } }, { status: 400 });
+    return Response.json({ errors: { colorHex: "Color is required" } }, { status: 400 });
   }
 
   if (defaultEmojis.find((v) => !isEmoji(v))) {
-    return json(
+    return Response.json(
       {
         errors: {
-          defaultEmojis:
-            "An invalid reaction was provided. All values must be emoji",
+          defaultEmojis: "An invalid reaction was provided. All values must be emoji",
         },
       },
       { status: 400 },
     );
   }
 
-  const queries: any[] = [
-    prisma.category.update({
-      where: { id: categoryId },
-      data: {
+  await db.transaction(async (tx) => {
+    await tx
+      .update(categories)
+      .set({
         name,
         slug,
-        description,
+        description: description as string | null,
         colorHex,
         restricted,
         deleted,
         allowComments,
-        defaultEmojis,
-      },
-    }),
-    prisma.categorySlack.deleteMany({
-      where: { categoryId },
-    }),
-    prisma.categoryEmail.deleteMany({
-      where: { categoryId },
-    }),
-  ];
+        defaultEmojis: defaultEmojis as string[],
+      })
+      .where(eq(categories.id, categoryId));
 
-  if (existingMetaIds) {
-    queries.push(
-      prisma.categoryMeta.deleteMany({
-        where: {
-          categoryId,
-          NOT: {
-            id: {
-              in: existingMetaIds,
-            },
-          },
-        },
-      }),
-    );
-  }
+    await tx.delete(categorySlacks).where(eq(categorySlacks.categoryId, categoryId));
+    await tx.delete(categoryEmails).where(eq(categoryEmails.categoryId, categoryId));
 
-  if (slackWebhookUrl) {
-    queries.push(
-      prisma.categorySlack.create({
-        data: {
-          categoryId,
-          webhookUrl: slackWebhookUrl,
-        },
-      }),
-    );
-  }
+    if (existingMetaIds.length > 0) {
+      await tx
+        .delete(categoryMetas)
+        .where(
+          and(
+            eq(categoryMetas.categoryId, categoryId),
+            notInArray(categoryMetas.id, existingMetaIds),
+          ),
+        );
+    }
 
-  if (emailTo) {
-    queries.push(
-      prisma.categoryEmail.create({
-        data: {
-          categoryId,
-          to: emailTo,
-          subjectPrefix: emailSubjectPrefix || null,
-        },
-      }),
-    );
-  }
+    if (slackWebhookUrl && typeof slackWebhookUrl === "string") {
+      await tx.insert(categorySlacks).values({ categoryId, webhookUrl: slackWebhookUrl });
+    }
 
-  meta.forEach(({ id, ...data }) => {
-    if (id) {
-      // TODO(dcramer): we'd like to also pass in categoryId to the WHERE, but Prisma currently
-      // forbids updates with multiple conditions
-      queries.push(
-        prisma.categoryMeta.update({
-          where: { id },
-          data,
-        }),
-      );
-    } else {
-      queries.push(
-        prisma.categoryMeta.create({
-          data: {
-            ...data,
-            categoryId,
-          },
-        }),
-      );
+    if (emailTo && typeof emailTo === "string") {
+      await tx.insert(categoryEmails).values({
+        categoryId,
+        to: emailTo,
+        subjectPrefix: emailSubjectPrefix ? String(emailSubjectPrefix) : null,
+      });
+    }
+
+    for (const { id, ...data } of meta) {
+      if (id) {
+        await tx.update(categoryMetas).set(data).where(eq(categoryMetas.id, id));
+      } else {
+        await tx.insert(categoryMetas).values({ ...data, categoryId });
+      }
     }
   });
-
-  await prisma.$transaction(queries);
 
   return redirect("/admin/categories");
 }
 
 function MetaContainer(props: ComponentPropsWithoutRef<"div">) {
-  return (
-    <div
-      className="border border-border-light dark:border-border-dark p-4 mb-6"
-      {...props}
-    />
-  );
+  return <div className="border border-border-light dark:border-border-dark p-4 mb-6" {...props} />;
 }
 
 export default function Index() {
   const { category } = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
+  const actionData = useActionData() as { errors?: Record<string, any> } | undefined;
   const errors = actionData?.errors;
 
   const [currentEmojiList, setCurrentEmojiList] = useState(
@@ -271,9 +234,7 @@ export default function Index() {
             autoFocus
             defaultValue={category.description || ""}
             aria-invalid={errors?.description ? true : undefined}
-            aria-errormessage={
-              errors?.description ? "description-error" : undefined
-            }
+            aria-errormessage={errors?.description ? "description-error" : undefined}
           />
         </label>
         {errors?.description && (
@@ -304,22 +265,14 @@ export default function Index() {
 
       <div>
         <label className="field-inline">
-          <input
-            type="checkbox"
-            name="restricted"
-            defaultChecked={category.restricted}
-          />
+          <input type="checkbox" name="restricted" defaultChecked={category.restricted} />
           Restrict posting to this category
         </label>
       </div>
 
       <div>
         <label className="field-inline">
-          <input
-            type="checkbox"
-            name="allowComments"
-            defaultChecked={category.allowComments}
-          />
+          <input type="checkbox" name="allowComments" defaultChecked={category.allowComments} />
           Allow comments on posts in this category
         </label>
       </div>
@@ -343,9 +296,7 @@ export default function Index() {
                 key={emoji}
                 onClick={(e) => {
                   e.preventDefault();
-                  setCurrentEmojiList(
-                    currentEmojiList.filter((v) => v !== emoji),
-                  );
+                  setCurrentEmojiList(currentEmojiList.filter((v) => v !== emoji));
                 }}
               >
                 <input type="hidden" name="defaultEmojis" value={emoji} />
@@ -373,9 +324,7 @@ export default function Index() {
             defaultValue={slackConfig?.webhookUrl || ""}
             aria-invalid={errors?.slackConfig?.webhookUrl ? true : undefined}
             aria-errormessage={
-              errors?.slackConfig?.webhookUrl
-                ? "slack-webhook-url-error"
-                : undefined
+              errors?.slackConfig?.webhookUrl ? "slack-webhook-url-error" : undefined
             }
           />
         </label>
@@ -395,9 +344,7 @@ export default function Index() {
             placeholder="e.g. my-notifications@example.company"
             defaultValue={emailConfig?.to || ""}
             aria-invalid={errors?.emailConfig?.to ? true : undefined}
-            aria-errormessage={
-              errors?.emailConfig?.to ? "email-to-error" : undefined
-            }
+            aria-errormessage={errors?.emailConfig?.to ? "email-to-error" : undefined}
           />
         </label>
         {errors?.emailConfig?.to && (
@@ -417,9 +364,7 @@ export default function Index() {
             defaultValue={emailConfig?.subjectPrefix || ""}
             aria-invalid={errors?.emailConfig?.subjectPrefix ? true : undefined}
             aria-errormessage={
-              errors?.emailConfig?.subjectPrefix
-                ? "email-subject-prefix-error"
-                : undefined
+              errors?.emailConfig?.subjectPrefix ? "email-subject-prefix-error" : undefined
             }
           />
         </label>
@@ -432,18 +377,14 @@ export default function Index() {
 
       <h2>Metadata</h2>
       <p>
-        Define additional content fields to associate with posts. This is useful
-        for things like e.g. a fixed location for a video URL.
+        Define additional content fields to associate with posts. This is useful for things like
+        e.g. a fixed location for a video URL.
       </p>
 
       <div>
         {metaConfig.map((meta, idx) => (
           <MetaContainer key={meta.id || idx}>
-            <input
-              type="hidden"
-              name={`meta[${idx}].id`}
-              value={meta.id || ""}
-            />
+            <input type="hidden" name={`meta[${idx}].id`} value={meta.id || ""} />
             <label className="field-required">
               <span>Name</span>
               <input
@@ -520,12 +461,7 @@ const NewMetaConfig = ({ onCreate }) => {
       <input type="hidden" name="meta[].id" value="" />
       <label className="field-required">
         <span>Name</span>
-        <input
-          type="text"
-          name="meta[].name"
-          placeholder="e.g. Video URL"
-          ref={nameRef}
-        />
+        <input type="text" name="meta[].name" placeholder="e.g. Video URL" ref={nameRef} />
       </label>
 
       <label>

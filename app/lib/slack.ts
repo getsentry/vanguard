@@ -14,13 +14,7 @@ export type SlackConfig = {
   iconUrl?: string;
 };
 
-export const notify = async ({
-  post,
-  config,
-}: {
-  post: PostQueryType;
-  config: SlackConfig;
-}) => {
+export const notify = async ({ post, config }: { post: PostQueryType; config: SlackConfig }) => {
   const { author, category } = post;
   console.log(`Sending Slack notification for post ${post.id}`);
 
@@ -79,7 +73,7 @@ export const notify = async ({
     let data: any;
     try {
       data = await res.json();
-    } catch (err) {
+    } catch {
       data = res.body;
     }
     error("slack webhook failed", {

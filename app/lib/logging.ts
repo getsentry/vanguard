@@ -1,4 +1,4 @@
-import * as Sentry from "@sentry/remix";
+import * as Sentry from "@sentry/react-router";
 
 type CaptureContext = {
   context: {
@@ -12,13 +12,9 @@ type CaptureContext = {
 // function error(value: string, context?: Context): void;
 // function error(value: Error, context?: Context): void;
 
-export function error(
-  value: string | Error,
-  captureContext?: CaptureContext,
-): void {
+export function error(value: string | Error, captureContext?: CaptureContext): void {
   Sentry.withScope((scope) => {
-    if (captureContext?.context)
-      scope.setContext("vg:context", captureContext.context);
+    if (captureContext?.context) scope.setContext("vg:context", captureContext.context);
     if (captureContext?.tags) scope.setTags(captureContext.tags);
     if (value instanceof Error) {
       Sentry.captureException(value);

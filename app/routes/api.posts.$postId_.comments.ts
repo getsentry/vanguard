@@ -1,17 +1,16 @@
-import type { ActionFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import type { ActionFunctionArgs } from "react-router";
 import invariant from "tiny-invariant";
 import { createComment } from "~/models/post-comments.server";
 
 import { requireUserId } from "~/services/auth.server";
 
-export async function action({ request, context, params }: ActionFunctionArgs) {
+export async function action({ request, params }: ActionFunctionArgs) {
   if (request.method !== "POST") {
-    return json({ message: "Method not allowed" }, 405);
+    return Response.json({ message: "Method not allowed" }, { status: 405 });
   }
   invariant(params.postId, "postId not found");
 
-  const userId = await requireUserId(request, context);
+  const userId = await requireUserId(request);
 
   const { content, parentId } = await request.json();
 
@@ -22,5 +21,5 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
     parentId,
   });
 
-  return json(comment);
+  return comment;
 }

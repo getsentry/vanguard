@@ -24,7 +24,7 @@ export default function AvatarInput({
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        setImageSrc(e.target.result);
+        setImageSrc(e.target!.result as string);
       };
       reader.readAsDataURL(file);
     } else {
@@ -49,10 +49,10 @@ export default function AvatarInput({
         e.preventDefault();
         setHover(false);
       }}
-      onMouseOver={(e) => {
+      onMouseOver={(_e) => {
         setHover(true);
       }}
-      onMouseOut={(e) => {
+      onMouseOut={(_e) => {
         setHover(false);
       }}
       onDrop={(e) => {

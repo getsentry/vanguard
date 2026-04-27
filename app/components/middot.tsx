@@ -1,7 +1,7 @@
 import type { ComponentPropsWithoutRef } from "react";
 
 export default function Middot({
-  children,
+  children: _children,
   ...props
 }: ComponentPropsWithoutRef<"span">) {
   return (

@@ -1,4 +1,4 @@
-import { Link as UnstyledLink } from "@remix-run/react";
+import { Link as UnstyledLink } from "react-router";
 import type { ComponentPropsWithoutRef } from "react";
 import classNames from "~/lib/classNames";
 

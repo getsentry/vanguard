@@ -1,23 +1,20 @@
-import type { PostSubscription, User } from "@prisma/client";
-import { prisma } from "~/services/db.server";
+import { eq, and } from "drizzle-orm";
 
-export type { PostSubscription } from "@prisma/client";
+import { db } from "~/db/client";
+import { postSubscriptions, users } from "~/db/schema";
+
+export type PostSubscription = typeof postSubscriptions.$inferSelect;
 
 export async function hasSubscription({
   userId,
   postId,
 }: {
-  userId: PostSubscription["userId"];
-  postId: PostSubscription["postId"];
+  userId: string;
+  postId: string;
 }): Promise<boolean> {
-  const sub = await prisma.postSubscription.findFirst({
-    select: {
-      id: true,
-    },
-    where: {
-      userId,
-      postId,
-    },
+  const sub = await db.query.postSubscriptions.findFirst({
+    where: and(eq(postSubscriptions.userId, userId), eq(postSubscriptions.postId, postId)),
+    columns: { id: true },
   });
   return !!sub;
 }
@@ -25,54 +22,33 @@ export async function hasSubscription({
 export async function getSubscriptions({
   postId,
 }: {
-  postId: PostSubscription["postId"];
-}): Promise<User[]> {
-  return (
-    await prisma.postSubscription.findMany({
-      select: {
-        user: true,
-      },
-      where: {
-        postId,
-      },
-    })
-  ).map((ps) => ps.user);
+  postId: string;
+}): Promise<(typeof users.$inferSelect)[]> {
+  const subs = await db.query.postSubscriptions.findMany({
+    where: eq(postSubscriptions.postId, postId),
+    with: { user: true },
+  });
+  return subs.map((s) => s.user);
 }
 
 export async function createSubscription({
   userId,
   postId,
 }: {
-  userId: PostSubscription["userId"];
-  postId: PostSubscription["postId"];
+  userId: string;
+  postId: string;
 }): Promise<PostSubscription> {
-  return await prisma.postSubscription.upsert({
-    where: {
-      // lol what is this syntax?
-      postId_userId: {
-        postId,
-        userId,
-      },
-    },
-    update: {},
-    create: {
-      postId,
-      userId,
-    },
+  const existing = await db.query.postSubscriptions.findFirst({
+    where: and(eq(postSubscriptions.userId, userId), eq(postSubscriptions.postId, postId)),
   });
+  if (existing) return existing;
+
+  const [sub] = await db.insert(postSubscriptions).values({ postId, userId }).returning();
+  return sub;
 }
 
-export async function deleteSubscription({
-  userId,
-  postId,
-}: {
-  userId: PostSubscription["userId"];
-  postId: PostSubscription["postId"];
-}) {
-  await prisma.postSubscription.deleteMany({
-    where: {
-      userId,
-      postId,
-    },
-  });
+export async function deleteSubscription({ userId, postId }: { userId: string; postId: string }) {
+  await db
+    .delete(postSubscriptions)
+    .where(and(eq(postSubscriptions.userId, userId), eq(postSubscriptions.postId, postId)));
 }

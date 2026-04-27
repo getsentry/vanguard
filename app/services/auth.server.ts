@@ -24,71 +24,94 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import type { User } from "@prisma/client";
+import type { User } from "~/models/user.server";
+import type { PublicCurrentUser } from "~/models/user.server";
 import { Authenticator } from "remix-auth";
-import { FormStrategy } from "remix-auth-form";
-import type { AppLoadContext } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import { redirect } from "react-router";
 
 import { buildUrl } from "~/lib/http";
-import {
-  getUserByEmail,
-  getUserById,
-  upsertUser,
-  verifyPassword,
-} from "~/models/user.server";
+import { getCurrentUserById, upsertUser } from "~/models/user.server";
 import { GoogleStrategy } from "~/lib/google-auth";
 import { sessionStorage } from "~/services/session.server";
-import invariant from "tiny-invariant";
-import config from "~/config";
+import { getPreviewUser, previewAutoLoginEnabled } from "~/services/preview-auto-login.server";
+
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID ?? "";
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET ?? "";
+const GOOGLE_HD = process.env.GOOGLE_HD || undefined;
+
+// Google OAuth is the sole authentication path. If its credentials are missing
+// in production the app would deploy to a state where nobody can log in — fail
+// loudly at boot instead of silently shipping a broken login page.
+// Exception: Vercel Preview deploys with PREVIEW_AUTO_LOGIN=1 skip Google OAuth
+// entirely (see preview-auto-login.server.ts), so creds are not required there.
+if (
+  process.env.NODE_ENV === "production" &&
+  !previewAutoLoginEnabled &&
+  (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !GOOGLE_HD)
+) {
+  throw new Error(
+    "GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_HD must be set in production. " +
+      "Google OAuth is the only supported login method, and GOOGLE_HD enforces workspace-domain restriction.",
+  );
+}
 
 export const authenticator = new Authenticator<User>(sessionStorage);
 
-authenticator.use(
-  new FormStrategy(async ({ form }) => {
-    const email = form.get("email");
-    const password = form.get("password");
+/**
+ * Exported for unit-testing only. Validates a Google profile against the
+ * configured workspace domain and persists the user on success.
+ */
+export async function verifyGoogleProfile(
+  profile: {
+    id: string;
+    emails: [{ value: string }];
+    _json: { email_verified: boolean; hd?: string };
+  },
+  googleHd: string | undefined,
+): Promise<User> {
+  const email = profile.emails[0].value;
 
-    invariant(typeof email === "string", "email must be a string");
-    invariant(email.length > 0, "email must not be empty");
+  // Enforce email_verified — reject unverified Google accounts.
+  if (!profile._json.email_verified) {
+    throw new Error(`Google account ${email} is not email-verified.`);
+  }
 
-    invariant(typeof password === "string", "password must be a string");
-    invariant(password.length > 0, "password must not be empty");
-
-    const user = await getUserByEmail(email);
-    if (!user) {
-      return null;
+  // Enforce workspace domain server-side. The hd OAuth hint is advisory;
+  // any Google account that completes the flow would otherwise get a session.
+  if (googleHd) {
+    const returnedHd = profile._json.hd;
+    const emailDomain = email.split("@")[1];
+    if (returnedHd !== googleHd && emailDomain !== googleHd) {
+      throw new Error(
+        `Google account ${email} does not belong to the required workspace domain (${googleHd}).`,
+      );
     }
+  }
 
-    if (!verifyPassword({ user, password })) {
-      return null;
-    }
-
-    return user;
-  }),
-  "user-pass",
-);
+  return upsertUser({
+    email,
+    externalId: profile.id,
+  });
+}
 
 authenticator.use(
   new GoogleStrategy(
     {
-      clientID: config.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      clientID: GOOGLE_CLIENT_ID,
+      clientSecret: GOOGLE_CLIENT_SECRET,
       callbackURL: buildUrl("/auth/google/callback"),
-      hd: config.GOOGLE_HD,
+      hd: GOOGLE_HD,
     },
-    async ({ accessToken, refreshToken, extraParams, profile, ...params }) => {
+    async ({ profile }) => {
       console.log(`Persisting user ${profile.emails[0].value}`);
-      return upsertUser({
-        email: profile.emails[0].value,
-        externalId: profile.id,
-      });
+      return verifyGoogleProfile(profile, GOOGLE_HD);
     },
   ),
   "google",
 );
 
 export async function getUserId(request: Request): Promise<string | undefined> {
+  if (previewAutoLoginEnabled) return (await getPreviewUser()).id;
   const user = await authenticator.isAuthenticated(request);
   if (!user) {
     return undefined;
@@ -96,36 +119,40 @@ export async function getUserId(request: Request): Promise<string | undefined> {
   return user.id;
 }
 
-export async function getUser(request: Request) {
+export async function getUser(request: Request): Promise<PublicCurrentUser | undefined> {
+  if (previewAutoLoginEnabled) return await getPreviewUser();
   const user = await authenticator.isAuthenticated(request);
   if (!user) {
     return undefined;
   }
 
-  return await getUserById(user.id);
+  return (await getCurrentUserById(user.id)) ?? undefined;
 }
 
-export async function requireUserId(request: Request, context: AppLoadContext) {
-  if (context.user) return context.user.id;
-
-  throw redirectToAuth({ request });
+export async function requireUserId(request: Request): Promise<string> {
+  if (previewAutoLoginEnabled) return (await getPreviewUser()).id;
+  const user = await authenticator.isAuthenticated(request);
+  if (!user) throw redirectToAuth({ request });
+  return user.id;
 }
 
-export async function requireUser(request: Request, context: AppLoadContext) {
-  if (context.user) return context.user;
-
-  throw redirectToAuth({ request });
+export async function requireUser(request: Request): Promise<PublicCurrentUser> {
+  if (previewAutoLoginEnabled) return await getPreviewUser();
+  const user = await authenticator.isAuthenticated(request);
+  if (!user) throw redirectToAuth({ request });
+  const currentUser = await getCurrentUserById(user.id);
+  if (!currentUser) throw redirectToAuth({ request });
+  return currentUser;
 }
 
-export async function requireAdmin(request: Request, context: AppLoadContext) {
-  const user = context.user;
-  if (!user) {
-    throw redirectToAuth({ request });
-  }
-  if (!user.admin) {
-    throw redirect(`/403`);
-  }
-  return user;
+export async function requireAdmin(request: Request): Promise<PublicCurrentUser> {
+  if (previewAutoLoginEnabled) return await getPreviewUser();
+  const user = await authenticator.isAuthenticated(request);
+  if (!user) throw redirectToAuth({ request });
+  const currentUser = await getCurrentUserById(user.id);
+  if (!currentUser) throw redirectToAuth({ request });
+  if (!currentUser.admin) throw redirect(`/403`);
+  return currentUser;
 }
 
 export function redirectToAuth({ request }: { request: Request }) {

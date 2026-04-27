@@ -1,4 +1,4 @@
-import { useMatches } from "@remix-run/react";
+import { useMatches } from "react-router";
 import { useMemo } from "react";
 
 import type { User } from "~/models/user.server";
@@ -9,15 +9,13 @@ import type { User } from "~/models/user.server";
  * @param {string} id The route id
  * @returns {JSON|undefined} The router data or undefined if not found
  */
-export function useMatchesData(
-  id: string,
-): Record<string, unknown> | undefined {
+export function useMatchesData(id: string): Record<string, unknown> | undefined {
   const matchingRoutes = useMatches();
   const route = useMemo(
     () => matchingRoutes.find((route) => route.id === id),
     [matchingRoutes, id],
   );
-  return route?.data;
+  return route?.data as Record<string, unknown> | undefined;
 }
 
 function isUser(user: any): user is User {

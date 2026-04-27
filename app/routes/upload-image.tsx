@@ -1,34 +1,30 @@
-import {
-  type ActionFunctionArgs,
-  json,
-  unstable_parseMultipartFormData,
-} from "@remix-run/node";
+import type { ActionFunctionArgs } from "react-router";
 import { requireUserId } from "~/services/auth.server";
-import uploadHandler from "~/lib/upload-handler";
-import type { FileUploadHandlerOptions } from "@remix-run/node/dist/upload/fileUploadHandler";
+import { uploadFile, isAllowedImageType } from "~/lib/upload-handler";
 
-export async function action({ request, context }: ActionFunctionArgs) {
-  if (request.method !== "POST") return json({}, 405);
-  const userId = await requireUserId(request, context);
+export async function action({ request }: ActionFunctionArgs) {
+  if (request.method !== "POST") return Response.json({}, { status: 405 });
+  const userId = await requireUserId(request);
 
-  const filter: FileUploadHandlerOptions["filter"] = ({ contentType }) => {
-    return /image/i.test(contentType);
-  };
+  const formData = await request.formData();
+  const file = formData.get("file");
 
-  const formData = await unstable_parseMultipartFormData(
-    request,
-    uploadHandler({
-      fieldName: "file",
-      namespace: userId,
-      filter,
-      urlPrefix: "/image-uploads",
-    }),
-  );
+  if (!(file instanceof File)) {
+    return Response.json({ error: "No file provided" }, { status: 400 });
+  }
+  if (!isAllowedImageType(file.type)) {
+    return Response.json(
+      { error: "Only JPEG, PNG, GIF, and WebP images are allowed" },
+      { status: 400 },
+    );
+  }
 
-  const imageUrl = formData.get("file");
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const { url } = await uploadFile({
+    mimeType: file.type,
+    buffer,
+    namespace: userId,
+  });
 
-  const width = 0;
-  const height = 0;
-
-  return json({ originalFilename: "", url: imageUrl, width, height });
+  return { url, originalFilename: file.name, width: 0, height: 0 };
 }

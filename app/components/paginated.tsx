@@ -1,7 +1,7 @@
 import type { PaginatedResult } from "~/lib/paginator";
 import ButtonGroup from "./button-group";
 import Button from "./button";
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 
 interface PaginatedProps<T> {
   data: PaginatedResult<T>;

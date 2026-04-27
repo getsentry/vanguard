@@ -1,6 +1,5 @@
-import type { Session } from "@remix-run/node";
-import { createCookieSessionStorage, redirect } from "@remix-run/node";
-import type { Request as ExpressRequest } from "express";
+import type { Session } from "react-router";
+import { createCookieSessionStorage, redirect } from "react-router";
 import invariant from "tiny-invariant";
 
 import type { SessionPayload } from "~/types";
@@ -18,17 +17,12 @@ export const sessionStorage = createCookieSessionStorage({
   },
 });
 
-export async function getSession(request: Request | ExpressRequest) {
-  const cookie =
-    "get" in request
-      ? request.get("Cookie")
-      : (request as Request).headers.get("Cookie");
+export async function getSession(request: Request) {
+  const cookie = request.headers.get("Cookie");
   return await sessionStorage.getSession(cookie);
 }
 
-export async function getUser(
-  session: Session<SessionPayload, SessionPayload>,
-) {
+export async function getUser(session: Session<SessionPayload, SessionPayload>) {
   return session.get("user");
 }
 
@@ -46,21 +40,18 @@ export async function createSession({
   const s = await getSession(request);
   s.set("user", session.user);
 
-  return redirect(
-    !session.user.picture ? "/settings" : getSafeRedirect(redirectTo),
-    {
-      headers: {
-        "Set-Cookie": await sessionStorage.commitSession(s, {
-          maxAge: remember
-            ? 60 * 60 * 24 * 7 // 7 days
-            : undefined,
-        }),
-      },
+  return redirect(!session.user.picture ? "/settings" : getSafeRedirect(redirectTo), {
+    headers: {
+      "Set-Cookie": await sessionStorage.commitSession(s, {
+        maxAge: remember
+          ? 60 * 60 * 24 * 7 // 7 days
+          : undefined,
+      }),
     },
-  );
+  });
 }
 
-export async function logout(request: Request | ExpressRequest) {
+export async function logout(request: Request) {
   const s = await getSession(request);
   return redirect("/", {
     headers: {
@@ -70,7 +61,6 @@ export async function logout(request: Request | ExpressRequest) {
 }
 
 export function getSafeRedirect(value: string | null) {
-  if (!value || value?.indexOf("/") !== 0 || value?.indexOf("//") === 0)
-    return "/";
+  if (!value || value?.indexOf("/") !== 0 || value?.indexOf("//") === 0) return "/";
   return value;
 }

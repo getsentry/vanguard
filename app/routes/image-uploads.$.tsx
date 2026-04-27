@@ -1,71 +1,57 @@
 import os from "os";
 import fs from "fs/promises";
-import { redirect } from "@remix-run/node";
-import type { GetSignedUrlConfig} from "@google-cloud/storage";
-import { Storage } from "@google-cloud/storage";
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import invariant from "tiny-invariant";
-
 import path from "path";
-
+import type { LoaderFunctionArgs } from "react-router";
+import invariant from "tiny-invariant";
+import { get } from "@vercel/blob";
 import { requireUserId } from "~/services/auth.server";
+import { EXT_TO_MIME } from "~/lib/upload-handler";
 
-const MAX_AGE = 60 * 60 ** 24;
+// 1 day browser cache. `private` so CDNs / shared caches don't store the
+// auth-gated bytes — only the requesting user's browser keeps a copy.
+const MAX_AGE = 60 * 60 * 24;
+const CACHE_CONTROL = `private, max-age=${MAX_AGE}`;
 
-export async function loader({ request, context, params }: LoaderFunctionArgs) {
-  if (process.env.GCS_EXPIRES_IN) {
-    await requireUserId(request, context);
-  }
+// Security headers to prevent same-origin XSS if a non-image file slips through.
+// nosniff stops browsers from MIME-sniffing; CSP blocks scripts in any served content.
+const SECURITY_HEADERS = {
+  "X-Content-Type-Options": "nosniff",
+  "Content-Security-Policy": "default-src 'none'; img-src 'self'; sandbox",
+};
 
-  const fileParam = params["*"];
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  await requireUserId(request);
 
-  invariant(fileParam, "filename is required");
+  const pathname = params["*"];
+  invariant(pathname, "pathname is required");
 
-  const useGcs = !!process.env.USE_GCS_STORAGE;
-
-  // const filename = path.basename(fileParam);
-
-  let stream: any;
-  if (useGcs) {
-    const bucketName = process.env.GCS_BUCKET_NAME as string;
-    const bucketPath = process.env.GCS_BUCKET_PATH
-      ? `${process.env.GCS_BUCKET_PATH}/`
-      : "";
-
-    const cloudStorage = new Storage();
-
-    if (process.env.GCS_EXPIRES_IN) {
-      const options: GetSignedUrlConfig = {
-        version: "v4",
-        action: "read",
-        expires: Date.now() + parseInt(process.env.GCS_EXPIRES_IN),
-      };
-
-      const [url] = await cloudStorage
-        .bucket(bucketName)
-        .file(`${bucketPath}${fileParam}`)
-        .getSignedUrl(options);
-      return redirect(url);
-    } else {
-      // const file = cloudStorage
-      //   .bucket(bucketName)
-      //   .file(`${bucketPath}${params.filename}`);
-      // stream = file.createReadStream();
-      const url = `https://storage.googleapis.com/${bucketName}/${bucketPath}${fileParam}`;
-      return redirect(url);
-    }
-  } else {
-    const filepath = path.format({
-      dir: os.tmpdir(),
-      base: fileParam,
-    });
-    const fd = await fs.open(filepath, "r");
-    stream = fd.createReadStream();
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    // Production: stream from the private Vercel Blob store using the
+    // server-side token. The blob URL is never exposed to the client.
+    const { stream, headers } = await get(pathname, { access: "private" });
     return new Response(stream, {
       status: 200,
       headers: {
-        "Cache-Control": `max-age=${MAX_AGE}, s-maxage=${MAX_AGE}`,
+        "Content-Type": headers.get("content-type") ?? "application/octet-stream",
+        "Cache-Control": CACHE_CONTROL,
+        ...SECURITY_HEADERS,
       },
     });
   }
+
+  // Local dev fallback: read from os.tmpdir().
+  const filepath = path.join(os.tmpdir(), pathname);
+  const fd = await fs.open(filepath, "r");
+  const stream = fd.createReadStream();
+  const ext = path.extname(pathname).slice(1).toLowerCase();
+  const contentType = EXT_TO_MIME[ext] ?? "application/octet-stream";
+
+  return new Response(stream as unknown as ReadableStream, {
+    status: 200,
+    headers: {
+      "Content-Type": contentType,
+      "Cache-Control": CACHE_CONTROL,
+      ...SECURITY_HEADERS,
+    },
+  });
 }

@@ -1,46 +1,37 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { redirect } from "react-router";
+import { Form, useActionData } from "react-router";
 
 import { requireAdmin } from "~/services/auth.server";
-import { prisma } from "~/services/db.server";
+import { db } from "~/db/client";
+import { feeds } from "~/db/schema";
 import FormActions from "~/components/form-actions";
 import Button from "~/components/button";
 
-export async function loader({ request, context }: LoaderFunctionArgs) {
-  await requireAdmin(request, context);
+export async function loader({ request }: LoaderFunctionArgs) {
+  await requireAdmin(request);
 
   return null;
 }
 
-export async function action({ request, context }: ActionFunctionArgs) {
-  await requireAdmin(request, context);
+export async function action({ request }: ActionFunctionArgs) {
+  await requireAdmin(request);
   const formData = await request.formData();
   const name = formData.get("name");
   const webhookUrl = formData.get("webhookUrl");
   const restricted = !!formData.get("restricted");
 
   if (typeof name !== "string" || name.length === 0) {
-    return json({ errors: { title: "Name is required" } }, { status: 400 });
+    return Response.json({ errors: { title: "Name is required" } }, { status: 400 });
   }
 
-  const queries: any[] = [
-    prisma.feed.create({
-      data: {
-        name,
-        webhookUrl,
-        restricted,
-      },
-    }),
-  ];
-
-  await prisma.$transaction(queries);
+  await db.insert(feeds).values({ name, webhookUrl: webhookUrl as string | null, restricted });
 
   return redirect("/admin/feeds");
 }
 
 export default function Index() {
-  const actionData = useActionData<typeof action>();
+  const actionData = useActionData() as { errors?: Record<string, any> } | undefined;
   const errors = actionData?.errors;
 
   return (
@@ -106,9 +97,7 @@ export default function Index() {
             placeholder="e.g. https://blog.sentry.io/notify"
             autoFocus
             aria-invalid={errors?.webhookUrl ? true : undefined}
-            aria-errormessage={
-              errors?.webhookUrl ? "webhookUrl-error" : undefined
-            }
+            aria-errormessage={errors?.webhookUrl ? "webhookUrl-error" : undefined}
           />
         </label>
         {errors?.webhookUrl && (

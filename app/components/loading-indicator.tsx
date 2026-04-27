@@ -1,66 +1,26 @@
-import { useLocation } from "@remix-run/react";
-import type { ReactElement } from "react";
-import { useEffect, useRef } from "react";
+import { useNavigation } from "react-router";
 
-// https://edmund.dev/articles/setting-up-a-global-loading-indicator-in-remix
-function useProgress() {
-  const el = useRef<HTMLDivElement>(null);
-  const timeout = useRef<NodeJS.Timeout>();
-  const { location } = useLocation();
-
-  useEffect(() => {
-    if (!location || !el.current) {
-      return;
-    }
-
-    if (timeout.current) {
-      clearTimeout(timeout.current);
-    }
-
-    el.current.style.width = `0%`;
-
-    let updateWidth = (ms: number) => {
-      timeout.current = setTimeout(() => {
-        let width = parseFloat(el.current!.style.width);
-        let percent = !isNaN(width) ? 10 + 0.9 * width : 0;
-
-        el.current!.style.width = `${percent}%`;
-
-        updateWidth(100);
-      }, ms);
-    };
-
-    updateWidth(300);
-
-    return () => {
-      clearTimeout(timeout.current);
-
-      if (el.current!.style.width === `0%`) {
-        return;
-      }
-
-      el.current!.style.width = `100%`;
-      timeout.current = setTimeout(() => {
-        if (el.current?.style.width !== "100%") {
-          return;
-        }
-        el.current!.style.width = ``;
-      }, 200);
-    };
-  }, [location]);
-
-  return el;
-}
-
-export default function LoadingIndicator(): ReactElement {
-  const progress = useProgress();
+/**
+ * Top-of-page loading indicator. An indeterminate sliding bar shown whenever
+ * a navigation or form submission is in flight.
+ *
+ * Implementation notes:
+ * - Uses RR7's `useNavigation()` (the canonical pending-state hook) rather than
+ *   `useLocation`, so it correctly reflects loader fetches AND form actions.
+ * - No refs, no setTimeout — pure declarative render driven by `state`. The
+ *   slide is a CSS `@keyframes` animation defined in `app/styles/index.css`.
+ * - Returns `null` when idle so there's zero DOM/paint cost on a quiet page.
+ */
+export default function LoadingIndicator() {
+  const { state } = useNavigation();
+  if (state === "idle") return null;
 
   return (
-    <div className="fixed left-0 right-0 top-0 flex z-[2147483647]">
-      <div
-        className="h-4 bg-loading-light dark:bg-loading-dark"
-        ref={progress}
-      />
+    <div
+      aria-hidden="true"
+      className="pointer-events-none fixed left-0 right-0 top-0 h-1 z-[2147483647] overflow-hidden"
+    >
+      <div className="loading-bar h-full bg-loading-light dark:bg-loading-dark" />
     </div>
   );
 }
