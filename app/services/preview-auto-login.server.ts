@@ -8,8 +8,10 @@
  *
  * When `PREVIEW_AUTO_LOGIN=1` is set AND `VERCEL_ENV === "preview"`, the
  * auth helpers in `auth.server.ts` short-circuit and impersonate a seeded
- * "Preview Admin" user. This turns every preview URL into a one-click
- * (zero-click, really) walk-through for reviewers.
+ * "Preview User" — a regular non-admin account, so reviewers see the app
+ * the way an everyday user does (no admin-only routes, no elevated
+ * capabilities). This turns every preview URL into a zero-click
+ * walk-through.
  *
  * SAFETY:
  * - The bypass activates only when BOTH conditions are true at boot.
@@ -38,11 +40,13 @@ export const previewAutoLoginEnabled = IS_PREVIEW && FLAG;
 // A `.local` TLD is reserved (RFC 6762) and will never collide with a real
 // Google Workspace email, so this user can never be claimed by a Google
 // sign-in. No `externalId` is set for the same reason.
-const PREVIEW_USER_EMAIL = "preview-admin@vanguard.local";
+const PREVIEW_USER_EMAIL = "preview-user@vanguard.local";
 
 /**
- * Fetch (or create) the seeded Preview Admin user. Idempotent and
- * race-safe across concurrent cold starts on a fresh Neon branch.
+ * Fetch (or create) the seeded Preview User. Idempotent and race-safe
+ * across concurrent cold starts on a fresh Neon branch. The user is
+ * intentionally a regular (non-admin) account so previews exercise the
+ * default reviewer experience.
  */
 export async function getPreviewUser(): Promise<User> {
   const existing = await db.query.users.findFirst({
@@ -52,13 +56,14 @@ export async function getPreviewUser(): Promise<User> {
 
   // Race-safe bootstrap: two concurrent requests on a fresh DB would both
   // see no existing row; ON CONFLICT DO NOTHING lets the second INSERT
-  // fall through instead of raising a unique-constraint error.
+  // fall through instead of raising a unique-constraint error. `admin`
+  // and `canPostRestricted` default to false in the schema, so omitting
+  // them keeps this account intentionally unprivileged.
   await db
     .insert(users)
     .values({
       email: PREVIEW_USER_EMAIL,
-      name: "Preview Admin",
-      admin: true,
+      name: "Preview User",
     })
     .onConflictDoNothing({ target: users.email });
 
@@ -66,7 +71,7 @@ export async function getPreviewUser(): Promise<User> {
     where: eq(users.email, PREVIEW_USER_EMAIL),
   });
   if (!user) {
-    throw new Error("Failed to create preview-admin user");
+    throw new Error("Failed to create preview user");
   }
   return user;
 }

@@ -7,7 +7,7 @@ const variants: Record<Variant, { background: string; text: string }> = {
   },
   preview: {
     background: "#b45309", // amber-700
-    text: "Preview deploy — auto-logged in as Preview Admin. Database changes are scoped to this branch and are not permanent.",
+    text: "Preview deploy — auto-logged in as Preview User. Database changes are scoped to this branch and are not permanent.",
   },
 };
 

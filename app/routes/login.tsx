@@ -11,7 +11,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (!redirectTo || redirectTo?.indexOf("/") !== 0) redirectTo = "/";
 
   // On Vercel Preview deploys with PREVIEW_AUTO_LOGIN=1, auth is bypassed and
-  // the user is already "signed in" as the seeded Preview Admin — skip the
+  // the user is already "signed in" as the seeded Preview User — skip the
   // login page entirely.
   if (previewAutoLoginEnabled) throw redirect(redirectTo);
 

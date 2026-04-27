@@ -8,23 +8,27 @@ describe("preview-auto-login", () => {
     it("is disabled in the test environment", () => {
       // The test runner has neither VERCEL_ENV nor PREVIEW_AUTO_LOGIN set, so
       // the bypass must never activate here. If this ever flips to true we'd
-      // be silently turning all tests into "the preview admin is logged in".
+      // be silently turning all tests into "the preview user is logged in".
       expect(previewAutoLoginEnabled).toBe(false);
     });
   });
 
   describe("getPreviewUser", () => {
-    const PREVIEW_EMAIL = "preview-admin@vanguard.local";
+    const PREVIEW_EMAIL = "preview-user@vanguard.local";
 
-    it("creates a Preview Admin user on first call when none exists", async () => {
+    it("creates a non-admin Preview User on first call when none exists", async () => {
       // setup-test-env truncates all tables, so start from a clean slate.
       await db.delete(users);
 
       const user = await getPreviewUser();
 
       expect(user.email).toBe(PREVIEW_EMAIL);
-      expect(user.name).toBe("Preview Admin");
-      expect(user.admin).toBe(true);
+      expect(user.name).toBe("Preview User");
+      // Reviewers should see the app as a regular user — no admin routes,
+      // no elevated capabilities. If this ever flips to true the preview
+      // experience silently diverges from a real reviewer's.
+      expect(user.admin).toBe(false);
+      expect(user.canPostRestricted).toBe(false);
       // Must have no externalId so a real Google sign-in cannot claim this row.
       expect(user.externalId).toBeNull();
     });
