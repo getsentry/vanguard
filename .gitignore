@@ -30,7 +30,9 @@ vite.config.ts.timestamp-*.mjs
 .vscode/*.log
 
 /coverage
+/datamigration
 
 .eslintcache
 .vercel
 .env*.local
+.env.production
