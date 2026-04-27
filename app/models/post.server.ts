@@ -50,6 +50,19 @@ const PUBLIC_FEED_COLUMNS = {
 } as const;
 
 export function announcePost(post: PostQueryType): void {
+  // On Vercel, fan-out notifications fire ONLY in production. Preview /
+  // development deployments could be pointed at a Neon branch with real
+  // per-category webhook + email rows (especially after Todo 14's data
+  // cutover), and we don't want test posts spamming real Slack channels or
+  // mailing real recipients. Local dev (VERCEL_ENV unset) is unaffected —
+  // the absence of SMTP / Slack creds in `.env` already gates that path.
+  if (process.env.VERCEL_ENV && process.env.VERCEL_ENV !== "production") {
+    console.log(
+      `[announcePost] skipping notifications for post ${post.id} — VERCEL_ENV=${process.env.VERCEL_ENV}`,
+    );
+    return;
+  }
+
   waitUntil(
     (async () => {
       const emailConfig = await db.query.categoryEmails.findMany({
