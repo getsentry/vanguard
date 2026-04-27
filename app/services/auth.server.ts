@@ -46,10 +46,11 @@ const GOOGLE_HD = process.env.GOOGLE_HD || undefined;
 if (
   process.env.NODE_ENV === "production" &&
   !previewAutoLoginEnabled &&
-  (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET)
+  (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !GOOGLE_HD)
 ) {
   throw new Error(
-    "GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET must be set in production. Google OAuth is the only supported login method.",
+    "GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_HD must be set in production. " +
+      "Google OAuth is the only supported login method, and GOOGLE_HD enforces workspace-domain restriction.",
   );
 }
 
