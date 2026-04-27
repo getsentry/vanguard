@@ -12,7 +12,7 @@ Vanguard runs on a Vercel-native stack:
 
 - **Framework:** [React Router v7](https://reactrouter.com/) in framework mode (Remix's official successor, Vite-native)
 - **Build pipeline:** Vite, driven via [`vp`](https://vite.plus/) (Vite Plus) or `pnpm`
-- **ORM:** [Drizzle](https://orm.drizzle.team/) with the `drizzle-orm/node-postgres` driver (works with both local Postgres and Neon)
+- **ORM:** [Drizzle](https://orm.drizzle.team/) — `drizzle-orm/neon-serverless` (WebSocket-pooled `@neondatabase/serverless`) on Vercel, falling back to `drizzle-orm/node-postgres` (TCP `pg`) for local dev / tests / `drizzle-kit migrate`
 - **Database:** [Neon](https://neon.tech/) Postgres (local Postgres in Docker for dev/tests)
 - **File storage:** [Vercel Blob](https://vercel.com/docs/storage/vercel-blob) with a local filesystem fallback for offline dev
 - **Hosting:** Vercel (Preview Deployments wired to Neon branches)
@@ -85,7 +85,7 @@ app/
 ├── db/
 │   ├── schema.ts        # Drizzle table definitions (13 tables incl. _FeedToPost junction)
 │   ├── relations.ts     # Drizzle relations for nested `with: {}` queries
-│   └── client.ts        # db instance using drizzle-orm/node-postgres
+│   └── client.ts        # db instance — neon-serverless on Vercel, node-postgres locally
 ├── services/
 │   ├── auth.server.ts   # remix-auth authenticator (Form + Google strategies)
 │   └── session.server.ts# createCookieSessionStorage wrapper
