@@ -11,6 +11,13 @@ import { requireUserId } from "~/services/auth.server";
 const MAX_AGE = 60 * 60 * 24;
 const CACHE_CONTROL = `private, max-age=${MAX_AGE}`;
 
+// Security headers to prevent same-origin XSS if a non-image file slips through.
+// nosniff stops browsers from MIME-sniffing; CSP blocks scripts in any served content.
+const SECURITY_HEADERS = {
+  "X-Content-Type-Options": "nosniff",
+  "Content-Security-Policy": "default-src 'none'; img-src 'self'; sandbox",
+};
+
 export async function loader({ request, params }: LoaderFunctionArgs) {
   await requireUserId(request);
 
@@ -26,6 +33,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       headers: {
         "Content-Type": headers.get("content-type") ?? "application/octet-stream",
         "Cache-Control": CACHE_CONTROL,
+        ...SECURITY_HEADERS,
       },
     });
   }
@@ -39,6 +47,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     status: 200,
     headers: {
       "Cache-Control": CACHE_CONTROL,
+      ...SECURITY_HEADERS,
     },
   });
 }

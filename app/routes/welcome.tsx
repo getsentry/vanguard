@@ -28,7 +28,7 @@ export async function action({ request }: ActionFunctionArgs) {
   if (
     pictureFile instanceof File &&
     pictureFile.size > 0 &&
-    pictureFile.type.startsWith("image/")
+    ["image/jpeg", "image/png", "image/gif", "image/webp"].includes(pictureFile.type)
   ) {
     const buffer = Buffer.from(await pictureFile.arrayBuffer());
     const { url } = await uploadFile({
