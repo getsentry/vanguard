@@ -37,7 +37,9 @@ export default function Post({
     <div className="post">
       <CategoryTag category={post.category} />
       <h1 className="font-serif break-words text-4xl mb-6">
-        <PostLink post={post}>{post.title}</PostLink>
+        <PostLink post={post} morphTitle>
+          {post.title}
+        </PostLink>
       </h1>
       <div className="flex font-mono gap-5 mb-6">
         <Avatar user={post.author} />
