@@ -32,7 +32,9 @@ export default function ClusteredPostList({
             <li key={post.id} className="clustered-post">
               <IconCollapsedPost className="collapsed-post-icon" />
               <h3 className="text-3xl font-serif mb-2 break-words">
-                <PostLink post={post}>{post.title}</PostLink>
+                <PostLink post={post} morphTitle>
+                  {post.title}
+                </PostLink>
               </h3>
               <div className="flex flex-1 justify-between items-center gap-2 font-mono text-sm">
                 <Avatar size="24px" user={post.author} />

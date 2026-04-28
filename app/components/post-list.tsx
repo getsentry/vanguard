@@ -24,7 +24,7 @@ export default function PostList({ postList }) {
               gridArea: "title",
             }}
           >
-            <PostLink className="hover:underline" post={post}>
+            <PostLink className="hover:underline" post={post} morphTitle>
               {post.title}
             </PostLink>
           </div>
