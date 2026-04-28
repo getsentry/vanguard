@@ -1,5 +1,8 @@
 name: ci
 
+permissions:
+  contents: read
+
 env:
   DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
 
