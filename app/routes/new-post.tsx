@@ -26,9 +26,13 @@ export async function action({ request }: ActionFunctionArgs) {
   const title = formData.get("title");
   const content = formData.get("content");
   const categoryId = formData.get("categoryId");
-  const published =
-    formData.get("published") === "true" || formData.get("published") === "announce";
-  const announce = formData.get("published") === "announce";
+  const publishedValue = formData.get("published");
+  const published = publishedValue === "true" || publishedValue === "announce";
+  const announce = publishedValue === "announce";
+
+  console.log(
+    `[new-post action] publishedValue=${String(publishedValue)} → published=${published} announce=${announce}`,
+  );
   const feedIds = formData.get("feedId") ? (formData.getAll("feedId") as string[]) : null;
 
   if (typeof categoryId !== "string" || categoryId.length === 0) {
@@ -83,7 +87,12 @@ export async function action({ request }: ActionFunctionArgs) {
   });
 
   if (announce) {
+    console.log(`[new-post action] calling announcePost for ${post.id}`);
     await announcePost(post);
+  } else {
+    console.log(
+      `[new-post action] NOT calling announcePost — post=${post.id} announce=${announce}`,
+    );
   }
 
   await syndicatePost(post);

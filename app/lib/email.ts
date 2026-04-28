@@ -30,11 +30,13 @@ let mailTransport: Transporter<SMTPTransport.SentMessageInfo>;
 // XXX(dcramer): futuer proof for optional email support
 const hasEmailSupport = () => {
   if (!process.env.BASE_URL) {
+    console.error("[email] hasEmailSupport=false — BASE_URL is not configured");
     error("BASE_URL is not configured");
     return false;
   }
 
   if (!process.env.SMTP_FROM) {
+    console.error("[email] hasEmailSupport=false — SMTP_FROM is not configured");
     error("SMTP_FROM is not configured");
     return false;
   }
@@ -68,9 +70,16 @@ export const notify = async ({
   config: EmailConfig;
   transport?: Transporter<SMTPTransport.SentMessageInfo>;
 }) => {
-  if (!hasEmailSupport()) return;
+  if (!hasEmailSupport()) {
+    console.error(
+      `[email.notify] aborted — hasEmailSupport returned false (post ${post.id} to ${config.to})`,
+    );
+    return;
+  }
 
-  console.log(`Sending email notification for post ${post.id} to ${config.to}`);
+  console.log(
+    `[email.notify] start — post=${post.id} to=${config.to} smtpHost=${process.env.SMTP_HOST ?? "<unset>"}`,
+  );
 
   if (!transport) {
     if (!mailTransport) mailTransport = createMailTransport();
@@ -92,7 +101,12 @@ export const notify = async ({
       text: `View this post on Vanguard: ${postUrl}\n\n${post.content}`,
       html: buildPostEmail(post),
     });
-  } catch {
+    console.log(`[email.notify] success — post=${post.id} to=${config.to}`);
+  } catch (err) {
+    console.error(
+      `[email.notify] sendMail threw — post=${post.id} to=${config.to}`,
+      err instanceof Error ? err.message : err,
+    );
     error("email notification failed");
   }
 };

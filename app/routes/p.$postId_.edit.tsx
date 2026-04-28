@@ -46,6 +46,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const announce = published && formData.get("published") === "announce";
   const deleted = formData.get("deleted") !== null ? !!formData.get("deleted") : undefined;
 
+  console.log(
+    `[p.$postId_.edit action] postId=${params.postId} publishedValue=${String(formData.get("published"))} → published=${String(published)} announce=${announce} deleted=${String(deleted)}`,
+  );
+
   if (categoryId !== null && (typeof categoryId !== "string" || categoryId.length === 0)) {
     return Response.json({ errors: { categoryId: "Category is required" } }, { status: 400 });
   }
@@ -113,7 +117,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
 
   if (!post.deleted && announce) {
+    console.log(`[p.$postId_.edit action] calling announcePost for ${post.id}`);
     await announcePost(post);
+  } else {
+    console.log(
+      `[p.$postId_.edit action] NOT calling announcePost — post=${post.id} deleted=${post.deleted} announce=${announce}`,
+    );
   }
 
   await syndicatePost(post);
