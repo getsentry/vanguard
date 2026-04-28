@@ -1,71 +1,40 @@
-import { PassThrough } from "stream";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+// Side-effect import: ensure Sentry.init() runs before any other module is
+// evaluated. On Vercel this is the ONLY way to bootstrap server
+// instrumentation (the platform's serverless runtime doesn't expose
+// NODE_OPTIONS=--import). Locally, package.json `dev`/`start` scripts also
+// pass `--import ./instrument.server.mjs` for slightly better OTEL coverage.
+import "../instrument.server.mjs";
+
+import type { ActionFunctionArgs, HandleErrorFunction, LoaderFunctionArgs } from "react-router";
 import { createReadableStreamFromReadable } from "@react-router/node";
 import { ServerRouter, isRouteErrorResponse } from "react-router";
-import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
 import * as Sentry from "@sentry/react-router";
 
-Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  environment: process.env.NODE_ENV,
-  release: process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.VERSION,
-  tracesSampleRate: 1.0,
+// `createSentryHandleRequest` provides:
+//   1. A bot-aware streaming render (onAllReady vs. onShellReady).
+//   2. `wrapSentryHandleRequest` — names spans by parametrized route path.
+//   3. `getMetaTagTransformer` — injects <meta name="sentry-trace"> and
+//      <meta name="baggage"> into the streamed HTML so the browser can
+//      continue the trace from the server.
+const handleRequest = Sentry.createSentryHandleRequest({
+  ServerRouter,
+  renderToPipeableStream,
+  createReadableStreamFromReadable,
 });
 
-const ABORT_DELAY = 5_000;
+export default handleRequest;
 
-export default async function handleRequest(
-  request: Request,
-  responseStatusCode: number,
-  responseHeaders: Headers,
-  routerContext: Parameters<typeof ServerRouter>[0]["context"],
-) {
-  const callbackName = isbot(request.headers.get("user-agent") ?? "")
-    ? "onAllReady"
-    : "onShellReady";
+// Sentry's stock handler captures everything from the loader/action pipeline
+// with the right `mechanism: { type: "react-router" }` annotation. We wrap it
+// so 4xx route errors (`throw new Response("...", { status: 404 })`) don't
+// pollute the issues list — those are user-facing errors, not bugs.
+const sentryHandleError = Sentry.createSentryHandleError({ logErrors: false });
 
-  return new Promise((resolve, reject) => {
-    let didError = false;
-
-    const { pipe, abort } = renderToPipeableStream(
-      <ServerRouter context={routerContext} url={request.url} />,
-      {
-        [callbackName]: () => {
-          const body = new PassThrough();
-          const stream = createReadableStreamFromReadable(body);
-
-          responseHeaders.set("Content-Type", "text/html");
-
-          resolve(
-            new Response(stream, {
-              headers: responseHeaders,
-              status: didError ? 500 : responseStatusCode,
-            }),
-          );
-
-          pipe(body);
-        },
-        onShellError(error: unknown) {
-          reject(error);
-        },
-        onError(error: unknown) {
-          didError = true;
-          console.error(error);
-        },
-      },
-    );
-
-    setTimeout(abort, ABORT_DELAY);
-  });
-}
-
-export function handleError(error: unknown, _args: LoaderFunctionArgs | ActionFunctionArgs): void {
-  // Don't send 404s or route error responses to Sentry
+export const handleError: HandleErrorFunction = (
+  error,
+  args: LoaderFunctionArgs | ActionFunctionArgs,
+) => {
   if (isRouteErrorResponse(error)) return;
-  if (error instanceof Error) {
-    Sentry.captureException(error);
-  } else {
-    Sentry.captureException(new Error(String(error)));
-  }
-}
+  return sentryHandleError(error, args);
+};

@@ -6,20 +6,18 @@ export default function Document({
   children,
   title = "Vanguard",
   showSidebar = false,
-  data,
 }: PropsWithChildren<{
   title?: string;
   showSidebar?: boolean;
-  data?: Record<string, any>;
 }>) {
   return (
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
+        {/* `sentry-trace` and `baggage` meta tags are streamed in by
+            createSentryHandleRequest's getMetaTagTransformer. */}
         <Meta />
-        {data?.sentryTrace && <meta name="sentry-trace" content={data.sentryTrace} />}
-        {data?.sentryBaggage && <meta name="baggage" content={data.sentryBaggage} />}
         {title ? <title>{title}</title> : null}
         <Links />
       </head>

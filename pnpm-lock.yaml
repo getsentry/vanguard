@@ -43,9 +43,6 @@ importers:
       '@react-router/serve':
         specifier: ^7.14.2
         version: 7.14.2(react-router@7.14.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.9.3)
-      '@sentry/browser':
-        specifier: ^10.50.0
-        version: 10.50.0
       '@sentry/react-router':
         specifier: ^10.50.0
         version: 10.50.0(@react-router/node@7.14.2(react-router@7.14.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.9.3))(react-router@7.14.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)(rollup@4.60.2)
@@ -122,9 +119,6 @@ importers:
       '@react-router/dev':
         specifier: ^7.14.2
         version: 7.14.2(@react-router/serve@7.14.2(react-router@7.14.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(typescript@5.9.3))(@types/node@24.12.2)(jiti@2.6.1)(lightningcss@1.32.0)(react-router@7.14.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.10(@types/node@24.12.2)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0))
-      '@sentry/vite-plugin':
-        specifier: ^5.2.0
-        version: 5.2.0(rollup@4.60.2)
       '@tailwindcss/typography':
         specifier: ^0.5.19
         version: 0.5.19(tailwindcss@4.2.4)
