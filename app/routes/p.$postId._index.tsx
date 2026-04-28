@@ -50,20 +50,35 @@ export const action: ActionFunction = async ({ request, params }) => {
   invariant(params.postId, "postId not found");
 
   const formData = await request.formData();
-  const published =
-    formData.get("published") === "true" || formData.get("published") === "announce";
+  const publishedValue = formData.get("published");
+  const published = publishedValue === "true" || publishedValue === "announce";
+
+  console.log(
+    `[p.$postId action] postId=${params.postId} publishedValue=${String(publishedValue)} → published=${published}`,
+  );
 
   if (published) {
-    const announce = published && formData.get("published") === "announce";
+    const announce = publishedValue === "announce";
     const post = await updatePost({
       id: params.postId,
       user,
       published,
     });
 
+    console.log(
+      `[p.$postId action] updatePost done — post=${post.id} deleted=${post.deleted} announce=${announce}`,
+    );
+
     if (!post.deleted && announce) {
+      console.log(`[p.$postId action] calling announcePost for ${post.id}`);
       announcePost(post);
+    } else {
+      console.log(
+        `[p.$postId action] NOT calling announcePost — post=${post.id} deleted=${post.deleted} announce=${announce}`,
+      );
     }
+  } else {
+    console.log(`[p.$postId action] no publish flag set on form submission — doing nothing`);
   }
 
   return {};

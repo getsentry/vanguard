@@ -50,6 +50,13 @@ const PUBLIC_FEED_COLUMNS = {
 } as const;
 
 export function announcePost(post: PostQueryType): void {
+  // Verbose logging while we debug a production miss where notifications
+  // didn't fan out. Every line is prefixed `[announcePost]` so it's easy to
+  // grep in `vercel logs --since=…`. Remove once root-caused.
+  console.log(
+    `[announcePost] entry — post=${post.id} category=${post.categoryId} VERCEL_ENV=${process.env.VERCEL_ENV ?? "<unset>"} BASE_URL=${process.env.BASE_URL ?? "<unset>"} SMTP_FROM=${process.env.SMTP_FROM ? "set" : "<unset>"} SLACK_WEBHOOK_URL=${process.env.SLACK_WEBHOOK_URL ? "set" : "<unset>"}`,
+  );
+
   // On Vercel, fan-out notifications fire ONLY in production. Preview /
   // development deployments could be pointed at a Neon branch with real
   // per-category webhook + email rows (especially after Todo 14's data
@@ -63,24 +70,54 @@ export function announcePost(post: PostQueryType): void {
     return;
   }
 
+  console.log(`[announcePost] gate passed — scheduling waitUntil for post ${post.id}`);
+
   waitUntil(
     (async () => {
-      const emailConfig = await db.query.categoryEmails.findMany({
-        where: eq(categoryEmails.categoryId, post.categoryId),
-      });
-      await Promise.all(
-        emailConfig.map((config) => email.notify({ post, config: config as email.EmailConfig })),
-      );
+      console.log(`[announcePost] waitUntil started — post ${post.id}`);
+      try {
+        const emailConfig = await db.query.categoryEmails.findMany({
+          where: eq(categoryEmails.categoryId, post.categoryId),
+        });
+        console.log(
+          `[announcePost] categoryEmails lookup — post=${post.id} category=${post.categoryId} count=${emailConfig.length}`,
+        );
+        await Promise.all(
+          emailConfig.map((config) => email.notify({ post, config: config as email.EmailConfig })),
+        );
 
-      let slackConfig: slack.SlackConfig[] = await db.query.categorySlacks.findMany({
-        where: eq(categorySlacks.categoryId, post.categoryId),
-      });
-      if (!slackConfig.length && process.env.SLACK_WEBHOOK_URL) {
-        slackConfig = [{ webhookUrl: process.env.SLACK_WEBHOOK_URL }];
+        let slackConfig: slack.SlackConfig[] = await db.query.categorySlacks.findMany({
+          where: eq(categorySlacks.categoryId, post.categoryId),
+        });
+        console.log(
+          `[announcePost] categorySlacks lookup — post=${post.id} category=${post.categoryId} count=${slackConfig.length}`,
+        );
+        if (!slackConfig.length && process.env.SLACK_WEBHOOK_URL) {
+          console.log(
+            `[announcePost] no per-category Slack rows — falling back to SLACK_WEBHOOK_URL env var`,
+          );
+          slackConfig = [{ webhookUrl: process.env.SLACK_WEBHOOK_URL }];
+        } else if (!slackConfig.length) {
+          console.log(
+            `[announcePost] no per-category Slack rows AND no SLACK_WEBHOOK_URL — Slack fanout will be a no-op`,
+          );
+        }
+        await Promise.all(
+          slackConfig.map((config) => slack.notify({ post, config: config as slack.SlackConfig })),
+        );
+        console.log(`[announcePost] waitUntil finished — post ${post.id}`);
+      } catch (err) {
+        // Don't log `err` directly: Undici's URL-parse errors include the full
+        // input URL in the message (e.g. `Failed to parse URL from
+        // https://hooks.slack.com/services/T.../B.../...`), and dumping the raw
+        // error object would leak the Slack webhook secret into Vercel logs.
+        // Scrub anything URL-shaped before logging.
+        const message = err instanceof Error ? err.message : String(err);
+        const safeMessage = message.replace(/https?:\/\/\S+/g, "<redacted-url>");
+        const name = err instanceof Error ? err.name : "unknown";
+        console.error(`[announcePost] waitUntil threw — post ${post.id} — ${name}: ${safeMessage}`);
+        throw err;
       }
-      await Promise.all(
-        slackConfig.map((config) => slack.notify({ post, config: config as slack.SlackConfig })),
-      );
     })(),
   );
 }

@@ -16,10 +16,19 @@ export type SlackConfig = {
 
 export const notify = async ({ post, config }: { post: PostQueryType; config: SlackConfig }) => {
   const { author, category } = post;
-  console.log(`Sending Slack notification for post ${post.id}`);
+  console.log(
+    `[slack.notify] start — post=${post.id} category=${category.name} webhookHost=${(() => {
+      try {
+        return new URL(config.webhookUrl).host;
+      } catch {
+        return "<invalid-url>";
+      }
+    })()}`,
+  );
 
   if (!process.env.BASE_URL) {
     error("BASE_URL is not configured");
+    console.error(`[slack.notify] aborting — BASE_URL is not configured (post ${post.id})`);
     return;
   }
 
@@ -76,9 +85,15 @@ export const notify = async ({ post, config }: { post: PostQueryType; config: Sl
     } catch {
       data = res.body;
     }
+    console.error(
+      `[slack.notify] webhook returned non-200 — post=${post.id} status=${res.status}`,
+      data,
+    );
     error("slack webhook failed", {
       context: { webhook: data },
       tags: { statusCode: res.status },
     });
+  } else {
+    console.log(`[slack.notify] success — post=${post.id} status=${res.status}`);
   }
 };
