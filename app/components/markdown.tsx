@@ -3,9 +3,60 @@ import DOMPurify from "isomorphic-dompurify";
 const { sanitize } = DOMPurify;
 import prismjs from "prismjs";
 import { default as summarizeFn } from "../lib/summarize";
+import { error as logError } from "../lib/logging";
 import { useState, useEffect, useRef } from "react";
 
 import "../styles/prism.css";
+
+// Side-effect imports register additional languages on the global Prism
+// namespace. Order matters: a language that `Prism.languages.extend(...)`s or
+// clones another must be loaded *after* its base. Dependency chains here:
+//   clike  -> c -> objectivec
+//   clike  -> javascript -> {jsx, typescript} -> tsx
+//   markup -> {jsx, markdown, markup-templating}
+// The order below respects all of those.
+import "prismjs/components/prism-markup";
+import "prismjs/components/prism-markup-templating";
+import "prismjs/components/prism-clike";
+import "prismjs/components/prism-c";
+import "prismjs/components/prism-objectivec";
+import "prismjs/components/prism-javascript";
+import "prismjs/components/prism-jsx";
+import "prismjs/components/prism-typescript";
+import "prismjs/components/prism-tsx";
+import "prismjs/components/prism-bash";
+import "prismjs/components/prism-css";
+import "prismjs/components/prism-diff";
+import "prismjs/components/prism-git";
+import "prismjs/components/prism-go";
+import "prismjs/components/prism-java";
+import "prismjs/components/prism-json";
+import "prismjs/components/prism-markdown";
+import "prismjs/components/prism-python";
+import "prismjs/components/prism-ruby";
+import "prismjs/components/prism-rust";
+import "prismjs/components/prism-shell-session";
+import "prismjs/components/prism-sql";
+import "prismjs/components/prism-swift";
+import "prismjs/components/prism-yaml";
+
+// Common language aliases users write in fenced code blocks. Anything not
+// listed falls through to a direct lookup, then to plain text.
+const languageAliases: Record<string, string> = {
+  js: "javascript",
+  ts: "typescript",
+  py: "python",
+  rb: "ruby",
+  sh: "bash",
+  zsh: "bash",
+  yml: "yaml",
+  md: "markdown",
+  html: "markup",
+  xml: "markup",
+  svg: "markup",
+  mathml: "markup",
+  objc: "objectivec",
+};
 
 const renderer = new marked.Renderer();
 
@@ -42,15 +93,35 @@ renderer.image = function (href, title, text) {
   return `<figure class="not-prose markdown-figure my-6">${html}</figure>`;
 };
 
+const tryHighlight = (code: string, lang: string): string | null => {
+  const grammar = prismjs.languages[lang];
+  if (!grammar) return null;
+  try {
+    return prismjs.highlight(code, grammar, lang);
+  } catch (e) {
+    logError(e instanceof Error ? e : new Error(String(e)), {
+      context: { component: "markdown", op: "prism.highlight" },
+      tags: { lang },
+    });
+    return null;
+  }
+};
+
 const parseMarkdown = (content: string, options = {}): string => {
   return marked.parse(content, {
     renderer,
     highlight: function (code, lang) {
-      if (prismjs.languages[lang]) {
-        return prismjs.highlight(code, prismjs.languages[lang], lang);
-      } else {
-        return code;
+      if (!lang) return code;
+      const normalized = languageAliases[lang.toLowerCase()] ?? lang.toLowerCase();
+      const highlighted = tryHighlight(code, normalized);
+      if (highlighted !== null) return highlighted;
+      // Fall back to the raw lang token in case it points at a grammar that
+      // isn't reachable via the alias-normalized name.
+      if (normalized !== lang) {
+        const rawHighlighted = tryHighlight(code, lang);
+        if (rawHighlighted !== null) return rawHighlighted;
       }
+      return code;
     },
     breaks: true,
     ...options,
