@@ -110,7 +110,11 @@ label.field-inline {
   cursor: pointer;
 }
 
-label.field-required span:before {
+/* Direct-child only: otherwise the asterisk leaks into nested spans the
+ * label happens to wrap (e.g. Prism's `<span class="token …">` tokens that
+ * appear inside the post editor's Preview tab, which lives inside the
+ * required "Content:" label). */
+label.field-required > span:before {
   content: "* ";
   position: absolute;
   left: -1.5ch;
