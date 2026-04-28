@@ -7,6 +7,7 @@ import type { PostQueryType } from "~/models/post.server";
 import type { PostCommentWithAuthor } from "~/models/post-comments.server";
 import { getSubscriptions } from "~/models/post-subscription.server";
 import summarize from "./summarize";
+import { inlinePrivateImages } from "./email-images";
 import { lightTheme } from "~/styles/theme";
 import { escapeHtml } from "./html";
 import { getUserById } from "~/models/user.server";
@@ -91,6 +92,8 @@ export const notify = async ({
   const subject = config.subjectPrefix ? `${config.subjectPrefix} ${post.title}` : post.title;
 
   try {
+    const rawHtml = buildPostEmail(post);
+    const { html, attachments } = await inlinePrivateImages(rawHtml);
     await transport.sendMail({
       from: `"Sentry Vanguard" <${process.env.SMTP_FROM}>`,
       to: config.to,
@@ -99,7 +102,8 @@ export const notify = async ({
       cc: [sender],
       sender,
       text: `View this post on Vanguard: ${postUrl}\n\n${post.content}`,
-      html: buildPostEmail(post),
+      html,
+      attachments,
     });
     console.log(`[email.notify] success — post=${post.id} to=${config.to}`);
   } catch (err) {
@@ -109,6 +113,12 @@ export const notify = async ({
     );
     error("email notification failed");
   }
+};
+
+const resolveAvatarUrl = (picture: string | null | undefined): string => {
+  if (!picture) return `${process.env.BASE_URL}/img/placeholder-avatar.png`;
+  if (picture.startsWith("http://") || picture.startsWith("https://")) return picture;
+  return `${process.env.BASE_URL}${picture}`;
 };
 
 const buildPostEmail = (post: PostQueryType): string => {
@@ -125,9 +135,7 @@ const buildPostEmail = (post: PostQueryType): string => {
     };">${escapeHtml(post.title)}</h2>
     <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td style="vertical-align:top"><img src="${process.env.BASE_URL}${
-            post.author.picture || `/img/placeholder-avatar.png`
-          }" width="36" height="36" style="border-radius:36px;display:block;" /></td>
+          <td style="vertical-align:top"><img src="${resolveAvatarUrl(post.author.picture)}" width="36" height="36" style="border-radius:36px;display:block;" /></td>
         <td style="padding-left:15px">
         <table cellpadding="0" cellspacing="0" border="0">
           <tr>
@@ -179,27 +187,32 @@ export const notifyComment = async ({
     }
   }
 
-  subscriptions
-    .filter((user) => user.id !== comment.authorId)
-    .forEach(async (user) => {
-      console.log(`Sending email notification for comment ${comment.id} to ${user.email}`);
+  await Promise.all(
+    subscriptions
+      .filter((user) => user.id !== comment.authorId)
+      .map(async (user) => {
+        console.log(`Sending email notification for comment ${comment.id} to ${user.email}`);
 
-      const html = buildCommentHtml(user, post, comment, parent);
+        const rawCommentHtml = buildCommentHtml(user, post, comment, parent);
+        const { html: commentHtml, attachments: commentAttachments } =
+          await inlinePrivateImages(rawCommentHtml);
 
-      try {
-        await transport.sendMail({
-          from: `"Vanguard" <${process.env.SMTP_FROM}>`,
-          to: user.email,
-          subject: subject,
-          replyTo: comment.author.email,
-          sender,
-          text: `View this comment on Vanguard: ${commentUrl}\n\n${comment.content}`,
-          html,
-        });
-      } catch {
-        error("email notification failed");
-      }
-    });
+        try {
+          await transport.sendMail({
+            from: `"Vanguard" <${process.env.SMTP_FROM}>`,
+            to: user.email,
+            subject: subject,
+            replyTo: comment.author.email,
+            sender,
+            text: `View this comment on Vanguard: ${commentUrl}\n\n${comment.content}`,
+            html: commentHtml,
+            attachments: commentAttachments,
+          });
+        } catch {
+          error("email notification failed");
+        }
+      }),
+  );
 };
 
 const buildCommentHtml = (
@@ -238,9 +251,7 @@ const buildCommentHtml = (
       }
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td style="vertical-align:top"><img src="${process.env.BASE_URL}${
-            comment.author.picture || `/img/placeholder-avatar.png`
-          }" width="36" height="36" style="border-radius:36px;display:block;" /></td>
+          <td style="vertical-align:top"><img src="${resolveAvatarUrl(comment.author.picture)}" width="36" height="36" style="border-radius:36px;display:block;" /></td>
           <td style="padding-left:15px">
             <table cellpadding="0" cellspacing="0" border="0">
               <tr>
