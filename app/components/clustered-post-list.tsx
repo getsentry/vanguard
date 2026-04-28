@@ -31,7 +31,7 @@ export default function ClusteredPostList({
           return (
             <li key={post.id} className="clustered-post">
               <IconCollapsedPost className="collapsed-post-icon" />
-              <h3 className="text-3xl font-serif mb-2 break-words">
+              <h3 className="text-4xl font-serif mb-2 break-words">
                 <PostLink post={post} morphTitle>
                   {post.title}
                 </PostLink>
