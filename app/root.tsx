@@ -2,7 +2,7 @@ import { useState } from "react";
 import InterStyles from "@fontsource/inter/index.css?url";
 import type { LinksFunction, LoaderFunction } from "react-router";
 import { Form, Outlet, useLoaderData, useRouteError } from "react-router";
-import prismCss from "prism-sentry/index.css?url";
+import prismCss from "./styles/prism.css?url";
 import { setUser } from "@sentry/react-router";
 import { Toaster } from "react-hot-toast";
 

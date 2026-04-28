@@ -273,4 +273,3 @@ Vercel dashboard: https://vercel.com/sentry/vanguard
 - Vercel Blob: https://vercel.com/docs/storage/vercel-blob
 - Neon docs: https://neon.tech/docs/
 - Sentry + RR7: https://docs.sentry.io/platforms/javascript/guides/react-router/
-- Migration plan + scout context: `.pi/plans/2026-04-24-vercel-migration/`

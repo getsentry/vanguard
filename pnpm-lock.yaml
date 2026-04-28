@@ -82,9 +82,6 @@ importers:
       pg:
         specifier: ^8.20.0
         version: 8.20.0
-      prism-sentry:
-        specifier: ^1.0.2
-        version: 1.0.2
       prismjs:
         specifier: ^1.29.0
         version: 1.29.0
@@ -3444,9 +3441,6 @@ packages:
     resolution: {integrity: sha512-7igPTM53cGHMW8xWuVTydi2KO233VFiTNyF5hLJqpilHfmn8C8gPf+PS7dUT64YcXFbiMGZxS9pCSxL/Dxm/Jw==}
     engines: {node: '>=14'}
     hasBin: true
-
-  prism-sentry@1.0.2:
-    resolution: {integrity: sha512-3W6a1SC+IOjG3e1BIj/IXLccUnLls06ij4A6yq3/DhEbZcQmhxwvNGxVmUR2kNOctn2phXbaAnk18urTtVpc6w==}
 
   prisma@5.11.0:
     resolution: {integrity: sha512-KCLiug2cs0Je7kGkQBN9jDWoZ90ogE/kvZTUTgz2h94FEo8pczCkPH7fPNXkD1sGU7Yh65risGGD1HQ5DF3r3g==}
@@ -6990,8 +6984,6 @@ snapshots:
       xtend: 4.0.2
 
   prettier@3.8.3: {}
-
-  prism-sentry@1.0.2: {}
 
   prisma@5.11.0:
     dependencies:
