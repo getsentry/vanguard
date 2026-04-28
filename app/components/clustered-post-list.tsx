@@ -21,7 +21,7 @@ export default function ClusteredPostList({
   commentCounts: any;
 }) {
   return (
-    <div className="relative mb-12 mt-16 clustered-post-list">
+    <div className="relative mb-12 clustered-post-list">
       <CategoryTag category={category} />
       <ul>
         {posts.map((post) => {
