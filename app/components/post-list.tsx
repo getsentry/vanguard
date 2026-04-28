@@ -24,7 +24,11 @@ export default function PostList({ postList }) {
               gridArea: "title",
             }}
           >
-            <PostLink className="hover:underline" post={post} morphTitle>
+            {/* No `morphTitle` here — PostList renders in the sidebar on every
+             * page, so a post appearing in both the sidebar and the main feed
+             * would otherwise have two elements claim the same
+             * `view-transition-name` and abort the transition. */}
+            <PostLink className="hover:underline" post={post}>
               {post.title}
             </PostLink>
           </div>
