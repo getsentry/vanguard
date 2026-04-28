@@ -21,9 +21,9 @@ Sentry.init({
   // continue the client trace.
   tracePropagationTargets: [/^\//],
 
-  // Replay 10% of all sessions, but 100% of sessions where an error fired.
-  // Recording every session is expensive; on-error capture keeps debugging signal.
-  replaysSessionSampleRate: 0.1,
+  // Vanguard is internal — capture every session for replay. Bump down
+  // if traffic ever grows enough that quota becomes a concern.
+  replaysSessionSampleRate: 1.0,
   replaysOnErrorSampleRate: 1.0,
 
   // Enable Sentry.logger.* ingestion (Sentry Logs product).
