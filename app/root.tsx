@@ -39,8 +39,6 @@ type LoaderData = {
   categoryList?: Awaited<ReturnType<typeof getCategoryList>> | null;
   recentPostList?: Awaited<ReturnType<typeof getPostList>> | null;
   previewAutoLogin: boolean;
-  sentryTrace?: string;
-  sentryBaggage?: string;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -90,8 +88,7 @@ export function ErrorBoundary() {
 }
 
 function App() {
-  const { user, categoryList, recentPostList, previewAutoLogin, ...data } =
-    useLoaderData<LoaderData>();
+  const { user, categoryList, recentPostList, previewAutoLogin } = useLoaderData<LoaderData>();
 
   const [showSidebar, setShowSidebar] = useState(false);
 
@@ -110,7 +107,7 @@ function App() {
   };
 
   return (
-    <Document data={data} showSidebar={showSidebar}>
+    <Document showSidebar={showSidebar}>
       <LoadingIndicator />
       <div>
         <Toaster />
