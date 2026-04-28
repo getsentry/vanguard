@@ -5,7 +5,7 @@ import prismjs from "prismjs";
 import { default as summarizeFn } from "../lib/summarize";
 import { useState, useEffect, useRef } from "react";
 
-import "prism-sentry/index.css";
+import "../styles/prism.css";
 
 const renderer = new marked.Renderer();
 
