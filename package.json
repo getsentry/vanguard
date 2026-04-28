@@ -14,6 +14,7 @@
     "dev": "react-router dev",
     "docker": "docker-compose up -d",
     "preinstall": "npx only-allow pnpm",
+    "prepare": "vp config",
     "start": "react-router-serve ./build/server/index.js",
     "test": "pnpm db:migrate:test && pnpm test:vitest",
     "test:vitest": "dotenv -e .env.test -- vitest run",
@@ -79,6 +80,7 @@
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vite": "^8.0.10",
+    "vite-plus": "0.1.19",
     "vitest": "^4.1.5"
   },
   "engines": {
