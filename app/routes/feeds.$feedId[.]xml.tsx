@@ -7,6 +7,7 @@ import { marked } from "marked";
 import { escapeCdata, escapeHtml } from "~/lib/html";
 import summarize from "~/lib/summarize";
 import { buildUrl } from "~/lib/http";
+import { getDisplayName } from "~/lib/user";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   invariant(params.feedId, "feedId not found");
@@ -42,7 +43,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
                   baseUrl: process.env.BASE_URL,
                 }),
               )}]]></content:encoded>
-              <author>${escapeHtml(post.author.name || post.author.email)}</author>
+              <author>${escapeHtml(getDisplayName(post.author))}</author>
               <pubDate>${post.publishedAt?.toUTCString()}</pubDate>
               <link>${buildUrl(getPostLink(post), request)}</link>
 

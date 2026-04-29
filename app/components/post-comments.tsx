@@ -13,6 +13,7 @@ import IconCollapsedPost from "~/icons/IconCollapsedPost";
 import type { PostCommentWithAuthor as PostComment } from "~/models/post-comments.server";
 import TimeSince from "./timeSince";
 import Link from "./link";
+import { getDisplayName } from "~/lib/user";
 
 const deleteComment = async (postId: string, commentId: string): Promise<string | undefined> => {
   const res = await fetch(`/api/posts/${postId}/comments/${commentId}`, {
@@ -93,9 +94,7 @@ const Comment = ({
         <div className="flex-1 rounded pt-4 px-4 mb-4 bg-layer100-light dark:bg-layer100-dark">
           <div className="flex flex-1 justify-between items-center gap-1 mb-2 w-full">
             <Avatar user={comment.author} size="24px" />
-            <Link to={`/u/${comment.author.email}`}>
-              {comment.author.name || comment.author.email}
-            </Link>
+            <Link to={`/u/${comment.author.email}`}>{getDisplayName(comment.author)}</Link>
             <Middot />
             <div className="text-secondary-light dark:text-secondary-dark">
               <TimeSince date={comment.createdAt} />

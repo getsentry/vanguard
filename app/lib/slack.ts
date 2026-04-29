@@ -1,6 +1,7 @@
 import { error } from "./logging";
 import type { PostQueryType } from "~/models/post.server";
 import summarize from "./summarize";
+import { getDisplayName } from "./user";
 
 import dayjs from "dayjs";
 import advancedFormat from "dayjs/plugin/advancedFormat";
@@ -64,7 +65,7 @@ export const notify = async ({ post, config }: { post: PostQueryType; config: Sl
           fields: [
             {
               type: "mrkdwn",
-              text: `*Written by*\n${author.name}`,
+              text: `*Written by*\n${getDisplayName(author)}`,
             },
             {
               type: "mrkdwn",

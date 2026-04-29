@@ -10,6 +10,7 @@ import summarize from "./summarize";
 import { inlinePrivateImages } from "./email-images";
 import { lightTheme } from "~/styles/theme";
 import { escapeHtml } from "./html";
+import { getDisplayName } from "./user";
 import { getUserById } from "~/models/user.server";
 import type { User } from "~/models/user.server";
 
@@ -88,7 +89,7 @@ export const notify = async ({
   }
 
   const postUrl = `${process.env.BASE_URL}/p/${post.id}`;
-  const sender = `"${post.author.name || post.author.email}" <${post.author.email}>`;
+  const sender = `"${getDisplayName(post.author)}" <${post.author.email}>`;
   const subject = config.subjectPrefix ? `${config.subjectPrefix} ${post.title}` : post.title;
 
   try {
@@ -141,7 +142,7 @@ const buildPostEmail = (post: PostQueryType): string => {
           <tr>
             <td>
               <b style="color:${lightTheme.textColor};">${escapeHtml(
-                post.author.name || post.author.email,
+                getDisplayName(post.author),
               )}</b>
             </td>
           </tr>
@@ -176,7 +177,7 @@ export const notifyComment = async ({
   }
 
   const commentUrl = `${process.env.BASE_URL}/p/${post.id}#c_${comment.id}`;
-  const sender = `"${comment.author.name || comment.author.email}" <${comment.author.email}>`;
+  const sender = `"${getDisplayName(comment.author)}" <${comment.author.email}>`;
   const subject = `Re: ${post.title}`;
 
   const subscriptions: User[] = await getSubscriptions({ postId: post.id });
@@ -227,8 +228,8 @@ const buildCommentHtml = (
 
   const isInReplyTo = parent && parent.authorId === toUser.id;
   const titleLine = isInReplyTo
-    ? `${escapeHtml(comment.author.name || comment.author.email)} just replied to your comment`
-    : `${escapeHtml(comment.author.name || comment.author.email)} left a new comment`;
+    ? `${escapeHtml(getDisplayName(comment.author))} just replied to your comment`
+    : `${escapeHtml(getDisplayName(comment.author))} left a new comment`;
   const reasonLine = isInReplyTo
     ? `You are being notified because you have notification replies enabled. <a href="${settingsUrl}">Account Settings</a>`
     : `You are being notified because you are subscribed to this post. <a href="${postUrl}">Post Settings</a>`;
@@ -256,7 +257,7 @@ const buildCommentHtml = (
             <table cellpadding="0" cellspacing="0" border="0">
               <tr>
                 <td><b style="color:${lightTheme.textColor};">${escapeHtml(
-                  comment.author.name,
+                  getDisplayName(comment.author),
                 )}</b></td>
               </tr>
               <tr>

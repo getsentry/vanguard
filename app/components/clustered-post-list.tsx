@@ -8,6 +8,7 @@ import TimeSince from "./timeSince";
 import type { Category } from "~/models/category.server";
 import type { PostQueryType as Post } from "~/models/post.server";
 import Link from "./link";
+import { getDisplayName } from "~/lib/user";
 
 export default function ClusteredPostList({
   category,
@@ -40,9 +41,7 @@ export default function ClusteredPostList({
                 <Avatar size="24px" user={post.author} />
 
                 <div className="font-medium text-base">
-                  <Link to={`/u/${post.author.email}`}>
-                    {post.author.name || post.author.email}
-                  </Link>
+                  <Link to={`/u/${post.author.email}`}>{getDisplayName(post.author)}</Link>
                 </div>
                 <div className="text-gray-500 dark:text-gray-300 flex flex-grow gap-x-2">
                   <Middot />
