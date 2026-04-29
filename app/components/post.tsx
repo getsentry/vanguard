@@ -11,6 +11,7 @@ import { ChatBubbleIcon, HeartIcon } from "@radix-ui/react-icons";
 import TimeSince from "./timeSince";
 import DraftNote from "./draft-note";
 import Link from "./link";
+import SendTestEmailButton from "./send-test-email-button";
 import { getDisplayName } from "~/lib/user";
 
 const URL_REGEXP = new RegExp(
@@ -23,12 +24,14 @@ export default function Post({
   post,
   summary = false,
   canEdit = false,
+  isAdmin = false,
   reactions,
   totalComments,
 }: {
   post: PostType;
   summary?: boolean;
   canEdit?: boolean;
+  isAdmin?: boolean;
   reactions?: any[];
   totalComments?: number;
 }) {
@@ -74,6 +77,12 @@ export default function Post({
               <>
                 <Middot />
                 <Link to={`/p/${post!.id}/edit`}>Edit</Link>
+              </>
+            )}
+            {isAdmin && !summary && (
+              <>
+                <Middot />
+                <SendTestEmailButton postId={post.id} />
               </>
             )}
             {summary && (
