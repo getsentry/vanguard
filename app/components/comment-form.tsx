@@ -8,6 +8,7 @@ import Button from "./button";
 import HelpText from "./help-text";
 import { useState } from "react";
 import { Cross1Icon } from "@radix-ui/react-icons";
+import { getDisplayName } from "~/lib/user";
 
 export type CommentFormErrors = {
   comment?: string;
@@ -24,7 +25,7 @@ const ParentComment = ({ comment, onClear }: { comment?: PostComment; onClear: (
     <div className="bg-layer100-light dark:bg-layer100-dark flex px-6 py-3 text-sm rounded-md bold">
       <input type="hidden" name="parentId" value={comment.id} />
       <p className="flex-grow">
-        Replying to <a href={`#c_${comment.id}`}>{comment.author.name || comment.author.email}</a>
+        Replying to <a href={`#c_${comment.id}`}>{getDisplayName(comment.author)}</a>
       </p>
       <Button size="xs" baseStyle="link" onClick={() => onClear()}>
         <Cross1Icon />

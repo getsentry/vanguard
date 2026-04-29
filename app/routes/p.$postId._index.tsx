@@ -91,7 +91,7 @@ export default function PostDetailsPage() {
 
   return (
     <div>
-      <PostTemplate post={post} canEdit={canEdit} reactions={reactions} />
+      <PostTemplate post={post} canEdit={canEdit} isAdmin={user.admin} reactions={reactions} />
       {post.published && (
         <>
           <PostReactions post={post} reactions={reactions} />

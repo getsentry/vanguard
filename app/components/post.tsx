@@ -11,6 +11,8 @@ import { ChatBubbleIcon, HeartIcon } from "@radix-ui/react-icons";
 import TimeSince from "./timeSince";
 import DraftNote from "./draft-note";
 import Link from "./link";
+import SendTestEmailButton from "./send-test-email-button";
+import { getDisplayName } from "~/lib/user";
 
 const URL_REGEXP = new RegExp(
   /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)/g,
@@ -22,12 +24,14 @@ export default function Post({
   post,
   summary = false,
   canEdit = false,
+  isAdmin = false,
   reactions,
   totalComments,
 }: {
   post: PostType;
   summary?: boolean;
   canEdit?: boolean;
+  isAdmin?: boolean;
   reactions?: any[];
   totalComments?: number;
 }) {
@@ -45,7 +49,7 @@ export default function Post({
         <Avatar user={post.author} />
         <div className="flex flex-1 flex-col justify-between">
           <div className="font-medium">
-            <Link to={`/u/${post.author.email}`}>{post.author.name || post.author.email}</Link>
+            <Link to={`/u/${post.author.email}`}>{getDisplayName(post.author)}</Link>
           </div>
           <div className="text-muted-light dark:text-muted-dark flex">
             <div>
@@ -73,6 +77,12 @@ export default function Post({
               <>
                 <Middot />
                 <Link to={`/p/${post!.id}/edit`}>Edit</Link>
+              </>
+            )}
+            {isAdmin && !summary && (
+              <>
+                <Middot />
+                <SendTestEmailButton postId={post.id} />
               </>
             )}
             {summary && (
