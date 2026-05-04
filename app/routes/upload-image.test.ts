@@ -78,6 +78,21 @@ describe("POST /upload-image", () => {
     expect(body.error).toMatch(/invalid/i);
   });
 
+  it("rejects truncated real images with 400", async () => {
+    // Real PNG header but the buffer is cut in half. libvips throws
+    // "Input buffer has corrupt header: pngload_buffer: end of stream",
+    // which is a different error path from the "unsupported format" one
+    // above. Both should land as 400, not 500.
+    const png = await makeImage("png");
+    const truncated = Buffer.from(png).subarray(0, Math.floor(png.length / 2));
+    const partial = new File([truncated], "truncated.png", { type: "image/png" });
+    const request = await buildUploadRequest(partial);
+    const response = await action({ request, params: {}, context: {} });
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toMatch(/invalid/i);
+  });
+
   it("stores file without original filename in URL", async () => {
     // Uploaded as PNG. After optimization the stored object is a WebP, so the
     // proxy URL ends in `.webp` regardless of the source extension.

@@ -6,6 +6,7 @@ import { Form, useActionData, useLoaderData } from "react-router";
 import { requireUser } from "~/services/auth.server";
 import { updateUser } from "~/models/user.server";
 import { uploadFile, isAllowedImageType } from "~/lib/upload-handler";
+import { InvalidImageError } from "~/lib/image-optimize";
 import AvatarInput from "~/components/avatar-input";
 import Button from "~/components/button";
 
@@ -27,13 +28,25 @@ export async function action({ request }: ActionFunctionArgs) {
   let picture: string | undefined = undefined;
   if (pictureFile instanceof File && pictureFile.size > 0 && isAllowedImageType(pictureFile.type)) {
     const buffer = Buffer.from(await pictureFile.arrayBuffer());
-    const { url } = await uploadFile({
-      mimeType: pictureFile.type,
-      buffer,
-      namespace: user.id,
-      variant: "avatar",
-    });
-    picture = url;
+    try {
+      const { url } = await uploadFile({
+        mimeType: pictureFile.type,
+        buffer,
+        namespace: user.id,
+        variant: "avatar",
+      });
+      picture = url;
+    } catch (err) {
+      if (err instanceof InvalidImageError) {
+        return Response.json(
+          {
+            errors: { picture: "That doesn't look like a valid image — try a JPEG, PNG, or WebP." },
+          },
+          { status: 400 },
+        );
+      }
+      throw err;
+    }
   }
 
   await updateUser({

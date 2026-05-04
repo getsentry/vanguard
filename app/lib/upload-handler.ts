@@ -59,8 +59,11 @@ export async function uploadFile({
 }): Promise<{ url: string; width: number; height: number; bytes: number }> {
   const inputBuffer = Buffer.isBuffer(buffer) ? buffer : Buffer.from(buffer);
 
+  // optimizeImage detects the actual format from the bytes and ignores the
+  // claimed mimeType (which is client-controlled). The no-variant fallback
+  // still trusts the claimed mime, but no current callsite uses that path.
   const processed = variant
-    ? await optimizeImage(inputBuffer, mimeType, variant)
+    ? await optimizeImage(inputBuffer, variant)
     : { buffer: inputBuffer, mimeType, width: 0, height: 0 };
 
   const ext = MIME_TO_EXT[processed.mimeType] ?? "bin";
