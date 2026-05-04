@@ -164,7 +164,7 @@ function ImageModal({
       className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
-      <div className="relative w-full max-w-[95vw] max-h-full flex items-center justify-center">
+      <div className="relative w-full max-w-[95vw] max-h-full flex flex-col items-center">
         <img
           src={src}
           alt={alt}
@@ -179,7 +179,7 @@ function ImageModal({
           ×
         </button>
         {alt && (
-          <div className="absolute bottom-4 left-4 right-4 text-white text-center bg-black bg-opacity-70 rounded px-4 py-3 text-sm">
+          <div className="w-full text-white text-center bg-black bg-opacity-70 rounded px-4 py-3 text-sm mt-2">
             {alt}
           </div>
         )}
