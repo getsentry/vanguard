@@ -1,6 +1,7 @@
 import type { ActionFunctionArgs } from "react-router";
 import { requireUserId } from "~/services/auth.server";
 import { uploadFile, isAllowedImageType } from "~/lib/upload-handler";
+import { InvalidImageError } from "~/lib/image-optimize";
 
 export async function action({ request }: ActionFunctionArgs) {
   if (request.method !== "POST") return Response.json({}, { status: 405 });
@@ -20,11 +21,31 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
-  const { url } = await uploadFile({
-    mimeType: file.type,
-    buffer,
-    namespace: userId,
-  });
 
-  return { url, originalFilename: file.name, width: 0, height: 0 };
+  // sharp's image-optimize pipeline validates the bytes (not just the
+  // claimed MIME type from the multipart form). If the buffer isn't a real
+  // image — corrupt download, mismatched extension, truncated upload —
+  // optimizeImage throws InvalidImageError; surface that as a 400 so the
+  // user sees a useful error instead of a generic 500.
+  let result;
+  try {
+    result = await uploadFile({
+      mimeType: file.type,
+      buffer,
+      namespace: userId,
+      variant: "post-image",
+    });
+  } catch (err) {
+    if (err instanceof InvalidImageError) {
+      return Response.json({ error: "Invalid image data" }, { status: 400 });
+    }
+    throw err;
+  }
+
+  return {
+    url: result.url,
+    originalFilename: file.name,
+    width: result.width,
+    height: result.height,
+  };
 }
