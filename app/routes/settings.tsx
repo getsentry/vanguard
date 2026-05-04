@@ -30,6 +30,7 @@ export async function action({ request }: ActionFunctionArgs) {
       mimeType: pictureFile.type,
       buffer,
       namespace: user.id,
+      variant: "avatar",
     });
     picture = url;
   }

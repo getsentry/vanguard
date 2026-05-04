@@ -20,11 +20,33 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
-  const { url } = await uploadFile({
-    mimeType: file.type,
-    buffer,
-    namespace: userId,
-  });
 
-  return { url, originalFilename: file.name, width: 0, height: 0 };
+  // sharp's image-optimize pipeline validates the bytes (not just the
+  // claimed MIME type from the multipart form). If the buffer isn't a real
+  // image — corrupt download, mismatched extension, etc. — surface that as
+  // a 400 so the user sees a useful error instead of a generic 500.
+  let result;
+  try {
+    result = await uploadFile({
+      mimeType: file.type,
+      buffer,
+      namespace: userId,
+      variant: "post-image",
+    });
+  } catch (err) {
+    if (
+      err instanceof Error &&
+      /unsupported image format|VipsJpeg|VipsPng|VipsWebp|VipsGif/i.test(err.message)
+    ) {
+      return Response.json({ error: "Invalid image data" }, { status: 400 });
+    }
+    throw err;
+  }
+
+  return {
+    url: result.url,
+    originalFilename: file.name,
+    width: result.width,
+    height: result.height,
+  };
 }

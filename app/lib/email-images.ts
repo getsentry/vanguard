@@ -4,7 +4,13 @@ import path from "path";
 import { get } from "@vercel/blob";
 import { EXT_TO_MIME } from "~/lib/upload-handler";
 
-const MAX_IMAGES = 10;
+// MAX_TOTAL_BYTES is the real budget — SMTP / SendGrid cares about message
+// size, not image count. MAX_IMAGES is a sanity cap that bounds per-message
+// work in case a post somehow references hundreds of inline images. Uploads
+// are resized + WebP-encoded at write time (see app/lib/image-optimize.ts),
+// so a typical post image is ~100 KB and 50 fits comfortably under
+// SendGrid's 30 MB message limit.
+const MAX_IMAGES = 50;
 const MAX_TOTAL_BYTES = 20 * 1024 * 1024; // 20 MB
 
 export type InlineAttachment = {
@@ -90,6 +96,10 @@ export async function inlinePrivateImages(
     const srcRegex = new RegExp(`src="${escapedBase}/image-uploads/${escapedPathname}"`, "g");
     rewrittenHtml = rewrittenHtml.replace(srcRegex, `src="cid:${cid}"`);
   }
+
+  console.log(
+    `[email-images] inlined ${attachments.length} images, ${totalBytes} bytes (${matches.length} referenced, ${pathnameToCid.size} unique)`,
+  );
 
   return { html: rewrittenHtml, attachments };
 }
