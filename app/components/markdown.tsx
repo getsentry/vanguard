@@ -71,7 +71,12 @@ renderer.code = function (code, lang, _escaped) {
   return `<pre class="code-block ${langClass}"><code class="${langClass}">${code}</code></pre>`;
 };
 
-// add captions to images with enlargeable functionality
+// add captions to images with enlargeable functionality.
+// IMPORTANT: don't stash the URL in a custom data-* attribute — DOMPurify
+// only URL-sanitizes well-known attributes (src/href/xlink:href). Anything in
+// data-* is treated as inert text and would let a `javascript:` URL survive
+// sanitization and round-trip back into a sink. The click handler reads the
+// already-sanitized `src`/`title`/`alt` attributes off the rendered <img>.
 renderer.image = function (href, title, text) {
   const imgId = `img-${Math.random().toString(36).substr(2, 9)}`;
   const html = `<img 
@@ -80,8 +85,6 @@ renderer.image = function (href, title, text) {
     title="${title || ""}" 
     alt="${text}" 
     class="markdown-image cursor-pointer hover:opacity-80 transition-opacity max-w-full h-auto rounded-lg shadow-sm"
-    data-enlarge-src="${href}"
-    data-enlarge-alt="${title || text || ""}"
   />`;
 
   if (title) {
@@ -209,11 +212,14 @@ export default function Markdown({
 
     const handleImageClick = (event: Event) => {
       const target = event.target as HTMLElement;
-      if (target.tagName === "IMG" && target.classList.contains("markdown-image")) {
-        const src = target.getAttribute("data-enlarge-src");
-        const alt = target.getAttribute("data-enlarge-alt");
+      if (target instanceof HTMLImageElement && target.classList.contains("markdown-image")) {
+        // Read from the DOMPurify-sanitized attributes the browser parsed off
+        // the <img> itself — never from custom data-* (which DOMPurify does
+        // not URL-sanitize). `target.src` is the resolved absolute URL.
+        const src = target.src;
+        const alt = target.title || target.alt || "";
         if (src) {
-          setModalImage({ src, alt: alt || "" });
+          setModalImage({ src, alt });
         }
       }
     };
