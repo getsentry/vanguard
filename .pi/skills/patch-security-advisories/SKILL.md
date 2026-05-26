@@ -32,12 +32,14 @@ pnpm why <package>
 ```
 
 For each vulnerable package, classify:
+
 - **Direct dep** (listed in `package.json`) → bump in `package.json`.
 - **Transitive dep** (only in lockfile) → fix via `pnpm.overrides`. Vanguard's advisories are almost always transitive.
 
 ## Step 1: Confirm scope with the user
 
 Report back with:
+
 - Table of open advisories: package, current, patched, parent (from `pnpm why`), existing PR (if any).
 - List of open PRs touching deps with current CI status.
 - Count of unpinned versions in `package.json` (`grep -cE '"\^|"~' package.json`).
@@ -99,11 +101,11 @@ pnpm supports the `<name>@<major>` syntax in `overrides` keys.
 
 **When to apply scoping (decision table):**
 
-| Situation | Override syntax |
-|-----------|-----------------|
-| Vuln spans the entire installed range, no API breakage | `"pkg": "x.y.z"` (global) |
-| Vuln is in one major line only, older majors coexist in tree | `"pkg@<major>": "x.y.z"` (scoped) |
-| Patched version drops APIs older deps still use | scoped override + verify with `pnpm typecheck` |
+| Situation                                                    | Override syntax                                |
+| ------------------------------------------------------------ | ---------------------------------------------- |
+| Vuln spans the entire installed range, no API breakage       | `"pkg": "x.y.z"` (global)                      |
+| Vuln is in one major line only, older majors coexist in tree | `"pkg@<major>": "x.y.z"` (scoped)              |
+| Patched version drops APIs older deps still use              | scoped override + verify with `pnpm typecheck` |
 
 ### 🚨 Gotcha: major-jump overrides
 
@@ -146,6 +148,7 @@ pnpm exec vp check  # oxlint + oxfmt
 ```
 
 **Vanguard-specific notes:**
+
 - `pnpm test` requires the local postgres container; start it with `docker-compose up -d` first.
 - `vp check` will flag any unrelated unstaged files in the working tree (e.g. a stray `index.html` at the repo root). Inspect what it flagged — if it's not in your diff, it's not your problem.
 - A `typecheck` failure mentioning `brace_expansion_1.default is not a function` means you have the unscoped `brace-expansion` override — switch to `brace-expansion@5`.
