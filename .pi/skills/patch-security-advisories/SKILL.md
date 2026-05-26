@@ -31,6 +31,8 @@ gh pr list --state open --limit 50 \
 pnpm why <package>
 ```
 
+**Heads-up:** the `dependabot/alerts` API only lists advisories Dependabot has already published for the repo. The `Dependency Review` GitHub Action that runs on every PR (`.github/workflows/dependency-review.yml`) can flag _fresh_ advisories with `fail-on-severity: high` before they appear in the API. After pushing the PR, run `gh pr checks <PR>` and inspect any `dependency-review` failure log — it has the format `package.json » <pkg>@<version> – <summary> (high severity) ↪ <GHSA-URL>`. If found, fold it into the same PR.
+
 For each vulnerable package, classify:
 
 - **Direct dep** (listed in `package.json`) → bump in `package.json`.
