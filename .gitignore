@@ -21,7 +21,9 @@ vite.config.ts.timestamp-*.mjs
 /.vercel
 
 # Pi agent session artifacts (plans, scout contexts, etc.)
-/.pi
+# Ignore everything under .pi/ except shared project skills.
+/.pi/*
+!/.pi/skills/
 
 /cypress/screenshots
 /cypress/videos
