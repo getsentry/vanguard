@@ -78,7 +78,7 @@
     "tsx": "4.21.0",
     "typescript": "5.9.3",
     "vite": "8.0.10",
-    "vite-plus": "0.1.19",
+    "vite-plus": "0.1.24",
     "vitest": "4.1.5"
   },
   "engines": {
