@@ -8,6 +8,13 @@
       "when": 1777023779397,
       "tag": "0000_wise_nebula",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1781643900000,
+      "tag": "0001_add_user_slack_user_id",
+      "breakpoints": true
     }
   ]
 }

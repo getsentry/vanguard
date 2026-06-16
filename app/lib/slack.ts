@@ -65,7 +65,7 @@ export const notify = async ({ post, config }: { post: PostQueryType; config: Sl
           fields: [
             {
               type: "mrkdwn",
-              text: `*Written by*\n${getDisplayName(author)}`,
+              text: `*Written by*\n${author.slackUserId ? `<@${author.slackUserId}>` : getDisplayName(author)}`,
             },
             {
               type: "mrkdwn",
