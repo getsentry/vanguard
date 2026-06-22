@@ -6,22 +6,21 @@ import EmojiReaction from "~/components/emoji-reaction";
 import { useEffect, useMemo, useState } from "react";
 import Picker from "~/components/emoji-picker";
 
+// Persist a reaction toggle. Returns undefined on any failure so the caller can
+// revert its optimistic update.
 const toggleReaction = async (postId: string, emoji: string): Promise<number | undefined> => {
-  const res = await fetch(`/api/posts/${postId}/reactions`, {
-    method: "POST",
-    body: JSON.stringify({
-      emoji,
-    }),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  if (res.status === 200) {
-    const data = await res.json();
-    return data.delta;
-  } else {
-    alert("Unable to save reaction");
+  try {
+    const res = await fetch(`/api/posts/${postId}/reactions`, {
+      method: "POST",
+      body: JSON.stringify({ emoji }),
+      headers: { "Content-Type": "application/json" },
+    });
+    if (res.ok) return (await res.json()).delta;
+  } catch {
+    // handled below
   }
+  alert("Unable to save reaction");
+  return undefined;
 };
 
 export type EmojiData = {
@@ -74,28 +73,27 @@ export default function PostReactions({
   // dont show reactions if unpublished
   if (!post.published) return null;
 
-  const onEmojiClick = async (_event: any, value: string) => {
-    const delta = await toggleReaction(post.id, value);
-    // undefined is an error
-    if (delta === undefined) return;
-
-    let newEmojiList: EmojiData[] = [];
-    const existing = emojiList.find((e) => e.value === value);
-    if (existing) {
-      newEmojiList = emojiList.filter((e) => e.value !== value);
-      const newItem = {
-        value,
-        count: existing.count + delta,
-        selected: delta > 0,
-      };
-      if (newItem.count > 0 || defaults.indexOf(value) !== -1) {
-        newEmojiList.push(newItem);
-      }
-    } else if (delta > 0) {
-      newEmojiList = [...emojiList, { value, count: delta, selected: true }];
+  // Toggle one emoji in place — no re-sort, so the clicked button doesn't jump.
+  // Self-inverse (applying it twice restores the original), which we reuse to
+  // revert the optimistic update if the request fails.
+  const toggleEmoji = (list: EmojiData[], value: string): EmojiData[] => {
+    const existing = list.find((e) => e.value === value);
+    if (!existing) return [...list, { value, count: 1, selected: true }];
+    const selected = !existing.selected;
+    const count = existing.count + (selected ? 1 : -1);
+    // Drop to-zero emojis unless they're a category default (kept as a prompt).
+    if (count <= 0 && !defaultEmojis.includes(value)) {
+      return list.filter((e) => e.value !== value);
     }
-    newEmojiList.sort((a, b) => b.count - a.count);
-    setEmojiList(newEmojiList);
+    return list.map((e) => (e.value === value ? { value, count, selected } : e));
+  };
+
+  const onEmojiClick = (_event: any, value: string) => {
+    // Update optimistically, then revert if the save fails.
+    setEmojiList((list) => toggleEmoji(list, value));
+    void toggleReaction(post.id, value).then((delta) => {
+      if (delta === undefined) setEmojiList((list) => toggleEmoji(list, value));
+    });
   };
 
   return (
