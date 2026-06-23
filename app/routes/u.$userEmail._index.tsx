@@ -68,12 +68,20 @@ export async function action({ request, params }: ActionFunctionArgs) {
   if (formData.get("admin") === "false") {
     await updateUser({ actor: currentUser, id: user.id, admin: false });
   }
+  if (formData.has("slackUserId")) {
+    const slackUserId = formData.get("slackUserId");
+    await updateUser({
+      actor: currentUser,
+      id: user.id,
+      slackUserId: typeof slackUserId === "string" ? slackUserId.trim() || null : null,
+    });
+  }
   return null;
 }
 
-const UserAdmin: React.FC<{ user: { id: string; admin: boolean; canPostRestricted: boolean } }> = ({
-  user,
-}) => {
+const UserAdmin: React.FC<{
+  user: { id: string; admin: boolean; canPostRestricted: boolean; slackUserId: string | null };
+}> = ({ user }) => {
   return (
     <Panel.Panel>
       <Panel.Title>Admin</Panel.Title>
@@ -102,6 +110,22 @@ const UserAdmin: React.FC<{ user: { id: string; admin: boolean; canPostRestricte
             )}
           </li>
         </ul>
+      </Form>
+      <Form method="post" className="mt-4 flex items-center gap-2">
+        <label htmlFor="slackUserId" className="text-sm font-medium">
+          Slack User ID
+        </label>
+        <input
+          id="slackUserId"
+          name="slackUserId"
+          type="text"
+          defaultValue={user.slackUserId ?? ""}
+          placeholder="U0XXXXXXXXX"
+          className="input input-sm"
+        />
+        <Button type="submit" baseStyle="default">
+          Save
+        </Button>
       </Form>
     </Panel.Panel>
   );

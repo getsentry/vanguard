@@ -32,7 +32,7 @@ export type Feed = typeof feeds.$inferSelect;
 export type PublicFeed = Omit<Feed, "webhookUrl">;
 
 /** Public author shape embedded in loader-facing post/feed responses. */
-export type PostAuthor = Pick<User, "id" | "email" | "name" | "picture">;
+export type PostAuthor = Pick<User, "id" | "email" | "name" | "picture" | "slackUserId">;
 
 export interface PostQueryType extends Post {
   author: PostAuthor;
