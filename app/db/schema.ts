@@ -13,6 +13,7 @@ export const users = pgTable("User", {
   canPostRestricted: boolean("canPostRestricted").notNull().default(false),
   admin: boolean("admin").notNull().default(false),
   notifyReplies: boolean("notifyReplies").notNull().default(true),
+  slackUserId: text("slackUserId"),
 });
 
 export const categories = pgTable("Category", {

@@ -35,6 +35,7 @@ export const PUBLIC_USER_COLUMNS = {
   email: true,
   name: true,
   picture: true,
+  slackUserId: true,
 } as const;
 
 export async function getUserById(id: User["id"]) {
@@ -164,6 +165,7 @@ export async function updateUser({
   picture?: User["picture"] | null;
   canPostRestricted?: User["canPostRestricted"] | undefined;
   notifyReplies?: User["notifyReplies"] | undefined;
+  slackUserId?: User["slackUserId"] | null;
 }) {
   // When the actor is editing their own row, we already have the latest copy.
   // Otherwise (admin editing another user) load the target so we can diff.
@@ -183,6 +185,8 @@ export async function updateUser({
   if (picture !== undefined) data.picture = picture;
   if (notifyReplies !== undefined && notifyReplies !== target.notifyReplies)
     data.notifyReplies = !!notifyReplies;
+  if (slackUserId !== undefined && slackUserId !== target.slackUserId)
+    data.slackUserId = slackUserId || null;
 
   if (Object.keys(data).length === 0) {
     return target;
