@@ -3,6 +3,7 @@ import { and, eq, inArray, or, sql } from "drizzle-orm";
 
 import * as email from "../lib/email";
 import * as slack from "../lib/slack";
+import { getSlackUserId } from "../lib/gibpotato";
 import { db } from "~/db/client";
 import {
   categories,
@@ -102,8 +103,14 @@ export function announcePost(post: PostQueryType): void {
             `[announcePost] no per-category Slack rows AND no SLACK_WEBHOOK_URL — Slack fanout will be a no-op`,
           );
         }
+        const authorSlackId = slackConfig.length ? await getSlackUserId(post.author.email) : null;
+        console.log(
+          `[announcePost] gibpotato lookup — post=${post.id} authorSlackId=${authorSlackId ?? "<none>"}`,
+        );
         await Promise.all(
-          slackConfig.map((config) => slack.notify({ post, config: config as slack.SlackConfig })),
+          slackConfig.map((config) =>
+            slack.notify({ post, config: config as slack.SlackConfig, authorSlackId }),
+          ),
         );
         console.log(`[announcePost] waitUntil finished — post ${post.id}`);
       } catch (err) {

@@ -35,6 +35,15 @@ export default defineConfig((config) => ({
   optimizeDeps: {
     exclude: ["react-router-dom"],
   },
+  server: {
+    watch: {
+      // 1Password keeps re-syncing `.env`, and Vite restarts the dev server
+      // on every env-file change (they're explicitly added to the chokidar
+      // watchlist). Ignore them: env values are read once at startup, and a
+      // manual dev-server restart picks up changes when actually needed.
+      ignored: ["**/.env", "**/.env.*"],
+    },
+  },
   plugins: [tailwindcss(), reactRouter(), sentryReactRouter(sentryConfig, config)],
   // Pre-commit checks run via `vp staged` (installed by `vp config`).
   // Auto-fix lint + format on staged source files; fixes are re-staged.

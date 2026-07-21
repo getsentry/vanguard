@@ -229,7 +229,7 @@ See `.env.example` for the full current list. High level:
 | Auth     | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_HD`                                                |
 | Storage  | `BLOB_READ_WRITE_TOKEN` (run `vercel env pull` after linking)                                          |
 | Email    | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`                                        |
-| Slack    | `SLACK_WEBHOOK_URL`, `SLACK_CHANNEL`, `SLACK_USERNAME`, `SLACK_ICON_URL`                               |
+| Slack    | `SLACK_WEBHOOK_URL`, `SLACK_CHANNEL`, `SLACK_USERNAME`, `SLACK_ICON_URL`, `GIBPOTATO_API_KEY`          |
 | Sentry   | `SENTRY_DSN` (server), `VITE_SENTRY_DSN` (client), `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT` |
 
 ## Testing

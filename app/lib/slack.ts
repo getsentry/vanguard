@@ -15,7 +15,15 @@ export type SlackConfig = {
   iconUrl?: string;
 };
 
-export const notify = async ({ post, config }: { post: PostQueryType; config: SlackConfig }) => {
+export const notify = async ({
+  post,
+  config,
+  authorSlackId,
+}: {
+  post: PostQueryType;
+  config: SlackConfig;
+  authorSlackId?: string | null;
+}) => {
   const { author, category } = post;
   console.log(
     `[slack.notify] start — post=${post.id} category=${category.name} webhookHost=${(() => {
@@ -65,7 +73,7 @@ export const notify = async ({ post, config }: { post: PostQueryType; config: Sl
           fields: [
             {
               type: "mrkdwn",
-              text: `*Written by*\n${getDisplayName(author)}`,
+              text: `*Written by*\n${authorSlackId ? `<@${authorSlackId}>` : getDisplayName(author)}`,
             },
             {
               type: "mrkdwn",
