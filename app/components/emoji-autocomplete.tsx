@@ -1,5 +1,5 @@
 import type { KeyboardEvent, RefObject } from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { getCaretCoordinates } from "~/lib/caret-position";
 import classNames from "~/lib/classNames";
@@ -56,6 +56,7 @@ export function useEmojiAutocomplete(
   { onInsert }: { onInsert: (el: HTMLTextAreaElement, start: number, text: string) => void },
 ) {
   const emojis = useSlackEmojis();
+  const listRef = useRef<HTMLUListElement>(null);
   const [trigger, setTrigger] = useState<Trigger | null>(null);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const [active, setActive] = useState(0);
@@ -120,17 +121,33 @@ export function useEmojiAutocomplete(
     [active, close, open, results, select],
   );
 
-  // The caret can move without the textarea firing change or keydown (a click,
-  // a scroll), and the popup must not linger somewhere it no longer belongs.
+  // The list is taller than its max height once there are more than a handful
+  // of matches, so keyboard selection has to bring its own item into view.
+  // `nearest` scrolls the minimum needed and leaves the page alone when the
+  // item is already visible.
   useEffect(() => {
     if (!open) return;
+    const item = listRef.current?.children[active];
+    item?.scrollIntoView({ block: "nearest" });
+  }, [active, open]);
+
+  // The popup is absolutely positioned inside the editor, so page scrolling
+  // carries it along and leaves it correctly anchored. Only the textarea's own
+  // scrolling invalidates the caret offset the popup was placed at, so that is
+  // the single case worth dismissing on. Watching window scroll instead would
+  // also fire for the list's own scrolling and close the popup mid-selection.
+  useEffect(() => {
+    if (!open) return;
+    const el = textareaRef.current;
+    if (!el) return;
     const onScroll = () => close();
-    window.addEventListener("scroll", onScroll, true);
-    return () => window.removeEventListener("scroll", onScroll, true);
-  }, [close, open]);
+    el.addEventListener("scroll", onScroll);
+    return () => el.removeEventListener("scroll", onScroll);
+  }, [close, open, textareaRef]);
 
   const popup = open ? (
     <ul
+      ref={listRef}
       className="emoji-autocomplete"
       style={{ top: position.top, left: position.left }}
       role="listbox"
