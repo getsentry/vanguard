@@ -77,6 +77,14 @@ export async function listSlackEmojis(): Promise<ResolvedEmoji[]> {
 }
 
 /**
+ * The names that resolve to an image. Renderers that cannot recover from a
+ * broken `<img>` (email, RSS) filter against this before emitting one.
+ */
+export async function getKnownEmojiNames(): Promise<Set<string>> {
+  return new Set((await getEmojiIndex()).keys());
+}
+
+/**
  * True for anything a user may store as a reaction: a unicode emoji, or a
  * shortcode this workspace actually has. Rejecting unknown shortcodes keeps
  * reaction rows from accumulating names that render as raw text forever.

@@ -5,6 +5,7 @@ import { getPostLink } from "~/components/post-link";
 import invariant from "tiny-invariant";
 import { marked } from "marked";
 import { renderShortcodes } from "~/lib/emoji";
+import { getKnownEmojiNames } from "~/models/emoji.server";
 import { escapeCdata, escapeHtml } from "~/lib/html";
 import summarize from "~/lib/summarize";
 import { buildUrl } from "~/lib/http";
@@ -23,9 +24,15 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const baseUrl = buildUrl("/", request);
 
   // Feed readers have no origin to resolve against, so emoji images need the
-  // absolute URL.
+  // absolute URL, and they run no JavaScript, so an unresolvable shortcode has
+  // to stay text rather than become a permanently broken image.
+  const knownEmoji = await getKnownEmojiNames();
   const renderer = new marked.Renderer();
-  renderer.text = (text) => renderShortcodes(text, baseUrl.replace(/\/$/, ""));
+  renderer.text = (text) =>
+    renderShortcodes(text, {
+      baseUrl: baseUrl.replace(/\/$/, ""),
+      isKnown: (name) => knownEmoji.has(name),
+    });
 
   const rssString = `
     <rss xmlns:blogChannel="${baseUrl}" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">

@@ -210,6 +210,24 @@ describe("notifyComment", () => {
   });
 });
 
+describe("notify with emoji", () => {
+  test("renders a known shortcode as an absolute image and leaves unknown ones as text", async () => {
+    await Fixtures.SlackEmoji({ name: "shipit" });
+    const post = await Fixtures.Post({
+      title: "An Essay",
+      content: "shipping :shipit: with :tada: energy",
+    });
+
+    await notify({ post, config: mailConfig, transport });
+
+    const html = outbox[0].html as string;
+    expect(html).toContain('src="http://localhost/emoji/shipit"');
+    // No workspace emoji named "tada", and mail clients can't fall back.
+    expect(html).toContain(":tada:");
+    expect(html).not.toContain("/emoji/tada");
+  });
+});
+
 describe("notify with images", () => {
   let author: User;
   let post: Post;

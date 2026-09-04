@@ -48,14 +48,30 @@ export const isEmojiValue = (value: string): boolean => isEmoji(value) || isShor
 export const emojiImageUrl = (name: string, baseUrl = ""): string =>
   `${baseUrl}/emoji/${encodeURIComponent(name.toLowerCase())}`;
 
+export type ShortcodeOptions = {
+  /** Prefix for the generated `src`. Required anywhere the HTML leaves the app. */
+  baseUrl?: string;
+  /**
+   * Membership test for emoji names. When given, a shortcode that fails it is
+   * left as the literal text the author typed.
+   *
+   * Server-rendered destinations without JavaScript (email, RSS) must pass one:
+   * they have the emoji index available and no way to recover from an `<img>`
+   * that 404s, so an unknown name would stay a broken image forever. The
+   * browser omits it and relies on the error handler in
+   * app/components/markdown.tsx to swap a failed image back to its `alt` text.
+   */
+  isKnown?: (name: string) => boolean;
+};
+
 /**
  * Replace every `:shortcode:` in a chunk of already-escaped HTML text with an
- * `<img>`. Unknown names still produce an `<img>` (the renderer has no emoji
- * index of its own), so callers pair this with an error handler that
- * swaps a failed image back to its `alt` text (see app/components/markdown.tsx).
+ * `<img>`.
  */
-export const renderShortcodes = (text: string, baseUrl = ""): string =>
+export const renderShortcodes = (text: string, options: ShortcodeOptions = {}): string =>
   text.replace(shortcodePattern(), (match, name: string) => {
-    const src = emojiImageUrl(name, baseUrl);
+    const lowered = name.toLowerCase();
+    if (options.isKnown && !options.isKnown(lowered)) return match;
+    const src = emojiImageUrl(lowered, options.baseUrl ?? "");
     return `<img class="emoji" src="${src}" alt="${match}" title="${match}" />`;
   });

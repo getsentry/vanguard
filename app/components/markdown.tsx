@@ -100,6 +100,10 @@ renderer.image = function (href, title, text) {
 // Slack shortcodes become images. This runs on the `text` token rather than
 // over the finished HTML so that `:foo:` inside a code span, a fenced block or
 // an attribute is left exactly as the author typed it.
+//
+// No `isKnown` test here: the browser has no emoji index, so every shortcode is
+// rendered optimistically and the error handler below swaps back the ones that
+// turn out not to exist.
 renderer.text = function (text) {
   return renderShortcodes(text);
 };

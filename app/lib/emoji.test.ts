@@ -63,9 +63,21 @@ describe("renderShortcodes", () => {
   });
 
   test("prefixes a base url when given one", () => {
-    expect(renderShortcodes(":shipit:", "https://vanguard.example")).toContain(
+    expect(renderShortcodes(":shipit:", { baseUrl: "https://vanguard.example" })).toContain(
       'src="https://vanguard.example/emoji/shipit"',
     );
+  });
+
+  test("leaves an unknown name as text when given a membership test", () => {
+    const isKnown = (name: string) => name === "shipit";
+    expect(renderShortcodes("ship :shipit: not :tada:", { isKnown })).toBe(
+      'ship <img class="emoji" src="/emoji/shipit" alt=":shipit:" title=":shipit:" /> not :tada:',
+    );
+  });
+
+  test("matches the membership test case insensitively", () => {
+    const isKnown = (name: string) => name === "shipit";
+    expect(renderShortcodes(":ShipIt:", { isKnown })).toContain('src="/emoji/shipit"');
   });
 
   test("leaves text without shortcodes alone", () => {
