@@ -2,6 +2,7 @@ import { PlusIcon } from "@radix-ui/react-icons";
 
 import type { PostQueryType } from "~/models/post.server";
 import Block from "~/components/block";
+import Emoji from "~/components/emoji";
 import EmojiReaction from "~/components/emoji-reaction";
 import { useEffect, useMemo, useState } from "react";
 import Picker from "~/components/emoji-picker";
@@ -104,7 +105,7 @@ export default function PostReactions({
             <EmojiReaction
               key={emoji.value}
               count={emoji.count}
-              emoji={emoji.value}
+              emoji={<Emoji value={emoji.value} />}
               selected={emoji.selected}
               onClick={(e) => onEmojiClick(e, emoji.value)}
             />

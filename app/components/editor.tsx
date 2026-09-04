@@ -4,6 +4,7 @@ import TextareaAutosize from "react-textarea-autosize";
 import toast from "react-hot-toast";
 import {
   CodeIcon,
+  FaceIcon,
   FontBoldIcon,
   FontItalicIcon,
   ImageIcon,
@@ -16,7 +17,9 @@ import * as Tabs from "@radix-ui/react-tabs";
 import * as Toolbar from "@radix-ui/react-toolbar";
 
 import Content from "./content";
+import EmojiPicker from "./emoji-picker";
 import Markdown from "./markdown";
+import { useEmojiAutocomplete } from "./emoji-autocomplete";
 
 // --- Minimal in-house markdown-textarea helpers ------------------------
 //
@@ -88,6 +91,15 @@ function insertAtCursor(el: HTMLTextAreaElement, text: string) {
   const { selectionStart: s, selectionEnd: e, value } = el;
   setTextareaValue(el, value.slice(0, s) + text + value.slice(e));
   const caret = s + text.length;
+  el.focus();
+  el.setSelectionRange(caret, caret);
+}
+
+/** Replace the text between `start` and the caret, leaving the caret after it. */
+function replaceToCaret(el: HTMLTextAreaElement, start: number, text: string) {
+  const end = el.selectionStart;
+  setTextareaValue(el, el.value.slice(0, start) + text + el.value.slice(end));
+  const caret = start + text.length;
   el.focus();
   el.setSelectionRange(caret, caret);
 }
@@ -182,6 +194,9 @@ function Editor({
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [pickerVisible, setPickerVisible] = useState(false);
+
+  const autocomplete = useEmojiAutocomplete(textareaRef, { onInsert: replaceToCaret });
 
   const run = (cmd: keyof typeof commands) => () => {
     if (textareaRef.current) commands[cmd](textareaRef.current);
@@ -228,26 +243,55 @@ function Editor({
         <Toolbar.Button value="image" aria-label="image" onClick={() => fileRef.current?.click()}>
           <ImageIcon />
         </Toolbar.Button>
+        <Toolbar.Button
+          value="emoji"
+          aria-label="Emoji"
+          onClick={() => setPickerVisible((visible) => !visible)}
+        >
+          <FaceIcon />
+        </Toolbar.Button>
       </Toolbar.Toolbar>
 
-      <TextareaAutosize
-        ref={textareaRef}
-        name={name}
-        minRows={minRows}
-        required
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        onPaste={(event) => {
-          if (textareaRef.current) {
-            onUploadFiles(textareaRef.current, event, event.clipboardData.files);
-          }
-        }}
-        onDrop={(event) => {
-          if (textareaRef.current) {
-            onUploadFiles(textareaRef.current, event, event.dataTransfer.files);
-          }
-        }}
-      />
+      <div className="editor-emoji-picker">
+        <EmojiPicker
+          open={pickerVisible}
+          style={{ position: "absolute" }}
+          onEmojiSelect={(_event, emoji) => {
+            const el = textareaRef.current;
+            if (el) insertAtCursor(el, emoji);
+            setPickerVisible(false);
+          }}
+        />
+      </div>
+
+      <div className="editor-input">
+        <TextareaAutosize
+          ref={textareaRef}
+          name={name}
+          minRows={minRows}
+          required
+          value={value}
+          onChange={(e) => {
+            setValue(e.target.value);
+            autocomplete.refresh();
+          }}
+          onKeyDown={autocomplete.onKeyDown}
+          onClick={autocomplete.refresh}
+          onBlur={autocomplete.close}
+          onPaste={(event) => {
+            if (textareaRef.current) {
+              onUploadFiles(textareaRef.current, event, event.clipboardData.files);
+            }
+          }}
+          onDrop={(event) => {
+            if (textareaRef.current) {
+              onUploadFiles(textareaRef.current, event, event.dataTransfer.files);
+            }
+          }}
+        />
+
+        {autocomplete.popup}
+      </div>
     </>
   );
 

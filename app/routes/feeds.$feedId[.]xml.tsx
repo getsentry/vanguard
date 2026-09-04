@@ -4,6 +4,7 @@ import { getPostList } from "~/models/post.server";
 import { getPostLink } from "~/components/post-link";
 import invariant from "tiny-invariant";
 import { marked } from "marked";
+import { renderShortcodes } from "~/lib/emoji";
 import { escapeCdata, escapeHtml } from "~/lib/html";
 import summarize from "~/lib/summarize";
 import { buildUrl } from "~/lib/http";
@@ -20,6 +21,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     feedId: params.feedId,
   });
   const baseUrl = buildUrl("/", request);
+
+  // Feed readers have no origin to resolve against, so emoji images need the
+  // absolute URL.
+  const renderer = new marked.Renderer();
+  renderer.text = (text) => renderShortcodes(text, baseUrl.replace(/\/$/, ""));
 
   const rssString = `
     <rss xmlns:blogChannel="${baseUrl}" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
@@ -39,6 +45,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
               <category>${escapeHtml(post.category.name)}</category>
               <content:encoded><![CDATA[${escapeCdata(
                 marked.parse(post.content as string, {
+                  renderer,
                   breaks: true,
                   baseUrl: process.env.BASE_URL,
                 }),

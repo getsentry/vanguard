@@ -2,6 +2,7 @@ import { marked } from "marked";
 import DOMPurify from "isomorphic-dompurify";
 const { sanitize } = DOMPurify;
 import prismjs from "prismjs";
+import { renderShortcodes } from "../lib/emoji";
 import { default as summarizeFn } from "../lib/summarize";
 import { error as logError } from "../lib/logging";
 import { useState, useEffect, useRef } from "react";
@@ -94,6 +95,13 @@ renderer.image = function (href, title, text) {
     </figure>`;
   }
   return `<figure class="not-prose markdown-figure my-6">${html}</figure>`;
+};
+
+// Slack shortcodes become images. This runs on the `text` token rather than
+// over the finished HTML so that `:foo:` inside a code span, a fenced block or
+// an attribute is left exactly as the author typed it.
+renderer.text = function (text) {
+  return renderShortcodes(text);
 };
 
 const tryHighlight = (code: string, lang: string): string | null => {
@@ -224,10 +232,22 @@ export default function Markdown({
       }
     };
 
+    // A shortcode the workspace doesn't have renders as a broken image;
+    // swap it back to the literal `:name:` the author typed. `error` events
+    // don't bubble, hence the capture-phase listener.
+    const handleImageError = (event: Event) => {
+      const target = event.target as HTMLElement;
+      if (target instanceof HTMLImageElement && target.classList.contains("emoji")) {
+        target.replaceWith(document.createTextNode(target.alt));
+      }
+    };
+
     container.addEventListener("click", handleImageClick);
+    container.addEventListener("error", handleImageError, true);
 
     return () => {
       container.removeEventListener("click", handleImageClick);
+      container.removeEventListener("error", handleImageError, true);
     };
   }, [content]); // Re-run when content changes
 

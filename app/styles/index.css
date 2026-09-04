@@ -300,3 +300,43 @@ figcaption {
     opacity: 0.6;
   }
 }
+
+/* Slack custom emoji, rendered inline wherever a reaction or a :shortcode: appears. */
+img.emoji {
+  @apply inline-block align-text-bottom;
+
+  width: 1.25em;
+  height: 1.25em;
+  margin: 0 0.05em;
+  object-fit: contain;
+}
+
+.editor-input {
+  @apply relative;
+}
+
+.editor-emoji-picker {
+  @apply relative z-50;
+}
+
+/* The `:shortcode` typeahead. Positioned at the caret by app/lib/caret-position.ts. */
+.emoji-autocomplete {
+  @apply absolute z-50 m-0 max-h-64 min-w-56 overflow-y-auto rounded border p-1 list-none;
+  @apply bg-bg-light dark:bg-bg-dark border-border-light dark:border-border-dark;
+  @apply shadow-lg;
+}
+
+.emoji-autocomplete button {
+  @apply flex w-full items-center gap-2 rounded px-2 py-1 text-left text-sm font-mono;
+  @apply text-primary-light dark:text-primary-dark;
+}
+
+.emoji-autocomplete button.is-active {
+  @apply bg-violet-300 text-violet-800;
+}
+
+.emoji-autocomplete img {
+  width: 1.25rem;
+  height: 1.25rem;
+  object-fit: contain;
+}

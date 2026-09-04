@@ -9,6 +9,7 @@ import { getSubscriptions } from "~/models/post-subscription.server";
 import summarize from "./summarize";
 import { inlinePrivateImages } from "./email-images";
 import { lightTheme } from "~/styles/theme";
+import { renderShortcodes } from "./emoji";
 import { escapeHtml } from "./html";
 import { getDisplayName } from "./user";
 import { getUserById } from "~/models/user.server";
@@ -25,6 +26,10 @@ renderer.image = function (href, title, text) {
   const baseUrl = process.env.BASE_URL || "";
   const src = href?.startsWith("http") ? href : `${baseUrl}${href}`;
   return `<img src="${src}" title="${title}" alt="${text}" style="max-width:100%;"/>`;
+};
+
+renderer.text = function (text) {
+  return renderShortcodes(text, process.env.BASE_URL || "");
 };
 
 let mailTransport: Transporter<SMTPTransport.SentMessageInfo>;

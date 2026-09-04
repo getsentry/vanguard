@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/emoji-sync",
+      "schedule": "0 8 * * *"
+    }
+  ]
+}

@@ -15,7 +15,8 @@ import ButtonGroup from "~/components/button-group";
 import Button from "~/components/button";
 import { createRef, useState } from "react";
 import HelpText from "~/components/help-text";
-import { isEmoji } from "~/lib/emoji";
+import Emoji from "~/components/emoji";
+import { isKnownEmoji } from "~/models/emoji.server";
 import EmojiPicker from "~/components/emoji-picker";
 import { EmojiButton } from "~/components/emoji-reaction";
 
@@ -90,7 +91,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return Response.json({ errors: { colorHex: "Color is required" } }, { status: 400 });
   }
 
-  if (defaultEmojis.find((v) => !isEmoji(v))) {
+  const emojiChecks = await Promise.all(defaultEmojis.map((v) => isKnownEmoji(v)));
+  if (emojiChecks.some((valid) => !valid)) {
     return Response.json(
       {
         errors: {
@@ -300,7 +302,7 @@ export default function Index() {
                 }}
               >
                 <input type="hidden" name="defaultEmojis" value={emoji} />
-                {emoji}
+                <Emoji value={emoji} />
               </EmojiButton>
             );
           })}

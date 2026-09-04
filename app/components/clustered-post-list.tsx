@@ -1,3 +1,4 @@
+import Emoji from "~/components/emoji";
 import Avatar from "./avatar";
 import PostLink from "./post-link";
 import CategoryTag from "./category-tag";
@@ -59,7 +60,7 @@ export default function ClusteredPostList({
                 </div>
                 <div>
                   {postReactions.map((r) => (
-                    <span key={r.emoji}>{r.emoji}</span>
+                    <Emoji key={r.emoji} value={r.emoji} />
                   ))}
                 </div>
               </div>

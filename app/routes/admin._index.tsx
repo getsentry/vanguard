@@ -13,6 +13,9 @@ export default function Index() {
           <Link to="./comments">Comments</Link>
         </li>
         <li>
+          <Link to="./emoji">Slack Emoji</Link>
+        </li>
+        <li>
           <Link to="./posts">Posts</Link>
         </li>
         <li>

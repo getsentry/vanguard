@@ -1,3 +1,4 @@
+import Emoji from "~/components/emoji";
 import Avatar from "./avatar";
 import Content from "./content";
 import PostLink from "./post-link";
@@ -88,7 +89,7 @@ export default function Post({
             {summary && (
               <div className="text-right flex-grow">
                 {reactions?.map((r) => (
-                  <span key={r.emoji}>{r.emoji}</span>
+                  <Emoji key={r.emoji} value={r.emoji} />
                 ))}
               </div>
             )}
