@@ -85,6 +85,41 @@ describe("POST /api/posts/$postId/reactions", () => {
     expect(reactions.length).toEqual(0);
   });
 
+  it("creates a reaction from a Slack shortcode", async () => {
+    await Fixtures.SlackEmoji({ name: "shipit" });
+
+    const response: Response = await action({
+      request: await buildRequest(
+        `http://localhost/api/posts/${post.id}/reactions`,
+        { method: "POST", body: JSON.stringify({ emoji: ":shipit:" }) },
+        { user: DefaultFixtures.DEFAULT_USER },
+      ),
+      params: { postId: post.id },
+      context: { user: DefaultFixtures.DEFAULT_USER },
+    });
+
+    expect(response.status).toBe(200);
+    expect((await response.json()).delta).toBe(1);
+
+    const reactions = await db.select().from(postReactions);
+    expect(reactions[0].emoji).toBe(":shipit:");
+  });
+
+  it("rejects a shortcode the workspace does not have", async () => {
+    const response: Response = await action({
+      request: await buildRequest(
+        `http://localhost/api/posts/${post.id}/reactions`,
+        { method: "POST", body: JSON.stringify({ emoji: ":nope:" }) },
+        { user: DefaultFixtures.DEFAULT_USER },
+      ),
+      params: { postId: post.id },
+      context: { user: DefaultFixtures.DEFAULT_USER },
+    });
+
+    expect(response.status).toBe(400);
+    expect(await db.select().from(postReactions)).toEqual([]);
+  });
+
   it("does not delete differing emojis", async () => {
     await db.insert(postReactions).values({
       emoji: HEART,

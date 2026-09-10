@@ -1,13 +1,23 @@
 import type { CSSProperties, ComponentType } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { EmojiClickData } from "emoji-picker-react";
+
+import { toShortcode } from "~/lib/emoji";
+import { useSlackEmojis } from "~/lib/use-slack-emojis";
 
 // emoji-picker-react v4 touches browser APIs at module init, so it can't be
 // evaluated during SSR. Dynamically import on the client and render nothing
 // until the module resolves.
+type CustomEmoji = {
+  names: string[];
+  imgUrl: string;
+  id: string;
+};
+
 type PickerProps = {
   open?: boolean;
   style?: CSSProperties;
+  customEmojis?: CustomEmoji[];
   onEmojiClick?: (emojiData: EmojiClickData, event: MouseEvent) => void;
 };
 
@@ -21,6 +31,12 @@ export default function EmojiPicker({
   style?: CSSProperties;
 }) {
   const [Picker, setPicker] = useState<ComponentType<PickerProps> | null>(null);
+  const slackEmojis = useSlackEmojis();
+
+  const customEmojis = useMemo(
+    () => slackEmojis.map(({ name, url }) => ({ names: [name], imgUrl: url, id: name })),
+    [slackEmojis],
+  );
 
   useEffect(() => {
     import("emoji-picker-react").then((mod) => {
@@ -35,7 +51,11 @@ export default function EmojiPicker({
     <Picker
       open={open}
       style={style}
-      onEmojiClick={(emojiData, event) => onEmojiSelect(event, emojiData.emoji)}
+      customEmojis={customEmojis}
+      onEmojiClick={(emojiData, event) =>
+        // Custom emoji have no codepoint, so store the Slack shortcode instead.
+        onEmojiSelect(event, emojiData.isCustom ? toShortcode(emojiData.names[0]) : emojiData.emoji)
+      }
     />
   );
 }

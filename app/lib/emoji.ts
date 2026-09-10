@@ -16,3 +16,62 @@ export const isEmoji = (value: string): boolean => {
   }
   return false;
 };
+
+// --- Slack shortcodes ---------------------------------------------------
+//
+// Slack custom emoji have no unicode codepoint, so a reaction stores the
+// shortcode Slack itself uses (":shipit:") instead of a character. Standard
+// emoji keep being stored as the literal character, which keeps every row
+// written before custom emoji existed valid.
+
+// Slack allows lowercase letters, digits and `_ - + '` in an emoji name, and
+// caps the length at 100 characters.
+const SHORTCODE_BODY = "[a-z0-9_+'-]{1,100}";
+
+export const SHORTCODE_PATTERN = new RegExp(`^:(${SHORTCODE_BODY}):$`, "i");
+
+/** A fresh global matcher. Global regexes carry `lastIndex`, so never share one. */
+export const shortcodePattern = (): RegExp => new RegExp(`:(${SHORTCODE_BODY}):`, "gi");
+
+export const isShortcode = (value: string): boolean => SHORTCODE_PATTERN.test(value);
+
+/** `":shipit:"` → `"shipit"`, anything else → `null`. */
+export const shortcodeName = (value: string): string | null =>
+  SHORTCODE_PATTERN.exec(value)?.[1].toLowerCase() ?? null;
+
+export const toShortcode = (name: string): string => `:${name.toLowerCase()}:`;
+
+/** True for any value storable as a reaction: a unicode emoji or a shortcode. */
+export const isEmojiValue = (value: string): boolean => isEmoji(value) || isShortcode(value);
+
+/** Vanguard's own redirect to the Slack CDN. Safe to embed in HTML and email. */
+export const emojiImageUrl = (name: string, baseUrl = ""): string =>
+  `${baseUrl}/emoji/${encodeURIComponent(name.toLowerCase())}`;
+
+export type ShortcodeOptions = {
+  /** Prefix for the generated `src`. Required anywhere the HTML leaves the app. */
+  baseUrl?: string;
+  /**
+   * Membership test for emoji names. When given, a shortcode that fails it is
+   * left as the literal text the author typed.
+   *
+   * Server-rendered destinations without JavaScript (email, RSS) must pass one:
+   * they have the emoji index available and no way to recover from an `<img>`
+   * that 404s, so an unknown name would stay a broken image forever. The
+   * browser omits it and relies on the error handler in
+   * app/components/markdown.tsx to swap a failed image back to its `alt` text.
+   */
+  isKnown?: (name: string) => boolean;
+};
+
+/**
+ * Replace every `:shortcode:` in a chunk of already-escaped HTML text with an
+ * `<img>`.
+ */
+export const renderShortcodes = (text: string, options: ShortcodeOptions = {}): string =>
+  text.replace(shortcodePattern(), (match, name: string) => {
+    const lowered = name.toLowerCase();
+    if (options.isKnown && !options.isKnown(lowered)) return match;
+    const src = emojiImageUrl(lowered, options.baseUrl ?? "");
+    return `<img class="emoji" src="${src}" alt="${match}" title="${match}" />`;
+  });

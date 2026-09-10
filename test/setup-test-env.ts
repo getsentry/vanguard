@@ -36,6 +36,11 @@ const createDefaultUser = async () => {
 beforeEach(async () => {
   await clearDatabase();
 
+  // The Slack emoji index is memoised in module scope; drop it so a test never
+  // sees the emoji another test inserted.
+  const { clearEmojiCache } = await import("~/models/emoji.server");
+  clearEmojiCache();
+
   (global as any).DefaultFixtures = {};
   (global as any).DefaultFixtures.DEFAULT_USER = await createDefaultUser();
 });

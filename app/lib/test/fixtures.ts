@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { faker } from "@faker-js/faker";
 import { createId } from "@paralleldrive/cuid2";
 import { db } from "~/db/client";
-import { categories, feeds, postComments, posts, users } from "~/db/schema";
+import { categories, feeds, postComments, posts, slackEmojis, users } from "~/db/schema";
 
 // Suffix faker output with a cuid to guarantee uniqueness across fixture calls
 // (faker has a small word list and will collide within a single test run).
@@ -83,4 +83,17 @@ export const PostComment = async ({ ...data }: Record<string, any> = {}) => {
   // Fetch author for compatibility with tests that expect comment.author
   const authorRows = await db.select().from(users).where(eq(users.id, comment.authorId));
   return { ...comment, author: authorRows[0] ?? null };
+};
+
+export const SlackEmoji = async ({ ...data }: Record<string, any> = {}) => {
+  const name = (data.name ?? uniq(faker.lorem.word())).toLowerCase();
+  const rows = await db
+    .insert(slackEmojis)
+    .values({
+      url: data.aliasFor ? null : `https://emoji.slack-edge.com/T0/${name}/abc123.png`,
+      ...data,
+      name,
+    })
+    .returning();
+  return rows[0];
 };

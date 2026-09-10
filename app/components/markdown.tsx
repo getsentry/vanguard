@@ -2,6 +2,7 @@ import { marked } from "marked";
 import DOMPurify from "isomorphic-dompurify";
 const { sanitize } = DOMPurify;
 import prismjs from "prismjs";
+import { renderShortcodes } from "../lib/emoji";
 import { default as summarizeFn } from "../lib/summarize";
 import { error as logError } from "../lib/logging";
 import { useState, useEffect, useRef } from "react";
@@ -94,6 +95,17 @@ renderer.image = function (href, title, text) {
     </figure>`;
   }
   return `<figure class="not-prose markdown-figure my-6">${html}</figure>`;
+};
+
+// Slack shortcodes become images. This runs on the `text` token rather than
+// over the finished HTML so that `:foo:` inside a code span, a fenced block or
+// an attribute is left exactly as the author typed it.
+//
+// No `isKnown` test here: the browser has no emoji index, so every shortcode is
+// rendered optimistically and the error handler below swaps back the ones that
+// turn out not to exist.
+renderer.text = function (text) {
+  return renderShortcodes(text);
 };
 
 const tryHighlight = (code: string, lang: string): string | null => {
@@ -224,10 +236,34 @@ export default function Markdown({
       }
     };
 
+    // A shortcode the workspace doesn't have renders as a broken image;
+    // swap it back to the literal `:name:` the author typed. `error` events
+    // don't bubble, hence the capture-phase listener.
+    const replaceWithAltText = (img: HTMLImageElement) => {
+      img.replaceWith(document.createTextNode(img.alt));
+    };
+
+    const handleImageError = (event: Event) => {
+      const target = event.target as HTMLElement;
+      if (target instanceof HTMLImageElement && target.classList.contains("emoji")) {
+        replaceWithAltText(target);
+      }
+    };
+
     container.addEventListener("click", handleImageClick);
+    container.addEventListener("error", handleImageError, true);
+
+    // The markup is server-rendered, so emoji images start loading while the
+    // HTML is parsed, long before this effect runs. `error` has already fired
+    // for anything that failed by now and does not replay, so catch those with
+    // a sweep: a finished image that decoded to nothing is a failed one.
+    container.querySelectorAll<HTMLImageElement>("img.emoji").forEach((img) => {
+      if (img.complete && img.naturalWidth === 0) replaceWithAltText(img);
+    });
 
     return () => {
       container.removeEventListener("click", handleImageClick);
+      container.removeEventListener("error", handleImageError, true);
     };
   }, [content]); // Re-run when content changes
 

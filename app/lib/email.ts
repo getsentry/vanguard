@@ -9,8 +9,10 @@ import { getSubscriptions } from "~/models/post-subscription.server";
 import summarize from "./summarize";
 import { inlinePrivateImages } from "./email-images";
 import { lightTheme } from "~/styles/theme";
+import { renderShortcodes } from "./emoji";
 import { escapeHtml } from "./html";
 import { getDisplayName } from "./user";
+import { getKnownEmojiNames } from "~/models/emoji.server";
 import { getUserById } from "~/models/user.server";
 import type { User } from "~/models/user.server";
 
@@ -19,12 +21,28 @@ export type EmailConfig = {
   subjectPrefix?: string;
 };
 
-const renderer = new marked.Renderer();
+// Built per message rather than once at module load, because the shortcode
+// renderer closes over the set of emoji that currently resolve.
+const createRenderer = (knownEmoji: Set<string>) => {
+  const renderer = new marked.Renderer();
 
-renderer.image = function (href, title, text) {
-  const baseUrl = process.env.BASE_URL || "";
-  const src = href?.startsWith("http") ? href : `${baseUrl}${href}`;
-  return `<img src="${src}" title="${title}" alt="${text}" style="max-width:100%;"/>`;
+  renderer.image = function (href, title, text) {
+    const baseUrl = process.env.BASE_URL || "";
+    const src = href?.startsWith("http") ? href : `${baseUrl}${href}`;
+    return `<img src="${src}" title="${title}" alt="${text}" style="max-width:100%;"/>`;
+  };
+
+  // Mail clients run no JavaScript, so a shortcode this workspace doesn't have
+  // would sit in the inbox as a broken image. Render only names that resolve
+  // and leave the rest as the text the author typed.
+  renderer.text = function (text) {
+    return renderShortcodes(text, {
+      baseUrl: process.env.BASE_URL || "",
+      isKnown: (name) => knownEmoji.has(name),
+    });
+  };
+
+  return renderer;
 };
 
 let mailTransport: Transporter<SMTPTransport.SentMessageInfo>;
@@ -93,7 +111,7 @@ export const notify = async ({
   const subject = config.subjectPrefix ? `${config.subjectPrefix} ${post.title}` : post.title;
 
   try {
-    const rawHtml = buildPostEmail(post);
+    const rawHtml = buildPostEmail(post, await getKnownEmojiNames());
     const { html, attachments } = await inlinePrivateImages(rawHtml);
     await transport.sendMail({
       from: `"Sentry Vanguard" <${process.env.SMTP_FROM}>`,
@@ -122,10 +140,10 @@ const resolveAvatarUrl = (picture: string | null | undefined): string => {
   return `${process.env.BASE_URL}${picture}`;
 };
 
-const buildPostEmail = (post: PostQueryType): string => {
+const buildPostEmail = (post: PostQueryType, knownEmoji: Set<string>): string => {
   const postUrl = `${process.env.BASE_URL}/p/${post.id}`;
   const html = marked.parse(post.content as string, {
-    renderer,
+    renderer: createRenderer(knownEmoji),
     breaks: true,
     baseUrl: process.env.BASE_URL,
   });

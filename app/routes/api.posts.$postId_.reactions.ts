@@ -2,7 +2,7 @@ import type { ActionFunctionArgs } from "react-router";
 import invariant from "tiny-invariant";
 
 import { requireUserId } from "~/services/auth.server";
-import { isEmoji } from "~/lib/emoji";
+import { isKnownEmoji } from "~/models/emoji.server";
 import { togglePostReaction } from "~/models/post-reactions.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -15,10 +15,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const { emoji } = await request.json();
 
-  if (typeof emoji !== "string" || emoji.length === 0 || !isEmoji(emoji)) {
+  if (typeof emoji !== "string" || emoji.length === 0 || !(await isKnownEmoji(emoji))) {
     return Response.json({ errors: { emoji: "Emoji is required" } }, { status: 400 });
   }
-  // TODO: validate emoji
 
   const delta = await togglePostReaction({
     postId: params.postId,

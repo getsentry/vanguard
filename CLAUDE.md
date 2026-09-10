@@ -219,18 +219,41 @@ export async function announcePost(post: PostQueryType) {
 
 The helper calls Vercel's `waitUntil` in production; in local dev, it just lets the promise run with a console-level error handler.
 
+### Emoji
+
+Reactions and post/comment bodies accept both standard unicode emoji and the
+workspace's Slack custom emoji.
+
+- **Storage:** a unicode emoji is stored as the literal character; a custom
+  emoji is stored as the Slack shortcode (`:shipit:`). Both live in
+  `PostReaction.emoji` and `Category.defaultEmojis`.
+- **Mirror:** `SlackEmoji` mirrors Slack's `emoji.list`. An admin refreshes it
+  at `/admin/emoji`; it needs `SLACK_API_TOKEN` (a bot token with `emoji:read`).
+  `app/models/emoji.server.ts` caches the resolved index in module scope for 5
+  minutes, so a sync can take that long to reach every serverless instance.
+- **Rendering:** `<Emoji value={...} />` for a stored value, and
+  `renderShortcodes()` (hooked into marked's `text` renderer) for post and
+  comment bodies. Both point at `/emoji/:name`, an unauthenticated redirect to
+  the Slack CDN so email and RSS can embed it. An unknown name 404s and falls
+  back to the literal `:name:` text.
+- **Validation:** `isKnownEmoji()` from `app/models/emoji.server.ts`, not
+  `isEmoji()`. It rejects shortcodes the workspace does not have.
+- **Scheduled sync:** `vercel.json` runs `/api/cron/emoji-sync` daily. The route
+  takes no session; it authenticates the `Authorization: Bearer $CRON_SECRET`
+  header Vercel Cron sends, and fails closed when `CRON_SECRET` is unset.
+
 ## Environment Variables
 
 See `.env.example` for the full current list. High level:
 
-| Category | Vars                                                                                                   |
-| -------- | ------------------------------------------------------------------------------------------------------ |
-| Core     | `DATABASE_URL`, `SESSION_SECRET`, `BASE_URL`                                                           |
-| Auth     | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_HD`                                                |
-| Storage  | `BLOB_READ_WRITE_TOKEN` (run `vercel env pull` after linking)                                          |
-| Email    | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`                                        |
-| Slack    | `SLACK_WEBHOOK_URL`, `SLACK_CHANNEL`, `SLACK_USERNAME`, `SLACK_ICON_URL`, `GIBPOTATO_API_KEY`          |
-| Sentry   | `SENTRY_DSN` (server), `VITE_SENTRY_DSN` (client), `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT` |
+| Category | Vars                                                                                                             |
+| -------- | ---------------------------------------------------------------------------------------------------------------- |
+| Core     | `DATABASE_URL`, `SESSION_SECRET`, `BASE_URL`                                                                     |
+| Auth     | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_HD`                                                          |
+| Storage  | `BLOB_READ_WRITE_TOKEN` (run `vercel env pull` after linking)                                                    |
+| Email    | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`                                                  |
+| Slack    | `SLACK_WEBHOOK_URL`, `SLACK_CHANNEL`, `SLACK_USERNAME`, `SLACK_ICON_URL`, `SLACK_API_TOKEN`, `GIBPOTATO_API_KEY` |
+| Sentry   | `SENTRY_DSN` (server), `VITE_SENTRY_DSN` (client), `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT`           |
 
 ## Testing
 

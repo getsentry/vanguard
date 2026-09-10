@@ -136,10 +136,23 @@ export const postReactions = pgTable(
       .notNull()
       .references(() => users.id),
     createdAt: timestamp("createdAt").notNull().defaultNow(),
-    emoji: varchar("emoji", { length: 8 }).notNull(),
+    // Either a literal unicode emoji ("❤️") or a Slack shortcode (":shipit:").
+    // Slack caps custom emoji names at 100 characters.
+    emoji: varchar("emoji", { length: 102 }).notNull(),
   },
   (t) => [unique().on(t.postId, t.authorId, t.emoji)],
 );
+
+// Mirror of the workspace's Slack emoji, refreshed from `emoji.list`. A row is
+// either a custom emoji (`url` set) or an alias (`aliasFor` set) — Slack aliases
+// can point at another custom emoji or at a standard unicode name, so
+// resolution has to follow the chain and may fall off the end of this table.
+export const slackEmojis = pgTable("SlackEmoji", {
+  name: varchar("name", { length: 100 }).primaryKey(),
+  url: text("url"),
+  aliasFor: varchar("aliasFor", { length: 100 }),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+});
 
 export const postComments = pgTable("PostComment", {
   id: text("id")
