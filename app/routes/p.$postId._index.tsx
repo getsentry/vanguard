@@ -36,11 +36,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   };
 }
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  if (!data) return [];
+export const meta: MetaFunction<typeof loader> = ({ loaderData }) => {
+  if (!loaderData) return [];
   return [
     {
-      title: `${data.post.title} | Vanguard`,
+      title: `${loaderData.post.title} | Vanguard`,
     },
   ];
 };
