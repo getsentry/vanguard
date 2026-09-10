@@ -15,7 +15,7 @@ export function useMatchesData(id: string): Record<string, unknown> | undefined 
     () => matchingRoutes.find((route) => route.id === id),
     [matchingRoutes, id],
   );
-  return route?.data as Record<string, unknown> | undefined;
+  return route?.loaderData as Record<string, unknown> | undefined;
 }
 
 function isUser(user: any): user is User {

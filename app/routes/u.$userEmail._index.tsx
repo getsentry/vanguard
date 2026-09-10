@@ -29,11 +29,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   return { currentUser, user, postList };
 }
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  if (!data) return [];
+export const meta: MetaFunction<typeof loader> = ({ loaderData }) => {
+  if (!loaderData) return [];
   return [
     {
-      title: `${data.user.name} | Vanguard`,
+      title: `${loaderData.user.name} | Vanguard`,
     },
   ];
 };
