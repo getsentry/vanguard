@@ -91,7 +91,8 @@ export default function CommentForm({
         }
       }}
       onChange={(e) => {
-        const target = e.target as HTMLInputElement;
+        const target = e.target;
+        if (!(target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement)) return;
         setStoredDraft({ ...storedDraft, [target.name]: target.value });
       }}
     >
