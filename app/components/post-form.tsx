@@ -150,7 +150,15 @@ export default function PostForm({
         setStoredDraft({});
       }}
       onChange={(e) => {
-        const target = e.target as HTMLInputElement;
+        const target = e.target;
+        if (
+          !(
+            target instanceof HTMLInputElement ||
+            target instanceof HTMLTextAreaElement ||
+            target instanceof HTMLSelectElement
+          )
+        )
+          return;
         const match = target.name.match(/^meta\[(.+)\]$/);
         const value = target.value;
         const additions = match
