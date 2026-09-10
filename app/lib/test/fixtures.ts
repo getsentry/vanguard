@@ -13,7 +13,7 @@ export const User = async ({ ...data } = {}) => {
   const rows = await db
     .insert(users)
     .values({
-      name: faker.name.firstName(),
+      name: faker.person.firstName(),
       email: faker.internet.email(),
       ...data,
     })
