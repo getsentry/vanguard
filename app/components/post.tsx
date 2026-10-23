@@ -13,6 +13,7 @@ import DraftNote from "./draft-note";
 import Link from "./link";
 import SendTestEmailButton from "./send-test-email-button";
 import { getDisplayName } from "~/lib/user";
+import readingTime from "~/lib/reading-time";
 
 const URL_REGEXP = new RegExp(
   /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)/g,
@@ -159,10 +160,4 @@ const CommaSeparated = ({ children }) => {
     );
   }
   return children;
-};
-
-const readingTime = (content: string, plural: boolean = true): string => {
-  const time = Math.ceil(content.length / 2000);
-  if (time > 60) return time / 60 + " hour" + (plural && time / 60 > 1 ? "s" : "");
-  return time + " minute" + (plural && time > 1 ? "s" : "");
 };
