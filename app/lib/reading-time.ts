@@ -1,17 +1,20 @@
+import { marked } from "marked";
+import DOMPurify from "isomorphic-dompurify";
+const { sanitize } = DOMPurify;
+
 const WORDS_PER_MINUTE = 230;
 
 /**
- * Strips everything a reader doesn't read (embedded SVG/HTML, image embeds,
- * link URLs) from markdown so only visible words count toward reading time.
+ * Renders the markdown and keeps only the text a reader sees, so embedded
+ * SVG/math/scripts, image embeds, and link URLs don't count toward reading
+ * time. Rendering first means tags mentioned inside code stay as plain text.
  */
 const readableText = (content: string): string => {
-  return content
-    .replace(/<(svg|math|style|script)\b[\s\S]*?<\/\1>/gi, " ")
-    .replace(/<!--[\s\S]*?-->/g, " ")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/!\[([^\]]*)\]\([^)]*\)/g, " ")
-    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
-    .replace(/https?:\/\/\S+/g, " ");
+  const dom = sanitize(marked.parse(content), {
+    FORBID_TAGS: ["svg", "math", "style", "script"],
+    RETURN_DOM: true,
+  });
+  return (dom.textContent || "").replace(/https?:\/\/\S+/g, " ");
 };
 
 export default (content: string, plural: boolean = true): string => {

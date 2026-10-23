@@ -13,6 +13,15 @@ describe("readingTime", () => {
     expect(readingTime(`![diagram](${url})\n\n[a link](${url})\n\n${words(228)}`)).toBe("1 minute");
   });
 
+  test("counts tags mentioned in code as text", async () => {
+    const content = `Use \`<svg>\` for diagrams.\n\n${words(230)}\n\n\`\`\`html\n</svg>\n\`\`\``;
+    expect(readingTime(content)).toBe("2 minutes");
+  });
+
+  test("ignores html comments", async () => {
+    expect(readingTime(`<!-- ${words(500)} -->\n\n${words(230)}`)).toBe("1 minute");
+  });
+
   test("counts words at 230 per minute", async () => {
     expect(readingTime(words(231))).toBe("2 minutes");
     expect(readingTime(words(231), false)).toBe("2 minute");
